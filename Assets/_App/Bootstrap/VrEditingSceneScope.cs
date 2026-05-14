@@ -1,13 +1,17 @@
 using VContainer;
 using VContainer.Unity;
+using UnityEngine;
 
 public class VrEditingSceneScope : LifetimeScope
 {
+    [SerializeField] private PanelRegistry _panelRegistry;
+
     protected override void Configure(IContainerBuilder builder)
     {
         builder.Register<EventBus>(Lifetime.Scoped);
-        // Phase 2: PanelRegistry, UiPanelManager
-        // Phase 3: UnsavedChangesGuard
+        builder.RegisterInstance(_panelRegistry);
+        builder.RegisterInstance(Camera.main);
+        builder.Register<UiPanelManager>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         // Phase 4: DemoAssetCatalog, AssetImporter
         // Phase 5: SceneGraph, SelectionManager, CommandStack, GizmoController
         // Phase 6: RigRuntime
