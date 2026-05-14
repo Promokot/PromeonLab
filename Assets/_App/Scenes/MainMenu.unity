@@ -598,7 +598,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5083509354361831743, guid: c2998be89a14cf24a80b298bc8f01534, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.047082603
+      value: 1.815088
       objectReference: {fileID: 0}
     - target: {fileID: 5101169019142251035, guid: c2998be89a14cf24a80b298bc8f01534, type: 3}
       propertyPath: m_AnchorMax.x
@@ -612,6 +612,10 @@ PrefabInstance:
       propertyPath: m_AnchorMin.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5405253009449019055, guid: c2998be89a14cf24a80b298bc8f01534, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 1143832967}
     - target: {fileID: 7940337115656345640, guid: c2998be89a14cf24a80b298bc8f01534, type: 3}
       propertyPath: m_PresetInfoIsWorld
       value: 1
@@ -956,6 +960,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+--- !u!20 &1143832967 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 1874126578912110313, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+  m_PrefabInstance: {fileID: 1143832966}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1143832968 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 996802551602020272, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
@@ -1205,6 +1214,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MainMenuPanel
       objectReference: {fileID: 0}
+    - target: {fileID: 7698621720530460033, guid: e3861eafa2651344f93a380e15d9bd09, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 1143832967}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
