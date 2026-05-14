@@ -12,4 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf920f1c0606a6c4ca8cb6082d5abf0f, type: 3}
   m_Name: DefaultPanelRegistry
   m_EditorClassIdentifier: Subsystems.SpatialUi::PanelRegistry
-  _panels: []
+  _panels:
+  - Id: 1
+    Prefab: {fileID: 7715935014661824792, guid: c8136c8b800227948b691ce8f7e0e448, type: 3}
+    VisibleInModes: 01000000
