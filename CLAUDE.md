@@ -20,8 +20,9 @@ This is a Unity project — there is no CLI build script. All compilation, build
 
 - **Build target:** Android (Meta Quest standalone)
 - **XR configuration:** ProjectSettings/XR (OpenXR + Meta OpenXR loaders)
-- **Tests:** Run via Unity Test Runner (`Window > General > Test Runner`); subsystem tests live in `Subsystems/{Name}/Tests/`
-- **Editor-only tooling:** `Assets/Editor/` folders; excluded from builds automatically via `.asmdef` platform constraints
+- **Tests:** Run via Unity Test Runner (`Window > General > Test Runner`); subsystem tests live in `_App/Subsystems/{Name}/Tests/`
+- **Editor-only tooling:** `Assets/_App/Editor/` folder; excluded from builds automatically via `.asmdef` platform constraints
+- **Third-party packages:** Imported into `Assets/Plugins/` or via Package Manager — keep `Assets/` root clean for packs
 
 ## Architecture
 
@@ -47,7 +48,7 @@ Child scopes may depend on parent registrations; **never the reverse**. `Feature
 
 ### 13 Subsystems
 
-Located in `Assets/Subsystems/`. Each is isolated behind interfaces declared in `Assets/_Shared/Interfaces/`.
+Located in `Assets/_App/Subsystems/`. Each is isolated behind interfaces declared in `Assets/_App/_Shared/Interfaces/`.
 
 | Subsystem | Core Responsibility |
 |---|---|
@@ -95,16 +96,20 @@ Application.persistentDataPath/scenes/{SceneId}/
 
 ```
 Assets/
-├── _App/Bootstrap|Scenes|Documentation   ← bootstrap & entry points
-├── _Shared/Extensions|Interfaces|Models|UI ← cross-subsystem abstractions only
-├── Subsystems/{Name}/
-│   ├── {Name}.cs         ← primary façade
-│   ├── Data/             ← structs, enums, ScriptableObjects
-│   ├── UI/               ← subsystem-specific panels/views
-│   ├── Tests/
-│   └── Editor/
-├── Editor/               ← project-wide editor-only code
-└── Resources/            ← minimise use; prefer prefab references
+├── _App/                             ← ALL project code lives here
+│   ├── Bootstrap/                    ← LifetimeScopes, AppBootstrap, scene loader
+│   ├── DemoAssets/                   ← pre-bundled FBX prefabs + DemoAssetCatalog SO
+│   ├── _Shared/Events|Interfaces|Models|UI  ← cross-subsystem abstractions only
+│   ├── Subsystems/{Name}/
+│   │   ├── {Name}.cs                 ← primary façade (if needed)
+│   │   ├── Data/                     ← structs, enums, ScriptableObjects
+│   │   ├── UI/                       ← subsystem-specific panels/views
+│   │   ├── Tests/
+│   │   └── Editor/
+│   ├── Editor/                       ← project-wide editor-only code
+│   └── _App.asmdef                   ← composition root assembly
+├── Plugins/                          ← third-party plugins (e.g. SimpleFileBrowser)
+└── Resources/                        ← minimise use; prefer prefab references
 ```
 
 ## Key Conventions
