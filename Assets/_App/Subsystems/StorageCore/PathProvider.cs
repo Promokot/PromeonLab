@@ -5,6 +5,7 @@ public class PathProvider
 {
     private readonly string _root;
 
+    [VContainer.Inject]
     public PathProvider() : this(Application.persistentDataPath) { }
 
     public PathProvider(string root) => _root = root;
