@@ -1,1 +1,1 @@
-{ "name": "Subsystems.SpatialUi", "references": ["_Shared", "VContainer", "Unity.XR.Interaction.Toolkit"], "autoReferenced": false }
+{ "name": "Subsystems.SpatialUi", "references": ["_Shared", "VContainer", "Unity.XR.Interaction.Toolkit", "Subsystems.ModeOrchestrator", "Unity.TextMeshPro"], "autoReferenced": false }
