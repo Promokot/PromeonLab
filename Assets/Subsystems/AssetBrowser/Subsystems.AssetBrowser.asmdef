@@ -1,1 +1,1 @@
-{ "name": "Subsystems.AssetBrowser", "references": ["_Shared", "VContainer", "SimpleFileBrowser.Runtime", "Subsystems.StorageCore", "Subsystems.ModeOrchestrator", "Unity.TextMeshPro"], "autoReferenced": false }
+{ "name": "Subsystems.AssetBrowser", "references": ["_Shared", "VContainer", "SimpleFileBrowser.Runtime", "Subsystems.StorageCore", "Subsystems.ModeOrchestrator", "Subsystems.SceneComposition", "Unity.TextMeshPro"], "autoReferenced": false }

@@ -3,16 +3,25 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using VContainer;
 
 public class AssetImporter
 {
     private readonly DemoAssetCatalog _catalog;
     private readonly AppStorage _storage;
+    private readonly SceneGraph _sceneGraph;
+    private readonly IObjectResolver _container;
 
-    public AssetImporter(DemoAssetCatalog catalog, AppStorage storage)
+    public AssetImporter(
+        DemoAssetCatalog catalog,
+        AppStorage storage,
+        SceneGraph sceneGraph,
+        IObjectResolver container)
     {
-        _catalog = catalog;
-        _storage = storage;
+        _catalog    = catalog;
+        _storage    = storage;
+        _sceneGraph = sceneGraph;
+        _container  = container;
     }
 
     public async Task<(GameObject Instance, AssetEntry Entry)> ImportAsync(
@@ -31,6 +40,15 @@ public class AssetImporter
         var instance = UnityEngine.Object.Instantiate(
             demoEntry.Prefab, Vector3.zero, Quaternion.identity);
         instance.name = Path.GetFileNameWithoutExtension(fileName);
+
+        var collider = instance.GetComponentInChildren<Collider>();
+        if (collider == null)
+            collider = instance.AddComponent<BoxCollider>();
+
+        instance.AddComponent<SelectionInteractor>();
+        _container.InjectGameObject(instance);
+
+        _sceneGraph.AddNode(instance);
 
         var assetEntry = new AssetEntry
         {

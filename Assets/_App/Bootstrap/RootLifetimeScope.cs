@@ -11,7 +11,7 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<PathProvider>(Lifetime.Singleton);
         builder.Register<AppStorage>(Lifetime.Singleton);
         builder.RegisterInstance(_demoAssetCatalog);
-        builder.Register<AssetImporter>(Lifetime.Singleton);
+        // AssetImporter registered in VrEditingSceneScope (needs SceneGraph)
         // AnimationClock — Phase 7
     }
 }
