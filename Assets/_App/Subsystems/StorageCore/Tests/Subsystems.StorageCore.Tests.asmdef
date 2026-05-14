@@ -1,6 +1,6 @@
 {
   "name": "Subsystems.StorageCore.Tests",
-  "references": ["_Shared", "Subsystems.StorageCore", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+  "references": ["_Shared", "Subsystems.StorageCore"],
   "includePlatforms": ["Editor"],
   "optionalUnityReferences": ["TestAssemblies"],
   "autoReferenced": false

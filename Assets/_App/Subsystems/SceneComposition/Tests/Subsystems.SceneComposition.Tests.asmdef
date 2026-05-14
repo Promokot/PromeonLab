@@ -1,6 +1,6 @@
 {
   "name": "Subsystems.SceneComposition.Tests",
-  "references": ["_Shared", "Subsystems.SceneComposition", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+  "references": ["_Shared", "Subsystems.SceneComposition"],
   "includePlatforms": ["Editor"],
   "optionalUnityReferences": ["TestAssemblies"],
   "autoReferenced": false
