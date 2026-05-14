@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
 public class UiPanelManager : IStartable, IDisposable
@@ -8,15 +9,17 @@ public class UiPanelManager : IStartable, IDisposable
     private readonly EventBus _bus;
     private readonly PanelRegistry _registry;
     private readonly Transform _cameraTransform;
+    private readonly IObjectResolver _resolver;
 
     private readonly Dictionary<PanelId, SpatialPanel> _panels = new();
     private AppMode _currentMode = AppMode.VrEditing;
 
-    public UiPanelManager(EventBus bus, PanelRegistry registry, Camera mainCamera)
+    public UiPanelManager(EventBus bus, PanelRegistry registry, Camera mainCamera, IObjectResolver resolver)
     {
         _bus             = bus;
         _registry        = registry;
         _cameraTransform = mainCamera.transform;
+        _resolver        = resolver;
     }
 
     public void Start()
@@ -34,7 +37,7 @@ public class UiPanelManager : IStartable, IDisposable
     {
         foreach (var entry in _registry.Panels)
         {
-            var panel = UnityEngine.Object.Instantiate(entry.Prefab);
+            var panel = _resolver.Instantiate(entry.Prefab);
             panel.Init(entry.Id, _cameraTransform);
             _panels[entry.Id] = panel;
         }
