@@ -2,14 +2,12 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
-using TMPro;
 
 public class ScenePickerView : MonoBehaviour
 {
     [SerializeField] private Transform _listRoot;
     [SerializeField] private GameObject _sceneItemPrefab;
-    [SerializeField] private Button _createButton;
-    [SerializeField] private TMP_InputField _nameInput;
+    [SerializeField] private MainMenuPanel _menuPanel;
 
     private AppStorage _storage;
     private EventBus _bus;
@@ -25,9 +23,11 @@ public class ScenePickerView : MonoBehaviour
 
     private void Start()
     {
-        _createButton.onClick.AddListener(OnCreateClicked);
+        _menuPanel.CreateRequested += OnCreateRequested;
         Refresh();
     }
+
+    private void OnDestroy() => _menuPanel.CreateRequested -= OnCreateRequested;
 
     private void Refresh()
     {
@@ -41,7 +41,7 @@ public class ScenePickerView : MonoBehaviour
     private void SpawnSceneItem(string sceneId)
     {
         var item  = Instantiate(_sceneItemPrefab, _listRoot);
-        var label = item.GetComponentInChildren<TMP_Text>();
+        var label = item.GetComponentInChildren<TMPro.TMP_Text>();
         if (label != null) label.text = sceneId;
 
         var btn = item.GetComponentInChildren<Button>();
@@ -53,11 +53,10 @@ public class ScenePickerView : MonoBehaviour
             });
     }
 
-    private async void OnCreateClicked()
+    private async void OnCreateRequested(string sceneName)
     {
-        var name = _nameInput.text;
-        if (string.IsNullOrWhiteSpace(name)) name = "New Scene";
-        var data = await _storage.CreateSceneAsync(name, CancellationToken.None);
+        if (string.IsNullOrWhiteSpace(sceneName)) sceneName = "New Scene";
+        var data = await _storage.CreateSceneAsync(sceneName, CancellationToken.None);
         OpenScene(data);
     }
 
