@@ -7,3 +7,4 @@ public struct ModeChangedEvent       { public AppMode PreviousMode; public AppMo
 public struct FrameChangedEvent      { public int Frame; }
 public struct PlaybackStateChangedEvent { public bool IsPlaying; public int Frame; }
 public struct ErrorOccurredEvent     { public ErrorLevel Level; public string Message; }
+public struct SceneSelectedEvent     { public string SceneId; public string DisplayName; }

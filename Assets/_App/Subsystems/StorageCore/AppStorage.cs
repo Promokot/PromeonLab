@@ -68,4 +68,28 @@ public class AppStorage
             Directory.Delete(root, recursive: true);
         _cache.Remove(sceneId);
     }
+
+    public async Task<IReadOnlyList<(string SceneId, string DisplayName)>> GetAllScenesAsync(
+        CancellationToken ct = default)
+    {
+        var result = new List<(string, string)>();
+        foreach (var sceneId in GetAllSceneIds())
+        {
+            var data = await LoadSceneAsync(sceneId, ct);
+            if (data != null) result.Add((data.SceneId, data.DisplayName));
+        }
+        return result;
+    }
+
+    public SceneData BeginSandboxSession()
+    {
+        var data = new SceneData
+        {
+            SceneId     = "__sandbox__",
+            DisplayName = "Sandbox",
+            CreatedAt   = DateTime.UtcNow.ToString("yyyy-MM-dd")
+        };
+        _activeSceneId = data.SceneId;
+        return data;
+    }
 }
