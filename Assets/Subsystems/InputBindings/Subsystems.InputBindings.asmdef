@@ -1,0 +1,1 @@
+{ "name": "Subsystems.InputBindings", "references": ["_Shared", "VContainer", "Unity.InputSystem"], "autoReferenced": false }

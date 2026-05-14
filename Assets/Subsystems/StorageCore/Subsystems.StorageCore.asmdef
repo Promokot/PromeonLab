@@ -1,0 +1,1 @@
+{ "name": "Subsystems.StorageCore", "references": ["_Shared", "VContainer"], "autoReferenced": false }

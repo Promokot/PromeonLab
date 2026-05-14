@@ -1,0 +1,1 @@
+{ "name": "Subsystems.AnimationPlayback", "references": ["_Shared", "VContainer", "Unity.Animation.Rigging"], "autoReferenced": false }

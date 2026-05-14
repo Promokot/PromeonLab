@@ -1,0 +1,1 @@
+{ "name": "Subsystems.VrInteraction", "references": ["_Shared", "VContainer", "Unity.XR.Interaction.Toolkit", "Unity.InputSystem"], "autoReferenced": false }

@@ -1,0 +1,1 @@
+{ "name": "Subsystems.ErrorHandling", "references": ["_Shared", "VContainer"], "autoReferenced": false }
