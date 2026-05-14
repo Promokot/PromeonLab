@@ -9,18 +9,18 @@ public class AssetImporter
     private readonly DemoAssetCatalog _catalog;
     private readonly AppStorage _storage;
     private readonly SceneGraph _sceneGraph;
-    private readonly SelectionManager _selectionManager;
+    private readonly IInteractableFactory _interactableFactory;
 
     public AssetImporter(
         DemoAssetCatalog catalog,
         AppStorage storage,
         SceneGraph sceneGraph,
-        SelectionManager selectionManager)
+        IInteractableFactory interactableFactory)
     {
-        _catalog          = catalog;
-        _storage          = storage;
-        _sceneGraph       = sceneGraph;
-        _selectionManager = selectionManager;
+        _catalog             = catalog;
+        _storage             = storage;
+        _sceneGraph          = sceneGraph;
+        _interactableFactory = interactableFactory;
     }
 
     public async Task<(GameObject Instance, AssetEntry Entry)> ImportAsync(
@@ -40,11 +40,7 @@ public class AssetImporter
             demoEntry.Prefab, Vector3.zero, Quaternion.identity);
         instance.name = Path.GetFileNameWithoutExtension(fileName);
 
-        if (instance.GetComponentInChildren<Collider>() == null)
-            instance.AddComponent<BoxCollider>();
-
-        var si = instance.AddComponent<SelectionInteractor>();
-        si.Construct(_selectionManager);
+        _interactableFactory.MakeInteractable(instance);
 
         _sceneGraph.AddNode(instance);
 

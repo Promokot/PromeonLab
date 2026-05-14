@@ -1,1 +1,14 @@
-{ "name": "Subsystems.AssetBrowser", "references": ["_Shared", "VContainer", "SimpleFileBrowser.Runtime", "Subsystems.StorageCore", "Subsystems.ModeOrchestrator", "Subsystems.SceneComposition", "Subsystems.SpatialUi", "Subsystems.VrInteraction", "Unity.TextMeshPro"], "autoReferenced": false }
+{
+  "name": "Subsystems.AssetBrowser",
+  "references": [
+    "_Shared",
+    "VContainer",
+    "SimpleFileBrowser.Runtime",
+    "Subsystems.StorageCore",
+    "Subsystems.ModeOrchestrator",
+    "Subsystems.SceneComposition",
+    "Subsystems.SpatialUi",
+    "Unity.TextMeshPro"
+  ],
+  "autoReferenced": false
+}

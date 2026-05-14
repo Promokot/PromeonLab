@@ -17,6 +17,7 @@ public class VrEditingSceneScope : LifetimeScope
         builder.Register<SelectionManager>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<CommandStack>(Lifetime.Scoped);
         builder.Register<GizmoController>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+        builder.Register<SelectionInteractorFactory>(Lifetime.Scoped).AsImplementedInterfaces();
         builder.Register<AssetImporter>(Lifetime.Scoped);
         builder.RegisterComponentInHierarchy<UndoKeyHandler>();
         // Phase 6: RigRuntime
