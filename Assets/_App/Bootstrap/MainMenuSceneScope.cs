@@ -11,6 +11,6 @@ public class MainMenuSceneScope : LifetimeScope
         builder.Register<EventBus>(Lifetime.Scoped);
         builder.RegisterInstance(_transitionGraph);
         builder.Register<ModeOrchestrator>(Lifetime.Scoped);
-        // Phase 3: UnsavedChangesGuard
+        builder.Register<UnsavedChangesGuard>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
     }
 }

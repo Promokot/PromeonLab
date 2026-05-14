@@ -1,0 +1,19 @@
+{
+  "name": "_App",
+  "references": [
+    "_Shared",
+    "VContainer",
+    "Subsystems.ModeOrchestrator",
+    "Subsystems.SpatialUi",
+    "Subsystems.StorageCore",
+    "Subsystems.AssetBrowser",
+    "Subsystems.SceneComposition",
+    "Subsystems.VrInteraction",
+    "Subsystems.RigBuilder",
+    "Subsystems.AnimationAuthoring",
+    "Subsystems.AnimationPlayback",
+    "Subsystems.InputBindings",
+    "Subsystems.ErrorHandling"
+  ],
+  "autoReferenced": false
+}
