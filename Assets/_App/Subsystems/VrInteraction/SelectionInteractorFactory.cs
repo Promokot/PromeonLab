@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class SelectionInteractorFactory : IInteractableFactory
 {
-    private readonly SelectionManager _selectionManager;
+    private readonly ISelectionManager _selectionManager;
 
-    public SelectionInteractorFactory(SelectionManager selectionManager)
+    public SelectionInteractorFactory(ISelectionManager selectionManager)
     {
         _selectionManager = selectionManager;
     }

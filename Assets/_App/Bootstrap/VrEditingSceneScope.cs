@@ -15,12 +15,15 @@ public class VrEditingSceneScope : LifetimeScope
         builder.Register<UnsavedChangesGuard>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SceneGraph>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SelectionManager>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
-        builder.Register<CommandStack>(Lifetime.Scoped);
+        builder.Register<CommandStack>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<GizmoController>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SelectionInteractorFactory>(Lifetime.Scoped).AsImplementedInterfaces();
         builder.Register<AssetImporter>(Lifetime.Scoped);
         builder.RegisterComponentInHierarchy<UndoKeyHandler>();
-        // Phase 6: RigRuntime
+        builder.RegisterComponentInHierarchy<RigRuntime>().AsImplementedInterfaces().AsSelf();
+        builder.RegisterComponentInHierarchy<IkSetupWizard>();
+        builder.RegisterComponentInHierarchy<BoneInspectorPanel>();
+        builder.RegisterComponentInHierarchy<PropertyPanel>().AsImplementedInterfaces().AsSelf();
         // Phase 7: TrackRecorder, PropertyApplicator, PlaybackController
     }
 }

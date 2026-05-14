@@ -6,11 +6,11 @@ public class BoneProxy : MonoBehaviour
     public string    BoneName      { get; private set; }
     public Transform BoneTransform { get; private set; }
 
-    private SelectionManager _selectionManager;
-    private string           _nodeId;
+    private ISelectionManager _selectionManager;
+    private string            _nodeId;
 
     [Inject]
-    public void Construct(SelectionManager selectionManager)
+    public void Construct(ISelectionManager selectionManager)
     {
         _selectionManager = selectionManager;
     }

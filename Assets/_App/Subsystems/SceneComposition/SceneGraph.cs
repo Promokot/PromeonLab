@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VContainer.Unity;
 
-public class SceneGraph : IStartable, IDisposable
+public class SceneGraph : ISceneGraph, IStartable, IDisposable
 {
     private readonly EventBus _bus;
     private readonly Dictionary<string, SceneNode> _nodes = new();
@@ -38,6 +38,12 @@ public class SceneGraph : IStartable, IDisposable
 
     public SceneNode GetNode(string nodeId) =>
         _nodes.TryGetValue(nodeId, out var n) ? n : null;
+
+    // Explicit ISceneGraph.GetNode returns GameObject for SpatialUi panels
+    GameObject ISceneGraph.GetNode(string nodeId) => GetNode(nodeId)?.gameObject;
+
+    // ISceneGraph.AddNode discards the return value
+    void ISceneGraph.AddNode(GameObject go) => AddNode(go);
 
     private void OnSceneOpened(SceneOpenedEvent _) { }
 }

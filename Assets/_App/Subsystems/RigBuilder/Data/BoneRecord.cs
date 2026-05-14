@@ -1,8 +1,1 @@
-using System;
-
-[Serializable]
-public class BoneRecord
-{
-    public string BoneName;
-    public bool TranslationLocked = true;
-}
+// Moved to Assets/_App/_Shared/Models/BoneRecord.cs

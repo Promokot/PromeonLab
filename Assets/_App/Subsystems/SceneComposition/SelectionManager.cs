@@ -1,7 +1,7 @@
 using System;
 using VContainer.Unity;
 
-public class SelectionManager : IStartable, IDisposable
+public class SelectionManager : ISelectionManager, IStartable, IDisposable
 {
     private readonly EventBus _bus;
     private string _selectedNodeId;

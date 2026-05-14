@@ -3,15 +3,15 @@ using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using VContainer;
 
-public class RigRuntime : MonoBehaviour
+public class RigRuntime : MonoBehaviour, IRigRuntime
 {
     [SerializeField] private GameObject _boneProxyPrefab;
 
-    private SelectionManager     _selectionManager;
+    private ISelectionManager     _selectionManager;
     private readonly List<BoneProxy> _proxies = new();
 
     [Inject]
-    public void Construct(SelectionManager selectionManager)
+    public void Construct(ISelectionManager selectionManager)
     {
         _selectionManager = selectionManager;
     }

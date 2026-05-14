@@ -6,11 +6,11 @@ using VContainer;
 [RequireComponent(typeof(Collider))]
 public class SelectionInteractor : XRSimpleInteractable
 {
-    private SelectionManager _selectionManager;
+    private ISelectionManager _selectionManager;
     private SceneNode _node;
 
     [Inject]
-    public void Construct(SelectionManager selectionManager)
+    public void Construct(ISelectionManager selectionManager)
     {
         _selectionManager = selectionManager;
     }
