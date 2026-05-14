@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"S:\\\\[02] Projects\" | ForEach-Object { $_.Name })",
+      "PowerShell(Get-ChildItem -Path \"S:\\\\[02] Projects\" | ForEach-Object { \"$\\($_.Name\\) - $\\($_.PSIsContainer\\)\" })"
+    ]
+  }
+}
