@@ -165,7 +165,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.XR.Interaction.Toolkit::UnityEngine.XR.Interaction.Toolkit.XRInteractionManager
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
---- !u!1001 &214837550
+--- !u!1001 &593088474
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -177,10 +177,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: UserPanel
       objectReference: {fileID: 0}
-    - target: {fileID: 1443132229552257255, guid: 7a4de75d919ab50449b093180517b28c, type: 3}
-      propertyPath: m_Camera
-      value: 
-      objectReference: {fileID: 473197403}
     - target: {fileID: 3770651613785946415, guid: 7a4de75d919ab50449b093180517b28c, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -223,7 +219,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3770651613785946415, guid: 7a4de75d919ab50449b093180517b28c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.59543
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3770651613785946415, guid: 7a4de75d919ab50449b093180517b28c, type: 3}
       propertyPath: m_LocalRotation.w
@@ -243,7 +239,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3770651613785946415, guid: 7a4de75d919ab50449b093180517b28c, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 2.93462
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3770651613785946415, guid: 7a4de75d919ab50449b093180517b28c, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -338,15 +334,10 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7a4de75d919ab50449b093180517b28c, type: 3}
---- !u!224 &214837551 stripped
+--- !u!224 &593088475 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3770651613785946415, guid: 7a4de75d919ab50449b093180517b28c, type: 3}
-  m_PrefabInstance: {fileID: 214837550}
-  m_PrefabAsset: {fileID: 0}
---- !u!20 &473197403 stripped
-Camera:
-  m_CorrespondingSourceObject: {fileID: 1874126578912110313, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
-  m_PrefabInstance: {fileID: 1740162536}
+  m_PrefabInstance: {fileID: 593088474}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &618404939
 PrefabInstance:
@@ -882,7 +873,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 214837551}
+  - {fileID: 593088475}
   m_Father: {fileID: 1477505527}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807

@@ -1,26 +1,55 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-[RequireComponent(typeof(UnityEngine.UI.Image))]
-public class PanelDragHandle : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+[RequireComponent(typeof(Image))]
+public class PanelDragHandle : MonoBehaviour,
+    IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler,
+    IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] private UserPanel _panel;
+    [SerializeField] private Color _normalColor = new Color(1f,    1f,    1f,    0.25f);
+    [SerializeField] private Color _hoverColor  = new Color(0.80f, 0.80f, 0.85f, 0.45f);
+    [SerializeField] private Color _dragColor   = new Color(0.45f, 0.50f, 0.55f, 0.70f);
 
-    // Max world-space movement allowed in a single frame — safety against ray jumps
     private const float MaxFrameDelta = 0.4f;
+
+    private Image _image;
+    private bool  _isDragging;
+
+    private void Awake()
+    {
+        _image       = GetComponent<Image>();
+        _image.color = _normalColor;
+    }
 
     public void OnPointerDown(PointerEventData eventData) { }
 
-    public void OnBeginDrag(PointerEventData eventData) =>
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (!_isDragging)
+            _image.color = _hoverColor;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (!_isDragging)
+            _image.color = _normalColor;
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        _isDragging  = true;
+        _image.color = _dragColor;
         _panel.SetDragging(true);
+    }
 
     public void OnDrag(PointerEventData eventData)
     {
         if (eventData.delta.sqrMagnitude < 0.01f) return;
 
-        // Use screen-space delta projected to world space at the panel's depth.
-        // This avoids the canvas-movement feedback loop that occurs when comparing
-        // consecutive world hit positions on a moving canvas plane.
+        // Screen-space delta projected to world at panel depth avoids the
+        // canvas-movement feedback loop that occurs with consecutive world hit comparisons.
         var cam = eventData.enterEventCamera != null
             ? eventData.enterEventCamera
             : Camera.main;
@@ -29,9 +58,9 @@ public class PanelDragHandle : MonoBehaviour, IPointerDownHandler, IBeginDragHan
         var screenZ = cam.WorldToScreenPoint(_panel.transform.position).z;
         if (screenZ <= 0.01f) return;
 
-        var prev = eventData.position - eventData.delta;
-        var worldPrev = cam.ScreenToWorldPoint(new Vector3(prev.x,                 prev.y,                 screenZ));
-        var worldCurr = cam.ScreenToWorldPoint(new Vector3(eventData.position.x,   eventData.position.y,   screenZ));
+        var prev      = eventData.position - eventData.delta;
+        var worldPrev = cam.ScreenToWorldPoint(new Vector3(prev.x,               prev.y,               screenZ));
+        var worldCurr = cam.ScreenToWorldPoint(new Vector3(eventData.position.x, eventData.position.y, screenZ));
 
         var delta = worldCurr - worldPrev;
         if (delta.magnitude > MaxFrameDelta) return;
@@ -39,6 +68,10 @@ public class PanelDragHandle : MonoBehaviour, IPointerDownHandler, IBeginDragHan
         _panel.MoveDelta(delta);
     }
 
-    public void OnEndDrag(PointerEventData eventData) =>
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        _isDragging  = false;
+        _image.color = _normalColor;
         _panel.SetDragging(false);
+    }
 }

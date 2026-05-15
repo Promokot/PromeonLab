@@ -31,9 +31,10 @@ public class UserPanel : SpatialPanel
     [Header("Smart Follow")]
     [SerializeField] private float _recenterAngle     = 45f;
     [SerializeField] private float _smoothTime        = 0.5f;
-    [SerializeField] private float _minDistance       = 0.35f;
-    [SerializeField] private float _preferredDistance = 0.8f;
+    [SerializeField] private float _minDistance       = 0.25f;
+    [SerializeField] private float _preferredDistance = 0.7f;
     [SerializeField] private float _maxDistance       = 1.35f;
+    [SerializeField] private float _yOffset           = -0.05f;
 
     private ModeOrchestrator _orchestrator;
     private EventBus         _bus;
@@ -82,7 +83,11 @@ public class UserPanel : SpatialPanel
     {
         if (!_initialized)
         {
-            transform.position = _cameraTransform.position + GetCameraYawForward() * _preferredDistance;
+            var fwd = GetCameraYawForward();
+            transform.position = new Vector3(
+                _cameraTransform.position.x + fwd.x * _preferredDistance,
+                _cameraTransform.position.y + _yOffset,
+                _cameraTransform.position.z + fwd.z * _preferredDistance);
             _initialized    = true;
             _followVelocity = Vector3.zero;
             return;
