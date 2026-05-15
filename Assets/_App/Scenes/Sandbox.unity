@@ -186,7 +186,7 @@ MonoBehaviour:
     TypeName: 
   autoRun: 1
   autoInjectGameObjects: []
-  _panelRegistry: {fileID: 0}
+  _panelRegistry: {fileID: 11400000, guid: a887d01d6cbad31468655994aa5adb01, type: 2}
 --- !u!4 &439693377
 Transform:
   m_ObjectHideFlags: 0
@@ -351,6 +351,54 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 104322621}
     m_Modifications:
+    - target: {fileID: 66815930404358032, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 66815930404358032, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 66815930404358032, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 66815930404358032, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 66815930404358032, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 66815930404358032, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 95311306148849424, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 95311306148849424, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 95311306148849424, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 95311306148849424, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 95311306148849424, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 95311306148849424, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 996802551602020272, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -394,6 +442,30 @@ PrefabInstance:
     - target: {fileID: 996802551602020275, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
       propertyPath: m_Name
       value: User XR Origin (XR Rig)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2051147461664116643, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2051147461664116643, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2051147461664116643, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2051147461664116643, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2051147461664116643, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2051147461664116643, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
