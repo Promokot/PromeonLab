@@ -147,8 +147,8 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 276269292298337097}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.8}
   m_LocalScale: {x: 0.001, y: 0.001, z: 0.001}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -160,7 +160,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 1.4}
+  m_AnchoredPosition: {x: 0, y: 1}
   m_SizeDelta: {x: 500, y: 140}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &1443132229552257255
@@ -200,7 +200,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Subsystems.SpatialUi::UserPanel
   _panelType: 0
   _billboard: 1
-  _defaultOffset: {x: 0, y: 0, z: 1.2}
+  _defaultOffset: {x: 0, y: 0, z: 0.8}
   _lazyFollow: 1
   _lazyAngle: 45
   _lazySpeed: 2
@@ -219,10 +219,10 @@ MonoBehaviour:
   _lockButton: {fileID: 4913116091489193175}
   _lockButtonImage: {fileID: 1879811403907734707}
   _recenterAngle: 45
-  _smoothTime: 0.35
-  _minDistance: 0.5
-  _preferredDistance: 1.2
-  _maxDistance: 2.5
+  _smoothTime: 0.5
+  _minDistance: 0.35
+  _preferredDistance: 0.8
+  _maxDistance: 1.35
 --- !u!114 &6209610178671762348
 MonoBehaviour:
   m_ObjectHideFlags: 0

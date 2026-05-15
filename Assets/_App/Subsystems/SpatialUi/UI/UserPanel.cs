@@ -30,10 +30,10 @@ public class UserPanel : SpatialPanel
 
     [Header("Smart Follow")]
     [SerializeField] private float _recenterAngle     = 45f;
-    [SerializeField] private float _smoothTime        = 0.35f;
-    [SerializeField] private float _minDistance       = 0.5f;
-    [SerializeField] private float _preferredDistance = 1.2f;
-    [SerializeField] private float _maxDistance       = 2.5f;
+    [SerializeField] private float _smoothTime        = 0.5f;
+    [SerializeField] private float _minDistance       = 0.35f;
+    [SerializeField] private float _preferredDistance = 0.8f;
+    [SerializeField] private float _maxDistance       = 1.35f;
 
     private ModeOrchestrator _orchestrator;
     private EventBus         _bus;
