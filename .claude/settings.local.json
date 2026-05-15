@@ -4,7 +4,11 @@
       "PowerShell(Get-ChildItem -Path \"S:\\\\[02] Projects\" | ForEach-Object { $_.Name })",
       "PowerShell(Get-ChildItem -Path \"S:\\\\[02] Projects\" | ForEach-Object { \"$\\($_.Name\\) - $\\($_.PSIsContainer\\)\" })",
       "Bash(python3 *)",
-      "PowerShell($bytes = [System.IO.File]::ReadAllBytes\\('S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\\\\Assets\\\\_App\\\\Subsystems\\\\VrInteraction\\\\SelectionInteractor.cs'\\); [System.Text.Encoding]::UTF8.GetString\\($bytes\\) | Format-Hex | Select-Object -First 60)"
+      "PowerShell($bytes = [System.IO.File]::ReadAllBytes\\('S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\\\\Assets\\\\_App\\\\Subsystems\\\\VrInteraction\\\\SelectionInteractor.cs'\\); [System.Text.Encoding]::UTF8.GetString\\($bytes\\) | Format-Hex | Select-Object -First 60)",
+      "Skill(unity-mcp-skill)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "unityMCP"
+  ]
 }
