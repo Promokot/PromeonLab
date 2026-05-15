@@ -29,10 +29,11 @@ public class UserPanel : SpatialPanel
     [SerializeField] private Image  _lockButtonImage;
 
     [Header("Smart Follow")]
-    [SerializeField] private float _recenterAngle    = 45f;
-    [SerializeField] private float _recenterSpeed    = 3f;
-    [SerializeField] private float _minDistance      = 0.5f;
+    [SerializeField] private float _recenterAngle     = 45f;
+    [SerializeField] private float _recenterSpeed     = 3f;
+    [SerializeField] private float _minDistance       = 0.5f;
     [SerializeField] private float _preferredDistance = 1.2f;
+    [SerializeField] private float _maxDistance       = 2.5f;
 
     private ModeOrchestrator _orchestrator;
     private EventBus         _bus;
@@ -108,6 +109,15 @@ public class UserPanel : SpatialPanel
             var targetXZ = camXZ + pushDir * _preferredDistance;
             var target   = new Vector3(targetXZ.x, transform.position.y, targetXZ.z);
             transform.position = Vector3.Lerp(transform.position, target, Time.deltaTime * _recenterSpeed);
+            return;
+        }
+
+        if (xzDist > _maxDistance)
+        {
+            var pullDir  = delta.normalized;
+            var targetXZ = camXZ + pullDir * _preferredDistance;
+            var target   = new Vector3(targetXZ.x, transform.position.y, targetXZ.z);
+            transform.position = Vector3.Lerp(transform.position, target, Time.deltaTime * _recenterSpeed);
         }
     }
 
@@ -118,8 +128,13 @@ public class UserPanel : SpatialPanel
         return f.sqrMagnitude > 0.001f ? f.normalized : Vector3.forward;
     }
 
-    public void SetDragging(bool active)             => _isDragging = active;
-    public void SetDragWorldPosition(Vector3 worldPos) { if (_isDragging) transform.position = worldPos; }
+    public void SetDragging(bool active) => _isDragging = active;
+
+    public void MoveDelta(Vector3 delta)
+    {
+        if (_isDragging)
+            transform.position += delta;
+    }
 
     private void OnLockToggle()
     {

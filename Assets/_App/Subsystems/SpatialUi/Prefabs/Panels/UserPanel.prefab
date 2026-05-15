@@ -216,12 +216,13 @@ MonoBehaviour:
     Prefab: {fileID: 2980191957755694123, guid: f951fe27e32fce84181fdf27889bcf4a, type: 3}
   - Mode: 2
     Prefab: {fileID: 5686933062846832089, guid: 1a9287c35bddd9c4da95ff5a5dd2d7bf, type: 3}
-  _lockButton: {fileID: 0}
-  _lockButtonImage: {fileID: 0}
+  _lockButton: {fileID: 4913116091489193175}
+  _lockButtonImage: {fileID: 1879811403907734707}
   _recenterAngle: 45
   _recenterSpeed: 3
   _minDistance: 0.5
   _preferredDistance: 1.2
+  _maxDistance: 2.5
 --- !u!114 &6209610178671762348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -920,7 +921,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5609cfa59c196c468325078a9d4fec7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Subsystems.SpatialUi::PanelDragHandle
-  _panel: {fileID: 0}
+  _panel: {fileID: 8573857923733603883}
 --- !u!1 &7002379320252069902
 GameObject:
   m_ObjectHideFlags: 0
