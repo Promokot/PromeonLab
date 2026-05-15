@@ -219,7 +219,7 @@ MonoBehaviour:
   _lockButton: {fileID: 4913116091489193175}
   _lockButtonImage: {fileID: 1879811403907734707}
   _recenterAngle: 45
-  _recenterSpeed: 3
+  _smoothTime: 0.35
   _minDistance: 0.5
   _preferredDistance: 1.2
   _maxDistance: 2.5

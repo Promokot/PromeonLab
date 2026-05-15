@@ -120,7 +120,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6876222477025700525}
   m_HandleRect: {fileID: 4039406728708582226}
   m_Direction: 2
-  m_Value: 0.99297225
+  m_Value: 0.7292132
   m_Size: 0.97407407
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -249,7 +249,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Subsystems.SpatialUi::ScenePickerPanel
   _listRoot: {fileID: 5083509354361831743}
-  _sceneItemPrefab: {fileID: 7567308779499393242, guid: 89ffbecae8d8d174baa0c93608238a16, type: 3}
+  _sceneItemPrefab: {fileID: 7567308779499393242, guid: a5c0f55c3a3bcf148bb9d57439674fc0, type: 3}
   _nameInput: {fileID: 3474898126223987262}
   _createButton: {fileID: 3668886899369050537}
   _deleteButton: {fileID: 4390443563436541420}
@@ -1155,7 +1155,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.05}
+  m_AnchoredPosition: {x: 0, y: 1.9001281}
   m_SizeDelta: {x: 1, y: 270}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &6868401914386979552

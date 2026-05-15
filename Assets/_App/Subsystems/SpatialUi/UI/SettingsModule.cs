@@ -17,11 +17,10 @@ public class SettingsModule : MonoBehaviour
         _shownLocalPos  = transform.localPosition;
         _hiddenLocalPos = _shownLocalPos - Vector3.up * _slideDist;
 
-        transform.localPosition              = _hiddenLocalPos;
-        _canvasGroup.alpha                   = 0f;
-        _canvasGroup.interactable            = false;
-        _canvasGroup.blocksRaycasts          = false;
-        gameObject.SetActive(false);
+        transform.localPosition             = _hiddenLocalPos;
+        _canvasGroup.alpha                  = 0f;
+        _canvasGroup.interactable           = false;
+        _canvasGroup.blocksRaycasts         = false;
     }
 
     public void Toggle() { if (_visible) Hide(); else Show(); }

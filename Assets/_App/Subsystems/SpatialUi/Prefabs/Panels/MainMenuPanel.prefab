@@ -593,6 +593,7 @@ MonoBehaviour:
   _openSandboxButton: {fileID: 6918006530615791162}
   _openSceneButton: {fileID: 3733772583436623402}
   _openSceneLabel: {fileID: 4684056108820386247}
+  _exitButton: {fileID: 0}
 --- !u!1 &6101283970055408701
 GameObject:
   m_ObjectHideFlags: 0

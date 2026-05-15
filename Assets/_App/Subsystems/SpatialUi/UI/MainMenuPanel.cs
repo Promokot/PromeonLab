@@ -10,7 +10,7 @@ public class MainMenuPanel : MonoBehaviour
     [SerializeField] private Button   _openSandboxButton;
     [SerializeField] private Button   _openSceneButton;
     [SerializeField] private TMP_Text _openSceneLabel;
-    [SerializeField] private Button   _exitButton;
+    /*[SerializeField] private Button   _exitButton;*/
 
     private AppStorage       _storage;
     private EventBus         _bus;
@@ -30,7 +30,7 @@ public class MainMenuPanel : MonoBehaviour
         _openSandboxButton.onClick.AddListener(OnOpenSandbox);
         _openSceneButton.onClick.AddListener(() => { _ = OpenSceneAsync(); });
         _openSceneButton.interactable = false;
-        _exitButton.onClick.AddListener(OnExit);
+        /*_exitButton.onClick.AddListener(OnExit);*/
         _bus.Subscribe<SceneSelectedEvent>(OnSceneSelected);
     }
 
@@ -45,7 +45,7 @@ public class MainMenuPanel : MonoBehaviour
         _openSceneLabel.text = hasScene ? $"Open  {e.DisplayName}" : "Open Scene";
     }
 
-    private void OnExit() => Application.Quit();
+    /*private void OnExit() => Application.Quit();*/
 
     private void OnOpenSandbox()
     {

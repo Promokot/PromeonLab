@@ -30,7 +30,7 @@ public class UserPanel : SpatialPanel
 
     [Header("Smart Follow")]
     [SerializeField] private float _recenterAngle     = 45f;
-    [SerializeField] private float _recenterSpeed     = 3f;
+    [SerializeField] private float _smoothTime        = 0.35f;
     [SerializeField] private float _minDistance       = 0.5f;
     [SerializeField] private float _preferredDistance = 1.2f;
     [SerializeField] private float _maxDistance       = 2.5f;
@@ -39,9 +39,12 @@ public class UserPanel : SpatialPanel
     private EventBus         _bus;
     private GameObject       _currentContext;
 
-    private bool _locked;
-    private bool _initialized;
-    private bool _isDragging;
+    private bool    _locked;
+    private bool    _initialized;
+    private bool    _isDragging;
+
+    private Vector3  _followVelocity;
+    private Vector3? _activeTarget;
 
     private static readonly Color ColorUnlocked = new Color(0.30f, 0.30f, 0.35f, 0.90f);
     private static readonly Color ColorLocked   = new Color(0.80f, 0.50f, 0.10f, 0.95f);
@@ -80,7 +83,8 @@ public class UserPanel : SpatialPanel
         if (!_initialized)
         {
             transform.position = _cameraTransform.position + GetCameraYawForward() * _preferredDistance;
-            _initialized = true;
+            _initialized    = true;
+            _followVelocity = Vector3.zero;
             return;
         }
 
@@ -96,28 +100,30 @@ public class UserPanel : SpatialPanel
 
             if (angle > _recenterAngle)
             {
+                // Camera turned: re-center in front
                 var targetXZ = camXZ + yaw * _preferredDistance;
-                var target   = new Vector3(targetXZ.x, transform.position.y, targetXZ.z);
-                transform.position = Vector3.Lerp(transform.position, target, Time.deltaTime * _recenterSpeed);
-                return;
+                _activeTarget = new Vector3(targetXZ.x, transform.position.y, targetXZ.z);
+            }
+            else if (xzDist < _minDistance || xzDist > _maxDistance)
+            {
+                // Too close or too far: move to preferred distance along same direction
+                var targetXZ = camXZ + delta.normalized * _preferredDistance;
+                _activeTarget = new Vector3(targetXZ.x, transform.position.y, targetXZ.z);
             }
         }
 
-        if (xzDist < _minDistance && xzDist > 0.001f)
+        if (_activeTarget.HasValue)
         {
-            var pushDir  = delta.normalized;
-            var targetXZ = camXZ + pushDir * _preferredDistance;
-            var target   = new Vector3(targetXZ.x, transform.position.y, targetXZ.z);
-            transform.position = Vector3.Lerp(transform.position, target, Time.deltaTime * _recenterSpeed);
-            return;
-        }
+            transform.position = Vector3.SmoothDamp(
+                transform.position, _activeTarget.Value,
+                ref _followVelocity, _smoothTime);
 
-        if (xzDist > _maxDistance)
-        {
-            var pullDir  = delta.normalized;
-            var targetXZ = camXZ + pullDir * _preferredDistance;
-            var target   = new Vector3(targetXZ.x, transform.position.y, targetXZ.z);
-            transform.position = Vector3.Lerp(transform.position, target, Time.deltaTime * _recenterSpeed);
+            if (Vector3.Distance(transform.position, _activeTarget.Value) < 0.015f)
+            {
+                transform.position = _activeTarget.Value;
+                _activeTarget       = null;
+                _followVelocity     = Vector3.zero;
+            }
         }
     }
 
@@ -128,7 +134,15 @@ public class UserPanel : SpatialPanel
         return f.sqrMagnitude > 0.001f ? f.normalized : Vector3.forward;
     }
 
-    public void SetDragging(bool active) => _isDragging = active;
+    public void SetDragging(bool active)
+    {
+        _isDragging = active;
+        if (!active)
+        {
+            _activeTarget   = null;
+            _followVelocity = Vector3.zero;
+        }
+    }
 
     public void MoveDelta(Vector3 delta)
     {

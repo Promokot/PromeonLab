@@ -6,24 +6,37 @@ public class PanelDragHandle : MonoBehaviour, IPointerDownHandler, IBeginDragHan
 {
     [SerializeField] private UserPanel _panel;
 
-    private Vector3 _prevHitPos;
+    // Max world-space movement allowed in a single frame — safety against ray jumps
+    private const float MaxFrameDelta = 0.4f;
 
     public void OnPointerDown(PointerEventData eventData) { }
 
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        _prevHitPos = eventData.pointerPressRaycast.worldPosition;
-        if (_prevHitPos == Vector3.zero)
-            _prevHitPos = eventData.pointerCurrentRaycast.worldPosition;
+    public void OnBeginDrag(PointerEventData eventData) =>
         _panel.SetDragging(true);
-    }
 
     public void OnDrag(PointerEventData eventData)
     {
-        var hitPos = eventData.pointerCurrentRaycast.worldPosition;
-        if (hitPos == Vector3.zero) return;
-        _panel.MoveDelta(hitPos - _prevHitPos);
-        _prevHitPos = hitPos;
+        if (eventData.delta.sqrMagnitude < 0.01f) return;
+
+        // Use screen-space delta projected to world space at the panel's depth.
+        // This avoids the canvas-movement feedback loop that occurs when comparing
+        // consecutive world hit positions on a moving canvas plane.
+        var cam = eventData.enterEventCamera != null
+            ? eventData.enterEventCamera
+            : Camera.main;
+        if (cam == null) return;
+
+        var screenZ = cam.WorldToScreenPoint(_panel.transform.position).z;
+        if (screenZ <= 0.01f) return;
+
+        var prev = eventData.position - eventData.delta;
+        var worldPrev = cam.ScreenToWorldPoint(new Vector3(prev.x,                 prev.y,                 screenZ));
+        var worldCurr = cam.ScreenToWorldPoint(new Vector3(eventData.position.x,   eventData.position.y,   screenZ));
+
+        var delta = worldCurr - worldPrev;
+        if (delta.magnitude > MaxFrameDelta) return;
+
+        _panel.MoveDelta(delta);
     }
 
     public void OnEndDrag(PointerEventData eventData) =>
