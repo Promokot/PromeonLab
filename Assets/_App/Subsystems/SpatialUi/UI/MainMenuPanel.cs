@@ -51,7 +51,7 @@ public class MainMenuPanel : MonoBehaviour
     {
         var data = _storage.BeginSandboxSession();
         _bus.Publish(new SceneOpenedEvent { SceneId = data.SceneId });
-        _orchestrator.TransitionTo(AppMode.VrEditing);
+        _orchestrator.TransitionTo(AppMode.Sandbox);
     }
 
     private async Task OpenSceneAsync()

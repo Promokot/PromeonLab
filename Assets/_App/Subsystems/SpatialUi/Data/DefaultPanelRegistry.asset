@@ -16,3 +16,6 @@ MonoBehaviour:
   - Id: 1
     Prefab: {fileID: 7715935014661824792, guid: c8136c8b800227948b691ce8f7e0e448, type: 3}
     VisibleInModes: 01000000
+  - Id: 7
+    Prefab: {fileID: 8573857923733603883, guid: 7a4de75d919ab50449b093180517b28c, type: 3}
+    VisibleInModes: 0100000004000000

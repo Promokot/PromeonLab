@@ -8,7 +8,6 @@ public class VrEditingSceneScope : LifetimeScope
 
     protected override void Configure(IContainerBuilder builder)
     {
-        builder.Register<EventBus>(Lifetime.Scoped);
         builder.RegisterInstance(_panelRegistry);
         builder.RegisterInstance(Camera.main);
         builder.Register<UiPanelManager>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
