@@ -13,6 +13,8 @@ public class ModeTransitionGraph : ScriptableObject
         new Transition { From = AppMode.VrEditing, To = AppMode.MainMenu   },
         new Transition { From = AppMode.VrEditing, To = AppMode.ArMapping  },
         new Transition { From = AppMode.ArMapping,  To = AppMode.VrEditing },
+        new Transition { From = AppMode.MainMenu,  To = AppMode.Sandbox    },
+        new Transition { From = AppMode.Sandbox,   To = AppMode.MainMenu   },
     };
 
     public bool IsAllowed(AppMode from, AppMode to)

@@ -39,6 +39,9 @@ public class ModeOrchestrator
         {
             AppMode.MainMenu  => "MainMenu",
             AppMode.VrEditing => "VrEditing",
+            AppMode.ArMapping => "ArMapping",
+            AppMode.ArPreview => "ArPreview",
+            AppMode.Sandbox   => "Sandbox",
             _                 => null
         };
         if (sceneName != null)
@@ -51,6 +54,9 @@ public class ModeOrchestrator
         {
             AppMode.MainMenu  => "MainMenu",
             AppMode.VrEditing => "VrEditing",
+            AppMode.ArMapping => "ArMapping",
+            AppMode.ArPreview => "ArPreview",
+            AppMode.Sandbox   => "Sandbox",
             _                 => null
         };
         if (sceneName != null && SceneManager.GetSceneByName(sceneName).isLoaded)
