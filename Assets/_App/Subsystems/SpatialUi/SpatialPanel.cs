@@ -14,7 +14,7 @@ public class SpatialPanel : MonoBehaviour
 
     public PanelId PanelId { get; private set; }
 
-    private Transform _cameraTransform;
+    protected Transform _cameraTransform;
     private Vector3   _lazyTarget;
     private bool      _lazyInit;
 
@@ -30,7 +30,7 @@ public class SpatialPanel : MonoBehaviour
             _cameraTransform = Camera.main?.transform;
     }
 
-    private void LateUpdate()
+protected virtual void LateUpdate()
     {
         if (_cameraTransform == null) return;
 
@@ -41,7 +41,7 @@ public class SpatialPanel : MonoBehaviour
             FaceCamera();
     }
 
-    private void FollowCamera()
+protected virtual void FollowCamera()
     {
         var cam      = _cameraTransform;
         var idealPos = cam.position + cam.rotation * _defaultOffset;
@@ -54,9 +54,9 @@ public class SpatialPanel : MonoBehaviour
 
         if (!_lazyInit)
         {
-            _lazyTarget      = idealPos;
+            _lazyTarget        = idealPos;
             transform.position = idealPos;
-            _lazyInit        = true;
+            _lazyInit          = true;
             return;
         }
 
@@ -67,7 +67,7 @@ public class SpatialPanel : MonoBehaviour
         transform.position = Vector3.Lerp(transform.position, _lazyTarget, Time.deltaTime * _lazySpeed);
     }
 
-    private void FaceCamera()
+protected void FaceCamera()
     {
         var dir = transform.position - _cameraTransform.position;
         if (dir.sqrMagnitude > 0.001f)
