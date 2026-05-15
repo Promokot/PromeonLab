@@ -6,7 +6,8 @@
     "Unity.XR.Interaction.Toolkit",
     "Subsystems.ModeOrchestrator",
     "Subsystems.StorageCore",
-    "Unity.TextMeshPro"
+    "Unity.TextMeshPro",
+    "Unity.InputSystem"
   ],
   "autoReferenced": false
 }

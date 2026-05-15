@@ -18,7 +18,15 @@ public class VrEditingSceneScope : LifetimeScope
         builder.Register<GizmoController>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SelectionInteractorFactory>(Lifetime.Scoped).AsImplementedInterfaces();
         builder.Register<AssetImporter>(Lifetime.Scoped);
-        builder.RegisterComponentInHierarchy<UndoKeyHandler>();
+
+        var undo = Object.FindAnyObjectByType<UndoKeyHandler>(FindObjectsInactive.Include);
+        if (undo != null)
+            builder.RegisterInstance(undo);
+
+        var userPanel = Object.FindAnyObjectByType<UserPanel>(FindObjectsInactive.Include);
+        if (userPanel != null)
+            builder.RegisterInstance(userPanel);
+
         builder.RegisterComponentInHierarchy<RigRuntime>().AsImplementedInterfaces().AsSelf();
         builder.RegisterComponentInHierarchy<IkSetupWizard>();
         builder.RegisterComponentInHierarchy<BoneInspectorPanel>();

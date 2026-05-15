@@ -33,7 +33,7 @@ public class UserPanel : SpatialPanel
     [SerializeField] private float _smoothTime        = 0.5f;
     [SerializeField] private float _minDistance       = 0.25f;
     [SerializeField] private float _preferredDistance = 0.7f;
-    [SerializeField] private float _maxDistance       = 1.35f;
+    [SerializeField] private float _maxDistance       = 1.25f;
     [SerializeField] private float _yOffset           = -0.05f;
 
     private ModeOrchestrator _orchestrator;
@@ -138,6 +138,8 @@ public class UserPanel : SpatialPanel
         f.y = 0f;
         return f.sqrMagnitude > 0.001f ? f.normalized : Vector3.forward;
     }
+
+    public void ResetPosition() => _initialized = false;
 
     public void SetDragging(bool active)
     {
