@@ -35,6 +35,7 @@ public class AssetBrowserModule : MonoBehaviour
 
     private IAssetLibrary _activeLibrary;
     private ILabAsset     _selectedAsset;
+    private bool          _isEditableMode;
 
     private Vector3   _shownLocalPos;
     private Vector3   _hiddenLocalPos;
@@ -65,14 +66,22 @@ public class AssetBrowserModule : MonoBehaviour
         _savedTabButton?.onClick.AddListener(() => SwitchLibrary(_savedLibrary));
         _addButton?.onClick.AddListener(OnAddClicked);
         _spawnButton?.onClick.AddListener(OnSpawnClicked);
-
-        if (_spawnButton != null) _spawnButton.interactable = false;
     }
 
     private void Start()
     {
+        _bus?.Subscribe<ModeChangedEvent>(OnModeChanged);
         if (_builtinLibrary != null)
             SwitchLibrary(_builtinLibrary);
+    }
+
+    private void OnDestroy() =>
+        _bus?.Unsubscribe<ModeChangedEvent>(OnModeChanged);
+
+    private void OnModeChanged(ModeChangedEvent e)
+    {
+        _isEditableMode = e.CurrentMode is AppMode.VrEditing or AppMode.Sandbox;
+        RefreshSpawnButton();
     }
 
     public void Toggle() { if (_visible) Hide(); else Show(); }
@@ -120,14 +129,20 @@ public class AssetBrowserModule : MonoBehaviour
     private void OnCardSelected(LabAssetCard card)
     {
         _selectedAsset = card.Asset;
-        if (_spawnButton != null) _spawnButton.interactable = true;
+        RefreshSpawnButton();
         ShowProperties(card.Asset);
     }
 
     private void ClearSelection()
     {
         _selectedAsset = null;
-        if (_spawnButton != null) _spawnButton.interactable = false;
+        RefreshSpawnButton();
+    }
+
+    private void RefreshSpawnButton()
+    {
+        if (_spawnButton != null)
+            _spawnButton.interactable = _isEditableMode && _selectedAsset != null;
     }
 
     private void ShowProperties(ILabAsset asset)
