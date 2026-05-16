@@ -6,7 +6,9 @@
       "Bash(python3 *)",
       "PowerShell($bytes = [System.IO.File]::ReadAllBytes\\('S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\\\\Assets\\\\_App\\\\Subsystems\\\\VrInteraction\\\\SelectionInteractor.cs'\\); [System.Text.Encoding]::UTF8.GetString\\($bytes\\) | Format-Hex | Select-Object -First 60)",
       "Skill(unity-mcp-skill)",
-      "mcp__unityMCP__manage_gameobject"
+      "mcp__unityMCP__manage_gameobject",
+      "mcp__unityMCP__manage_scene",
+      "mcp__unityMCP__find_gameobjects"
     ]
   },
   "enabledMcpjsonServers": [

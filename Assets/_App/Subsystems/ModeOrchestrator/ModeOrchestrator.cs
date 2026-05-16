@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Scene = UnityEngine.SceneManagement.Scene;
 
 public class ModeOrchestrator
 {
@@ -27,10 +28,27 @@ public class ModeOrchestrator
         var prev = _current;
         _current = target;
 
+        SceneManager.sceneLoaded += OnSceneLoadedForSpawn;
         UnloadCurrentScene(prev);
         LoadScene(target);
 
         _bus.Publish(new ModeChangedEvent { PreviousMode = prev, CurrentMode = target });
+    }
+
+    private void OnSceneLoadedForSpawn(Scene scene, LoadSceneMode mode)
+    {
+        SceneManager.sceneLoaded -= OnSceneLoadedForSpawn;
+        foreach (var root in scene.GetRootGameObjects())
+        {
+            var anchor = root.GetComponentInChildren<PlayerSpawnAnchor>(true);
+            if (anchor == null) continue;
+            _bus.Publish(new PlayerSpawnRequestedEvent
+            {
+                Position = anchor.transform.position,
+                Rotation = anchor.transform.rotation
+            });
+            return;
+        }
     }
 
     private void LoadScene(AppMode mode)

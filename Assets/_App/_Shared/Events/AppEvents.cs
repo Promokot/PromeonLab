@@ -7,4 +7,5 @@ public struct ModeChangedEvent       { public AppMode PreviousMode; public AppMo
 public struct FrameChangedEvent      { public int Frame; }
 public struct PlaybackStateChangedEvent { public bool IsPlaying; public int Frame; }
 public struct ErrorOccurredEvent     { public ErrorLevel Level; public string Message; }
-public struct SceneSelectedEvent     { public string SceneId; public string DisplayName; }
+public struct SceneSelectedEvent          { public string SceneId; public string DisplayName; }
+public struct PlayerSpawnRequestedEvent   { public UnityEngine.Vector3 Position; public UnityEngine.Quaternion Rotation; }

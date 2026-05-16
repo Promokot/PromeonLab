@@ -24,5 +24,12 @@ public class RootLifetimeScope : LifetimeScope
             builder.RegisterInstance(userPanel);
             builder.RegisterBuildCallback(c => c.Inject(userPanel));
         }
+
+        var spawnApplier = Object.FindAnyObjectByType<PlayerSpawnApplier>(FindObjectsInactive.Include);
+        if (spawnApplier != null)
+        {
+            builder.RegisterInstance(spawnApplier);
+            builder.RegisterBuildCallback(c => c.Inject(spawnApplier));
+        }
     }
 }
