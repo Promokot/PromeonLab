@@ -12,6 +12,10 @@ public class KeyboardButtonController : MonoBehaviour
     [SerializeField] TextMeshProUGUI containerText;
     [SerializeField] TextMeshProUGUI containerActionText;
 
+    private VrKeyboard _keyboard;
+
+    private void Awake() => _keyboard = GetComponentInParent<VrKeyboard>();
+
     private void Start() {
         SetContainerBorderColor(ColorDataStore.GetKeyboardBorderColor());
         SetContainerFillColor(ColorDataStore.GetKeyboardFillColor());
@@ -27,25 +31,7 @@ public class KeyboardButtonController : MonoBehaviour
         containerIcon.color = color;
     }
 
-    public void AddLetter() {
-        if(GameManager.Instance != null) {
-            GameManager.Instance.AddLetter(containerText.text);
-        } else {
-            Debug.Log(containerText.text + " is pressed");
-        }
-    }
-    public void DeleteLetter() { 
-        if(GameManager.Instance != null) {
-            GameManager.Instance.DeleteLetter();
-        } else {
-            Debug.Log("Last char deleted");
-        }
-    }
-    public void SubmitWord() {
-        if(GameManager.Instance != null) {
-            GameManager.Instance.SubmitWord();
-        } else {
-            Debug.Log("Submitted successfully!");
-        }
-    }
+    public void AddLetter()    => _keyboard?.AddLetter(containerText.text);
+    public void DeleteLetter() => _keyboard?.DeleteLetter();
+    public void SubmitWord()   => _keyboard?.SubmitWord();
 }

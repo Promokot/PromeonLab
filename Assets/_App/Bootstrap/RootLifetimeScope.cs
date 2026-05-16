@@ -42,5 +42,9 @@ public class RootLifetimeScope : LifetimeScope
             builder.RegisterInstance(spawnApplier);
             builder.RegisterBuildCallback(c => c.Inject(spawnApplier));
         }
+
+        var keyboard = Object.FindAnyObjectByType<VrKeyboard>(FindObjectsInactive.Include);
+        if (keyboard != null)
+            builder.RegisterBuildCallback(c => c.Inject(keyboard));
     }
 }

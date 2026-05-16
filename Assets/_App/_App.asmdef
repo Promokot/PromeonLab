@@ -2,6 +2,7 @@
   "name": "_App",
   "references": [
     "_Shared",
+    "Unity.TextMeshPro",
     "VContainer",
     "Subsystems.ModeOrchestrator",
     "Subsystems.SpatialUi",

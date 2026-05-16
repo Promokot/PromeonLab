@@ -1,6 +1,6 @@
 {
     "name": "_Shared",
-    "references": ["VContainer"],
+    "references": ["VContainer", "Unity.TextMeshPro"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

@@ -10,3 +10,4 @@ public struct ErrorOccurredEvent     { public ErrorLevel Level; public string Me
 public struct SceneSelectedEvent          { public string SceneId; public string DisplayName; }
 public struct PlayerSpawnRequestedEvent   { public UnityEngine.Vector3 Position; public UnityEngine.Quaternion Rotation; }
 public struct AssetSpawnRequestedEvent    { public ILabAsset Asset; public UnityEngine.Vector3 Position; public UnityEngine.Quaternion Rotation; }
+public struct KeyboardFocusEvent          { public TMPro.TMP_InputField Target; }
