@@ -162,7 +162,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 439693377}
-  - component: {fileID: 439693376}
+  - component: {fileID: 439693378}
   m_Layer: 0
   m_Name: SandBox_VrEditingSceneScope
   m_TagString: Untagged
@@ -170,23 +170,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &439693376
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 439693375}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dbfa4f08b550b7342a0490d2f6182db0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: _App::VrEditingSceneScope
-  parentReference:
-    TypeName: 
-  autoRun: 1
-  autoInjectGameObjects: []
-  _panelRegistry: {fileID: 11400000, guid: a887d01d6cbad31468655994aa5adb01, type: 2}
 --- !u!4 &439693377
 Transform:
   m_ObjectHideFlags: 0
@@ -202,6 +185,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 953127660}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &439693378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 439693375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbfa4f08b550b7342a0490d2f6182db0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: _App::VrEditingSceneScope
+  parentReference:
+    TypeName: MainMenuSceneScope
+  autoRun: 1
+  autoInjectGameObjects: []
+  _panelRegistry: {fileID: 11400000, guid: a887d01d6cbad31468655994aa5adb01, type: 2}
 --- !u!1 &568784161
 GameObject:
   m_ObjectHideFlags: 0

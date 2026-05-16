@@ -27,10 +27,17 @@ public class VrEditingSceneScope : LifetimeScope
         if (userPanel != null)
             builder.RegisterInstance(userPanel);
 
-        builder.RegisterComponentInHierarchy<RigRuntime>().AsImplementedInterfaces().AsSelf();
-        builder.RegisterComponentInHierarchy<IkSetupWizard>();
-        builder.RegisterComponentInHierarchy<BoneInspectorPanel>();
-        builder.RegisterComponentInHierarchy<PropertyPanel>().AsImplementedInterfaces().AsSelf();
+        var rigRuntime = Object.FindAnyObjectByType<RigRuntime>(FindObjectsInactive.Include);
+        if (rigRuntime != null) builder.RegisterInstance(rigRuntime).AsImplementedInterfaces().AsSelf();
+
+        var ikWizard = Object.FindAnyObjectByType<IkSetupWizard>(FindObjectsInactive.Include);
+        if (ikWizard != null) builder.RegisterInstance(ikWizard);
+
+        var bonePanel = Object.FindAnyObjectByType<BoneInspectorPanel>(FindObjectsInactive.Include);
+        if (bonePanel != null) builder.RegisterInstance(bonePanel);
+
+        var propPanel = Object.FindAnyObjectByType<PropertyPanel>(FindObjectsInactive.Include);
+        if (propPanel != null) builder.RegisterInstance(propPanel).AsImplementedInterfaces().AsSelf();
         // Phase 7: TrackRecorder, PropertyApplicator, PlaybackController
     }
 }
