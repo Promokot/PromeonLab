@@ -290,6 +290,7 @@ MonoBehaviour:
   _preferredDistance: 0.7
   _maxDistance: 1.25
   _yOffset: -0.15
+  _yOffsetTarget: -0.4
 --- !u!114 &6209610178671762348
 MonoBehaviour:
   m_ObjectHideFlags: 0

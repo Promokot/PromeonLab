@@ -36,7 +36,8 @@ public class UserPanel : SpatialPanel
     [SerializeField] private float _minDistance       = 0.25f;
     [SerializeField] private float _preferredDistance = 0.7f;
     [SerializeField] private float _maxDistance       = 1.25f;
-    [SerializeField] private float _yOffset           = -0.05f;
+    [SerializeField] private float _yOffset           = -0.15f;
+    [SerializeField] private float _yOffsetTarget     = -0.4f;
 
     private ModeOrchestrator _orchestrator;
     private EventBus         _bus;
@@ -128,7 +129,7 @@ public class UserPanel : SpatialPanel
 
             if (Vector3.Distance(transform.position, _activeTarget.Value) < 0.015f)
             {
-                transform.position = _activeTarget.Value;
+                transform.position = _activeTarget.Value + new Vector3(0, _yOffsetTarget, 0);
                 _activeTarget       = null;
                 _followVelocity     = Vector3.zero;
             }
