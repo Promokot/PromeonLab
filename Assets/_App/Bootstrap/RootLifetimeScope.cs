@@ -17,5 +17,12 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<ModeOrchestrator>(Lifetime.Singleton);
         // AssetImporter registered in VrEditingSceneScope (needs SceneGraph)
         // AnimationClock — Phase 7
+
+        var userPanel = Object.FindAnyObjectByType<UserPanel>(FindObjectsInactive.Include);
+        if (userPanel != null)
+        {
+            builder.RegisterInstance(userPanel);
+            builder.RegisterBuildCallback(c => c.Inject(userPanel));
+        }
     }
 }

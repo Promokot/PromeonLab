@@ -23,10 +23,6 @@ public class VrEditingSceneScope : LifetimeScope
         if (undo != null)
             builder.RegisterInstance(undo);
 
-        var userPanel = Object.FindAnyObjectByType<UserPanel>(FindObjectsInactive.Include);
-        if (userPanel != null)
-            builder.RegisterInstance(userPanel);
-
         var rigRuntime = Object.FindAnyObjectByType<RigRuntime>(FindObjectsInactive.Include);
         if (rigRuntime != null) builder.RegisterInstance(rigRuntime).AsImplementedInterfaces().AsSelf();
 
