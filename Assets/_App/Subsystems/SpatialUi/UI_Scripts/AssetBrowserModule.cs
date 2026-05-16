@@ -28,6 +28,7 @@ public class AssetBrowserModule : MonoBehaviour
     [Header("Properties")]
     [SerializeField] private TMP_Text _propertiesText;
 
+    private ModeOrchestrator     _orchestrator;
     private BuiltinAssetLibrary  _builtinLibrary;
     private ImportedAssetLibrary _importedLibrary;
     private SavedAssetLibrary    _savedLibrary;
@@ -43,8 +44,9 @@ public class AssetBrowserModule : MonoBehaviour
     private Coroutine _anim;
 
     [Inject]
-    public void Construct(BuiltinAssetLibrary builtin, ImportedAssetLibrary imported, SavedAssetLibrary saved, EventBus bus)
+    public void Construct(ModeOrchestrator orchestrator, BuiltinAssetLibrary builtin, ImportedAssetLibrary imported, SavedAssetLibrary saved, EventBus bus)
     {
+        _orchestrator    = orchestrator;
         _builtinLibrary  = builtin;
         _importedLibrary = imported;
         _savedLibrary    = saved;
@@ -71,6 +73,8 @@ public class AssetBrowserModule : MonoBehaviour
     private void Start()
     {
         _bus?.Subscribe<ModeChangedEvent>(OnModeChanged);
+        _isEditableMode = _orchestrator?.CurrentMode is AppMode.VrEditing or AppMode.Sandbox;
+        RefreshSpawnButton();
         if (_builtinLibrary != null)
             SwitchLibrary(_builtinLibrary);
     }

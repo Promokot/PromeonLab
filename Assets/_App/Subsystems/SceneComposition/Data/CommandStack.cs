@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using VContainer;
 
 public class CommandStack
 {
     private readonly int _maxHistory;
     private readonly LinkedList<ICommand> _history = new();
 
-    public CommandStack() : this(30) { }
+    [Inject] public CommandStack() : this(30) { }
     public CommandStack(int maxHistory) => _maxHistory = maxHistory;
 
     public void Execute(ICommand command)
