@@ -9,8 +9,8 @@ public class PlayerSpawnApplier : UnityEngine.MonoBehaviour
     [Inject]
     public void Construct(EventBus bus) => _bus = bus;
 
-    private void OnEnable()  => _bus?.Subscribe<PlayerSpawnRequestedEvent>(OnSpawnRequested);
-    private void OnDisable() => _bus?.Unsubscribe<PlayerSpawnRequestedEvent>(OnSpawnRequested);
+    private void Start()     => _bus?.Subscribe<PlayerSpawnRequestedEvent>(OnSpawnRequested);
+    private void OnDestroy() => _bus?.Unsubscribe<PlayerSpawnRequestedEvent>(OnSpawnRequested);
 
     private void OnSpawnRequested(PlayerSpawnRequestedEvent e) =>
         transform.SetPositionAndRotation(e.Position, e.Rotation);
