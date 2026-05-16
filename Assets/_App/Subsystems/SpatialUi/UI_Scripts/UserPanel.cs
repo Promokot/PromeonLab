@@ -209,7 +209,6 @@ public class UserPanel : SpatialPanel
             Destroy(_currentContext);
             _currentContext = null;
         }
-
         if (_contextSlot == null) return;
 
         foreach (var entry in _contextMenus)
@@ -217,6 +216,15 @@ public class UserPanel : SpatialPanel
             if (entry.Mode == mode && entry.Prefab != null)
             {
                 _currentContext = Instantiate(entry.Prefab, _contextSlot);
+
+                VContainer.Unity.LifetimeScope scope = mode switch
+                {
+                    AppMode.VrEditing => VContainer.Unity.LifetimeScope.Find<VrEditingSceneScope>(),
+                    AppMode.Sandbox   => VContainer.Unity.LifetimeScope.Find<SandboxSceneScope>(),
+                    _                 => VContainer.Unity.LifetimeScope.Find<RootLifetimeScope>(),
+                };
+                scope?.Container.InjectGameObject(_currentContext);
+
                 _currentContext.transform.localPosition = Vector3.zero;
                 _currentContext.transform.localRotation = Quaternion.identity;
                 break;

@@ -7,7 +7,6 @@ using VContainer;
 public class SelectionInteractor : XRSimpleInteractable
 {
     private ISelectionManager _selectionManager;
-    private SceneNode _node;
 
     [Inject]
     public void Construct(ISelectionManager selectionManager)
@@ -15,12 +14,11 @@ public class SelectionInteractor : XRSimpleInteractable
         _selectionManager = selectionManager;
     }
 
-    private void Awake() => _node = GetComponentInParent<SceneNode>();
-
     protected override void OnSelectEntered(SelectEnterEventArgs args)
     {
         base.OnSelectEntered(args);
-        if (_node != null)
-            _selectionManager.Select(_node.NodeId);
+        var selectable = GetComponentInParent<Selectable>();
+        if (selectable != null && _selectionManager != null)
+            _selectionManager.Toggle(selectable.NodeId);
     }
 }

@@ -21,6 +21,7 @@ public class RootLifetimeScope : LifetimeScope
             Debug.LogError("RootLifetimeScope: _builtinLibrary not assigned!");
         builder.Register<ImportedAssetLibrary>(Lifetime.Singleton);
         builder.Register<SavedAssetLibrary>(Lifetime.Singleton);
+        builder.Register<AssetRegistry>(Lifetime.Singleton).As<IAssetRegistry>();
         builder.Register<ModeOrchestrator>(Lifetime.Singleton);
         // AssetImporter registered in VrEditingSceneScope (needs SceneGraph)
         // AnimationClock — Phase 7

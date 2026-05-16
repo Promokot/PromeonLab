@@ -2,7 +2,7 @@ public struct SceneOpenedEvent       { public string SceneId; }
 public struct SceneModifiedEvent     { }
 public struct SceneClosedEvent       { }
 public struct AssetImportedEvent     { public string AssetId; }
-public struct SelectionChangedEvent  { public string SelectedNodeId; }
+public struct SelectionChangedEvent  { public string SelectedNodeId; public string[] SelectedNodeIds; }
 public struct ModeChangedEvent       { public AppMode PreviousMode; public AppMode CurrentMode; }
 public struct FrameChangedEvent      { public int Frame; }
 public struct PlaybackStateChangedEvent { public bool IsPlaying; public int Frame; }

@@ -5,13 +5,15 @@ using VContainer.Unity;
 
 public class AssetSpawner : IStartable, IDisposable
 {
-    private readonly EventBus   _bus;
-    private readonly SceneGraph _graph;
+    private readonly EventBus              _bus;
+    private readonly SceneGraph            _graph;
+    private readonly IInteractableFactory  _factory;
 
-    public AssetSpawner(EventBus bus, SceneGraph graph)
+    public AssetSpawner(EventBus bus, SceneGraph graph, IInteractableFactory factory)
     {
-        _bus   = bus;
-        _graph = graph;
+        _bus     = bus;
+        _graph   = graph;
+        _factory = factory;
     }
 
     public void Start() =>
@@ -28,7 +30,15 @@ public class AssetSpawner : IStartable, IDisposable
         try
         {
             var go = await e.Asset.SpawnAsync(e.Position, e.Rotation, CancellationToken.None);
-            _graph.AddNode(go);
+            var assetRef = new AssetRef
+            {
+                Source  = e.Asset is BuiltinLabAsset  ? AssetSource.Builtin
+                        : e.Asset is ImportedLabAsset ? AssetSource.Imported
+                        : AssetSource.Saved,
+                AssetId = e.Asset.Id,
+            };
+            _graph.AddNode(go, assetRef, e.Asset.DisplayName);
+            _factory.MakeInteractable(go, e.Asset.Capabilities);
         }
         catch (Exception ex)
         {

@@ -1,1 +1,1 @@
-{ "name": "Subsystems.VrInteraction", "references": ["_Shared", "VContainer", "Unity.XR.Interaction.Toolkit", "Unity.InputSystem", "Subsystems.SceneComposition"], "autoReferenced": false }
+{ "name": "Subsystems.VrInteraction", "references": ["_Shared", "VContainer", "Unity.XR.Interaction.Toolkit", "Unity.InputSystem", "Subsystems.SceneComposition", "QuickOutline"], "autoReferenced": false }

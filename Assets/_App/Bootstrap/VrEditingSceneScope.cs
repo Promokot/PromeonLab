@@ -13,11 +13,17 @@ public class VrEditingSceneScope : LifetimeScope
         builder.Register<UiPanelManager>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<UnsavedChangesGuard>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SceneGraph>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+        builder.Register<SceneAutoSaver>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SelectionManager>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<CommandStack>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<GizmoController>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SelectionInteractorFactory>(Lifetime.Scoped).AsImplementedInterfaces();
+        builder.Register<SelectionVisualSync>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<AssetImporter>(Lifetime.Scoped);
+
+        var catcher = Object.FindAnyObjectByType<WorldClickCatcher>(FindObjectsInactive.Include);
+        if (catcher != null)
+            builder.RegisterBuildCallback(c => c.Inject(catcher));
 
         var undo = Object.FindAnyObjectByType<UndoKeyHandler>(FindObjectsInactive.Include);
         if (undo != null)

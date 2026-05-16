@@ -7,20 +7,12 @@ using UnityEngine;
 public class AssetImporter
 {
     private readonly DemoAssetCatalog _catalog;
-    private readonly AppStorage _storage;
-    private readonly SceneGraph _sceneGraph;
-    private readonly IInteractableFactory _interactableFactory;
+    private readonly AppStorage       _storage;
 
-    public AssetImporter(
-        DemoAssetCatalog catalog,
-        AppStorage storage,
-        SceneGraph sceneGraph,
-        IInteractableFactory interactableFactory)
+    public AssetImporter(DemoAssetCatalog catalog, AppStorage storage)
     {
-        _catalog             = catalog;
-        _storage             = storage;
-        _sceneGraph          = sceneGraph;
-        _interactableFactory = interactableFactory;
+        _catalog = catalog;
+        _storage = storage;
     }
 
     public async Task<(GameObject Instance, AssetEntry Entry)> ImportAsync(
@@ -40,17 +32,13 @@ public class AssetImporter
             demoEntry.Prefab, Vector3.zero, Quaternion.identity);
         instance.name = Path.GetFileNameWithoutExtension(fileName);
 
-        _interactableFactory.MakeInteractable(instance);
-
-        _sceneGraph.AddNode(instance);
-
         var assetEntry = new AssetEntry
         {
             AssetId      = Guid.NewGuid().ToString("N")[..8],
             Type         = demoEntry.Type,
             DisplayName  = instance.name,
             RelativePath = $"Models/{fileName}",
-            Icon         = demoEntry.Icon
+            Icon         = demoEntry.Icon,
         };
 
         return (instance, assetEntry);
