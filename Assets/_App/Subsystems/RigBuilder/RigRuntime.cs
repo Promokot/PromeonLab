@@ -47,7 +47,14 @@ public class RigRuntime : MonoBehaviour, IRigRuntime
             var t = FindBone(smr, bone.BoneName);
             if (t != null) transforms.Add(t);
         }
-        boneRenderer.transforms = transforms.ToArray();
+        var prop = typeof(BoneRenderer).GetProperty("transforms");
+        if (prop?.CanWrite == true)
+            prop.SetValue(boneRenderer, transforms.ToArray());
+        else
+        {
+            var field = typeof(BoneRenderer).GetField("m_Transforms", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (field != null) field.SetValue(boneRenderer, transforms.ToArray());
+        }
 
         foreach (var bone in definition.Bones)
         {
