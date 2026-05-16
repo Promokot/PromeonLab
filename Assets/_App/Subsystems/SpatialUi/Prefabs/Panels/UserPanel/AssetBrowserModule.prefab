@@ -366,7 +366,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.018759828, y: -0.0013131356}
+  m_AnchoredPosition: {x: -0.000028932467, y: 0.00095905917}
   m_SizeDelta: {x: 0, y: 270}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &3392323327422969711
@@ -514,7 +514,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 6511223361585423259}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.99999744
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1223,7 +1223,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 6158268841276177347}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9999645
+  m_Size: 0.9999962
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2085,8 +2085,7 @@ MonoBehaviour:
   _gridRoot: {fileID: 4076317750849525457}
   _cardPrefab: {fileID: 2576642692142701499, guid: 80c03fb1f6aeabf488069fed67014e25, type: 3}
   _addButton: {fileID: 4122990596930053370}
-  _propertiesSlot: {fileID: 4998804228982662538}
-  _propertiesViewPrefab: {fileID: 0}
+  _propertiesText: {fileID: 6983359259916040013}
 --- !u!1 &6221761282882802047
 GameObject:
   m_ObjectHideFlags: 0

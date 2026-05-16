@@ -15,7 +15,10 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<EventBus>(Lifetime.Singleton);
         builder.RegisterInstance(_demoAssetCatalog);
         builder.RegisterInstance(_transitionGraph);
-        builder.RegisterInstance(_builtinLibrary);
+        if (_builtinLibrary != null)
+            builder.RegisterInstance(_builtinLibrary);
+        else
+            Debug.LogError("RootLifetimeScope: _builtinLibrary not assigned!");
         builder.Register<ImportedAssetLibrary>(Lifetime.Singleton);
         builder.Register<SavedAssetLibrary>(Lifetime.Singleton);
         builder.Register<ModeOrchestrator>(Lifetime.Singleton);
@@ -28,6 +31,10 @@ public class RootLifetimeScope : LifetimeScope
             builder.RegisterInstance(userPanel);
             builder.RegisterBuildCallback(c => c.Inject(userPanel));
         }
+
+        var assetBrowser = Object.FindAnyObjectByType<AssetBrowserModule>(FindObjectsInactive.Include);
+        if (assetBrowser != null)
+            builder.RegisterBuildCallback(c => c.Inject(assetBrowser));
 
         var spawnApplier = Object.FindAnyObjectByType<PlayerSpawnApplier>(FindObjectsInactive.Include);
         if (spawnApplier != null)

@@ -53,16 +53,10 @@ public class UserPanel : SpatialPanel
     private static readonly Color ColorLocked   = new Color(0.80f, 0.50f, 0.10f, 0.95f);
 
     [Inject]
-    public void Construct(
-        ModeOrchestrator     orchestrator,
-        EventBus             bus,
-        BuiltinAssetLibrary  builtinLibrary,
-        ImportedAssetLibrary importedLibrary,
-        SavedAssetLibrary    savedLibrary)
+    public void Construct(ModeOrchestrator orchestrator, EventBus bus)
     {
         _orchestrator = orchestrator;
         _bus          = bus;
-        _assetBrowserModule?.Init(builtinLibrary, importedLibrary, savedLibrary);
     }
 
     private void Start()

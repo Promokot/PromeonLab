@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Threading;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VContainer;
 using SimpleFileBrowser;
 
 public class AssetBrowserModule : MonoBehaviour
@@ -18,30 +20,26 @@ public class AssetBrowserModule : MonoBehaviour
     [SerializeField] private Button _savedTabButton;
 
     [Header("Grid")]
-    [SerializeField] private Transform   _gridRoot;
+    [SerializeField] private Transform    _gridRoot;
     [SerializeField] private LabAssetCard _cardPrefab;
     [SerializeField] private Button       _addButton;
 
     [Header("Properties")]
-    [SerializeField] private Transform          _propertiesSlot;
-    [SerializeField] private AssetPropertiesView _propertiesViewPrefab;
+    [SerializeField] private TMP_Text _propertiesText;
 
     private BuiltinAssetLibrary  _builtinLibrary;
     private ImportedAssetLibrary _importedLibrary;
     private SavedAssetLibrary    _savedLibrary;
 
-    private IAssetLibrary        _activeLibrary;
-    private AssetPropertiesView  _currentPropertiesView;
+    private IAssetLibrary _activeLibrary;
 
     private Vector3   _shownLocalPos;
     private Vector3   _hiddenLocalPos;
     private bool      _visible;
     private Coroutine _anim;
 
-    public void Init(
-        BuiltinAssetLibrary builtin,
-        ImportedAssetLibrary imported,
-        SavedAssetLibrary saved)
+    [Inject]
+    public void Construct(BuiltinAssetLibrary builtin, ImportedAssetLibrary imported, SavedAssetLibrary saved)
     {
         _builtinLibrary  = builtin;
         _importedLibrary = imported;
@@ -58,10 +56,10 @@ public class AssetBrowserModule : MonoBehaviour
         _canvasGroup.interactable   = false;
         _canvasGroup.blocksRaycasts = false;
 
-        _builtinTabButton.onClick.AddListener(() => SwitchLibrary(_builtinLibrary));
-        _importedTabButton.onClick.AddListener(() => SwitchLibrary(_importedLibrary));
-        _savedTabButton.onClick.AddListener(() => SwitchLibrary(_savedLibrary));
-        _addButton.onClick.AddListener(OnAddClicked);
+        _builtinTabButton?.onClick.AddListener(() => SwitchLibrary(_builtinLibrary));
+        _importedTabButton?.onClick.AddListener(() => SwitchLibrary(_importedLibrary));
+        _savedTabButton?.onClick.AddListener(() => SwitchLibrary(_savedLibrary));
+        _addButton?.onClick.AddListener(OnAddClicked);
     }
 
     private void Start()
@@ -99,7 +97,7 @@ public class AssetBrowserModule : MonoBehaviour
         foreach (Transform child in _gridRoot)
             Destroy(child.gameObject);
 
-        HideProperties();
+        ClearProperties();
 
         if (_activeLibrary == null || _cardPrefab == null) return;
 
@@ -115,17 +113,16 @@ public class AssetBrowserModule : MonoBehaviour
 
     private void ShowProperties(ILabAsset asset)
     {
-        HideProperties();
-        if (_propertiesViewPrefab == null || _propertiesSlot == null) return;
-        _currentPropertiesView = Instantiate(_propertiesViewPrefab, _propertiesSlot);
-        _currentPropertiesView.Bind(asset);
+        if (_propertiesText == null) return;
+        _propertiesText.text =
+            $"Name: {asset.DisplayName}\n" +
+            $"Type: {asset.Type}";
     }
 
-    private void HideProperties()
+    private void ClearProperties()
     {
-        if (_currentPropertiesView == null) return;
-        Destroy(_currentPropertiesView.gameObject);
-        _currentPropertiesView = null;
+        if (_propertiesText != null)
+            _propertiesText.text = string.Empty;
     }
 
     private void OnAddClicked()

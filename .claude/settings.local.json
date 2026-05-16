@@ -8,7 +8,8 @@
       "Skill(unity-mcp-skill)",
       "mcp__unityMCP__manage_gameobject",
       "mcp__unityMCP__manage_scene",
-      "mcp__unityMCP__find_gameobjects"
+      "mcp__unityMCP__find_gameobjects",
+      "mcp__unityMCP__read_console"
     ]
   },
   "enabledMcpjsonServers": [
