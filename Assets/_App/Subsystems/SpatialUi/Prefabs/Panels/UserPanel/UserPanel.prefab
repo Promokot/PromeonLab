@@ -264,7 +264,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Subsystems.SpatialUi::UserPanel
   _panelType: 0
   _billboard: 1
-  _defaultOffset: {x: 0, y: 0, z: 0.8}
+  _defaultOffset: {x: 0, y: 0, z: 0}
   _lazyFollow: 1
   _lazyAngle: 45
   _lazySpeed: 2
@@ -289,8 +289,8 @@ MonoBehaviour:
   _minDistance: 0.25
   _preferredDistance: 0.7
   _maxDistance: 1.25
-  _yOffset: -0.15
-  _yOffsetTarget: -0.4
+  _yOffset: -0.18
+  _faceBelowOffset: 0.18
 --- !u!114 &6209610178671762348
 MonoBehaviour:
   m_ObjectHideFlags: 0
