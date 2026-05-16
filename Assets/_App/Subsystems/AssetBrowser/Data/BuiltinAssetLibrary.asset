@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce326e58cfb9b6241b614b278041b07f, type: 3}
+  m_Name: BuiltinAssetLibrary
+  m_EditorClassIdentifier: Subsystems.AssetBrowser::BuiltinAssetLibrary
+  _entries:
+  - _id: 001
+    _displayName: CoffeTable
+    _type: 0
+    _icon: {fileID: 21300000, guid: 7b44e63be4ca308418f6de1e37336057, type: 3}
+    _prefab: {fileID: 2299578420850200342, guid: b235c805f008f6f4da469f7364846b10, type: 3}
+  - _id: 002
+    _displayName: Drawer
+    _type: 0
+    _icon: {fileID: 21300000, guid: 4679f7b7343bdbf46822ce9537199054, type: 3}
+    _prefab: {fileID: 1511515837578834361, guid: 676edecf7cf6d7645a15b3550dce3e70, type: 3}
+  - _id: 003
+    _displayName: Storage
+    _type: 0
+    _icon: {fileID: 21300000, guid: 6456abc86c4b64c4ca478b0f17051174, type: 3}
+    _prefab: {fileID: 2412714583272646910, guid: 6f78a21f077ae8f4f85a5d7128a8056d, type: 3}
+  - _id: 004
+    _displayName: Toilet
+    _type: 0
+    _icon: {fileID: 21300000, guid: 1ba136227da9cbf428376981c1a70d00, type: 3}
+    _prefab: {fileID: 7584598876083903512, guid: 5e1b8b1cf115f2940b01346027776031, type: 3}

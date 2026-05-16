@@ -6,6 +6,7 @@ public class RootLifetimeScope : LifetimeScope
 {
     [SerializeField] private DemoAssetCatalog    _demoAssetCatalog;
     [SerializeField] private ModeTransitionGraph _transitionGraph;
+    [SerializeField] private BuiltinAssetLibrary _builtinLibrary;
 
     protected override void Configure(IContainerBuilder builder)
     {
@@ -14,6 +15,9 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<EventBus>(Lifetime.Singleton);
         builder.RegisterInstance(_demoAssetCatalog);
         builder.RegisterInstance(_transitionGraph);
+        builder.RegisterInstance(_builtinLibrary);
+        builder.Register<ImportedAssetLibrary>(Lifetime.Singleton);
+        builder.Register<SavedAssetLibrary>(Lifetime.Singleton);
         builder.Register<ModeOrchestrator>(Lifetime.Singleton);
         // AssetImporter registered in VrEditingSceneScope (needs SceneGraph)
         // AnimationClock — Phase 7

@@ -27,4 +27,10 @@ public class PathProvider
 
     public string ScenesRoot() =>
         Path.Combine(_root, "scenes");
+
+    public string ImportedLibraryPath =>
+        Path.Combine(_root, "asset-library", "imported.json");
+
+    public string SavedLibraryPath =>
+        Path.Combine(_root, "asset-library", "saved.json");
 }

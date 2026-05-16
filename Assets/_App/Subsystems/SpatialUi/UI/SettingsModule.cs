@@ -35,6 +35,7 @@ public class SettingsModule : MonoBehaviour
 
     public void Hide()
     {
+        if (!_visible) return;
         _visible = false;
         if (_anim != null) StopCoroutine(_anim);
         _anim = StartCoroutine(AnimRoutine(false));

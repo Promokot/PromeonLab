@@ -13,9 +13,6 @@ MonoBehaviour:
   m_Name: DefaultPanelRegistry
   m_EditorClassIdentifier: Subsystems.SpatialUi::PanelRegistry
   _panels:
-  - Id: 1
-    Prefab: {fileID: 7715935014661824792, guid: c8136c8b800227948b691ce8f7e0e448, type: 3}
-    VisibleInModes: 01000000
-  - Id: 7
+  - Id: 6
     Prefab: {fileID: 8573857923733603883, guid: 7a4de75d919ab50449b093180517b28c, type: 3}
-    VisibleInModes: 0100000004000000
+    VisibleInModes: 000000000100000004000000020000000300000005000000

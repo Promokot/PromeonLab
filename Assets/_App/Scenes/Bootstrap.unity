@@ -474,6 +474,7 @@ MonoBehaviour:
   autoInjectGameObjects: []
   _demoAssetCatalog: {fileID: 11400000, guid: 7dea85a16edadbd43a3aad3be23c3725, type: 2}
   _transitionGraph: {fileID: 11400000, guid: 09614598fc34b51479f27ca93cf85d8d, type: 2}
+  _builtinLibrary: {fileID: 11400000, guid: 30918a1e8f7dd9b42b4b376d5cf19bf1, type: 2}
 --- !u!4 &1973147092 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6598815579406187027, guid: 18ddb545287c546e19cc77dc9fbb2189, type: 3}

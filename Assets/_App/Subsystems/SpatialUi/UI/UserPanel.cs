@@ -15,11 +15,13 @@ public class UserPanel : SpatialPanel
     [Header("Navigation")]
     [SerializeField] private Button _mainMenuButton;
     [SerializeField] private Button _settingsButton;
+    [SerializeField] private Button _assetsButton;
     [SerializeField] private Button _exitButton;
 
     [Header("Modules")]
-    [SerializeField] private SettingsModule _settingsModule;
-    [SerializeField] private Transform      _contextSlot;
+    [SerializeField] private SettingsModule     _settingsModule;
+    [SerializeField] private AssetBrowserModule _assetBrowserModule;
+    [SerializeField] private Transform          _contextSlot;
 
     [Header("Context Menus")]
     [SerializeField] private ContextMenuEntry[] _contextMenus;
@@ -51,16 +53,23 @@ public class UserPanel : SpatialPanel
     private static readonly Color ColorLocked   = new Color(0.80f, 0.50f, 0.10f, 0.95f);
 
     [Inject]
-    public void Construct(ModeOrchestrator orchestrator, EventBus bus)
+    public void Construct(
+        ModeOrchestrator     orchestrator,
+        EventBus             bus,
+        BuiltinAssetLibrary  builtinLibrary,
+        ImportedAssetLibrary importedLibrary,
+        SavedAssetLibrary    savedLibrary)
     {
         _orchestrator = orchestrator;
         _bus          = bus;
+        _assetBrowserModule?.Init(builtinLibrary, importedLibrary, savedLibrary);
     }
 
     private void Start()
     {
         _mainMenuButton.onClick.AddListener(OnMainMenu);
         _settingsButton.onClick.AddListener(OnSettings);
+        _assetsButton?.onClick.AddListener(OnAssetsToggle);
         _exitButton.onClick.AddListener(OnExit);
         _lockButton?.onClick.AddListener(OnLockToggle);
         _bus?.Subscribe<ModeChangedEvent>(OnModeChanged);
@@ -165,8 +174,21 @@ public class UserPanel : SpatialPanel
     }
 
     private void OnMainMenu() => _orchestrator?.TransitionTo(AppMode.MainMenu);
-    private void OnSettings() => _settingsModule?.Toggle();
     private void OnExit()     => Application.Quit();
+
+    private void OnSettings()
+    {
+        _assetBrowserModule?.Hide();
+        _settingsModule?.Toggle();
+    }
+
+    private void OnAssetsToggle()
+    {
+        _settingsModule?.Hide();
+        _assetBrowserModule?.Toggle();
+    }
+
+    public void ToggleAssetsModule() => OnAssetsToggle();
 
     private void OnModeChanged(ModeChangedEvent e) => SwapContext(e.CurrentMode);
 
