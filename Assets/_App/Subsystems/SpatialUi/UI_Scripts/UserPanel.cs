@@ -142,7 +142,13 @@ public class UserPanel : SpatialPanel
         return f.sqrMagnitude > 0.001f ? f.normalized : Vector3.forward;
     }
 
-    public void ResetPosition() => _initialized = false;
+    public void ResetPosition()
+    {
+        _initialized = false;
+        _locked      = false;
+        if (_lockButtonImage != null)
+            _lockButtonImage.color = ColorUnlocked;
+    }
 
     public void SetDragging(bool active)
     {
