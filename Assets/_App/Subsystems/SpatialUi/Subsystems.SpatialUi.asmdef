@@ -6,6 +6,10 @@
     "Unity.XR.Interaction.Toolkit",
     "Subsystems.ModeOrchestrator",
     "Subsystems.StorageCore",
+    "Subsystems.SceneComposition",
+    "Subsystems.AssetBrowser",
+    "Subsystems.RigBuilder",
+    "SimpleFileBrowser.Runtime",
     "Unity.TextMeshPro",
     "Unity.InputSystem"
   ],

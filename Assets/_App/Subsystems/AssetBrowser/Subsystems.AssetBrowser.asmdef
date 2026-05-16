@@ -3,12 +3,8 @@
   "references": [
     "_Shared",
     "VContainer",
-    "SimpleFileBrowser.Runtime",
     "Subsystems.StorageCore",
-    "Subsystems.ModeOrchestrator",
-    "Subsystems.SceneComposition",
-    "Subsystems.SpatialUi",
-    "Unity.TextMeshPro"
+    "Subsystems.SceneComposition"
   ],
   "autoReferenced": false
 }
