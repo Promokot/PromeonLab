@@ -160,11 +160,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 439693375}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dbfa4f08b550b7342a0490d2f6182db0, type: 3}
+  m_Script: {fileID: 11500000, guid: 7eb2eff948c91c04cb26e7c48c441e6a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: _App::VrEditingSceneScope
+  m_EditorClassIdentifier: _App::SandboxSceneScope
   parentReference:
-    TypeName: MainMenuSceneScope
+    TypeName: RootLifetimeScope
   autoRun: 1
   autoInjectGameObjects: []
   _panelRegistry: {fileID: 11400000, guid: a887d01d6cbad31468655994aa5adb01, type: 2}

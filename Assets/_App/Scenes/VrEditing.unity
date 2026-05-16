@@ -197,7 +197,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: _App::VrEditingSceneScope
   parentReference:
-    TypeName: MainMenuSceneScope
+    TypeName: RootLifetimeScope
   autoRun: 1
   autoInjectGameObjects: []
   _panelRegistry: {fileID: 11400000, guid: a887d01d6cbad31468655994aa5adb01, type: 2}

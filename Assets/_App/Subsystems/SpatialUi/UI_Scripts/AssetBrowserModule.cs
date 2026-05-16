@@ -23,6 +23,7 @@ public class AssetBrowserModule : MonoBehaviour
     [SerializeField] private Transform    _gridRoot;
     [SerializeField] private LabAssetCard _cardPrefab;
     [SerializeField] private Button       _addButton;
+    [SerializeField] private Button       _spawnButton;
 
     [Header("Properties")]
     [SerializeField] private TMP_Text _propertiesText;
@@ -30,8 +31,10 @@ public class AssetBrowserModule : MonoBehaviour
     private BuiltinAssetLibrary  _builtinLibrary;
     private ImportedAssetLibrary _importedLibrary;
     private SavedAssetLibrary    _savedLibrary;
+    private EventBus             _bus;
 
     private IAssetLibrary _activeLibrary;
+    private ILabAsset     _selectedAsset;
 
     private Vector3   _shownLocalPos;
     private Vector3   _hiddenLocalPos;
@@ -39,11 +42,12 @@ public class AssetBrowserModule : MonoBehaviour
     private Coroutine _anim;
 
     [Inject]
-    public void Construct(BuiltinAssetLibrary builtin, ImportedAssetLibrary imported, SavedAssetLibrary saved)
+    public void Construct(BuiltinAssetLibrary builtin, ImportedAssetLibrary imported, SavedAssetLibrary saved, EventBus bus)
     {
         _builtinLibrary  = builtin;
         _importedLibrary = imported;
         _savedLibrary    = saved;
+        _bus             = bus;
     }
 
     private void Awake()
@@ -60,6 +64,9 @@ public class AssetBrowserModule : MonoBehaviour
         _importedTabButton?.onClick.AddListener(() => SwitchLibrary(_importedLibrary));
         _savedTabButton?.onClick.AddListener(() => SwitchLibrary(_savedLibrary));
         _addButton?.onClick.AddListener(OnAddClicked);
+        _spawnButton?.onClick.AddListener(OnSpawnClicked);
+
+        if (_spawnButton != null) _spawnButton.interactable = false;
     }
 
     private void Start()
@@ -97,6 +104,7 @@ public class AssetBrowserModule : MonoBehaviour
         foreach (Transform child in _gridRoot)
             Destroy(child.gameObject);
 
+        ClearSelection();
         ClearProperties();
 
         if (_activeLibrary == null || _cardPrefab == null) return;
@@ -109,7 +117,18 @@ public class AssetBrowserModule : MonoBehaviour
         }
     }
 
-    private void OnCardSelected(LabAssetCard card) => ShowProperties(card.Asset);
+    private void OnCardSelected(LabAssetCard card)
+    {
+        _selectedAsset = card.Asset;
+        if (_spawnButton != null) _spawnButton.interactable = true;
+        ShowProperties(card.Asset);
+    }
+
+    private void ClearSelection()
+    {
+        _selectedAsset = null;
+        if (_spawnButton != null) _spawnButton.interactable = false;
+    }
 
     private void ShowProperties(ILabAsset asset)
     {
@@ -123,6 +142,31 @@ public class AssetBrowserModule : MonoBehaviour
     {
         if (_propertiesText != null)
             _propertiesText.text = string.Empty;
+    }
+
+    private void OnSpawnClicked()
+    {
+        if (_selectedAsset == null || _bus == null) return;
+
+        var cam = Camera.main?.transform;
+        if (cam == null) return;
+
+        var fwd = cam.forward;
+        fwd.y = 0f;
+        if (fwd.sqrMagnitude < 0.001f) fwd = Vector3.forward;
+        else fwd.Normalize();
+
+        var pos = new Vector3(
+            cam.position.x + fwd.x * 1.2f,
+            0f,
+            cam.position.z + fwd.z * 1.2f);
+
+        _bus.Publish(new AssetSpawnRequestedEvent
+        {
+            Asset    = _selectedAsset,
+            Position = pos,
+            Rotation = Quaternion.identity,
+        });
     }
 
     private void OnAddClicked()
