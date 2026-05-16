@@ -1,3 +1,4 @@
+using SimpleFileBrowser;
 using UnityEngine;
 
 [RequireComponent(typeof(Canvas))]
@@ -6,24 +7,44 @@ public class FileBrowserVrAnchor : MonoBehaviour
     [SerializeField] private float _forwardOffset = 0.02f;
     [SerializeField] private float _scale         = 0.001f;
 
+    private AssetBrowserModule _target;
+
     private void Start()
     {
-        var target = Object.FindAnyObjectByType<AssetBrowserModule>(FindObjectsInactive.Include);
-        if (target == null)
+        _target = Object.FindAnyObjectByType<AssetBrowserModule>(FindObjectsInactive.Include);
+
+        transform.localScale = Vector3.one * _scale;
+
+        var canvas  = GetComponent<Canvas>();
+        var mainCam = Camera.main;
+        if (canvas != null && mainCam != null)
+            canvas.worldCamera = mainCam;
+
+        RepositionToTarget();
+    }
+
+    private void LateUpdate()
+    {
+        if (_target == null)
+            return;
+
+        if (!_target.gameObject.activeInHierarchy)
         {
-            Debug.LogWarning("FileBrowserVrAnchor: AssetBrowserModule not found — file browser will appear at world origin.");
+            // HideDialog → SetActive(false) on this same GameObject is safe;
+            // Unity stops LateUpdate for inactive objects after this call returns.
+            if (FileBrowser.IsOpen)
+                FileBrowser.HideDialog();
             return;
         }
 
-        var t = target.transform;
-        // Panel forward points away from user; subtract to move toward camera.
-        transform.position   = t.position - t.forward * _forwardOffset;
-        transform.rotation   = t.rotation;
-        transform.localScale = Vector3.one * _scale;
+        RepositionToTarget();
+    }
 
-        var mainCam = Camera.main;
-        var canvas  = GetComponent<Canvas>();
-        if (canvas != null && mainCam != null)
-            canvas.worldCamera = mainCam;
+    private void RepositionToTarget()
+    {
+        if (_target == null) return;
+        var t = _target.transform;
+        transform.position = t.position - t.forward * _forwardOffset;
+        transform.rotation = t.rotation;
     }
 }

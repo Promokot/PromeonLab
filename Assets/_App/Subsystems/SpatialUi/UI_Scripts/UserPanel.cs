@@ -37,7 +37,8 @@ public class UserPanel : SpatialPanel
     [SerializeField] private float _preferredDistance = 0.7f;
     [SerializeField] private float _maxDistance       = 1.25f;
     [SerializeField] private float _yOffset           = -0.15f;
-    [SerializeField] private float _yOffsetTarget     = -0.4f;
+    [Range(0f, 0.5f)]
+[SerializeField] private float _faceBelowOffset   = 0.15f;
 
     private ModeOrchestrator _orchestrator;
     private EventBus         _bus;
@@ -80,7 +81,7 @@ public class UserPanel : SpatialPanel
         if (!_isDragging && !_locked)
             UpdateSmartFollow();
 
-        FaceCamera();
+        FaceCameraBelow(); // intentionally replaces base FaceCamera()
     }
 
     private void UpdateSmartFollow()
@@ -111,13 +112,13 @@ public class UserPanel : SpatialPanel
             {
                 // Camera turned: re-center in front
                 var targetXZ = camXZ + yaw * _preferredDistance;
-                _activeTarget = new Vector3(targetXZ.x, transform.position.y, targetXZ.z);
+                _activeTarget = new Vector3(targetXZ.x, _cameraTransform.position.y + _yOffset, targetXZ.z);
             }
             else if (xzDist < _minDistance || xzDist > _maxDistance)
             {
                 // Too close or too far: move to preferred distance along same direction
                 var targetXZ = camXZ + delta.normalized * _preferredDistance;
-                _activeTarget = new Vector3(targetXZ.x, transform.position.y, targetXZ.z);
+                _activeTarget = new Vector3(targetXZ.x, _cameraTransform.position.y + _yOffset, targetXZ.z);
             }
         }
 
@@ -129,7 +130,7 @@ public class UserPanel : SpatialPanel
 
             if (Vector3.Distance(transform.position, _activeTarget.Value) < 0.015f)
             {
-                transform.position = _activeTarget.Value + new Vector3(0, _yOffsetTarget, 0);
+                transform.position = _activeTarget.Value;
                 _activeTarget       = null;
                 _followVelocity     = Vector3.zero;
             }
@@ -141,6 +142,14 @@ public class UserPanel : SpatialPanel
         var f = _cameraTransform.forward;
         f.y = 0f;
         return f.sqrMagnitude > 0.001f ? f.normalized : Vector3.forward;
+    }
+
+    private void FaceCameraBelow()
+    {
+        var target = _cameraTransform.position + Vector3.down * _faceBelowOffset;
+        var dir    = transform.position - target;
+        if (dir.sqrMagnitude > 0.001f)
+            transform.rotation = Quaternion.LookRotation(dir);
     }
 
     public void ResetPosition()
