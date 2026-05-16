@@ -289,7 +289,7 @@ MonoBehaviour:
   _minDistance: 0.25
   _preferredDistance: 0.7
   _maxDistance: 1.25
-  _yOffset: -0.18
+  _yOffset: -0.21
   _faceBelowOffset: 0.18
 --- !u!114 &6209610178671762348
 MonoBehaviour:
