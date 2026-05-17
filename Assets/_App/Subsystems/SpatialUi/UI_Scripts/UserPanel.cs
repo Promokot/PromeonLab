@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
+using VContainer.Unity;
 
 public class UserPanel : SpatialPanel
 {
@@ -42,6 +43,7 @@ public class UserPanel : SpatialPanel
 
     private ModeOrchestrator _orchestrator;
     private EventBus         _bus;
+    private IObjectResolver  _resolver;
     private GameObject       _currentContext;
 
     private bool    _locked;
@@ -55,10 +57,11 @@ public class UserPanel : SpatialPanel
     private static readonly Color ColorLocked   = new Color(0.80f, 0.50f, 0.10f, 0.95f);
 
     [Inject]
-    public void Construct(ModeOrchestrator orchestrator, EventBus bus)
+    public void Construct(ModeOrchestrator orchestrator, EventBus bus, IObjectResolver resolver)
     {
         _orchestrator = orchestrator;
         _bus          = bus;
+        _resolver     = resolver;
     }
 
     private void Start()
@@ -216,14 +219,7 @@ public class UserPanel : SpatialPanel
             if (entry.Mode == mode && entry.Prefab != null)
             {
                 _currentContext = Instantiate(entry.Prefab, _contextSlot);
-
-                VContainer.Unity.LifetimeScope scope = mode switch
-                {
-                    AppMode.VrEditing => VContainer.Unity.LifetimeScope.Find<VrEditingSceneScope>(),
-                    AppMode.Sandbox   => VContainer.Unity.LifetimeScope.Find<SandboxSceneScope>(),
-                    _                 => VContainer.Unity.LifetimeScope.Find<RootLifetimeScope>(),
-                };
-                scope?.Container.InjectGameObject(_currentContext);
+                _resolver?.InjectGameObject(_currentContext);
 
                 _currentContext.transform.localPosition = Vector3.zero;
                 _currentContext.transform.localRotation = Quaternion.identity;
