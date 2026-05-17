@@ -35,8 +35,13 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
             _ = OnSceneOpenedAsync(new SceneOpenedEvent { SceneId = activeId });
     }
 
-    public void Dispose() =>
+    public void Dispose()
+    {
         _bus.Unsubscribe<SceneOpenedEvent>(OnSceneOpened);
+        _nodes.Clear();
+        if (_spawnedRoot != null)
+            UnityEngine.Object.Destroy(_spawnedRoot.gameObject);
+    }
 
     public SceneNode AddNode(GameObject go, AssetRef assetRef, string displayName, string parentId = null)
     {
