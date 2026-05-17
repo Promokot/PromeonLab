@@ -1,47 +1,48 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using VContainer;
 
 public class WorldClickCatcher : MonoBehaviour
 {
-    [SerializeField] private XRRayInteractor _leftRay;
-    [SerializeField] private XRRayInteractor _rightRay;
-    [SerializeField] private InputActionReference _leftSelectAction;
-    [SerializeField] private InputActionReference _rightSelectAction;
+    [SerializeField] private NearFarInteractor _leftInteractor;
+    [SerializeField] private NearFarInteractor _rightInteractor;
 
     private ISelectionManager _selectionManager;
+    private bool _leftWasActive;
+    private bool _rightWasActive;
 
     [Inject]
     public void Construct(ISelectionManager selectionManager) => _selectionManager = selectionManager;
 
     private void OnEnable()
     {
-        if (_leftSelectAction != null)  _leftSelectAction.action.performed  += OnLeft;
-        if (_rightSelectAction != null) _rightSelectAction.action.performed += OnRight;
+        _leftWasActive  = _leftInteractor  != null && _leftInteractor.isSelectActive;
+        _rightWasActive = _rightInteractor != null && _rightInteractor.isSelectActive;
     }
 
-    private void OnDisable()
+    private void Update()
     {
-        if (_leftSelectAction != null)  _leftSelectAction.action.performed  -= OnLeft;
-        if (_rightSelectAction != null) _rightSelectAction.action.performed -= OnRight;
+        Check(_leftInteractor,  ref _leftWasActive);
+        Check(_rightInteractor, ref _rightWasActive);
     }
 
-    private void OnLeft(InputAction.CallbackContext _)  => CheckRay(_leftRay);
-    private void OnRight(InputAction.CallbackContext _) => CheckRay(_rightRay);
-
-    private void CheckRay(XRRayInteractor ray)
+    private void Check(NearFarInteractor interactor, ref bool wasActive)
     {
-        if (ray == null || _selectionManager == null) return;
-        if (ray.TryGetCurrent3DRaycastHit(out var hit))
+        if (interactor == null || _selectionManager == null) return;
+
+        var isActive    = interactor.isSelectActive;
+        var justPressed = isActive && !wasActive;
+        wasActive = isActive;
+
+        if (!justPressed) return;
+
+        foreach (var hovered in interactor.interactablesHovered)
         {
-            if (hit.collider.GetComponentInParent<Selectable>() == null
-                && hit.collider.GetComponentInParent<UnityEngine.UI.Graphic>() == null)
-                _selectionManager.Clear();
+            var go = (hovered as MonoBehaviour)?.gameObject;
+            if (go == null) continue;
+            if (go.GetComponentInParent<Selectable>() != null) return;
+            if (go.GetComponentInParent<UnityEngine.UI.Graphic>() != null) return;
         }
-        else
-        {
-            _selectionManager.Clear();
-        }
+        _selectionManager.Clear();
     }
 }
