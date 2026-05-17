@@ -39,7 +39,7 @@ MonoBehaviour:
     _capabilities: -1
   - _id: 005
     _displayName: Crush Dummy
-    _type: 0
+    _type: 1
     _icon: {fileID: 21300000, guid: 1ba136227da9cbf428376981c1a70d00, type: 3}
     _prefab: {fileID: 2750388296949763369, guid: 82ecb4e002572ab429958ed4d024d1e1, type: 3}
     _capabilities: -1
