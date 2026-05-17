@@ -9,6 +9,7 @@ public class NavBarConfig : ScriptableObject
     {
         public string    Id;
         public AppMode[] VisibleModes;
+        public string    ExclusiveGroup;
     }
 
     [SerializeField] private Entry[] _entries;

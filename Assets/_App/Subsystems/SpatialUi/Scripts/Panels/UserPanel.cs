@@ -87,6 +87,7 @@ public class UserPanel : SpatialPanel
                 var inactive              = block;
                 inactive.normalColor      = baseColor;
                 inactive.highlightedColor = Brighten(baseColor, _inactiveHoverBrightness);
+                inactive.selectedColor    = baseColor;
                 _inactiveColors[i]        = inactive;
 
                 var active              = block;
@@ -251,7 +252,12 @@ public class UserPanel : SpatialPanel
         if (b.Panel == null) return;
 
         var willShow = !b.Panel.activeSelf;
-        if (willShow) HideAllPanels(exceptIdx: idx);
+        if (willShow)
+        {
+            var group = GetGroup(idx);
+            if (!string.IsNullOrEmpty(group))
+                HidePanelsInGroup(group, exceptIdx: idx);
+        }
         b.Panel.SetActive(willShow);
         SetActiveState(idx, willShow);
     }
@@ -270,11 +276,18 @@ public class UserPanel : SpatialPanel
             SetActiveState(idx, false);
     }
 
-    private void HideAllPanels(int exceptIdx = -1)
+    private string GetGroup(int idx)
+    {
+        if (_navBarConfig == null) return null;
+        return _navBarConfig.TryGetEntry(_bindings[idx].EntryId, out var e) ? e.ExclusiveGroup : null;
+    }
+
+    private void HidePanelsInGroup(string group, int exceptIdx = -1)
     {
         for (int i = 0; i < (_bindings?.Length ?? 0); i++)
         {
             if (i == exceptIdx) continue;
+            if (GetGroup(i) != group) continue;
             var p = _bindings[i].Panel;
             if (p != null && p.activeSelf)
             {
@@ -302,8 +315,11 @@ public class UserPanel : SpatialPanel
     private static Color Brighten(Color c, float mult)
     {
         Color.RGBToHSV(c, out float h, out float s, out float v);
-        var result = Color.HSVToRGB(h, s, Mathf.Clamp01(v * mult));
-        result.a = c.a;
+        var vNew   = mult >= 1f
+            ? Mathf.Clamp01(v + (mult - 1f) * (1f - v + 0.05f))
+            : v * mult;
+        var result = Color.HSVToRGB(h, s, vNew);
+        result.a   = c.a;
         return result;
     }
 }
