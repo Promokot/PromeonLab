@@ -15,15 +15,22 @@ MonoBehaviour:
   _entries:
   - Id: settings
     VisibleModes: 0000000001000000040000000200000003000000
+    ExclusiveGroup: center
   - Id: assets
     VisibleModes: 000000000100000004000000
+    ExclusiveGroup: center
   - Id: outliner
     VisibleModes: 0100000004000000
+    ExclusiveGroup: left
   - Id: inspector
     VisibleModes: 0100000004000000
+    ExclusiveGroup: right
   - Id: timeline
     VisibleModes: 01000000
+    ExclusiveGroup: center
   - Id: rigging
     VisibleModes: 0100000004000000
+    ExclusiveGroup: 
   - Id: gizmo
     VisibleModes: 0100000004000000
+    ExclusiveGroup: 
