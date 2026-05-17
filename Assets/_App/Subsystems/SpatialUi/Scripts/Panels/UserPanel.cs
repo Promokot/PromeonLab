@@ -8,9 +8,9 @@ public class UserPanel : SpatialPanel
     [Serializable]
     public struct NavBarBinding
     {
-        public string        EntryId;
-        public Button        NavButton;
-        public MonoBehaviour Panel;    // SettingsModule, AssetBrowserModule, or DetachablePanel
+        public string     EntryId;
+        public Button     NavButton;
+        public GameObject Panel;
     }
 
     [Header("Navigation")]
@@ -20,6 +20,11 @@ public class UserPanel : SpatialPanel
     [Header("Nav Bar")]
     [SerializeField] private NavBarConfig    _navBarConfig;
     [SerializeField] private NavBarBinding[] _bindings;
+
+    [Header("Nav Bar Button Brightness")]
+    [SerializeField] [Range(0f, 2f)] private float _inactiveHoverBrightness = 1.2f;
+    [SerializeField] [Range(0f, 2f)] private float _activeBrightness        = 0.6f;
+    [SerializeField] [Range(0f, 2f)] private float _activeHoverBrightness   = 0.8f;
 
     [Header("Lock")]
     [SerializeField] private Button _lockButton;
@@ -38,18 +43,17 @@ public class UserPanel : SpatialPanel
     private ModeOrchestrator _orchestrator;
     private EventBus         _bus;
 
-    private Image[] _activeIndicators;
+    private ColorBlock[] _inactiveColors;
+    private ColorBlock[] _activeColors;
 
-    private bool    _locked;
-    private bool    _initialized;
-    private bool    _isDragging;
+    private bool     _locked;
+    private bool     _initialized;
+    private bool     _isDragging;
     private Vector3  _followVelocity;
     private Vector3? _activeTarget;
 
-    private static readonly Color ColorUnlocked  = new Color(0.62f, 1.00f, 0.77f, 0.90f);
-    private static readonly Color ColorLocked    = new Color(1.00f, 0.42f, 0.42f, 0.90f);
-    private static readonly Color IndicatorOn    = new Color(1.00f, 1.00f, 1.00f, 0.90f);
-    private static readonly Color IndicatorOff   = new Color(1.00f, 1.00f, 1.00f, 0.20f);
+    private static readonly Color ColorUnlocked = new Color(0.62f, 1.00f, 0.77f, 0.90f);
+    private static readonly Color ColorLocked   = new Color(1.00f, 0.42f, 0.42f, 0.90f);
 
     [Inject]
     public void Construct(ModeOrchestrator orchestrator, EventBus bus)
@@ -64,21 +68,38 @@ public class UserPanel : SpatialPanel
         _exitButton?.onClick.AddListener(OnExit);
         _lockButton?.onClick.AddListener(OnLockToggle);
 
-        _activeIndicators = new Image[_bindings?.Length ?? 0];
+        int count = _bindings?.Length ?? 0;
+        _inactiveColors = new ColorBlock[count];
+        _activeColors   = new ColorBlock[count];
 
-        for (int i = 0; i < (_bindings?.Length ?? 0); i++)
+        for (int i = 0; i < count; i++)
         {
-            var b       = _bindings[i];
-            var entryId = b.EntryId;
-            var idx     = i;
+            var b = _bindings[i];
 
-            if (b.Panel is DetachablePanel dp)
-                dp.EntryId = entryId;
+            if (b.Panel != null && b.Panel.TryGetComponent<DetachablePanel>(out var dp))
+                dp.EntryId = b.EntryId;
 
-            _activeIndicators[idx] = b.NavButton?.GetComponentInChildren<Image>();
-            SetActiveState(idx, false);
+            if (b.NavButton != null)
+            {
+                var baseColor = b.NavButton.colors.normalColor;
+                var block     = b.NavButton.colors;
 
-            b.NavButton?.onClick.AddListener(() => OnNavButtonClicked(entryId));
+                var inactive              = block;
+                inactive.normalColor      = baseColor;
+                inactive.highlightedColor = Brighten(baseColor, _inactiveHoverBrightness);
+                _inactiveColors[i]        = inactive;
+
+                var active              = block;
+                active.normalColor      = Brighten(baseColor, _activeBrightness);
+                active.highlightedColor = Brighten(baseColor, _activeHoverBrightness);
+                active.selectedColor    = Brighten(baseColor, _activeBrightness);
+                _activeColors[i]        = active;
+
+                b.NavButton.colors = inactive;
+
+                var idx = i;
+                b.NavButton.onClick.AddListener(() => OnNavButtonClicked(idx));
+            }
         }
 
         _bus?.Subscribe<ModeChangedEvent>(OnModeChanged);
@@ -214,45 +235,25 @@ public class UserPanel : SpatialPanel
             if (b.NavButton == null) continue;
 
             var visible = _navBarConfig != null && _navBarConfig.IsVisibleInMode(b.EntryId, mode);
-            var enabled = false;
-            if (_navBarConfig != null && _navBarConfig.TryGetEntry(b.EntryId, out var entry))
-                enabled = entry.StartsEnabled;
-
             b.NavButton.gameObject.SetActive(visible);
-            b.NavButton.interactable = enabled;
 
-            if (!visible)
-                HidePanel(b, i);
+            if (!visible && b.Panel != null && b.Panel.activeSelf)
+            {
+                b.Panel.SetActive(false);
+                SetActiveState(i, false);
+            }
         }
     }
 
-    private void OnNavButtonClicked(string entryId)
+    private void OnNavButtonClicked(int idx)
     {
-        var idx = FindBindingIndex(entryId);
-        if (idx < 0) return;
-
         var b = _bindings[idx];
+        if (b.Panel == null) return;
 
-        if (b.Panel is DetachablePanel dp)
-        {
-            dp.ToggleLinked();
-            SetActiveState(idx, dp.IsVisible && dp.IsLinked);
-            return;
-        }
-
-        if (b.Panel is SettingsModule || b.Panel is AssetBrowserModule)
-            HideAllModules(exceptEntryId: entryId);
-
-        if (b.Panel is SettingsModule sm)
-        {
-            sm.Toggle();
-            SetActiveState(idx, sm.IsVisible);
-        }
-        else if (b.Panel is AssetBrowserModule abm)
-        {
-            abm.Toggle();
-            SetActiveState(idx, abm.IsVisible);
-        }
+        var willShow = !b.Panel.activeSelf;
+        if (willShow) HideAllPanels(exceptIdx: idx);
+        b.Panel.SetActive(willShow);
+        SetActiveState(idx, willShow);
     }
 
     private void OnPanelDetached(PanelDetachedEvent e)
@@ -269,34 +270,18 @@ public class UserPanel : SpatialPanel
             SetActiveState(idx, false);
     }
 
-    private void HideAllModules(string exceptEntryId = null)
+    private void HideAllPanels(int exceptIdx = -1)
     {
         for (int i = 0; i < (_bindings?.Length ?? 0); i++)
         {
-            var b = _bindings[i];
-            if (b.EntryId == exceptEntryId) continue;
-            if (b.Panel is SettingsModule sm && sm.IsVisible)
+            if (i == exceptIdx) continue;
+            var p = _bindings[i].Panel;
+            if (p != null && p.activeSelf)
             {
-                sm.Hide();
-                SetActiveState(i, false);
-            }
-            else if (b.Panel is AssetBrowserModule abm && abm.IsVisible)
-            {
-                abm.Hide();
+                p.SetActive(false);
                 SetActiveState(i, false);
             }
         }
-    }
-
-    private void HidePanel(NavBarBinding b, int idx)
-    {
-        switch (b.Panel)
-        {
-            case DetachablePanel dp when dp.IsVisible: dp.Hide(); break;
-            case SettingsModule sm   when sm.IsVisible: sm.Hide(); break;
-            case AssetBrowserModule abm when abm.IsVisible: abm.Hide(); break;
-        }
-        SetActiveState(idx, false);
     }
 
     private int FindBindingIndex(string entryId)
@@ -306,11 +291,19 @@ public class UserPanel : SpatialPanel
         return -1;
     }
 
-    private void SetActiveState(int bindingIndex, bool active)
+    private void SetActiveState(int idx, bool active)
     {
-        if (_activeIndicators == null || bindingIndex >= _activeIndicators.Length) return;
-        var img = _activeIndicators[bindingIndex];
-        if (img != null)
-            img.color = active ? IndicatorOn : IndicatorOff;
+        if (_inactiveColors == null || idx >= _inactiveColors.Length) return;
+        var btn = _bindings[idx].NavButton;
+        if (btn == null) return;
+        btn.colors = active ? _activeColors[idx] : _inactiveColors[idx];
+    }
+
+    private static Color Brighten(Color c, float mult)
+    {
+        Color.RGBToHSV(c, out float h, out float s, out float v);
+        var result = Color.HSVToRGB(h, s, Mathf.Clamp01(v * mult));
+        result.a = c.a;
+        return result;
     }
 }

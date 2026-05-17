@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.IO;
 using System.Threading;
 using TMPro;
@@ -10,10 +9,6 @@ using SimpleFileBrowser;
 
 public class AssetBrowserModule : MonoBehaviour
 {
-    [SerializeField] private CanvasGroup _canvasGroup;
-    [SerializeField] private float       _slideDist = 0.05f;
-    [SerializeField] private float       _duration  = 0.25f;
-
     [Header("Library Tabs")]
     [SerializeField] private Button _builtinTabButton;
     [SerializeField] private Button _importedTabButton;
@@ -38,13 +33,6 @@ public class AssetBrowserModule : MonoBehaviour
     private ILabAsset     _selectedAsset;
     private bool          _isEditableMode;
 
-    public bool IsVisible => _visible;
-
-    private Vector3   _shownLocalPos;
-    private Vector3   _hiddenLocalPos;
-    private bool      _visible;
-    private Coroutine _anim;
-
     [Inject]
     public void Construct(ModeOrchestrator orchestrator, BuiltinAssetLibrary builtin, ImportedAssetLibrary imported, SavedAssetLibrary saved, EventBus bus)
     {
@@ -57,14 +45,6 @@ public class AssetBrowserModule : MonoBehaviour
 
     private void Awake()
     {
-        _shownLocalPos  = transform.localPosition;
-        _hiddenLocalPos = _shownLocalPos - Vector3.up * _slideDist;
-
-        transform.localPosition     = _hiddenLocalPos;
-        _canvasGroup.alpha          = 0f;
-        _canvasGroup.interactable   = false;
-        _canvasGroup.blocksRaycasts = false;
-
         _builtinTabButton?.onClick.AddListener(() => SwitchLibrary(_builtinLibrary));
         _importedTabButton?.onClick.AddListener(() => SwitchLibrary(_importedLibrary));
         _savedTabButton?.onClick.AddListener(() => SwitchLibrary(_savedLibrary));
@@ -88,24 +68,6 @@ public class AssetBrowserModule : MonoBehaviour
     {
         _isEditableMode = e.CurrentMode is AppMode.VrEditing or AppMode.Sandbox;
         RefreshSpawnButton();
-    }
-
-    public void Toggle() { if (_visible) Hide(); else Show(); }
-
-    public void Show()
-    {
-        _visible = true;
-        gameObject.SetActive(true);
-        if (_anim != null) StopCoroutine(_anim);
-        _anim = StartCoroutine(AnimRoutine(true));
-    }
-
-    public void Hide()
-    {
-        if (!_visible) return;
-        _visible = false;
-        if (_anim != null) StopCoroutine(_anim);
-        _anim = StartCoroutine(AnimRoutine(false));
     }
 
     private void SwitchLibrary(IAssetLibrary library)
@@ -215,31 +177,5 @@ public class AssetBrowserModule : MonoBehaviour
 
         if (_activeLibrary == _importedLibrary)
             RefreshGrid();
-    }
-
-    private IEnumerator AnimRoutine(bool show)
-    {
-        var startAlpha = _canvasGroup.alpha;
-        var endAlpha   = show ? 1f : 0f;
-        var startPos   = transform.localPosition;
-        var endPos     = show ? _shownLocalPos : _hiddenLocalPos;
-
-        _canvasGroup.interactable   = show;
-        _canvasGroup.blocksRaycasts = show;
-
-        float t = 0f;
-        while (t < _duration)
-        {
-            t += Time.deltaTime;
-            var p = Mathf.Clamp01(t / _duration);
-            _canvasGroup.alpha      = Mathf.Lerp(startAlpha, endAlpha, p);
-            transform.localPosition = Vector3.Lerp(startPos, endPos, p);
-            yield return null;
-        }
-
-        _canvasGroup.alpha      = endAlpha;
-        transform.localPosition = endPos;
-
-        if (!show) gameObject.SetActive(false);
     }
 }

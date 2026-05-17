@@ -14,23 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Subsystems.SpatialUi::NavBarConfig
   _entries:
   - Id: settings
-    VisibleModes: 00000000010000000400000002000000
-    StartsEnabled: 1
+    VisibleModes: 0000000001000000040000000200000003000000
   - Id: assets
     VisibleModes: 000000000100000004000000
-    StartsEnabled: 1
   - Id: outliner
     VisibleModes: 0100000004000000
-    StartsEnabled: 0
   - Id: inspector
     VisibleModes: 0100000004000000
-    StartsEnabled: 0
   - Id: timeline
     VisibleModes: 01000000
-    StartsEnabled: 0
   - Id: rigging
     VisibleModes: 0100000004000000
-    StartsEnabled: 0
   - Id: gizmo
     VisibleModes: 0100000004000000
-    StartsEnabled: 0

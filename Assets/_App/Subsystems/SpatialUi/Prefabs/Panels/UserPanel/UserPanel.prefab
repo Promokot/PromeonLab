@@ -174,16 +174,16 @@ MonoBehaviour:
   _bindings:
   - EntryId: settings
     NavButton: {fileID: 6973736447621748074}
-    Panel: {fileID: 7637760600802958217}
+    Panel: {fileID: 4526054641799057741}
   - EntryId: assets
     NavButton: {fileID: 3843845698967170114}
-    Panel: {fileID: 5054145115048876330}
+    Panel: {fileID: 1230307675420939246}
   - EntryId: outliner
     NavButton: {fileID: 6952964544597263567}
-    Panel: {fileID: 4848961769437446546}
+    Panel: {fileID: 1476047572540951382}
   - EntryId: inspector
     NavButton: {fileID: 3626475990275213129}
-    Panel: {fileID: 4962807478675160155}
+    Panel: {fileID: 3240009253719834954}
   - EntryId: rigging
     NavButton: {fileID: 5555059958477320137}
     Panel: {fileID: 0}
@@ -193,6 +193,9 @@ MonoBehaviour:
   - EntryId: timeline
     NavButton: {fileID: 0}
     Panel: {fileID: 0}
+  _inactiveHoverBrightness: 1.2
+  _activeBrightness: 0.6
+  _activeHoverBrightness: 0.8
   _lockButton: {fileID: 4913116091489193175}
   _lockButtonImage: {fileID: 1879811403907734707}
   _recenterAngle: 45
@@ -1103,7 +1106,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 180, y: 10}
+  m_SizeDelta: {x: 180, y: 22}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7897087351792468533
 CanvasRenderer:
@@ -1126,7 +1129,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.8020648, g: 0.8020648, b: 0.8020648, a: 0.74509805}
+  m_Color: {r: 0.8020648, g: 0.8020648, b: 0.8020648, a: 0.13725491}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: -8, y: -12, z: -8, w: -6}
   m_Maskable: 1
@@ -2494,7 +2497,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -88}
-  m_SizeDelta: {x: 180, y: 10}
+  m_SizeDelta: {x: 180, y: 18}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8580430220249529581
 CanvasRenderer:
@@ -2519,7 +2522,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0.43529412}
   m_RaycastTarget: 1
-  m_RaycastPadding: {x: -8, y: -12, z: -8, w: -6}
+  m_RaycastPadding: {x: -8, y: -8, z: -8, w: -5}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -3760,22 +3763,16 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9d0d3e50e78e1a7449378a37fd2a3f77, type: 3}
+--- !u!1 &3240009253719834954 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4583740447116755973, guid: 9d0d3e50e78e1a7449378a37fd2a3f77, type: 3}
+  m_PrefabInstance: {fileID: 1399041244022113615}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &3312513050548953594 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4508681058809537717, guid: 9d0d3e50e78e1a7449378a37fd2a3f77, type: 3}
   m_PrefabInstance: {fileID: 1399041244022113615}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &4962807478675160155 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6319970308532648212, guid: 9d0d3e50e78e1a7449378a37fd2a3f77, type: 3}
-  m_PrefabInstance: {fileID: 1399041244022113615}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1001 &1611876086202130052
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3937,17 +3934,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e644d997e0e127045b948d117e98cdda, type: 3}
---- !u!114 &4848961769437446546 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6130650111342190358, guid: e644d997e0e127045b948d117e98cdda, type: 3}
+--- !u!1 &1476047572540951382 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 154654766245860818, guid: e644d997e0e127045b948d117e98cdda, type: 3}
   m_PrefabInstance: {fileID: 1611876086202130052}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!224 &6374037413715532337 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5632782139357791413, guid: e644d997e0e127045b948d117e98cdda, type: 3}
@@ -4054,17 +4045,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 51255f67c47e0e541a54131bd5e05b77, type: 3}
---- !u!114 &7637760600802958217 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6464997410348520977, guid: 51255f67c47e0e541a54131bd5e05b77, type: 3}
+--- !u!1 &4526054641799057741 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1047448240129154261, guid: 51255f67c47e0e541a54131bd5e05b77, type: 3}
   m_PrefabInstance: {fileID: 3478624066920861080}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!224 &8268923945848209450 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4793959397387685298, guid: 51255f67c47e0e541a54131bd5e05b77, type: 3}
@@ -4275,17 +4260,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5b2b86e231a088147b42ee139a4f0754, type: 3}
---- !u!114 &5054145115048876330 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 212581888974613784, guid: 5b2b86e231a088147b42ee139a4f0754, type: 3}
+--- !u!1 &1230307675420939246 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6179570228228663260, guid: 5b2b86e231a088147b42ee139a4f0754, type: 3}
   m_PrefabInstance: {fileID: 4958692086992925746}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!224 &6709297451625808521 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1859113987859805883, guid: 5b2b86e231a088147b42ee139a4f0754, type: 3}
