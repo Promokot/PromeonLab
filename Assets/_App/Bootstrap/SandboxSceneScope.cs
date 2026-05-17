@@ -40,5 +40,17 @@ public class SandboxSceneScope : LifetimeScope
         if (propPanel != null) builder.RegisterInstance(propPanel).AsImplementedInterfaces().AsSelf();
 
         builder.Register<AssetSpawner>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+
+        var outliner = Object.FindAnyObjectByType<SceneOutlinerView>(FindObjectsInactive.Include);
+        if (outliner != null)
+            builder.RegisterBuildCallback(c => c.Inject(outliner));
+
+        var inspector = Object.FindAnyObjectByType<SceneInspectorView>(FindObjectsInactive.Include);
+        if (inspector != null)
+            builder.RegisterBuildCallback(c => c.Inject(inspector));
+
+        var assetBrowser = Object.FindAnyObjectByType<AssetBrowserModule>(FindObjectsInactive.Include);
+        if (assetBrowser != null)
+            builder.RegisterBuildCallback(c => c.Inject(assetBrowser));
     }
 }
