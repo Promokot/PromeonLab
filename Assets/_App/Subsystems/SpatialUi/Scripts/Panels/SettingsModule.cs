@@ -12,6 +12,8 @@ public class SettingsModule : MonoBehaviour
     private bool      _visible;
     private Coroutine _anim;
 
+    public bool IsVisible => _visible;
+
     private void Awake()
     {
         _shownLocalPos  = transform.localPosition;

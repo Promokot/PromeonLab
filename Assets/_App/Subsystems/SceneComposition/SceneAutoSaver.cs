@@ -32,9 +32,12 @@ public class SceneAutoSaver : IStartable, IDisposable
         {
             var activeId = _storage.ActiveSceneId;
             if (string.IsNullOrEmpty(activeId) || activeId == "__sandbox__") return;
-            var cached = await _storage.LoadSceneAsync(activeId, CancellationToken.None);
+
+            // Capture before any await — scene may unload after the first yield.
+            var cached = _storage.GetCachedScene(activeId);
             if (cached == null) return;
             var snap = _graph.CaptureSnapshot(activeId, cached.DisplayName, cached.CreatedAt);
+
             await _storage.SaveSceneAsync(snap, CancellationToken.None);
             _bus.Publish(new SceneClosedEvent());
         }

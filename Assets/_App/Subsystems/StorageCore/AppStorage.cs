@@ -53,6 +53,9 @@ public class AppStorage
 
     public void SetActiveScene(SceneData data) => _activeSceneId = data.SceneId;
 
+    public SceneData GetCachedScene(string sceneId) =>
+        _cache.TryGetValue(sceneId, out var data) ? data : null;
+
     public IEnumerable<string> GetAllSceneIds()
     {
         var root = _paths.ScenesRoot();

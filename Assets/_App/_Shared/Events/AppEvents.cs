@@ -11,3 +11,6 @@ public struct SceneSelectedEvent          { public string SceneId; public string
 public struct PlayerSpawnRequestedEvent   { public UnityEngine.Vector3 Position; public UnityEngine.Quaternion Rotation; }
 public struct AssetSpawnRequestedEvent    { public ILabAsset Asset; public UnityEngine.Vector3 Position; public UnityEngine.Quaternion Rotation; }
 public struct KeyboardFocusEvent          { public TMPro.TMP_InputField Target; }
+public struct PanelDetachedEvent { public string EntryId; }
+public struct PanelLinkedEvent   { public string EntryId; }
+public struct PanelClosedEvent   { public string EntryId; }

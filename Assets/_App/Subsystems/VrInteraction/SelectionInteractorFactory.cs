@@ -14,7 +14,7 @@ public class SelectionInteractorFactory : IInteractableFactory
         if ((capabilities & AssetCapabilities.Selectable) == 0)
             return;
 
-        if (go.GetComponentInChildren<Collider>() == null)
+        if (go.GetComponent<Collider>() == null)
             go.AddComponent<BoxCollider>();
 
         var sn = go.GetComponent<SceneNode>();

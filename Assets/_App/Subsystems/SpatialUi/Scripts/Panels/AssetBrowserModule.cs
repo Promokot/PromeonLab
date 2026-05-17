@@ -38,6 +38,8 @@ public class AssetBrowserModule : MonoBehaviour
     private ILabAsset     _selectedAsset;
     private bool          _isEditableMode;
 
+    public bool IsVisible => _visible;
+
     private Vector3   _shownLocalPos;
     private Vector3   _hiddenLocalPos;
     private bool      _visible;
