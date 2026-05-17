@@ -29,6 +29,10 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
     {
         _spawnedRoot = new GameObject("[Spawned]").transform;
         _bus.Subscribe<SceneOpenedEvent>(OnSceneOpened);
+
+        var activeId = _storage.ActiveSceneId;
+        if (!string.IsNullOrEmpty(activeId))
+            _ = OnSceneOpenedAsync(new SceneOpenedEvent { SceneId = activeId });
     }
 
     public void Dispose() =>

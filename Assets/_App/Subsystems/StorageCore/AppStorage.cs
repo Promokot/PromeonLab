@@ -21,7 +21,7 @@ public class AppStorage
         {
             SceneId     = sceneId,
             DisplayName = displayName,
-            CreatedAt   = DateTime.UtcNow.ToString("yyyy-MM-dd")
+            CreatedAt   = DateTime.UtcNow.ToString("o")
         };
 
         Directory.CreateDirectory(_paths.SceneRoot(sceneId));
@@ -72,13 +72,14 @@ public class AppStorage
     public async Task<IReadOnlyList<(string SceneId, string DisplayName)>> GetAllScenesAsync(
         CancellationToken ct = default)
     {
-        var result = new List<(string, string)>();
+        var result = new List<(string SceneId, string DisplayName, string CreatedAt)>();
         foreach (var sceneId in GetAllSceneIds())
         {
             var data = await LoadSceneAsync(sceneId, ct);
-            if (data != null) result.Add((data.SceneId, data.DisplayName));
+            if (data != null) result.Add((data.SceneId, data.DisplayName, data.CreatedAt ?? ""));
         }
-        return result;
+        result.Sort((a, b) => string.Compare(a.CreatedAt, b.CreatedAt, StringComparison.Ordinal));
+        return result.ConvertAll(x => (x.SceneId, x.DisplayName));
     }
 
     public SceneData BeginSandboxSession()
