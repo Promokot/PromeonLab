@@ -46,8 +46,8 @@ public class UserPanel : SpatialPanel
     private Vector3  _followVelocity;
     private Vector3? _activeTarget;
 
-    private static readonly Color ColorUnlocked  = new Color(0.30f, 0.30f, 0.35f, 0.90f);
-    private static readonly Color ColorLocked    = new Color(0.80f, 0.50f, 0.10f, 0.95f);
+    private static readonly Color ColorUnlocked  = new Color(0.62f, 1.00f, 0.77f, 0.90f);
+    private static readonly Color ColorLocked    = new Color(1.00f, 0.42f, 0.42f, 0.90f);
     private static readonly Color IndicatorOn    = new Color(1.00f, 1.00f, 1.00f, 0.90f);
     private static readonly Color IndicatorOff   = new Color(1.00f, 1.00f, 1.00f, 0.20f);
 

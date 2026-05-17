@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "VrAnimApp/NavBarConfig")]
+[CreateAssetMenu(menuName = "PromeonLab/NavBarConfig")]
 public class NavBarConfig : ScriptableObject
 {
     [Serializable]
