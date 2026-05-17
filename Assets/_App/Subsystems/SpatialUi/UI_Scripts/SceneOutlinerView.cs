@@ -4,8 +4,8 @@ using VContainer;
 
 public class SceneOutlinerView : MonoBehaviour
 {
-    [SerializeField] private Transform        _rowsRoot;
-    [SerializeField] private SceneOutlinerRow _rowPrefab;
+    [SerializeField] private Transform    _rowsRoot;
+    [SerializeField] private OutlinerItem _rowPrefab;
     [SerializeField] private float            _indentPx = 16f;
 
     private EventBus          _bus;
@@ -80,7 +80,7 @@ public class SceneOutlinerView : MonoBehaviour
         if (_rowsRoot == null || _selection == null) return;
         var active = _selection.ActiveId;
         var set    = new HashSet<string>(_selection.SelectedIds);
-        foreach (var row in _rowsRoot.GetComponentsInChildren<SceneOutlinerRow>())
+        foreach (var row in _rowsRoot.GetComponentsInChildren<OutlinerItem>())
         {
             var state = row.NodeId == active ? SelectionVisual.Active
                       : set.Contains(row.NodeId) ? SelectionVisual.InSet
