@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum DragMode { PositionOnly, RotationOnly, SixDof }
+public enum DragMode { PositionOnly, RotationOnly }
 
 public interface IDragStrategy
 {
@@ -11,18 +11,7 @@ public class SingleDragStrategy : IDragStrategy
 {
     public void Apply(Transform self, Vector3 targetPos, Quaternion targetRot, DragMode mode)
     {
-        switch (mode)
-        {
-            case DragMode.PositionOnly:
-                self.position = targetPos;
-                break;
-            case DragMode.RotationOnly:
-                self.rotation = targetRot;
-                break;
-            case DragMode.SixDof:
-                self.position = targetPos;
-                self.rotation = targetRot;
-                break;
-        }
+        if (mode == DragMode.PositionOnly) self.position = targetPos;
+        else                                self.rotation = targetRot;
     }
 }
