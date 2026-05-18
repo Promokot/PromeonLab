@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using VContainer;
 
 public class SceneInspectorView : MonoBehaviour
@@ -19,6 +20,7 @@ public class SceneInspectorView : MonoBehaviour
     [SerializeField] private TMP_Text       _scaleX;
     [SerializeField] private TMP_Text       _scaleY;
     [SerializeField] private TMP_Text       _scaleZ;
+    [SerializeField] private Button         _deleteButton;
 
     private EventBus          _bus;
     private SceneGraph        _graph;
@@ -42,6 +44,8 @@ public class SceneInspectorView : MonoBehaviour
             _nameField.onValueChanged.AddListener(OnNameLiveEdit);
             _nameField.onEndEdit.AddListener(OnNameCommit);
         }
+        if (_deleteButton != null)
+            _deleteButton.onClick.AddListener(OnDeleteClicked);
         Refresh();
     }
 
@@ -54,6 +58,8 @@ public class SceneInspectorView : MonoBehaviour
             _nameField.onValueChanged.RemoveListener(OnNameLiveEdit);
             _nameField.onEndEdit.RemoveListener(OnNameCommit);
         }
+        if (_deleteButton != null)
+            _deleteButton.onClick.RemoveListener(OnDeleteClicked);
     }
 
     private void OnSelectionChanged(SelectionChangedEvent _) => Refresh();
@@ -131,5 +137,14 @@ public class SceneInspectorView : MonoBehaviour
         }
         _bus?.Publish(new NodeRenamedEvent { NodeId = _bound.NodeId, NewName = finalName });
         _bus?.Publish(new SceneModifiedEvent());
+    }
+
+    private void OnDeleteClicked()
+    {
+        if (_bound == null) return;
+        var nodeId = _bound.NodeId;
+        _bound = null;
+        _selection?.Clear();
+        _graph.RemoveNode(nodeId); // destroys GO, publishes SceneModifiedEvent → outliner rebuilds
     }
 }

@@ -22,22 +22,27 @@ public class WorldClickCatcher : MonoBehaviour
     {
         if (interactor == null || _selectionManager == null) return;
         if (!interactor.activateInput.ReadWasPerformedThisFrame()) return;
-        if (IsOverUI(interactor)) return;
 
-        foreach (var hovered in interactor.interactablesHovered)
-        {
-            var go = (hovered as MonoBehaviour)?.gameObject;
-            if (go != null && go.GetComponentInParent<Selectable>() != null) return;
-        }
+        // TODO: re-enable UI guard when NearFarInteractor.TryGetCurrentUIRaycastResult is wired up properly.
+        // The child-XRRayInteractor lookup below was unreliable — GetComponentInChildren returned null.
+        // if (IsOverUI(interactor)) return;
+        // foreach (var hovered in interactor.interactablesHovered)
+        // {
+        //     var go = (hovered as MonoBehaviour)?.gameObject;
+        //     if (go != null && go.GetComponentInParent<Selectable>() != null) return;
+        // }
+
+        // Temporary: clear only when clicking truly empty 3D space (nothing hovered).
+        if (interactor.interactablesHovered.Count > 0) return;
 
         _selectionManager.Clear();
     }
 
-    private static bool IsOverUI(NearFarInteractor interactor)
-    {
-        var ray = interactor.GetComponentInChildren<XRRayInteractor>(includeInactive: true);
-        if (ray != null && ray.TryGetCurrentUIRaycastResult(out var uiRaycast))
-            return uiRaycast.gameObject != null;
-        return false;
-    }
+    // private static bool IsOverUI(NearFarInteractor interactor)
+    // {
+    //     var ray = interactor.GetComponentInChildren<XRRayInteractor>(includeInactive: true);
+    //     if (ray != null && ray.TryGetCurrentUIRaycastResult(out var uiRaycast))
+    //         return uiRaycast.gameObject != null;
+    //     return false;
+    // }
 }
