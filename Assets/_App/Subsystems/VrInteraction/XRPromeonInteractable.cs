@@ -141,8 +141,13 @@ public class XRPromeonInteractable : XRBaseInteractable
     }
 
     private bool IsObjectSelected()
-        => _node != null && _selectionManager != null
-           && _selectionManager.SelectedIds.Contains(_node.NodeId);
+    {
+        if (_node == null || _selectionManager == null) return false;
+        var ids = _selectionManager.SelectedIds;
+        for (int i = 0; i < ids.Count; i++)
+            if (ids[i] == _node.NodeId) return true;
+        return false;
+    }
 
     private void Lock(NearFarInteractor interactor) => _locked = interactor;
 
