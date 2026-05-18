@@ -36,13 +36,24 @@ public class WorldClickCatcher : MonoBehaviour
 
         if (!justPressed) return;
 
+        // Guard 1: UI hit — selection survives UI navigation (button taps, outliner rows, etc.)
+        if (IsOverUI(interactor)) return;
+
+        // Guard 2: hovering a Selectable in 3D — not "empty space"
         foreach (var hovered in interactor.interactablesHovered)
         {
             var go = (hovered as MonoBehaviour)?.gameObject;
-            if (go == null) continue;
-            if (go.GetComponentInParent<Selectable>() != null) return;
-            if (go.GetComponentInParent<UnityEngine.UI.Graphic>() != null) return;
+            if (go != null && go.GetComponentInParent<Selectable>() != null) return;
         }
+
         _selectionManager.Clear();
+    }
+
+    private static bool IsOverUI(NearFarInteractor interactor)
+    {
+        var ray = interactor.GetComponentInChildren<XRRayInteractor>(includeInactive: true);
+        if (ray != null && ray.TryGetCurrentUIRaycastResult(out var uiRaycast))
+            return uiRaycast.gameObject != null;
+        return false;
     }
 }

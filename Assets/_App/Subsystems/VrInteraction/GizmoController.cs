@@ -27,9 +27,16 @@ public class GizmoController : IStartable, IDisposable
         _target = e.SelectedNodeId != null ? _sceneGraph.GetNode(e.SelectedNodeId) : null;
     }
 
-    public void CommitMove(UnityEngine.Transform target, UnityEngine.Vector3 newPosition)
+    public void CommitTransform(
+        UnityEngine.Transform   target,
+        UnityEngine.Vector3     newPosition,
+        UnityEngine.Quaternion  newRotation,
+        UnityEngine.Vector3     newScale)
     {
-        var cmd = new TransformCommand(target, newPosition, target.rotation, target.localScale);
+        var cmd = new TransformCommand(target, newPosition, newRotation, newScale);
         _commands.Execute(cmd);
     }
+
+    public void CommitMove(UnityEngine.Transform target, UnityEngine.Vector3 newPosition)
+        => CommitTransform(target, newPosition, target.rotation, target.localScale);
 }

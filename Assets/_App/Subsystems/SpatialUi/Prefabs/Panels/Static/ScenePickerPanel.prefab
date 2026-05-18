@@ -121,7 +121,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 4039406728708582226}
   m_Direction: 2
   m_Value: 0.99998546
-  m_Size: 0.52598244
+  m_Size: 0.52599996
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -216,7 +216,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &2800898911579415634
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1183,7 +1183,7 @@ MonoBehaviour:
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
+  m_ReverseArrangement: 1
 --- !u!1 &7124435726017184301
 GameObject:
   m_ObjectHideFlags: 0
