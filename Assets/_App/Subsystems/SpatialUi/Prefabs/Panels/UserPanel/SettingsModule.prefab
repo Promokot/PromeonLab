@@ -19,7 +19,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4793959397387685298
 RectTransform:
   m_ObjectHideFlags: 0
@@ -103,9 +103,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba4bf5d630b591d4d95f99d75b5e8715, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Subsystems.SpatialUi::SettingsModule
-  _canvasGroup: {fileID: 5553988240604684341}
-  _slideDist: 0.05
-  _duration: 0.25
 --- !u!1 &6922365102623001349
 GameObject:
   m_ObjectHideFlags: 0
