@@ -32,4 +32,9 @@ public class OutlinerItem : MonoBehaviour
             _                      => Color.clear,
         };
     }
+
+    public void SetLabel(string newName)
+    {
+        if (_label != null) _label.text = newName;
+    }
 }

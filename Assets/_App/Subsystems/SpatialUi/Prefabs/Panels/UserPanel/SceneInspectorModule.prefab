@@ -3026,6 +3026,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Subsystems.SpatialUi::SceneInspectorView
   _emptyState: {fileID: 2158450120422665291}
   _content: {fileID: 27637979970900070}
+  _multiState: {fileID: 8186926765210728690}
+  _multiCountLabel: {fileID: 5184749970662623459}
   _nameField: {fileID: 3670757576625293382}
   _typeLabel: {fileID: 7033440259988391075}
   _posX: {fileID: 5952041859981951490}

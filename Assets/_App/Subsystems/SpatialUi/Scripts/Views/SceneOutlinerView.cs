@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -25,6 +26,7 @@ public class SceneOutlinerView : MonoBehaviour
         if (_bus == null) return;
         _bus.Subscribe<SceneModifiedEvent>(OnModified);
         _bus.Subscribe<SelectionChangedEvent>(OnSelectionChanged);
+        _bus.Subscribe<NodeRenamedEvent>(OnNodeRenamed);
         Rebuild();
     }
 
@@ -33,10 +35,18 @@ public class SceneOutlinerView : MonoBehaviour
         if (_bus == null) return;
         _bus.Unsubscribe<SceneModifiedEvent>(OnModified);
         _bus.Unsubscribe<SelectionChangedEvent>(OnSelectionChanged);
+        _bus.Unsubscribe<NodeRenamedEvent>(OnNodeRenamed);
     }
 
     private void OnModified(SceneModifiedEvent _)              => Rebuild();
     private void OnSelectionChanged(SelectionChangedEvent _)   => ApplyHighlight();
+
+    private void OnNodeRenamed(NodeRenamedEvent e)
+    {
+        if (_rowsRoot == null) return;
+        foreach (var row in _rowsRoot.GetComponentsInChildren<OutlinerItem>())
+            if (row.NodeId == e.NodeId) { row.SetLabel(e.NewName); return; }
+    }
 
     private void Rebuild()
     {
@@ -51,6 +61,10 @@ public class SceneOutlinerView : MonoBehaviour
                 byParent[p] = list = new List<SceneNode>();
             list.Add(pair.Value);
         }
+        foreach (var list in byParent.Values)
+            list.Sort((a, b) => string.Compare(
+                a.DisplayName ?? "", b.DisplayName ?? "",
+                StringComparison.OrdinalIgnoreCase));
         AddRowsRecursive(null, 0, byParent);
         ApplyHighlight();
     }

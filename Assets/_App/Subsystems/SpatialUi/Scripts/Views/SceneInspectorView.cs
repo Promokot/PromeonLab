@@ -6,6 +6,8 @@ public class SceneInspectorView : MonoBehaviour
 {
     [SerializeField] private GameObject     _emptyState;
     [SerializeField] private GameObject     _content;
+    [SerializeField] private GameObject     _multiState;
+    [SerializeField] private TMP_Text       _multiCountLabel;
     [SerializeField] private TMP_InputField _nameField;
     [SerializeField] private TMP_Text       _typeLabel;
     [SerializeField] private TMP_Text       _posX;
@@ -35,7 +37,11 @@ public class SceneInspectorView : MonoBehaviour
     {
         if (_bus == null) return;
         _bus.Subscribe<SelectionChangedEvent>(OnSelectionChanged);
-        if (_nameField != null) _nameField.onEndEdit.AddListener(OnNameChanged);
+        if (_nameField != null)
+        {
+            _nameField.onValueChanged.AddListener(OnNameLiveEdit);
+            _nameField.onEndEdit.AddListener(OnNameCommit);
+        }
         Refresh();
     }
 
@@ -43,20 +49,42 @@ public class SceneInspectorView : MonoBehaviour
     {
         if (_bus == null) return;
         _bus.Unsubscribe<SelectionChangedEvent>(OnSelectionChanged);
-        if (_nameField != null) _nameField.onEndEdit.RemoveListener(OnNameChanged);
+        if (_nameField != null)
+        {
+            _nameField.onValueChanged.RemoveListener(OnNameLiveEdit);
+            _nameField.onEndEdit.RemoveListener(OnNameCommit);
+        }
     }
 
     private void OnSelectionChanged(SelectionChangedEvent _) => Refresh();
 
+    private enum InspectorState { Empty, Single, Multi }
+
     private void Refresh()
     {
         if (_selection == null || _graph == null) return;
-        var activeId = _selection.ActiveId;
-        _bound = string.IsNullOrEmpty(activeId) ? null : _graph.GetNode(activeId);
-        var has = _bound != null;
-        if (_emptyState != null) _emptyState.SetActive(!has);
-        if (_content    != null) _content.SetActive(has);
-        if (!has) return;
+
+        var count = _selection.SelectedIds?.Count ?? 0;
+        var state = count == 0 ? InspectorState.Empty
+                  : count == 1 ? InspectorState.Single
+                               : InspectorState.Multi;
+
+        if (_emptyState != null) _emptyState.SetActive(state == InspectorState.Empty);
+        if (_content    != null) _content   .SetActive(state == InspectorState.Single);
+        if (_multiState != null) _multiState.SetActive(state == InspectorState.Multi);
+
+        if (state == InspectorState.Multi && _multiCountLabel != null)
+            _multiCountLabel.text = $"Multiple Objects Selected ({count})";
+
+        if (state != InspectorState.Single)
+        {
+            _bound = null;
+            return;
+        }
+
+        _bound = _graph.GetNode(_selection.ActiveId);
+        if (_bound == null) return;
+
         if (_nameField != null) _nameField.SetTextWithoutNotify(_bound.DisplayName);
         if (_typeLabel != null) _typeLabel.text = $"Type: {_bound.AssetRef}";
 
@@ -77,10 +105,31 @@ public class SceneInspectorView : MonoBehaviour
         if (_scaleZ != null) _scaleZ.text = scale.z.ToString("F2");
     }
 
-    private void OnNameChanged(string newName)
+    private void OnNameLiveEdit(string newName)
     {
-        if (_bound == null || string.IsNullOrWhiteSpace(newName)) return;
-        _bound.SetDisplayName(newName.Trim());
+        if (_bound == null) return;
+        if (string.IsNullOrWhiteSpace(newName)) return;
+        var trimmed = newName.Trim();
+        _bound.SetDisplayName(trimmed);
+        _bus?.Publish(new NodeRenamedEvent { NodeId = _bound.NodeId, NewName = trimmed });
+    }
+
+    private void OnNameCommit(string newName)
+    {
+        if (_bound == null) return;
+        string finalName;
+        if (string.IsNullOrWhiteSpace(newName))
+        {
+            finalName = "Unnamed";
+            _bound.SetDisplayName(finalName);
+            if (_nameField != null) _nameField.SetTextWithoutNotify(finalName);
+        }
+        else
+        {
+            finalName = newName.Trim();
+            _bound.SetDisplayName(finalName);
+        }
+        _bus?.Publish(new NodeRenamedEvent { NodeId = _bound.NodeId, NewName = finalName });
         _bus?.Publish(new SceneModifiedEvent());
     }
 }
