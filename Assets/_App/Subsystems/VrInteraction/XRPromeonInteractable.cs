@@ -150,10 +150,14 @@ public class XRPromeonInteractable : XRBaseInteractable
     {
         // Ray (Far) path: primary = whoever owns the current ray hit collider.
         var ray = ni.GetComponentInChildren<XRRayInteractor>(includeInactive: true);
-        if (ray != null && ray.TryGetCurrent3DRaycastHit(out var hit) && hit.collider != null)
-            return colliders.Contains(hit.collider);
+        if (ray != null)
+        {
+            if (ray.TryGetCurrent3DRaycastHit(out var hit) && hit.collider != null)
+                return colliders.Contains(hit.collider);
+            return false; // ray exists but hits nothing — not primary
+        }
 
-        // Direct hand (Near) path: rely on this interactor's hover-order primary.
+        // True Near path (no ray interactor — physical hand interaction only).
         if (ni.interactablesHovered.Count > 0)
             return ReferenceEquals(ni.interactablesHovered[0], this);
 
@@ -173,9 +177,9 @@ public class XRPromeonInteractable : XRBaseInteractable
 
     private void EndInteraction()
     {
-        _locked       = null;
-        _lastHovering = null;
-        _state        = State.Idle;
+        _locked = null;
+        _state  = State.Idle;
+        // _lastHovering preserved — UpdateLastHovering() refreshes it next Idle frame
     }
 
     private void CapturePositionOffset()
