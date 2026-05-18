@@ -64,6 +64,7 @@ public class XRPromeonInteractable : XRBaseInteractable
                 UpdateLastHovering();
                 var ni = CurrentHoverer();
                 if (ni == null) break;
+                if (!IsPrimaryFor(ni)) break;   // ray pierces multiple objects: only the closest hit processes input
 
                 // Order matters: trigger checked first → wins same-frame ties.
                 if (ni.activateInput.ReadWasPerformedThisFrame())
@@ -85,8 +86,9 @@ public class XRPromeonInteractable : XRBaseInteractable
             case State.TriggerPressed:
                 if (_locked.activateInput.ReadWasCompletedThisFrame())
                 {
-                    if (_node != null) _selectionManager.Toggle(_node.NodeId);
+                    var node = _node;
                     EndInteraction();
+                    if (node != null) _selectionManager.Toggle(node.NodeId);
                     break;
                 }
                 if (Time.time - _pressTime > _tapWindow && IsObjectSelected())
@@ -99,9 +101,11 @@ public class XRPromeonInteractable : XRBaseInteractable
             case State.TriggerMove:
                 if (_locked.activateInput.ReadWasCompletedThisFrame())
                 {
-                    _gizmoController.CommitTransform(transform,
-                        transform.position, transform.rotation, transform.localScale);
+                    var pos = transform.position;
+                    var rot = transform.rotation;
+                    var scl = transform.localScale;
                     EndInteraction();
+                    _gizmoController.CommitTransform(transform, pos, rot, scl);
                     break;
                 }
                 ApplyMove();
@@ -110,9 +114,11 @@ public class XRPromeonInteractable : XRBaseInteractable
             case State.GripRotate:
                 if (_locked.selectInput.ReadWasCompletedThisFrame())
                 {
-                    _gizmoController.CommitTransform(transform,
-                        transform.position, transform.rotation, transform.localScale);
+                    var pos = transform.position;
+                    var rot = transform.rotation;
+                    var scl = transform.localScale;
                     EndInteraction();
+                    _gizmoController.CommitTransform(transform, pos, rot, scl);
                     break;
                 }
                 ApplyRotate();
@@ -140,6 +146,20 @@ public class XRPromeonInteractable : XRBaseInteractable
         return _lastHovering != null && _lastHovering.isActiveAndEnabled ? _lastHovering : null;
     }
 
+    private bool IsPrimaryFor(NearFarInteractor ni)
+    {
+        // Ray (Far) path: primary = whoever owns the current ray hit collider.
+        var ray = ni.GetComponentInChildren<XRRayInteractor>(includeInactive: true);
+        if (ray != null && ray.TryGetCurrent3DRaycastHit(out var hit) && hit.collider != null)
+            return colliders.Contains(hit.collider);
+
+        // Direct hand (Near) path: rely on this interactor's hover-order primary.
+        if (ni.interactablesHovered.Count > 0)
+            return ReferenceEquals(ni.interactablesHovered[0], this);
+
+        return false;
+    }
+
     private bool IsObjectSelected()
     {
         if (_node == null || _selectionManager == null) return false;
@@ -161,7 +181,8 @@ public class XRPromeonInteractable : XRBaseInteractable
     private void CapturePositionOffset()
     {
         var attach = _locked.GetAttachTransform(this);
-        _grabPosOffset = transform.position - attach.position;
+        // Local-space offset: position swings with attach rotation (ray sweep)
+        _grabPosOffset = attach.InverseTransformPoint(transform.position);
     }
 
     private void CaptureRotationOffset()
@@ -173,7 +194,7 @@ public class XRPromeonInteractable : XRBaseInteractable
     private void ApplyMove()
     {
         var attach    = _locked.GetAttachTransform(this);
-        var targetPos = attach.position + _grabPosOffset;
+        var targetPos = attach.TransformPoint(_grabPosOffset);
         _dragStrategy.Apply(transform, targetPos, transform.rotation, DragMode.PositionOnly);
     }
 

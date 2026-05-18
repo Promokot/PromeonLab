@@ -187,6 +187,11 @@ public class Outline : MonoBehaviour {
         continue;
       }
 
+      // Skip non-readable meshes — UV writes will throw on isReadable=false
+      if (!meshFilter.sharedMesh.isReadable) {
+        continue;
+      }
+
       // Retrieve or generate smooth normals
       var index = bakeKeys.IndexOf(meshFilter.sharedMesh);
       var smoothNormals = (index >= 0) ? bakeValues[index].data : SmoothNormals(meshFilter.sharedMesh);
@@ -207,6 +212,11 @@ public class Outline : MonoBehaviour {
 
       // Skip if UV3 has already been reset
       if (!registeredMeshes.Add(skinnedMeshRenderer.sharedMesh)) {
+        continue;
+      }
+
+      // Skip non-readable meshes — uv4 assignment will throw on isReadable=false
+      if (!skinnedMeshRenderer.sharedMesh.isReadable) {
         continue;
       }
 

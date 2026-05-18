@@ -102,7 +102,7 @@ ParentConstraint:
   serializedVersion: 2
   m_Weight: 1
   m_TranslationAtRest: {x: 0.566461, y: 1.1167969, z: -0.0033509955}
-  m_RotationAtRest: {x: -12.965361, y: -23.412983, z: -36.236515}
+  m_RotationAtRest: {x: -12.965381, y: -23.412966, z: -36.23652}
   m_TranslationOffsets:
   - {x: 0, y: 0, z: 0}
   m_RotationOffsets:
@@ -160,7 +160,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7617077724093313695}
-  - component: {fileID: 2136474929245051692}
   - component: {fileID: 3352312817762359930}
   - component: {fileID: 4177778341216857068}
   - component: {fileID: 4250811132806730267}
@@ -186,81 +185,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 202127026907256831}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2136474929245051692
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2778471421681165123}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5233041f40801be40ad483e06fd8997a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Subsystems.VrInteraction::XRPromeonInteractable
-  m_InteractionManager: {fileID: 0}
-  m_Colliders: []
-  m_InteractionLayers:
-    m_Bits: 1
-  m_DistanceCalculationMode: 1
-  m_SelectMode: 0
-  m_FocusMode: 1
-  m_CustomReticle: {fileID: 0}
-  m_AllowGazeInteraction: 0
-  m_AllowGazeSelect: 0
-  m_OverrideGazeTimeToSelect: 0
-  m_GazeTimeToSelect: 0.5
-  m_OverrideTimeToAutoDeselectGaze: 0
-  m_TimeToAutoDeselectGaze: 3
-  m_AllowGazeAssistance: 0
-  m_FirstHoverEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_LastHoverExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_HoverEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_HoverExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FirstSelectEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_LastSelectExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SelectEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SelectExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FirstFocusEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_LastFocusExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FocusEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FocusExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Activated:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Deactivated:
-    m_PersistentCalls:
-      m_Calls: []
-  m_StartingHoverFilters: []
-  m_StartingSelectFilters: []
-  m_StartingInteractionStrengthFilters: []
-  _tapWindow: 0.5
-  _moveThreshold: 0.5
-  _nearDistance: 0.3
 --- !u!33 &3352312817762359930
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -407,6 +331,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6584088059345691846}
+  - component: {fileID: 5887797566757702573}
   m_Layer: 0
   m_Name: RightHand_IK_target
   m_TagString: Untagged
@@ -422,13 +347,40 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4733747009766250367}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.9175736, y: -0.3243358, z: 0.22598499, w: -0.04237887}
+  m_LocalRotation: {x: -0.9175736, y: -0.32433575, z: 0.22598484, w: -0.04237894}
   m_LocalPosition: {x: -0.5664603, y: 1.1167966, z: -0.0033521652}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8172224475085875108}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1773428102 &5887797566757702573
+ParentConstraint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4733747009766250367}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Weight: 1
+  m_TranslationAtRest: {x: 0.566461, y: 1.1167969, z: -0.0033509955}
+  m_RotationAtRest: {x: -12.965381, y: -23.412966, z: -36.23652}
+  m_TranslationOffsets:
+  - {x: 0, y: 0, z: 0}
+  m_RotationOffsets:
+  - {x: 0, y: 0, z: 0}
+  m_AffectTranslationX: 1
+  m_AffectTranslationY: 1
+  m_AffectTranslationZ: 1
+  m_AffectRotationX: 1
+  m_AffectRotationY: 1
+  m_AffectRotationZ: 1
+  m_Active: 1
+  m_IsLocked: 1
+  m_Sources:
+  - sourceTransform: {fileID: 739290770048227885}
+    weight: 1
 --- !u!1 &5012641961835683699
 GameObject:
   m_ObjectHideFlags: 0
@@ -438,7 +390,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 739290770048227885}
-  - component: {fileID: 1224769805014110605}
   - component: {fileID: 2183698669711314376}
   - component: {fileID: 4231787209606322984}
   - component: {fileID: 4571861419397006615}
@@ -464,81 +415,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8172224475085875108}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1224769805014110605
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5012641961835683699}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5233041f40801be40ad483e06fd8997a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Subsystems.VrInteraction::XRPromeonInteractable
-  m_InteractionManager: {fileID: 0}
-  m_Colliders: []
-  m_InteractionLayers:
-    m_Bits: 1
-  m_DistanceCalculationMode: 1
-  m_SelectMode: 0
-  m_FocusMode: 1
-  m_CustomReticle: {fileID: 0}
-  m_AllowGazeInteraction: 0
-  m_AllowGazeSelect: 0
-  m_OverrideGazeTimeToSelect: 0
-  m_GazeTimeToSelect: 0.5
-  m_OverrideTimeToAutoDeselectGaze: 0
-  m_TimeToAutoDeselectGaze: 3
-  m_AllowGazeAssistance: 0
-  m_FirstHoverEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_LastHoverExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_HoverEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_HoverExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FirstSelectEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_LastSelectExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SelectEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SelectExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FirstFocusEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_LastFocusExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FocusEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FocusExited:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Activated:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Deactivated:
-    m_PersistentCalls:
-      m_Calls: []
-  m_StartingHoverFilters: []
-  m_StartingSelectFilters: []
-  m_StartingInteractionStrengthFilters: []
-  _tapWindow: 0.5
-  _moveThreshold: 0.5
-  _nearDistance: 0.3
 --- !u!33 &2183698669711314376
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -642,7 +518,7 @@ Transform:
   m_GameObject: {fileID: 8638837908370945122}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.38268343, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: -0.3005463, y: 1.0781845, z: -0.57159436}
+  m_LocalPosition: {x: -0.37264618, y: 1.2644545, z: -0.11910665}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -754,9 +630,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2ce9efd0ef59bff42980bbdbd1333667, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6508566508072766950}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2ce9efd0ef59bff42980bbdbd1333667, type: 3}
+    - targetCorrespondingSourceObject: {fileID: 1990844324881534966, guid: 2ce9efd0ef59bff42980bbdbd1333667, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2648055766391964043}
+      addedObject: {fileID: 6458081370507666223}
   m_SourcePrefab: {fileID: 100100000, guid: 2ce9efd0ef59bff42980bbdbd1333667, type: 3}
 --- !u!4 &23425904572375997 stripped
 Transform:
@@ -1011,7 +887,7 @@ MonoBehaviour:
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
     m_Visible: 1
-  - m_Transform: {fileID: 6584088059345691846}
+  - m_Transform: {fileID: 8172224475085875108}
     m_Style:
       shape: {fileID: 4300000, guid: c6793350c150f456688e39a81f97364a, type: 2}
       color: {r: 1, g: 0, b: 0, a: 0.5}
@@ -1027,27 +903,14 @@ MonoBehaviour:
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
     m_Visible: 1
---- !u!65 &2648055766391964043
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3157851632893615986}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.7634764, y: 0.035396054, z: 0.79809403}
-  m_Center: {x: 0, y: 0, z: 0}
+  - m_Transform: {fileID: 6584088059345691846}
+    m_Style:
+      shape: {fileID: 4300000, guid: c6793350c150f456688e39a81f97364a, type: 2}
+      color: {r: 1, g: 0, b: 0, a: 0.5}
+      size: 0.1
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0}
+    m_Visible: 1
 --- !u!4 &3244453259485861268 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8496879035693090889, guid: 2ce9efd0ef59bff42980bbdbd1333667, type: 3}
@@ -1078,6 +941,32 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2168394226173205682, guid: 2ce9efd0ef59bff42980bbdbd1333667, type: 3}
   m_PrefabInstance: {fileID: 2815761891787268643}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &4373979130218507733 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1990844324881534966, guid: 2ce9efd0ef59bff42980bbdbd1333667, type: 3}
+  m_PrefabInstance: {fileID: 2815761891787268643}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &6458081370507666223
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4373979130218507733}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.7634764, y: 0.7634764, z: 0.070641026}
+  m_Center: {x: 0, y: -1.0881768e-19, z: -0.00012972765}
 --- !u!4 &4388160771101589434 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -7208441673433506407, guid: 2ce9efd0ef59bff42980bbdbd1333667, type: 3}
