@@ -14,7 +14,8 @@
     "Subsystems.AnimationAuthoring",
     "Subsystems.AnimationPlayback",
     "Subsystems.InputBindings",
-    "Subsystems.ErrorHandling"
+    "Subsystems.ErrorHandling",
+    "Unity.XR.Interaction.Toolkit"
   ],
   "autoReferenced": false
 }

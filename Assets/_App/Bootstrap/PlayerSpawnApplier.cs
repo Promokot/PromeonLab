@@ -1,15 +1,16 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion;
 using Scene = UnityEngine.SceneManagement.Scene;
 
 // Teleports the XR Rig to the PlayerSpawnAnchor of any additively loaded scene.
-// Subscribes directly to SceneManager.sceneLoaded — no EventBus dependency.
-// CharacterController must be disabled before moving the transform.
+// Uses XRBodyTransformer.QueueTransformation so the locomotion system applies the
+// move correctly — direct transform.SetPositionAndRotation is overridden by XRBodyTransformer.
 public class PlayerSpawnApplier : MonoBehaviour
 {
-    private CharacterController _cc;
+    private XRBodyTransformer _bodyTransformer;
 
-    private void Awake()     => _cc = GetComponent<CharacterController>();
+    private void Awake()     => _bodyTransformer = GetComponentInChildren<XRBodyTransformer>(true);
     private void OnEnable()  => SceneManager.sceneLoaded += OnSceneLoaded;
     private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
@@ -19,22 +20,25 @@ public class PlayerSpawnApplier : MonoBehaviour
         {
             var anchor = root.GetComponentInChildren<PlayerSpawnAnchor>(true);
             if (anchor == null) continue;
-            if (_cc != null) _cc.enabled = false;
-            transform.SetPositionAndRotation(anchor.transform.position, anchor.transform.rotation);
-            if (_cc != null) _cc.enabled = true;
+            _bodyTransformer?.QueueTransformation(
+                new TeleportToAnchor(anchor.transform.position, anchor.transform.rotation),
+                priority: int.MaxValue);
             return;
         }
     }
 
-    // --- EventBus-based approach (kept for reference, disabled) ---
-    // private EventBus _bus;
-    // [Inject] public void Construct(EventBus bus) => _bus = bus;
-    // private void Start()     => _bus?.Subscribe<PlayerSpawnRequestedEvent>(OnSpawnRequested);
-    // private void OnDestroy() => _bus?.Unsubscribe<PlayerSpawnRequestedEvent>(OnSpawnRequested);
-    // private void OnSpawnRequested(PlayerSpawnRequestedEvent e)
-    // {
-    //     if (_cc != null) _cc.enabled = false;
-    //     transform.SetPositionAndRotation(e.Position, e.Rotation);
-    //     if (_cc != null) _cc.enabled = true;
-    // }
+    private readonly struct TeleportToAnchor : IXRBodyTransformation
+    {
+        private readonly Vector3 _pos;
+        private readonly Quaternion _rot;
+
+        public TeleportToAnchor(Vector3 pos, Quaternion rot) { _pos = pos; _rot = rot; }
+
+        public void Apply(XRMovableBody body) =>
+            body.originTransform.SetPositionAndRotation(_pos, _rot);
+    }
+
+    // --- Previous attempts (kept for reference) ---
+    // Direct SetPositionAndRotation was overridden by XRBodyTransformer each frame.
+    // EventBus approach was unreliable due to injection/subscription timing.
 }
