@@ -119,6 +119,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &468771051
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 468771052}
+  m_Layer: 0
+  m_Name: RightHand_IK_target
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &468771052
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 468771051}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.042378988, y: -0.22598507, z: -0.32433575, w: 0.9175735}
+  m_LocalPosition: {x: 0.566461, y: 1.1167969, z: -0.0033509955}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2118964012}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &663645505
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -444,6 +475,21 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!4 &1748316941 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8680515818500731415, guid: ff47263be862d164b9159d589ab14fa4, type: 3}
+  m_PrefabInstance: {fileID: 6557954521540236445}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1909893709 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8301232191610117750, guid: ff47263be862d164b9159d589ab14fa4, type: 3}
+  m_PrefabInstance: {fileID: 6557954521540236445}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &2089603291 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8584066483850792401, guid: ff47263be862d164b9159d589ab14fa4, type: 3}
+  m_PrefabInstance: {fileID: 6557954521540236445}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2106982168
 GameObject:
   m_ObjectHideFlags: 0
@@ -556,6 +602,71 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2118964011 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1465865712067498466, guid: ff47263be862d164b9159d589ab14fa4, type: 3}
+  m_PrefabInstance: {fileID: 6557954521540236445}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &2118964012 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8172224475085875108, guid: ff47263be862d164b9159d589ab14fa4, type: 3}
+  m_PrefabInstance: {fileID: 6557954521540236445}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2118964013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2118964011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aeda7bfbf984f2a4da5ab4b8967b115d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.TwoBoneIKConstraint
+  m_Weight: 1
+  m_Data:
+    m_Root: {fileID: 2089603291}
+    m_Mid: {fileID: 1909893709}
+    m_Tip: {fileID: 1748316941}
+    m_Target: {fileID: 468771052}
+    m_Hint: {fileID: 2127297591}
+    m_TargetPositionWeight: 1
+    m_TargetRotationWeight: 1
+    m_HintWeight: 1
+    m_MaintainTargetPositionOffset: 0
+    m_MaintainTargetRotationOffset: 0
+--- !u!1 &2127297590
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2127297591}
+  m_Layer: 0
+  m_Name: RightHand_IK_hint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2127297591
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2127297590}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.38268274, z: -0, w: 0.9238798}
+  m_LocalPosition: {x: 0.30054632, y: 1.0781845, z: -0.57159436}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2118964012}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &4433154241786594683
 PrefabInstance:
@@ -670,10 +781,35 @@ PrefabInstance:
       propertyPath: m_Name
       value: Dummy Rig
       objectReference: {fileID: 0}
+    - target: {fileID: 6508566508072766950, guid: ff47263be862d164b9159d589ab14fa4, type: 3}
+      propertyPath: m_Effectors.Array.data[0].m_Transform
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6508566508072766950, guid: ff47263be862d164b9159d589ab14fa4, type: 3}
+      propertyPath: m_Effectors.Array.data[1].m_Transform
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6508566508072766950, guid: ff47263be862d164b9159d589ab14fa4, type: 3}
+      propertyPath: m_Effectors.Array.data[3].m_Transform
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6508566508072766950, guid: ff47263be862d164b9159d589ab14fa4, type: 3}
+      propertyPath: m_Effectors.Array.data[4].m_Transform
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 8172224475085875108, guid: ff47263be862d164b9159d589ab14fa4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 468771052}
+    - targetCorrespondingSourceObject: {fileID: 8172224475085875108, guid: ff47263be862d164b9159d589ab14fa4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2127297591}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1465865712067498466, guid: ff47263be862d164b9159d589ab14fa4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2118964013}
   m_SourcePrefab: {fileID: 100100000, guid: ff47263be862d164b9159d589ab14fa4, type: 3}
 --- !u!1001 &8622124980402434684
 PrefabInstance:
