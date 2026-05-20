@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
-[AddComponentMenu("PromeonLab/Interactable Rig Builder")]
+[AddComponentMenu("PromeonLab/Promeon Interactable Rig Builder")]
 public class PromeonInteractableRigBuilder : MonoBehaviour
 {
     [SerializeField] private Material _boneMaterial;
@@ -120,7 +120,7 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
     {
         if (_constraintRigParent == null)
         {
-            Debug.LogWarning("[PromeonInteractableRigBuilder] _buildConstraints=true but no rig parent set. Call SetConstraintRigParent() before Rebuild().", this);
+            Debug.Log("[PromeonInteractableRigBuilder] No rig parent set — constraints skipped, falling back to visual mode. Call SetConstraintRigParent() before Rebuild().", this);
             return;
         }
 
