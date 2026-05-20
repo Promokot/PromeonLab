@@ -1,8 +1,9 @@
 using UnityEngine;
 
+[ExecuteAlways]
 public class BoneFollower : MonoBehaviour
 {
-    private Transform _proxy;
+    [SerializeField] private Transform _proxy;
 
     public void SetProxy(Transform proxy) => _proxy = proxy;
 
@@ -14,6 +15,5 @@ public class BoneFollower : MonoBehaviour
     }
 
     void LateUpdate() => Tick();
-
     void OnDestroy() => _proxy = null;
 }

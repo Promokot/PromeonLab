@@ -166,11 +166,13 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
     public static float EffectiveWidth(float boneWidth, float length) =>
         Mathf.Min(boneWidth, length * 0.2f);
 
-    public static Mesh BuildDiamondMesh()
-    {
-        var mesh = new Mesh { name = "PromeonBoneDiamond" };
+    public static Mesh BuildDiamondMesh() => BuildOrientedDiamondMesh(Vector3.up, 1f, 1f);
 
-        mesh.vertices = new[]
+    public static Mesh BuildOrientedDiamondMesh(Vector3 localLongAxis, float length, float width)
+    {
+        var rot = Quaternion.FromToRotation(Vector3.up, localLongAxis.normalized);
+
+        var baseVerts = new[]
         {
             new Vector3( 0f,    0f,    0f),
             new Vector3( 0.5f,  0.15f, 0f),
@@ -180,12 +182,21 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
             new Vector3( 0f,    1f,    0f),
         };
 
+        var verts = new Vector3[baseVerts.Length];
+        for (int i = 0; i < baseVerts.Length; i++)
+        {
+            var v    = baseVerts[i];
+            v        = new Vector3(v.x * width, v.y * length, v.z * width);
+            verts[i] = rot * v;
+        }
+
+        var mesh = new Mesh { name = "PromeonBoneDiamond" };
+        mesh.vertices  = verts;
         mesh.triangles = new[]
         {
             0, 1, 3,  0, 3, 2,  0, 2, 4,  0, 4, 1,
             1, 5, 3,  3, 5, 2,  2, 5, 4,  4, 5, 1,
         };
-
         mesh.RecalculateNormals();
         return mesh;
     }

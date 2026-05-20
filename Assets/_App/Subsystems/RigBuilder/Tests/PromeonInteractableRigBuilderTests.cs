@@ -36,6 +36,37 @@ public class PromeonInteractableRigBuilderTests
         Object.DestroyImmediate(mesh);
     }
 
+    [Test]
+    public void BuildOrientedDiamondMesh_VerticalAxis_MatchesUnitMesh()
+    {
+        var mesh = PromeonInteractableRigBuilder.BuildOrientedDiamondMesh(Vector3.up, 1f, 1f);
+        Assert.AreEqual(6,  mesh.vertexCount);
+        Assert.AreEqual(24, mesh.triangles.Length);
+        Assert.AreEqual(new Vector3(0f, 1f, 0f), mesh.vertices[5]);
+        Object.DestroyImmediate(mesh);
+    }
+
+    [Test]
+    public void BuildOrientedDiamondMesh_HorizontalAxis_RotatesVertices()
+    {
+        var mesh = PromeonInteractableRigBuilder.BuildOrientedDiamondMesh(Vector3.right, 1f, 1f);
+        var tail = mesh.vertices[5];
+        Assert.AreEqual(1f, tail.x, 0.0001f);
+        Assert.AreEqual(0f, tail.y, 0.0001f);
+        Assert.AreEqual(0f, tail.z, 0.0001f);
+        Object.DestroyImmediate(mesh);
+    }
+
+    [Test]
+    public void BuildOrientedDiamondMesh_NonUniformScale_AppliesBeforeRotation()
+    {
+        var mesh = PromeonInteractableRigBuilder.BuildOrientedDiamondMesh(Vector3.up, 2f, 0.5f);
+        Assert.AreEqual(2f,   mesh.bounds.size.y, 0.001f);
+        Assert.AreEqual(0.5f, mesh.bounds.size.x, 0.001f);
+        Assert.AreEqual(0.5f, mesh.bounds.size.z, 0.001f);
+        Object.DestroyImmediate(mesh);
+    }
+
     private readonly List<GameObject> _created = new();
 
     [TearDown]
