@@ -88,8 +88,14 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
         }
         else
         {
-            localChildDir = Vector3.up;
-            length        = _boneWidth * 5f;
+            // Terminal bone: inherit direction from the parent→bone vector (continue along the chain),
+            // size at half the previous bone's length so the chain tapers visually to its end
+            // and stays smaller than the bone preceding it.
+            var worldDir    = bone.position - bone.parent.position;
+            float parentLen = Mathf.Max(worldDir.magnitude, 0.0001f);
+            length        = parentLen * 0.5f;
+            localChildDir = bone.InverseTransformDirection(worldDir).normalized;
+            if (localChildDir.sqrMagnitude < 0.0001f) localChildDir = Vector3.up;
         }
         float width = EffectiveWidth(_boneWidth, length);
 

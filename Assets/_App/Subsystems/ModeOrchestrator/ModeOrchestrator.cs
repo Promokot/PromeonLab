@@ -38,6 +38,7 @@ public class ModeOrchestrator
     private void OnSceneLoadedForSpawn(Scene scene, LoadSceneMode mode)
     {
         SceneManager.sceneLoaded -= OnSceneLoadedForSpawn;
+        SceneManager.SetActiveScene(scene);
         foreach (var root in scene.GetRootGameObjects())
         {
             var anchor = root.GetComponentInChildren<PlayerSpawnAnchor>(true);

@@ -84,7 +84,7 @@ public class SceneOutlinerView : MonoBehaviour
         foreach (var node in children)
         {
             var row = Instantiate(_rowPrefab, _rowsRoot);
-            row.Bind(node, depth * _indentPx, () => _selection.Toggle(node.NodeId));
+            row.Bind(node, depth * _indentPx, () => _selection.Select(node.NodeId));
             AddRowsRecursive(node.NodeId, depth + 1, byParent);
         }
     }

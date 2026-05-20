@@ -194,6 +194,8 @@ public class PromeonInteractableRigBuilderTests
     [Test]
     public void BuildProxyHierarchy_TwoBones_CreatesTwoProxies()
     {
+        // pelvis has spine as child — proxy_pelvis oriented toward spine
+        // spine is a leaf — proxy_spine exists, oriented along the chain at half pelvis's length
         var characterGo = MakeGO("Character");
         var armatureGo  = MakeGO("Armature", characterGo.transform);
         var pelvisGo    = MakeGO("pelvis",   armatureGo.transform);
@@ -258,9 +260,10 @@ public class PromeonInteractableRigBuilderTests
     }
 
     [Test]
-    public void BuildProxyHierarchy_LeafBone_UsesDefaultLength()
+    public void BuildProxyHierarchy_LeafBone_SizedSmallerThanParent()
     {
-        // Default length for a leaf bone = _boneWidth * 5 = 0.06 * 5 = 0.3
+        // spine is a leaf — its proxy length should be half of (pelvis→spine distance),
+        // which is also pelvis proxy's length. Leaf must be smaller than the bone preceding it.
         var characterGo = MakeGO("Character");
         var armatureGo  = MakeGO("Armature", characterGo.transform);
         var pelvisGo    = MakeGO("pelvis",   armatureGo.transform);
@@ -271,19 +274,19 @@ public class PromeonInteractableRigBuilderTests
         rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
         rig.Rebuild();
 
-        var proxySpine = characterGo.transform
-            .Find("ProxyRig")
-            ?.Find("proxy_pelvis")
-            ?.Find("proxy_spine");
+        var proxyPelvis = characterGo.transform.Find("ProxyRig/proxy_pelvis");
+        var proxySpine  = proxyPelvis?.Find("proxy_spine");
+        Assert.IsNotNull(proxyPelvis, "proxy_pelvis not found");
+        Assert.IsNotNull(proxySpine,  "proxy_spine should exist — terminal bones still get a proxy");
 
-        Assert.IsNotNull(proxySpine, "proxy_spine not found");
-        var meshFilter = proxySpine.GetComponent<MeshFilter>();
-        Assert.IsNotNull(meshFilter, "proxy_spine has no MeshFilter");
-        Assert.IsNotNull(meshFilter.sharedMesh, "proxy_spine MeshFilter has no Mesh");
-        // Leaf bone: localLongAxis = Vector3.up, length = boneWidth * 5 = 0.3
-        // Diamond bounds height should be 0.3 in the proxy's local space
-        Assert.AreEqual(0.3f, meshFilter.sharedMesh.bounds.size.y, 0.001f,
-            "Leaf bone proxy mesh bounds.y should equal boneWidth * 5 = 0.3");
+        var pelvisMesh = proxyPelvis.GetComponent<MeshFilter>().sharedMesh;
+        var spineMesh  = proxySpine.GetComponent<MeshFilter>().sharedMesh;
+
+        // Pelvis→spine distance = 1.0; leaf length = 1.0 * 0.5 = 0.5
+        Assert.AreEqual(0.5f, spineMesh.bounds.size.y, 0.001f,
+            "Leaf proxy length should be half the previous bone's length");
+        Assert.Less(spineMesh.bounds.size.y, pelvisMesh.bounds.size.y,
+            "Leaf proxy must be smaller than its parent's proxy");
     }
 
     [Test]
