@@ -10,7 +10,8 @@
       "mcp__unityMCP__manage_scene",
       "mcp__unityMCP__find_gameobjects",
       "mcp__unityMCP__read_console",
-      "Bash(git *)"
+      "Bash(git *)",
+      "mcp__unityMCP__execute_code"
     ]
   },
   "enabledMcpjsonServers": [
