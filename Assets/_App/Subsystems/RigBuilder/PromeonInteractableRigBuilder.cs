@@ -70,21 +70,18 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
 
     void BuildProxyNode(Transform bone, Transform proxyParent, HashSet<Transform> set)
     {
-        Transform firstChild = null;
+        var children = new List<Transform>();
         for (int i = 0; i < bone.childCount; i++)
         {
             var c = bone.GetChild(i);
-            if (set.Contains(c)) { firstChild = c; break; }
+            if (set.Contains(c)) children.Add(c);
         }
 
-        Vector3 localChildDir;
-        float   length;
-        if (firstChild != null)
+        Mesh mesh;
+        if (children.Count > 0)
         {
-            var worldDir = firstChild.position - bone.position;
-            length        = Mathf.Max(worldDir.magnitude, 0.0001f);
-            localChildDir = bone.InverseTransformDirection(worldDir).normalized;
-            if (localChildDir.sqrMagnitude < 0.0001f) localChildDir = Vector3.up;
+            // Build one combined mesh that fans a diamond from the bone toward every child.
+            mesh = BuildCombinedDiamondMesh(bone, children);
         }
         else
         {
@@ -93,13 +90,12 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
             // and stays smaller than the bone preceding it.
             var worldDir    = bone.position - bone.parent.position;
             float parentLen = Mathf.Max(worldDir.magnitude, 0.0001f);
-            length        = parentLen * 0.5f;
-            localChildDir = bone.InverseTransformDirection(worldDir).normalized;
+            float length    = parentLen * 0.5f;
+            Vector3 localChildDir = bone.InverseTransformDirection(worldDir).normalized;
             if (localChildDir.sqrMagnitude < 0.0001f) localChildDir = Vector3.up;
+            float width = EffectiveWidth(_boneWidth, length);
+            mesh = BuildOrientedDiamondMesh(localChildDir, length, width);
         }
-        float width = EffectiveWidth(_boneWidth, length);
-
-        var mesh = BuildOrientedDiamondMesh(localChildDir, length, width);
         _proxyMeshes.Add(mesh);
 
         var proxyGo = new GameObject($"proxy_{bone.name}");
@@ -120,12 +116,51 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
         follower.SetProxy(proxyGo.transform);
         _followers.Add(follower);
 
-        for (int i = 0; i < bone.childCount; i++)
+        foreach (var child in children)
+            BuildProxyNode(child, proxyGo.transform, set);
+    }
+
+    Mesh BuildCombinedDiamondMesh(Transform bone, List<Transform> children)
+    {
+        var allVerts = new List<Vector3>();
+        var allTris  = new List<int>();
+
+        foreach (var child in children)
         {
-            var child = bone.GetChild(i);
-            if (set.Contains(child))
-                BuildProxyNode(child, proxyGo.transform, set);
+            var worldDir = child.position - bone.position;
+            float   length        = Mathf.Max(worldDir.magnitude, 0.0001f);
+            Vector3 localChildDir = bone.InverseTransformDirection(worldDir).normalized;
+            if (localChildDir.sqrMagnitude < 0.0001f) localChildDir = Vector3.up;
+            float width = EffectiveWidth(_boneWidth, length);
+
+            var rot = Quaternion.FromToRotation(Vector3.up, localChildDir);
+
+            int baseIdx = allVerts.Count;
+            var baseVerts = new[]
+            {
+                new Vector3( 0f,    0f,    0f),
+                new Vector3( 0.5f,  0.15f, 0f),
+                new Vector3(-0.5f,  0.15f, 0f),
+                new Vector3( 0f,    0.15f, 0.5f),
+                new Vector3( 0f,    0.15f,-0.5f),
+                new Vector3( 0f,    1f,    0f),
+            };
+            foreach (var v in baseVerts)
+            {
+                var scaled = new Vector3(v.x * width, v.y * length, v.z * width);
+                allVerts.Add(rot * scaled);
+            }
+
+            int[] tris = { 0, 1, 3,  0, 3, 2,  0, 2, 4,  0, 4, 1,
+                           1, 5, 3,  3, 5, 2,  2, 5, 4,  4, 5, 1 };
+            foreach (var t in tris) allTris.Add(t + baseIdx);
         }
+
+        var mesh = new Mesh { name = "PromeonBoneDiamond" };
+        mesh.vertices  = allVerts.ToArray();
+        mesh.triangles = allTris.ToArray();
+        mesh.RecalculateNormals();
+        return mesh;
     }
 
     void AddCollider(GameObject go, Mesh mesh)

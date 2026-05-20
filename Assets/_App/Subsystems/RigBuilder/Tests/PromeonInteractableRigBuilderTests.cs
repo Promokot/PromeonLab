@@ -337,4 +337,32 @@ public class PromeonInteractableRigBuilderTests
         Assert.AreEqual(Vector3.one, proxyPelvis.localScale, "proxy_pelvis.localScale must be (1,1,1)");
         Assert.AreEqual(Vector3.one, proxySpine.localScale,  "proxy_spine.localScale must be (1,1,1)");
     }
+
+    [Test]
+    public void BuildProxyHierarchy_MultipleChildren_BuildsCombinedMesh()
+    {
+        // pelvis has TWO children in set (leftHip and rightHip) — proxy_pelvis mesh should
+        // contain TWO diamonds fused into one Mesh (12 verts, 48 triangle indices total).
+        var characterGo = MakeGO("Character");
+        var armatureGo  = MakeGO("Armature", characterGo.transform);
+        var pelvisGo    = MakeGO("pelvis",   armatureGo.transform);
+        var leftHipGo   = MakeGO("leftHip",  pelvisGo.transform);
+        var rightHipGo  = MakeGO("rightHip", pelvisGo.transform);
+        leftHipGo.transform.localPosition  = new Vector3(-0.2f, 0f, 0f);
+        rightHipGo.transform.localPosition = new Vector3( 0.2f, 0f, 0f);
+
+        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        rig.SetTransforms(new[] { pelvisGo.transform, leftHipGo.transform, rightHipGo.transform });
+        rig.Rebuild();
+
+        var proxyPelvis = characterGo.transform.Find("ProxyRig/proxy_pelvis");
+        Assert.IsNotNull(proxyPelvis, "proxy_pelvis not found");
+
+        var mesh = proxyPelvis.GetComponent<MeshFilter>().sharedMesh;
+        Assert.IsNotNull(mesh, "proxy_pelvis has no Mesh");
+        Assert.AreEqual(12, mesh.vertexCount,
+            "Combined mesh: 6 verts per child diamond × 2 children = 12");
+        Assert.AreEqual(48, mesh.triangles.Length,
+            "Combined mesh: 24 triangle indices per child × 2 children = 48");
+    }
 }
