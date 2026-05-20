@@ -41,15 +41,13 @@ public class RigRuntime : MonoBehaviour, IRigRuntime
 
         var boneRenderer = animator.gameObject.GetComponent<PromeonBoneRenderer>();
         if (boneRenderer == null) boneRenderer = animator.gameObject.AddComponent<PromeonBoneRenderer>();
-        var transforms = new List<Transform>();
+        var boneTransforms = new List<Transform>();
         foreach (var bone in definition.Bones)
         {
             var t = FindBone(smr, bone.BoneName);
-            if (t != null) transforms.Add(t);
+            if (t != null) boneTransforms.Add(t);
         }
-        var field = typeof(BoneRenderer).GetField("m_Transforms",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        if (field != null) field.SetValue(boneRenderer, transforms.ToArray());
+        boneRenderer.SetTransforms(boneTransforms.ToArray());
         boneRenderer.Rebuild();
 
         foreach (var bone in definition.Bones)

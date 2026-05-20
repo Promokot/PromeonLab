@@ -1,31 +1,33 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Animations.Rigging;
 
 [AddComponentMenu("PromeonLab/Bone Renderer (Promeon)")]
-public class PromeonBoneRenderer : BoneRenderer
+public class PromeonBoneRenderer : MonoBehaviour
 {
     [SerializeField] private Material _boneMaterial;
     [SerializeField] private float _boneWidth = 0.12f;
+    [SerializeField] private Transform[] _transforms;
 
     private readonly List<GameObject> _boneGOs = new();
-    private static Mesh s_BoneMesh;
+    private Mesh _boneMesh;
 
     void Awake() => Rebuild();
-
-    void OnValidate() => Rebuild();
-
     void OnDestroy() => DestroyBoneGOs();
+
+    public void SetTransforms(Transform[] transforms)
+    {
+        _transforms = transforms;
+    }
 
     public void Rebuild()
     {
         DestroyBoneGOs();
 
-        if (!drawBones || transforms == null || transforms.Length == 0) return;
+        if (_transforms == null || _transforms.Length == 0) return;
 
-        if (s_BoneMesh == null) s_BoneMesh = BuildDiamondMesh();
+        if (_boneMesh == null) _boneMesh = BuildDiamondMesh();
 
-        foreach (var (start, end) in ExtractPairs(transforms))
+        foreach (var (start, end) in ExtractPairs(_transforms))
             _boneGOs.Add(CreateBoneGO(start, end));
     }
 
@@ -34,15 +36,15 @@ public class PromeonBoneRenderer : BoneRenderer
         var go = new GameObject($"Bone_{start.name}");
         go.transform.SetParent(start, worldPositionStays: false);
 
-        go.AddComponent<MeshFilter>().sharedMesh = s_BoneMesh;
+        go.AddComponent<MeshFilter>().sharedMesh = _boneMesh;
         var mr = go.AddComponent<MeshRenderer>();
         mr.sharedMaterial = _boneMaterial;
         if (_boneMaterial == null)
             Debug.LogWarning("[PromeonBoneRenderer] _boneMaterial not assigned.", this);
 
         var col    = go.AddComponent<CapsuleCollider>();
-        col.direction = 1;      // Y-axis, matches bone local Y
-        col.height    = 1f;     // local space; world height = 1 * localScale.y = bone length
+        col.direction = 1;
+        col.height    = 1f;
         col.radius    = 0.5f * _boneWidth;
 
         var localEnd = start.InverseTransformPoint(end.position);

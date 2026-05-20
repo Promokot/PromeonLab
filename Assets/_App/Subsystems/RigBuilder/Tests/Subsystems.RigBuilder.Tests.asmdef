@@ -1,6 +1,6 @@
 {
     "name": "Subsystems.RigBuilder.Tests",
-    "references": ["Subsystems.RigBuilder", "Unity.Animation.Rigging"],
+    "references": ["Subsystems.RigBuilder"],
     "includePlatforms": ["Editor"],
     "optionalUnityReferences": ["TestAssemblies"],
     "autoReferenced": false
