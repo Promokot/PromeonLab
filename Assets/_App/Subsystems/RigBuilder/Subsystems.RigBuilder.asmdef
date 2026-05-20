@@ -1,1 +1,1 @@
-{ "name": "Subsystems.RigBuilder", "references": ["_Shared","VContainer","Unity.Animation.Rigging"], "autoReferenced": false }
+{ "name": "Subsystems.RigBuilder", "references": ["_Shared","VContainer","Unity.Animation.Rigging","QuickOutline"], "autoReferenced": false }

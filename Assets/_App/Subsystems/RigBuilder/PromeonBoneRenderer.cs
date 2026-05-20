@@ -1,23 +1,25 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 [AddComponentMenu("PromeonLab/Bone Renderer (Promeon)")]
 public class PromeonBoneRenderer : MonoBehaviour
 {
     [SerializeField] private Material _boneMaterial;
-    [SerializeField] private float _boneWidth = 0.12f;
+    [SerializeField] private float _boneWidth = 0.06f;          // world-space half-width, meters
+    [SerializeField] private bool _useConvexCollider = true;
+    [SerializeField] private bool _buildConstraints = false;     // true = proxy drives bone via ParentConstraint
     [SerializeField] private Transform[] _transforms;
 
-    private readonly List<GameObject> _boneGOs = new();
+    private readonly List<GameObject>        _boneGOs     = new();
+    private readonly List<ParentConstraint>  _constraints = new();
+    private Transform _proxyRoot;
     private Mesh _boneMesh;
 
-    void Awake() => Rebuild();
+    void Awake()    => Rebuild();
     void OnDestroy() => DestroyBoneGOs();
 
-    public void SetTransforms(Transform[] transforms)
-    {
-        _transforms = transforms;
-    }
+    public void SetTransforms(Transform[] transforms) => _transforms = transforms;
 
     public void Rebuild()
     {
@@ -28,8 +30,120 @@ public class PromeonBoneRenderer : MonoBehaviour
 
         if (_boneMesh == null) _boneMesh = BuildDiamondMesh();
 
+        if (_buildConstraints)
+        {
+            var go = new GameObject("_BoneProxies");
+            go.transform.SetParent(transform, worldPositionStays: false);
+            _proxyRoot = go.transform;
+        }
+
         foreach (var (start, end) in ExtractPairs(transforms))
             _boneGOs.Add(CreateBoneGO(start, end));
+    }
+
+    public void SetVisualsEnabled(bool enabled)
+    {
+        foreach (var go in _boneGOs)
+        {
+            if (go == null) continue;
+            var mr = go.GetComponent<MeshRenderer>();
+            if (mr != null) mr.enabled = enabled;
+            var outline = go.GetComponent<Outline>();
+            if (outline != null) outline.enabled = enabled;
+        }
+    }
+
+    GameObject CreateBoneGO(Transform start, Transform end)
+    {
+        var go = new GameObject($"Bone_{start.name}");
+
+        float length;
+
+        if (_proxyRoot != null)
+        {
+            // Independent proxy: positioned in world space, drives bone via constraint
+            go.transform.SetParent(_proxyRoot, worldPositionStays: false);
+            var worldVec = end.position - start.position;
+            length = worldVec.magnitude;
+            if (length < 0.0001f) length = 0.0001f;
+            go.transform.SetPositionAndRotation(
+                start.position,
+                Quaternion.FromToRotation(Vector3.up, worldVec / length));
+            go.transform.localScale = new Vector3(_boneWidth, length, _boneWidth);
+        }
+        else
+        {
+            // Visual child: parented to bone, follows animation automatically
+            go.transform.SetParent(start, worldPositionStays: false);
+            var localEnd = start.InverseTransformPoint(end.position);
+            length = localEnd.magnitude;
+            if (length < 0.0001f) length = 0.0001f;
+            var dir = localEnd.normalized;
+            go.transform.localPosition = Vector3.zero;
+            go.transform.localRotation = Quaternion.FromToRotation(Vector3.up, dir);
+            go.transform.localScale    = new Vector3(_boneWidth, length, _boneWidth);
+        }
+
+        go.AddComponent<MeshFilter>().sharedMesh = _boneMesh;
+        var mr = go.AddComponent<MeshRenderer>();
+        mr.sharedMaterial = _boneMaterial;
+        if (_boneMaterial == null)
+            Debug.LogWarning("[PromeonBoneRenderer] _boneMaterial not assigned.", this);
+
+        if (_useConvexCollider)
+        {
+            var mc = go.AddComponent<MeshCollider>();
+            mc.sharedMesh = _boneMesh;
+            mc.convex = true;
+        }
+        else
+        {
+            var col       = go.AddComponent<CapsuleCollider>();
+            col.direction = 1;
+            col.height    = 1f;
+            col.radius    = 0.5f;
+        }
+
+        var outline           = go.AddComponent<Outline>();
+        outline.OutlineMode   = Outline.Mode.SilhouetteOnly;
+        outline.OutlineColor  = Color.white;
+        outline.OutlineWidth  = 3f;
+
+        if (_proxyRoot != null)
+        {
+            var constraint = start.GetComponent<ParentConstraint>()
+                          ?? start.gameObject.AddComponent<ParentConstraint>();
+            constraint.AddSource(new ConstraintSource { sourceTransform = go.transform, weight = 1f });
+            constraint.constraintActive = true;
+            _constraints.Add(constraint);
+        }
+
+        return go;
+    }
+
+    void DestroyBoneGOs()
+    {
+        foreach (var c in _constraints)
+            if (c != null) DestroyObj(c);
+        _constraints.Clear();
+
+        if (_proxyRoot != null)
+        {
+            DestroyObj(_proxyRoot.gameObject);
+            _proxyRoot = null;
+        }
+        else
+        {
+            foreach (var go in _boneGOs)
+                if (go != null) DestroyObj(go);
+        }
+        _boneGOs.Clear();
+    }
+
+    static void DestroyObj(Object obj)
+    {
+        if (Application.isPlaying) Destroy(obj);
+        else                        DestroyImmediate(obj);
     }
 
     Transform[] ResolveTransforms()
@@ -44,49 +158,6 @@ public class PromeonBoneRenderer : MonoBehaviour
 
         Debug.LogWarning("[PromeonBoneRenderer] No transforms set and no SkinnedMeshRenderer found.", this);
         return null;
-    }
-
-    GameObject CreateBoneGO(Transform start, Transform end)
-    {
-        var go = new GameObject($"Bone_{start.name}");
-        go.transform.SetParent(start, worldPositionStays: false);
-
-        go.AddComponent<MeshFilter>().sharedMesh = _boneMesh;
-        var mr = go.AddComponent<MeshRenderer>();
-        mr.sharedMaterial = _boneMaterial;
-        if (_boneMaterial == null)
-            Debug.LogWarning("[PromeonBoneRenderer] _boneMaterial not assigned.", this);
-
-        var col    = go.AddComponent<CapsuleCollider>();
-        col.direction = 1;
-        col.height    = 1f;
-        col.radius    = 0.5f * _boneWidth;
-
-        var localEnd = start.InverseTransformPoint(end.position);
-        float length = localEnd.magnitude;
-        if (length < 0.0001f) length = 0.0001f;
-
-        var dir = localEnd.normalized;
-        if (dir == Vector3.zero) dir = Vector3.up;
-
-        go.transform.localPosition = Vector3.zero;
-        go.transform.localRotation = Quaternion.FromToRotation(Vector3.up, dir);
-        go.transform.localScale    = new Vector3(_boneWidth * length, length, _boneWidth * length);
-
-        return go;
-    }
-
-    void DestroyBoneGOs()
-    {
-        foreach (var go in _boneGOs)
-            if (go != null) DestroyObj(go);
-        _boneGOs.Clear();
-    }
-
-    static void DestroyObj(Object obj)
-    {
-        if (Application.isPlaying) Destroy(obj);
-        else                        DestroyImmediate(obj);
     }
 
     public static Mesh BuildDiamondMesh()
