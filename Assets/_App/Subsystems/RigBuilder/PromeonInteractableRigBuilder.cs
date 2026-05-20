@@ -1,27 +1,28 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Animations;
+using UnityEngine.Animations.Rigging;
 
 [AddComponentMenu("PromeonLab/Interactable Rig Builder")]
 public class PromeonInteractableRigBuilder : MonoBehaviour
 {
     [SerializeField] private Material _boneMaterial;
-    [SerializeField] private float _boneWidth = 0.06f;          // world-space half-width, meters
+    [SerializeField] private float _boneWidth = 0.06f;
     [SerializeField] private bool _useConvexCollider = true;
-    [SerializeField] private bool _buildConstraints = false;     // true = proxy drives bone via ParentConstraint
-    [SerializeField] private Transform[] _transforms;
+    [SerializeField] private bool _buildConstraints = true;
+    private Transform[] _transforms;
 
-    private readonly List<GameObject>        _boneGOs     = new();
-    private readonly List<ParentConstraint>  _constraints = new();
+    private readonly List<GameObject> _boneGOs       = new();
+    private readonly List<GameObject> _constraintGOs = new();
     private Transform _proxyRoot;
+    private Transform _constraintRigParent;
     private Mesh _boneMesh;
 
     void Awake()     { if (_transforms != null && _transforms.Length > 0) Rebuild(); }
     void OnDestroy() => DestroyBoneGOs();
 
-    public void SetTransforms(Transform[] transforms) => _transforms = transforms;
-
-    public void SetMaterial(Material material) => _boneMaterial = material;
+    public void SetTransforms(Transform[] transforms)           => _transforms            = transforms;
+    public void SetMaterial(Material material)                  => _boneMaterial          = material;
+    public void SetConstraintRigParent(Transform rigParent)     => _constraintRigParent   = rigParent;
 
     public void Rebuild()
     {
@@ -104,28 +105,44 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
             col.radius    = 0.5f;
         }
 
-        var outline           = go.AddComponent<Outline>();
-        outline.OutlineMode   = Outline.Mode.SilhouetteOnly;
-        outline.OutlineColor  = Color.white;
-        outline.OutlineWidth  = 3f;
+        var outline          = go.AddComponent<Outline>();
+        outline.OutlineMode  = Outline.Mode.SilhouetteOnly;
+        outline.OutlineColor = Color.white;
+        outline.OutlineWidth = 3f;
 
         if (_proxyRoot != null)
-        {
-            var constraint = start.GetComponent<ParentConstraint>()
-                          ?? start.gameObject.AddComponent<ParentConstraint>();
-            constraint.AddSource(new ConstraintSource { sourceTransform = go.transform, weight = 1f });
-            constraint.constraintActive = true;
-            _constraints.Add(constraint);
-        }
+            AddParentConstraint(start, go.transform);
 
         return go;
     }
 
+    void AddParentConstraint(Transform bone, Transform proxy)
+    {
+        if (_constraintRigParent == null)
+        {
+            Debug.LogWarning("[PromeonInteractableRigBuilder] _buildConstraints=true but no rig parent set. Call SetConstraintRigParent() before Rebuild().", this);
+            return;
+        }
+
+        var pcGo = new GameObject($"PC_{bone.name}");
+        pcGo.transform.SetParent(_constraintRigParent, worldPositionStays: false);
+        _constraintGOs.Add(pcGo);
+
+        var pc = pcGo.AddComponent<MultiParentConstraint>();
+        pc.data.constrainedObject = bone;
+
+        var sources = pc.data.sourceObjects;
+        sources.Add(new WeightedTransform(proxy, 1f));
+        pc.data.sourceObjects = sources;
+
+        pc.weight = 1f;
+    }
+
     void DestroyBoneGOs()
     {
-        foreach (var c in _constraints)
-            if (c != null) DestroyObj(c);
-        _constraints.Clear();
+        foreach (var go in _constraintGOs)
+            if (go != null) DestroyObj(go);
+        _constraintGOs.Clear();
 
         if (_proxyRoot != null)
         {

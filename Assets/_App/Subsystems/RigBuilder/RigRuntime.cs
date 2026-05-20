@@ -43,6 +43,7 @@ public class RigRuntime : MonoBehaviour, IRigRuntime
         var boneRenderer = animator.gameObject.GetComponent<PromeonInteractableRigBuilder>();
         if (boneRenderer == null) boneRenderer = animator.gameObject.AddComponent<PromeonInteractableRigBuilder>();
         if (_boneMaterial != null) boneRenderer.SetMaterial(_boneMaterial);
+        boneRenderer.SetConstraintRigParent(rigGo.transform);
         var boneTransforms = new List<Transform>();
         foreach (var bone in definition.Bones)
         {

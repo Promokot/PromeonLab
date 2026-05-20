@@ -1,23 +1,18 @@
-# PromeonBoneRenderer Design
+# PromeonInteractableRigBuilder Design
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task.
+> **Status:** Implemented — `Assets/_App/Subsystems/RigBuilder/PromeonInteractableRigBuilder.cs`
 
-**Goal:** Runtime-visible bone visualization for VR (Meta Quest 3, URP, single-pass instanced stereo) using classic diamond/octahedron shapes, built once per rig assignment and extensible with XRI grabbables.
+**Goal:** Runtime-visible, VR-interactable bone visualization for Meta Quest 3 (URP, single-pass instanced stereo). Generates diamond-shaped proxy bones from a SkinnedMeshRenderer, wires them to original bones via Animation Rigging `MultiParentConstraint`, and exposes each bone as a grabbable object (CapsuleCollider / convex MeshCollider + Outline silhouette).
 
-**Architecture:** `PromeonBoneRenderer` inherits `BoneRenderer` to reuse its serialized `transforms[]` field and inspector properties (`boneColor`, `boneSize`, `drawBones`). Rendering is done via per-bone child GameObjects (MeshFilter + MeshRenderer) parented directly to joint transforms, so they follow animation automatically with zero per-frame script cost.
+**Architecture:** `PromeonInteractableRigBuilder : MonoBehaviour` on the Animator root. Driven by `RigRuntime.ApplyDefinition` — no per-frame logic. All rendering and interaction is via child GameObjects parented to a `_BoneProxies` container (constraint mode) or directly to joint transforms (visual-only mode).
 
-**Tech Stack:** Unity 6, URP 17, Unity Animation Rigging package, OpenXR.
+**Tech Stack:** Unity 6, URP 17, Unity Animation Rigging package, QuickOutline.
 
 ---
 
-## Why inheritance from `BoneRenderer`
+## Rename history
 
-`BoneRenderer` in the Animation Rigging package has all rendering code inside `#if UNITY_EDITOR` — it does nothing at runtime. Inheriting gives us:
-- The serialized `Transform[] transforms` field (populated via the existing Bone Renderer workflow)
-- Inspector properties: `boneColor`, `boneSize`, `boneShape`, `drawBones`
-- Scene View rendering still works in Edit Mode (handled by `BoneRendererUtils` in the package)
-
-We add runtime rendering on top.
+Originally `PromeonBoneRenderer`. Renamed to `PromeonInteractableRigBuilder` because scope expanded beyond rendering: proxy bones now carry colliders and Animation Rigging constraints that let them drive original bones.
 
 ---
 
@@ -25,99 +20,154 @@ We add runtime rendering on top.
 
 | File | Responsibility |
 |---|---|
-| `Assets/_App/Subsystems/RigBuilder/PromeonBoneRenderer.cs` | Main MonoBehaviour |
-| `Assets/_App/Subsystems/RigBuilder/Editor/PromeonBoneRendererEditor.cs` | "Rebuild" button in Inspector |
+| `Assets/_App/Subsystems/RigBuilder/PromeonInteractableRigBuilder.cs` | Main MonoBehaviour |
+| `Assets/_App/Editor/PromeonInteractableRigBuilderEditor.cs` | "Rebuild" button in Inspector |
+| `Assets/_App/Subsystems/RigBuilder/Tests/PromeonInteractableRigBuilderTests.cs` | EditMode unit tests (mesh + pair extraction) |
 
-`PromeonBoneRenderer` lives in the `RigBuilder` subsystem alongside existing rig components. No new assembly definition needed — uses the existing `RigBuilder` asmdef (or `_App.asmdef` if RigBuilder has none).
+Assembly: `Subsystems.RigBuilder` — references `Unity.Animation.Rigging`, `QuickOutline`.
+
+---
+
+## Inspector Fields
+
+```csharp
+[SerializeField] private Material _boneMaterial;       // must be assigned; no auto-fallback
+[SerializeField] private float    _boneWidth = 0.06f;  // world-space half-width (meters)
+[SerializeField] private bool     _useConvexCollider = true;
+[SerializeField] private bool     _buildConstraints  = true;
+// _transforms is NOT serialized — set at runtime via SetTransforms() or auto-discovered
+```
+
+---
+
+## Public API
+
+| Method | Purpose |
+|---|---|
+| `SetTransforms(Transform[])` | Explicitly set bone transforms (called by RigRuntime) |
+| `SetMaterial(Material)` | Set bone material at runtime (called by RigRuntime) |
+| `SetConstraintRigParent(Transform)` | Set the Rig GO under which constraint GOs are created |
+| `Rebuild()` | Destroy existing bones and recreate from current state |
+| `SetVisualsEnabled(bool)` | Toggle MeshRenderer + Outline on all bone GOs |
+
+---
+
+## Initialization Flow (via RigRuntime)
+
+```
+RigRuntime.ApplyDefinition(definition, smr)
+  └─ GetOrAdd PromeonInteractableRigBuilder on animator.gameObject
+  └─ SetMaterial(_boneMaterial)
+  └─ SetConstraintRigParent(rigGo.transform)   ← the _Rig GO created by RigRuntime
+  └─ SetTransforms(bones from smr)
+  └─ Rebuild()
+```
+
+`Awake()` only calls `Rebuild()` if `_transforms` is already set — avoids a redundant first build when `AddComponent` fires before `SetTransforms`.
+
+---
+
+## Transform Resolution
+
+`ResolveTransforms()` priority:
+1. `_transforms` if set by `SetTransforms()`
+2. Auto-discover: `GetComponentInChildren<SkinnedMeshRenderer>()?.bones` (or parent search)
+3. Log warning and return null
+
+This lets the component work standalone (added manually in the Inspector) without requiring `RigRuntime`.
 
 ---
 
 ## Bone Shape
 
-A unit diamond mesh (octahedron variant), Y-axis from 0 to 1 (head at Y=0, tail at Y=1):
+Unit diamond mesh (octahedron variant), Y-axis from 0 to 1:
 
 ```
-v0 = (0,    0,    0)     head — tapers to point
-v1 = (+r,   0.15, 0)     shoulder ring (4 verts at Y=0.15)
-v2 = (-r,   0.15, 0)
-v3 = (0,    0.15, +r)
-v4 = (0,    0.15, -r)
-v5 = (0,    1,    0)     tail — tapers to point
+v0 = (0,    0,    0)    head — tapers to point
+v1 = (+0.5, 0.15, 0)    shoulder ring (4 verts at Y=0.15)
+v2 = (-0.5, 0.15, 0)
+v3 = (0,    0.15, +0.5)
+v4 = (0,    0.15, -0.5)
+v5 = (0,    1,    0)    tail — tapers to point
 ```
 
-Where `r = 0.06` (6% of bone length after scale is applied). Produces 8 triangles (4 from head to shoulder, 4 from shoulder to tail). Built once as `static Mesh s_BoneMesh` and shared across all instances.
+8 triangles (4 head→shoulder, 4 shoulder→tail). Built once per component instance (`_boneMesh` instance field, not static).
 
 ---
 
-## `PromeonBoneRenderer` Fields
+## Bone GO Setup (per bone pair)
 
-```csharp
-[SerializeField] private Material _boneMaterial;  // Unlit/Transparent, assigned in inspector
-[SerializeField] private float _boneWidth = 0.06f; // shoulder radius relative to bone length
+Each proxy bone GO contains:
+- `MeshFilter` — shared diamond mesh
+- `MeshRenderer` — `_boneMaterial`
+- Collider (one of):
+  - `MeshCollider` with `convex = true`, `sharedMesh = diamond` (**default**, `_useConvexCollider = true`)
+  - `CapsuleCollider` Y-axis, height=1, radius=0.5 (in local space — world size determined by scale)
+- `Outline` — `Mode.SilhouetteOnly`, white, width=3
+
+**Scale:** `localScale = (_boneWidth, length, _boneWidth)` where `length` = world-space bone length (in constraint mode) or local-space magnitude (in visual mode). Result: X/Z are absolute world meters; Y spans the bone.
+
+---
+
+## Two Rendering Modes
+
+### Visual mode (`_buildConstraints = false`)
+
+Proxy GO is **parented to the original bone**. Follows animation automatically via the transform hierarchy. Zero per-frame script cost. Used for pure visualization.
+
+```
+CharacterRoot
+└─ Pelvis (bone)
+   └─ Bone_Pelvis (proxy GO — child of bone)
 ```
 
-`boneColor`, `boneSize`, `drawBones` — inherited from `BoneRenderer`.
+### Constraint mode (`_buildConstraints = true`, default)
 
-Internal:
-```csharp
-private readonly List<(Transform start, Transform end, GameObject go)> _boneObjects = new();
-private static Mesh s_BoneMesh;
+Proxy GOs live under `_BoneProxies` (child of this component's GO). Each original bone gets a `MultiParentConstraint` created **under the Rig GO** with the proxy as source (weight=1). Moving the proxy drives the original bone.
+
+```
+CharacterRoot
+├─ _BoneProxies
+│  └─ Bone_Pelvis (proxy GO — independent)
+└─ SkinnedMesh
+   └─ _Rig (Rig GO, set via SetConstraintRigParent)
+      ├─ PC_Pelvis (MultiParentConstraint → constrainedObject=Pelvis, source=Bone_Pelvis)
+      └─ ...
 ```
 
----
-
-## `Rebuild()` — called once in `Awake` and via public API
-
-1. Destroy all existing bone GOs in `_boneObjects`
-2. If `!drawBones` or `transforms == null` — return
-3. Build `s_BoneMesh` if not yet built
-4. Extract bone pairs from `transforms` (runtime-safe copy of `ExtractBones` logic — no Editor API):
-   - Build a `HashSet<Transform>` from `transforms`
-   - For each transform: if any child is in the set → bone pair (transform, child); otherwise → tip
-5. For each bone pair `(start, end)`:
-   - Create GO `"Bone_{start.name}"` 
-   - Add `MeshFilter` (assign `s_BoneMesh`) + `MeshRenderer` (assign `_boneMaterial`)
-   - Set `MeshRenderer.material.color = boneColor`
-   - Add `CapsuleCollider`: `direction = 1 (Y-axis)`, `height = length`, `radius = boneWidth * length * 0.5f` (for future grabbable support)
-   - Parent to `start`
-   - Set local TRS once:
-     ```
-     localPosition = Vector3.zero
-     localDir      = InverseTransformPoint(end.position).normalized  (= end.localPosition.normalized)
-     localRotation = Quaternion.FromToRotation(Vector3.up, localDir)
-     localScale    = Vector3(boneWidth * length, length, boneWidth * length)
-                     where length = Vector3.Distance(start.position, end.position)
-     ```
-6. Store `(start, end, go)` in `_boneObjects`
-
-For tips (leaf joints): create a GO with the same diamond mesh, `localScale = Vector3.one * boneWidth * boneSize`, oriented along parent's Y-axis (no child direction needed).
+`SetConstraintRigParent(rigGo.transform)` must be called before `Rebuild()` when using constraint mode. `RigRuntime` does this automatically.
 
 ---
 
-## No LateUpdate
+## Cleanup
 
-Bone GOs are parented to joint transforms. Unity's transform hierarchy propagates position and rotation automatically every frame — no script involvement. This works correctly when only rotations are animated (standard skeletal rig). If position curves are applied to intermediate bones, the bone shape may appear skewed; this is an acceptable limitation for the current scope.
-
----
-
-## Grabbables (future extension)
-
-Each bone GO is a stable, named child of its joint with a `CapsuleCollider`. Adding `XRPromeonInteractable` (or any XRI component) later requires no changes to `PromeonBoneRenderer`. 
-
-One known conflict: if a bone GO is grabbed and its parent joint moves (animation), the grab system and the joint hierarchy will fight. Resolving this (e.g., detaching from parent on grab, re-attaching on release) is out of scope for this spec.
-
----
-
-## Editor Support
-
-`PromeonBoneRendererEditor` adds a single "Rebuild" button in the Inspector that calls `target.Rebuild()`. Useful after modifying the `transforms` array in Edit Mode.
-
-`BoneRendererUtils` in the package continues to draw bones in the Scene View in Edit Mode — no changes needed.
+`DestroyBoneGOs()` (called by `Rebuild()` and `OnDestroy()`):
+1. Destroys all constraint GOs (removes `MultiParentConstraint` from rig)
+2. Destroys `_proxyRoot` GO (which destroys all proxy bone GOs as children)
+3. OR destroys individual bone GOs if in visual mode
 
 ---
 
 ## Limitations
 
-- Bone lengths are assumed constant (rotation-only animation). Position-animated bones will show incorrect bone length.
-- No per-bone color/highlight differentiation (e.g., selected bone) — uniform `boneColor` for all.
-- Material must be assigned manually in the Inspector. No auto-fallback material creation.
+- Bone lengths are assumed constant (rotation-only animation). Position-animated bones show incorrect length.
+- `_boneMaterial` must be assigned manually (no auto-fallback).
+- In constraint mode, `_constraintRigParent` must be set before `Rebuild()` or constraints are silently skipped with a warning.
+- Proxy bone scale uses `_boneWidth` as absolute world meters — may look odd for very short bones (X/Z > Y).
+
+---
+
+## Tests
+
+`PromeonInteractableRigBuilderTests` (EditMode, `Subsystems.RigBuilder.Tests` assembly):
+
+| Test | What it verifies |
+|---|---|
+| `BuildDiamondMesh_HasSixVertices` | Mesh has exactly 6 vertices |
+| `BuildDiamondMesh_HasTwentyFourTriangleIndices` | 8 triangles = 24 indices |
+| `BuildDiamondMesh_HeadVertexAtOrigin` | v0 = Vector3.zero |
+| `BuildDiamondMesh_TailVertexAtUnitY` | v5 = Vector3.up |
+| `ExtractPairs_ParentChildBothInSet_ReturnsPair` | Parent-child in set → 1 pair |
+| `ExtractPairs_ChildNotInSet_NoPairReturned` | Child missing from set → 0 pairs |
+| `ExtractPairs_LeafBone_NotReturnedAsPair` | Leaf bone → 0 pairs |
+| `ExtractPairs_NullTransformInArray_SkippedSafely` | Nulls in array → no crash |
