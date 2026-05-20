@@ -12,6 +12,7 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
     private Transform[] _transforms;
 
     private readonly List<GameObject> _boneGOs       = new();
+    private readonly List<GameObject> _visualGOs     = new();
     private readonly List<GameObject> _constraintGOs = new();
     private Transform _proxyRoot;
     private Transform _constraintRigParent;
@@ -35,18 +36,31 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
 
         if (_buildConstraints)
         {
-            var go = new GameObject("_BoneProxies");
-            go.transform.SetParent(transform, worldPositionStays: false);
-            _proxyRoot = go.transform;
+            if (_constraintRigParent != null)
+            {
+                var go = new GameObject("_BoneProxies");
+                go.transform.SetParent(transform, worldPositionStays: false);
+                _proxyRoot = go.transform;
+            }
+            else
+            {
+                Debug.Log("[PromeonInteractableRigBuilder] No rig parent set — falling back to visual mode. Call SetConstraintRigParent() before Rebuild().", this);
+            }
         }
 
         foreach (var (start, end) in ExtractPairs(transforms))
-            _boneGOs.Add(CreateBoneGO(start, end));
+            CreateBoneGOs(start, end);
     }
 
     public void SetVisualsEnabled(bool enabled)
     {
-        foreach (var go in _boneGOs)
+        ToggleVisuals(_boneGOs, enabled);
+        ToggleVisuals(_visualGOs, enabled);
+    }
+
+    void ToggleVisuals(List<GameObject> list, bool enabled)
+    {
+        foreach (var go in list)
         {
             if (go == null) continue;
             var mr = go.GetComponent<MeshRenderer>();
@@ -56,41 +70,58 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
         }
     }
 
-    GameObject CreateBoneGO(Transform start, Transform end)
+    void CreateBoneGOs(Transform start, Transform end)
     {
-        var go = new GameObject($"Bone_{start.name}");
-
-        float length;
-
         if (_proxyRoot != null)
         {
-            go.transform.SetParent(_proxyRoot, worldPositionStays: false);
+            // Constraint mode: proxy (collider only) + visual (bone child)
             var worldVec = end.position - start.position;
-            length = worldVec.magnitude;
-            if (length < 0.0001f) length = 0.0001f;
-            go.transform.SetPositionAndRotation(
+            float length = Mathf.Max(worldVec.magnitude, 0.0001f);
+            float width  = EffectiveWidth(_boneWidth, length);
+
+            var proxyGo = new GameObject($"Proxy_{start.name}");
+            proxyGo.transform.SetParent(_proxyRoot, worldPositionStays: false);
+            proxyGo.transform.SetPositionAndRotation(
                 start.position,
                 Quaternion.FromToRotation(Vector3.up, worldVec / length));
-            go.transform.localScale = new Vector3(_boneWidth, length, _boneWidth);
+            proxyGo.transform.localScale = new Vector3(width, length, width);
+            AddCollider(proxyGo);
+            _boneGOs.Add(proxyGo);
+
+            var localEnd  = start.InverseTransformPoint(end.position);
+            float localLen = Mathf.Max(localEnd.magnitude, 0.0001f);
+            float localW   = EffectiveWidth(_boneWidth, localLen);
+
+            var visualGo = new GameObject($"Visual_{start.name}");
+            visualGo.transform.SetParent(start, worldPositionStays: false);
+            visualGo.transform.localPosition = Vector3.zero;
+            visualGo.transform.localRotation = Quaternion.FromToRotation(Vector3.up, localEnd.normalized);
+            visualGo.transform.localScale    = new Vector3(localW, localLen, localW);
+            AddMeshAndOutline(visualGo);
+            _visualGOs.Add(visualGo);
+
+            AddParentConstraint(start, proxyGo.transform);
         }
         else
         {
-            go.transform.SetParent(start, worldPositionStays: false);
+            // Visual mode: single combined GO, child of bone
             var localEnd = start.InverseTransformPoint(end.position);
-            length = localEnd.magnitude;
-            if (length < 0.0001f) length = 0.0001f;
-            var dir = localEnd.normalized;
+            float length = Mathf.Max(localEnd.magnitude, 0.0001f);
+            float width  = EffectiveWidth(_boneWidth, length);
+
+            var go = new GameObject($"Bone_{start.name}");
+            go.transform.SetParent(start, worldPositionStays: false);
             go.transform.localPosition = Vector3.zero;
-            go.transform.localRotation = Quaternion.FromToRotation(Vector3.up, dir);
-            go.transform.localScale    = new Vector3(_boneWidth, length, _boneWidth);
+            go.transform.localRotation = Quaternion.FromToRotation(Vector3.up, localEnd.normalized);
+            go.transform.localScale    = new Vector3(width, length, width);
+            AddMeshAndOutline(go);
+            AddCollider(go);
+            _boneGOs.Add(go);
         }
+    }
 
-        go.AddComponent<MeshFilter>().sharedMesh = _boneMesh;
-        var mr = go.AddComponent<MeshRenderer>();
-        mr.sharedMaterial = _boneMaterial;
-        if (_boneMaterial == null)
-            Debug.LogWarning("[PromeonInteractableRigBuilder] _boneMaterial not assigned.", this);
-
+    void AddCollider(GameObject go)
+    {
         if (_useConvexCollider)
         {
             var mc = go.AddComponent<MeshCollider>();
@@ -104,26 +135,24 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
             col.height    = 1f;
             col.radius    = 0.5f;
         }
+    }
 
-        var outline          = go.AddComponent<Outline>();
+    void AddMeshAndOutline(GameObject go)
+    {
+        go.AddComponent<MeshFilter>().sharedMesh = _boneMesh;
+        var mr = go.AddComponent<MeshRenderer>();
+        if (_boneMaterial == null)
+            Debug.LogWarning("[PromeonInteractableRigBuilder] _boneMaterial not assigned.", this);
+        mr.sharedMaterial = _boneMaterial;
+
+        var outline         = go.AddComponent<Outline>();
         outline.OutlineMode  = Outline.Mode.SilhouetteOnly;
         outline.OutlineColor = Color.white;
         outline.OutlineWidth = 3f;
-
-        if (_proxyRoot != null)
-            AddParentConstraint(start, go.transform);
-
-        return go;
     }
 
     void AddParentConstraint(Transform bone, Transform proxy)
     {
-        if (_constraintRigParent == null)
-        {
-            Debug.Log("[PromeonInteractableRigBuilder] No rig parent set — constraints skipped, falling back to visual mode. Call SetConstraintRigParent() before Rebuild().", this);
-            return;
-        }
-
         var pcGo = new GameObject($"PC_{bone.name}");
         pcGo.transform.SetParent(_constraintRigParent, worldPositionStays: false);
         _constraintGOs.Add(pcGo);
@@ -155,6 +184,12 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
                 if (go != null) DestroyObj(go);
         }
         _boneGOs.Clear();
+
+        foreach (var go in _visualGOs)
+            if (go != null) DestroyObj(go);
+        _visualGOs.Clear();
+
+        if (_boneMesh != null) { DestroyObj(_boneMesh); _boneMesh = null; }
     }
 
     static void DestroyObj(Object obj)
