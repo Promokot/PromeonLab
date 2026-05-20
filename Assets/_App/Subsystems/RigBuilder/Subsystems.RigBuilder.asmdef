@@ -1,1 +1,1 @@
-{ "name": "Subsystems.RigBuilder", "references": ["_Shared","VContainer","QuickOutline"], "autoReferenced": false }
+{ "name": "Subsystems.RigBuilder", "references": ["_Shared","VContainer","QuickOutline","Subsystems.SceneComposition"], "autoReferenced": false }
