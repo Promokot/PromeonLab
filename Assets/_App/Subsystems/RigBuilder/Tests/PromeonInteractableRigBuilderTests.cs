@@ -365,4 +365,62 @@ public class PromeonInteractableRigBuilderTests
         Assert.AreEqual(48, mesh.triangles.Length,
             "Combined mesh: 24 triangle indices per child × 2 children = 48");
     }
+
+    [Test]
+    public void BuildProxyHierarchy_BoneNodeId_FollowsBoneFormat()
+    {
+        var characterGo = MakeGO("Character");
+        var armatureGo  = MakeGO("Armature", characterGo.transform);
+        var pelvisGo    = MakeGO("pelvis",   armatureGo.transform);
+        var spineGo     = MakeGO("spine",    pelvisGo.transform);
+        spineGo.transform.localPosition = Vector3.up * 0.5f;
+
+        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        rig.SetRigNodeId("rig1");
+        rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
+        rig.Rebuild();
+
+        var proxyPelvis = characterGo.transform.Find("ProxyRig/proxy_pelvis");
+        var sn = proxyPelvis.GetComponent<SceneNode>();
+        Assert.IsNotNull(sn, "SceneNode missing on proxy_pelvis");
+        Assert.AreEqual("bone:rig1:pelvis", sn.NodeId);
+    }
+
+    [Test]
+    public void BuildProxyHierarchy_BoneNodeId_NoRigId_UsesDefaultNamespace()
+    {
+        var characterGo = MakeGO("Character");
+        var armatureGo  = MakeGO("Armature", characterGo.transform);
+        var pelvisGo    = MakeGO("pelvis",   armatureGo.transform);
+        var spineGo     = MakeGO("spine",    pelvisGo.transform);
+        spineGo.transform.localPosition = Vector3.up * 0.5f;
+
+        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
+        rig.Rebuild();
+
+        var proxyPelvis = characterGo.transform.Find("ProxyRig/proxy_pelvis");
+        var sn = proxyPelvis.GetComponent<SceneNode>();
+        Assert.IsNotNull(sn);
+        Assert.AreEqual("bone:rig:pelvis", sn.NodeId, "Default namespace must be 'rig'");
+    }
+
+    [Test]
+    public void BuildProxyHierarchy_AddsSceneNodeToEachProxy()
+    {
+        var characterGo = MakeGO("Character");
+        var armatureGo  = MakeGO("Armature", characterGo.transform);
+        var pelvisGo    = MakeGO("pelvis",   armatureGo.transform);
+        var spineGo     = MakeGO("spine",    pelvisGo.transform);
+        spineGo.transform.localPosition = Vector3.up * 0.5f;
+
+        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
+        rig.Rebuild();
+
+        var proxyPelvis = characterGo.transform.Find("ProxyRig/proxy_pelvis");
+        var proxySpine  = proxyPelvis?.Find("proxy_spine");
+        Assert.IsNotNull(proxyPelvis.GetComponent<SceneNode>(), "proxy_pelvis missing SceneNode");
+        Assert.IsNotNull(proxySpine.GetComponent<SceneNode>(),  "proxy_spine missing SceneNode");
+    }
 }

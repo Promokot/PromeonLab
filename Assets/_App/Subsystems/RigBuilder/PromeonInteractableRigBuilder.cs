@@ -8,6 +8,7 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
     [SerializeField] private float    _boneWidth         = 0.06f;
     [SerializeField] private bool     _useConvexCollider = true;
     private Transform[] _transforms;
+    private string _rigNodeId;
 
     private readonly List<GameObject>   _proxyGOs    = new();
     private readonly List<BoneFollower> _followers   = new();
@@ -19,6 +20,7 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
 
     public void SetTransforms(Transform[] transforms) => _transforms   = transforms;
     public void SetMaterial(Material material)        => _boneMaterial = material;
+    public void SetRigNodeId(string rigNodeId) => _rigNodeId = rigNodeId;
 
     public void Rebuild()
     {
@@ -105,6 +107,11 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
 
         AddMeshAndOutline(proxyGo, mesh);
         AddCollider(proxyGo, mesh);
+
+        var nsRig = string.IsNullOrEmpty(_rigNodeId) ? "rig" : _rigNodeId;
+        var sceneNode = proxyGo.AddComponent<SceneNode>();
+        sceneNode.Init($"bone:{nsRig}:{bone.name}", default, bone.name);
+
         _proxyGOs.Add(proxyGo);
 
         // Clean up stale followers that may have survived a domain reload (their _proxy is serialized

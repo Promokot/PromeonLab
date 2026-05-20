@@ -88,7 +88,7 @@ public class XRPromeonInteractable : XRBaseInteractable
                 {
                     var node = _node;
                     EndInteraction();
-                    if (node != null) _selectionManager.Toggle(node.NodeId);
+                    if (node != null) _selectionManager.Select(node.NodeId);
                     break;
                 }
                 if (Time.time - _pressTime > _tapWindow && IsObjectSelected())
