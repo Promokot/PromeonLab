@@ -2,12 +2,12 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PromeonBoneRendererTests
+public class PromeonInteractableRigBuilderTests
 {
     [Test]
     public void BuildDiamondMesh_HasSixVertices()
     {
-        var mesh = PromeonBoneRenderer.BuildDiamondMesh();
+        var mesh = PromeonInteractableRigBuilder.BuildDiamondMesh();
         Assert.AreEqual(6, mesh.vertexCount);
         Object.DestroyImmediate(mesh);
     }
@@ -15,7 +15,7 @@ public class PromeonBoneRendererTests
     [Test]
     public void BuildDiamondMesh_HasTwentyFourTriangleIndices()
     {
-        var mesh = PromeonBoneRenderer.BuildDiamondMesh();
+        var mesh = PromeonInteractableRigBuilder.BuildDiamondMesh();
         Assert.AreEqual(24, mesh.triangles.Length);
         Object.DestroyImmediate(mesh);
     }
@@ -23,7 +23,7 @@ public class PromeonBoneRendererTests
     [Test]
     public void BuildDiamondMesh_HeadVertexAtOrigin()
     {
-        var mesh = PromeonBoneRenderer.BuildDiamondMesh();
+        var mesh = PromeonInteractableRigBuilder.BuildDiamondMesh();
         Assert.AreEqual(Vector3.zero, mesh.vertices[0]);
         Object.DestroyImmediate(mesh);
     }
@@ -31,7 +31,7 @@ public class PromeonBoneRendererTests
     [Test]
     public void BuildDiamondMesh_TailVertexAtUnitY()
     {
-        var mesh = PromeonBoneRenderer.BuildDiamondMesh();
+        var mesh = PromeonInteractableRigBuilder.BuildDiamondMesh();
         Assert.AreEqual(Vector3.up, mesh.vertices[5]);
         Object.DestroyImmediate(mesh);
     }
@@ -60,7 +60,7 @@ public class PromeonBoneRendererTests
         var parent = MakeGO("Hip");
         var child  = MakeGO("Thigh", parent.transform);
 
-        var pairs = PromeonBoneRenderer.ExtractPairs(
+        var pairs = PromeonInteractableRigBuilder.ExtractPairs(
             new[] { parent.transform, child.transform });
 
         Assert.AreEqual(1, pairs.Length);
@@ -74,7 +74,7 @@ public class PromeonBoneRendererTests
         var parent = MakeGO("Hip");
         MakeGO("Thigh", parent.transform);
 
-        var pairs = PromeonBoneRenderer.ExtractPairs(new[] { parent.transform });
+        var pairs = PromeonInteractableRigBuilder.ExtractPairs(new[] { parent.transform });
 
         Assert.AreEqual(0, pairs.Length);
     }
@@ -84,7 +84,7 @@ public class PromeonBoneRendererTests
     {
         var leaf = MakeGO("Foot");
 
-        var pairs = PromeonBoneRenderer.ExtractPairs(new[] { leaf.transform });
+        var pairs = PromeonInteractableRigBuilder.ExtractPairs(new[] { leaf.transform });
 
         Assert.AreEqual(0, pairs.Length);
     }
@@ -95,7 +95,7 @@ public class PromeonBoneRendererTests
         var parent = MakeGO("Hip");
         var child  = MakeGO("Thigh", parent.transform);
 
-        var pairs = PromeonBoneRenderer.ExtractPairs(
+        var pairs = PromeonInteractableRigBuilder.ExtractPairs(
             new Transform[] { null, parent.transform, child.transform, null });
 
         Assert.AreEqual(1, pairs.Length);

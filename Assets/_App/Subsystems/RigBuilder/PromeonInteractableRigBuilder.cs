@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Animations.Rigging;
+using UnityEngine.Animations;
 
-[AddComponentMenu("PromeonLab/Bone Renderer (Promeon)")]
-public class PromeonBoneRenderer : MonoBehaviour
+[AddComponentMenu("PromeonLab/Interactable Rig Builder")]
+public class PromeonInteractableRigBuilder : MonoBehaviour
 {
     [SerializeField] private Material _boneMaterial;
     [SerializeField] private float _boneWidth = 0.06f;          // world-space half-width, meters
@@ -61,7 +61,6 @@ public class PromeonBoneRenderer : MonoBehaviour
 
         if (_proxyRoot != null)
         {
-            // Independent proxy: positioned in world space, drives bone via constraint
             go.transform.SetParent(_proxyRoot, worldPositionStays: false);
             var worldVec = end.position - start.position;
             length = worldVec.magnitude;
@@ -73,7 +72,6 @@ public class PromeonBoneRenderer : MonoBehaviour
         }
         else
         {
-            // Visual child: parented to bone, follows animation automatically
             go.transform.SetParent(start, worldPositionStays: false);
             var localEnd = start.InverseTransformPoint(end.position);
             length = localEnd.magnitude;
@@ -88,7 +86,7 @@ public class PromeonBoneRenderer : MonoBehaviour
         var mr = go.AddComponent<MeshRenderer>();
         mr.sharedMaterial = _boneMaterial;
         if (_boneMaterial == null)
-            Debug.LogWarning("[PromeonBoneRenderer] _boneMaterial not assigned.", this);
+            Debug.LogWarning("[PromeonInteractableRigBuilder] _boneMaterial not assigned.", this);
 
         if (_useConvexCollider)
         {
@@ -156,7 +154,7 @@ public class PromeonBoneRenderer : MonoBehaviour
         if (smr != null && smr.bones.Length > 0)
             return smr.bones;
 
-        Debug.LogWarning("[PromeonBoneRenderer] No transforms set and no SkinnedMeshRenderer found.", this);
+        Debug.LogWarning("[PromeonInteractableRigBuilder] No transforms set and no SkinnedMeshRenderer found.", this);
         return null;
     }
 
