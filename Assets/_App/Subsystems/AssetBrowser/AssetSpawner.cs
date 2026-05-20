@@ -8,12 +8,14 @@ public class AssetSpawner : IStartable, IDisposable
     private readonly EventBus              _bus;
     private readonly SceneGraph            _graph;
     private readonly IInteractableFactory  _factory;
+    private readonly IRigRuntime           _rigRuntime;
 
-    public AssetSpawner(EventBus bus, SceneGraph graph, IInteractableFactory factory)
+    public AssetSpawner(EventBus bus, SceneGraph graph, IInteractableFactory factory, IRigRuntime rigRuntime)
     {
-        _bus     = bus;
-        _graph   = graph;
-        _factory = factory;
+        _bus        = bus;
+        _graph      = graph;
+        _factory    = factory;
+        _rigRuntime = rigRuntime;
     }
 
     public void Start() =>
@@ -39,10 +41,25 @@ public class AssetSpawner : IStartable, IDisposable
             };
             _graph.AddNode(go, assetRef, e.Asset.DisplayName);
             _factory.MakeInteractable(go, e.Asset.Capabilities);
+
+            if ((e.Asset.Capabilities & AssetCapabilities.Rig) != 0)
+                ApplyRig(go);
         }
         catch (Exception ex)
         {
             Debug.LogError($"AssetSpawner: failed to spawn '{e.Asset?.DisplayName}'. {ex}");
         }
+    }
+
+    private void ApplyRig(GameObject go)
+    {
+        var smr = go.GetComponentInChildren<SkinnedMeshRenderer>(includeInactive: true);
+        if (smr == null)
+        {
+            Debug.LogWarning($"AssetSpawner: '{go.name}' has Rig capability but no SkinnedMeshRenderer.", go);
+            return;
+        }
+        var def = _rigRuntime.BuildFromSkinnedMesh(smr);
+        _rigRuntime.ApplyDefinition(def, smr);
     }
 }
