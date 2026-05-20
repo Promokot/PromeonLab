@@ -23,12 +23,27 @@ public class PromeonBoneRenderer : MonoBehaviour
     {
         DestroyBoneGOs();
 
-        if (_transforms == null || _transforms.Length == 0) return;
+        var transforms = ResolveTransforms();
+        if (transforms == null || transforms.Length == 0) return;
 
         if (_boneMesh == null) _boneMesh = BuildDiamondMesh();
 
-        foreach (var (start, end) in ExtractPairs(_transforms))
+        foreach (var (start, end) in ExtractPairs(transforms))
             _boneGOs.Add(CreateBoneGO(start, end));
+    }
+
+    Transform[] ResolveTransforms()
+    {
+        if (_transforms != null && _transforms.Length > 0)
+            return _transforms;
+
+        var smr = GetComponentInChildren<SkinnedMeshRenderer>()
+               ?? GetComponentInParent<SkinnedMeshRenderer>();
+        if (smr != null && smr.bones.Length > 0)
+            return smr.bones;
+
+        Debug.LogWarning("[PromeonBoneRenderer] No transforms set and no SkinnedMeshRenderer found.", this);
+        return null;
     }
 
     GameObject CreateBoneGO(Transform start, Transform end)
