@@ -15,6 +15,7 @@ public class VrEditingSceneScope : LifetimeScope
         builder.Register<SceneGraph>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SceneAutoSaver>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SelectionManager>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+        builder.Register<BoneInteractableFactory>(Lifetime.Scoped).AsImplementedInterfaces();
         builder.Register<CommandStack>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<GizmoController>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SelectionInteractorFactory>(Lifetime.Scoped).AsImplementedInterfaces();

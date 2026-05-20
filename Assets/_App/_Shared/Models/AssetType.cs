@@ -1,1 +1,1 @@
-public enum AssetType { Model, SkinnedModel, Material, Texture, Video, Audio, Rig, Pose }
+public enum AssetType { Model, Rig, Texture, Material, Video, Audio, Pose }

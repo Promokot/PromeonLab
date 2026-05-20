@@ -423,4 +423,38 @@ public class PromeonInteractableRigBuilderTests
         Assert.IsNotNull(proxyPelvis.GetComponent<SceneNode>(), "proxy_pelvis missing SceneNode");
         Assert.IsNotNull(proxySpine.GetComponent<SceneNode>(),  "proxy_spine missing SceneNode");
     }
+
+    [Test]
+    public void SetBonesInteractive_TogglesRendererOutlineCollider()
+    {
+        var characterGo = MakeGO("Character");
+        var armatureGo  = MakeGO("Armature", characterGo.transform);
+        var pelvisGo    = MakeGO("pelvis",   armatureGo.transform);
+        var spineGo     = MakeGO("spine",    pelvisGo.transform);
+        spineGo.transform.localPosition = Vector3.up * 0.5f;
+
+        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
+        rig.Rebuild();
+
+        var proxyPelvis = characterGo.transform.Find("ProxyRig/proxy_pelvis").gameObject;
+        var mr  = proxyPelvis.GetComponent<MeshRenderer>();
+        var ol  = proxyPelvis.GetComponent<Outline>();
+        var col = proxyPelvis.GetComponent<MeshCollider>();
+
+        // Default after Rebuild: bones disabled
+        Assert.IsFalse(mr.enabled,  "MeshRenderer must default to disabled after Rebuild");
+        Assert.IsFalse(ol.enabled,  "Outline must default to disabled after Rebuild");
+        Assert.IsFalse(col.enabled, "MeshCollider must default to disabled after Rebuild");
+
+        rig.SetBonesInteractive(true);
+        Assert.IsTrue(mr.enabled);
+        Assert.IsTrue(ol.enabled);
+        Assert.IsTrue(col.enabled);
+
+        rig.SetBonesInteractive(false);
+        Assert.IsFalse(mr.enabled);
+        Assert.IsFalse(ol.enabled);
+        Assert.IsFalse(col.enabled);
+    }
 }

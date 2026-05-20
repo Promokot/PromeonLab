@@ -5,22 +5,39 @@ using UnityEngine;
 public class PromeonInteractableRigBuilder : MonoBehaviour
 {
     [SerializeField] private Material _boneMaterial;
-    [SerializeField] private float    _boneWidth         = 0.06f;
-    [SerializeField] private bool     _useConvexCollider = true;
+    [SerializeField] private float    _boneWidth                = 0.06f;
+    [SerializeField] private bool     _useConvexCollider        = true;
+    [SerializeField] private Color    _boneOutlineColorDefault  = Color.white;
+    [SerializeField] private Color    _boneOutlineColorSelected = new Color(1f, 0.5f, 0f);
     private Transform[] _transforms;
-    private string _rigNodeId;
+    private string      _rigNodeId;
+    private EventBus    _eventBus;
 
     private readonly List<GameObject>   _proxyGOs    = new();
     private readonly List<BoneFollower> _followers   = new();
     private readonly List<Mesh>         _proxyMeshes = new();
     private Transform _proxyRoot;
 
+    public IReadOnlyList<GameObject> ProxyGOs => _proxyGOs;
+
     void Awake()     { if (_transforms != null && _transforms.Length > 0) Rebuild(); }
-    void OnDestroy() => DestroyBoneGOs();
+    void OnDestroy()
+    {
+        if (_eventBus != null) _eventBus.Unsubscribe<SelectionChangedEvent>(OnSelectionChanged);
+        _eventBus = null;
+        DestroyBoneGOs();
+    }
 
     public void SetTransforms(Transform[] transforms) => _transforms   = transforms;
     public void SetMaterial(Material material)        => _boneMaterial = material;
     public void SetRigNodeId(string rigNodeId) => _rigNodeId = rigNodeId;
+    public void SetEventBus(EventBus bus)
+    {
+        if (_eventBus == bus) return;
+        if (_eventBus != null) _eventBus.Unsubscribe<SelectionChangedEvent>(OnSelectionChanged);
+        _eventBus = bus;
+        if (_eventBus != null) _eventBus.Subscribe<SelectionChangedEvent>(OnSelectionChanged);
+    }
 
     public void Rebuild()
     {
@@ -28,6 +45,7 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
         var transforms = ResolveTransforms();
         if (transforms == null || transforms.Length == 0) return;
         BuildProxyHierarchy(transforms);
+        SetBonesInteractive(false);
     }
 
     public void SetVisualsEnabled(bool enabled)
@@ -39,6 +57,42 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
             if (mr      != null) mr.enabled      = enabled;
             var outline = go.GetComponent<Outline>();
             if (outline != null) outline.enabled = enabled;
+        }
+    }
+
+    public void SetBonesInteractive(bool enabled)
+    {
+        foreach (var go in _proxyGOs)
+        {
+            if (go == null) continue;
+            var mr      = go.GetComponent<MeshRenderer>();
+            if (mr      != null) mr.enabled      = enabled;
+            var outline = go.GetComponent<Outline>();
+            if (outline != null) outline.enabled = enabled;
+            var col     = go.GetComponent<Collider>();
+            if (col     != null) col.enabled     = enabled;
+        }
+    }
+
+    private void OnSelectionChanged(SelectionChangedEvent evt)
+    {
+        ApplyBoneOutlineColors(evt.SelectedNodeIds);
+    }
+
+    private void ApplyBoneOutlineColors(string[] selectedIds)
+    {
+        var selected = selectedIds != null
+            ? new HashSet<string>(selectedIds)
+            : null;
+        foreach (var go in _proxyGOs)
+        {
+            if (go == null) continue;
+            var sn      = go.GetComponent<SceneNode>();
+            var outline = go.GetComponent<Outline>();
+            if (sn == null || outline == null) continue;
+            outline.OutlineColor = selected != null && selected.Contains(sn.NodeId)
+                ? _boneOutlineColorSelected
+                : _boneOutlineColorDefault;
         }
     }
 
@@ -197,7 +251,7 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
 
         var outline          = go.AddComponent<Outline>();
         outline.OutlineMode  = Outline.Mode.SilhouetteOnly;
-        outline.OutlineColor = Color.white;
+        outline.OutlineColor = _boneOutlineColorDefault;
         outline.OutlineWidth = 3f;
     }
 
