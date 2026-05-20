@@ -121,4 +121,130 @@ public class PromeonInteractableRigBuilderTests
         // 0.3 * 0.2 = 0.06 = boneWidth — exactly at threshold
         Assert.AreEqual(0.06f, PromeonInteractableRigBuilder.EffectiveWidth(0.06f, 0.3f), 0.0001f);
     }
+
+    [Test]
+    public void BoneFollower_Tick_CopiesLocalPositionFromProxy()
+    {
+        var boneGo  = MakeGO("bone");
+        var proxyGo = MakeGO("proxy");
+        proxyGo.transform.localPosition = new Vector3(1f, 2f, 3f);
+
+        var follower = boneGo.AddComponent<BoneFollower>();
+        follower.SetProxy(proxyGo.transform);
+        follower.Tick();
+
+        Assert.AreEqual(new Vector3(1f, 2f, 3f), boneGo.transform.localPosition);
+    }
+
+    [Test]
+    public void BoneFollower_Tick_CopiesLocalRotationFromProxy()
+    {
+        var boneGo  = MakeGO("bone");
+        var proxyGo = MakeGO("proxy");
+        var expected = Quaternion.Euler(45f, 90f, 0f);
+        proxyGo.transform.localRotation = expected;
+
+        var follower = boneGo.AddComponent<BoneFollower>();
+        follower.SetProxy(proxyGo.transform);
+        follower.Tick();
+
+        Assert.AreEqual(expected, boneGo.transform.localRotation);
+    }
+
+    [Test]
+    public void BoneFollower_Tick_NullProxy_DoesNotThrow()
+    {
+        var boneGo   = MakeGO("bone");
+        var follower = boneGo.AddComponent<BoneFollower>();
+        // No proxy set — Tick must not throw
+        Assert.DoesNotThrow(() => follower.Tick());
+    }
+
+    [Test]
+    public void BuildProxyHierarchy_TwoBones_CreatesTwoProxies()
+    {
+        var characterGo = MakeGO("Character");
+        var pelvisGo    = MakeGO("pelvis", characterGo.transform);
+        var spineGo     = MakeGO("spine",  pelvisGo.transform);
+        spineGo.transform.localPosition = Vector3.up * 0.5f;
+
+        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
+        rig.Rebuild();
+
+        var proxyRoot   = characterGo.transform.Find("_ProxyBones");
+        Assert.IsNotNull(proxyRoot, "_ProxyBones container not found under characterGo");
+
+        var proxyPelvis = proxyRoot.Find("proxy_pelvis");
+        Assert.IsNotNull(proxyPelvis, "proxy_pelvis not found under _ProxyBones");
+
+        var proxySpine  = proxyPelvis.Find("proxy_spine");
+        Assert.IsNotNull(proxySpine, "proxy_spine not found under proxy_pelvis");
+    }
+
+    [Test]
+    public void BuildProxyHierarchy_NestedHierarchy_MirrorsParenting()
+    {
+        var characterGo = MakeGO("Character");
+        var pelvisGo    = MakeGO("pelvis", characterGo.transform);
+        var spineGo     = MakeGO("spine",  pelvisGo.transform);
+        var chestGo     = MakeGO("chest",  spineGo.transform);
+        spineGo.transform.localPosition = Vector3.up * 0.5f;
+        chestGo.transform.localPosition = Vector3.up * 0.5f;
+
+        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform, chestGo.transform });
+        rig.Rebuild();
+
+        var proxyRoot   = characterGo.transform.Find("_ProxyBones");
+        var proxyPelvis = proxyRoot?.Find("proxy_pelvis");
+        var proxySpine  = proxyPelvis?.Find("proxy_spine");
+        var proxyChest  = proxySpine?.Find("proxy_chest");
+
+        Assert.IsNotNull(proxyRoot,   "_ProxyBones not found");
+        Assert.IsNotNull(proxyPelvis, "proxy_pelvis not found — not child of _ProxyBones");
+        Assert.IsNotNull(proxySpine,  "proxy_spine not found — not child of proxy_pelvis");
+        Assert.IsNotNull(proxyChest,  "proxy_chest not found — not child of proxy_spine");
+    }
+
+    [Test]
+    public void BuildProxyHierarchy_AddsBoneFollowerToEachBone()
+    {
+        var characterGo = MakeGO("Character");
+        var pelvisGo    = MakeGO("pelvis", characterGo.transform);
+        var spineGo     = MakeGO("spine",  pelvisGo.transform);
+        spineGo.transform.localPosition = Vector3.up * 0.5f;
+
+        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
+        rig.Rebuild();
+
+        Assert.IsNotNull(pelvisGo.GetComponent<BoneFollower>(), "pelvis missing BoneFollower");
+        Assert.IsNotNull(spineGo.GetComponent<BoneFollower>(),  "spine missing BoneFollower");
+    }
+
+    [Test]
+    public void BuildProxyHierarchy_LeafBone_UsesDefaultLength()
+    {
+        // Default length for a leaf bone = _boneWidth * 5 = 0.06 * 5 = 0.3
+        var characterGo = MakeGO("Character");
+        var pelvisGo    = MakeGO("pelvis", characterGo.transform);
+        var spineGo     = MakeGO("spine",  pelvisGo.transform);
+        // Put spine 1m above pelvis so pelvis proxy length=1.0 ≠ leaf default 0.3
+        spineGo.transform.localPosition = Vector3.up * 1.0f;
+
+        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
+        rig.Rebuild();
+
+        var proxySpine = characterGo.transform
+            .Find("_ProxyBones")
+            ?.Find("proxy_pelvis")
+            ?.Find("proxy_spine");
+
+        Assert.IsNotNull(proxySpine, "proxy_spine not found");
+        // spine is a leaf in the set — no children → default length = 0.06 * 5 = 0.3
+        Assert.AreEqual(0.3f, proxySpine.localScale.y, 0.001f,
+            "Leaf bone proxy scale.y should equal boneWidth * 5 = 0.3");
+    }
 }
