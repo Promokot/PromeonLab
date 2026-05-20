@@ -39,22 +39,18 @@ public class RigRuntime : MonoBehaviour, IRigRuntime
         if (rigBuilder == null) rigBuilder = animator.gameObject.AddComponent<RigBuilder>();
         rigBuilder.layers.Add(new RigLayer(rig));
 
-        var boneRenderer = animator.gameObject.GetComponent<BoneRenderer>();
-        if (boneRenderer == null) boneRenderer = animator.gameObject.AddComponent<BoneRenderer>();
+        var boneRenderer = animator.gameObject.GetComponent<PromeonBoneRenderer>();
+        if (boneRenderer == null) boneRenderer = animator.gameObject.AddComponent<PromeonBoneRenderer>();
         var transforms = new List<Transform>();
         foreach (var bone in definition.Bones)
         {
             var t = FindBone(smr, bone.BoneName);
             if (t != null) transforms.Add(t);
         }
-        var prop = typeof(BoneRenderer).GetProperty("transforms");
-        if (prop?.CanWrite == true)
-            prop.SetValue(boneRenderer, transforms.ToArray());
-        else
-        {
-            var field = typeof(BoneRenderer).GetField("m_Transforms", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (field != null) field.SetValue(boneRenderer, transforms.ToArray());
-        }
+        var field = typeof(BoneRenderer).GetField("m_Transforms",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (field != null) field.SetValue(boneRenderer, transforms.ToArray());
+        boneRenderer.Rebuild();
 
         foreach (var bone in definition.Bones)
         {
