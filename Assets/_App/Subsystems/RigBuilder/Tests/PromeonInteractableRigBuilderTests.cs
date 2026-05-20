@@ -100,4 +100,25 @@ public class PromeonInteractableRigBuilderTests
 
         Assert.AreEqual(1, pairs.Length);
     }
+
+    [Test]
+    public void EffectiveWidth_LongBone_ReturnsBoneWidth()
+    {
+        // 1.0 >> 5 * 0.06 — returns full boneWidth
+        Assert.AreEqual(0.06f, PromeonInteractableRigBuilder.EffectiveWidth(0.06f, 1.0f), 0.0001f);
+    }
+
+    [Test]
+    public void EffectiveWidth_ShortBone_ReturnsCappedWidth()
+    {
+        // 0.1 * 0.2 = 0.02 < 0.06 — returns scaled width
+        Assert.AreEqual(0.02f, PromeonInteractableRigBuilder.EffectiveWidth(0.06f, 0.1f), 0.0001f);
+    }
+
+    [Test]
+    public void EffectiveWidth_AtThreshold_ReturnsBoneWidth()
+    {
+        // 0.3 * 0.2 = 0.06 = boneWidth — exactly at threshold
+        Assert.AreEqual(0.06f, PromeonInteractableRigBuilder.EffectiveWidth(0.06f, 0.3f), 0.0001f);
+    }
 }

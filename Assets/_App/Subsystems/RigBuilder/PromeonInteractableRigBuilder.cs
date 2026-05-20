@@ -177,6 +177,9 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
         return null;
     }
 
+    public static float EffectiveWidth(float boneWidth, float length) =>
+        Mathf.Min(boneWidth, length * 0.2f);
+
     public static Mesh BuildDiamondMesh()
     {
         var mesh = new Mesh { name = "PromeonBoneDiamond" };
