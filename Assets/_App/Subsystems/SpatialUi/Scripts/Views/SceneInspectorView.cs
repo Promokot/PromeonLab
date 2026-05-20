@@ -101,7 +101,7 @@ public class SceneInspectorView : MonoBehaviour
         _boneTransform = null;
         _boneRigId     = null;
 
-        PromeonInteractableRigBuilder rig = null;
+        PromeonProxyRigBuilder rig = null;
 
         if (state == InspectorState.Single)
         {
@@ -109,7 +109,7 @@ public class SceneInspectorView : MonoBehaviour
             if (_bound != null)
             {
                 BindSingle(_bound);
-                rig = _bound.GetComponentInChildren<PromeonInteractableRigBuilder>(true);
+                rig = _bound.GetComponentInChildren<PromeonProxyRigBuilder>(true);
             }
         }
         else if (state == InspectorState.Bone)
@@ -118,7 +118,7 @@ public class SceneInspectorView : MonoBehaviour
             if (!string.IsNullOrEmpty(_boneRigId))
             {
                 var rigNode = _graph.GetNode(_boneRigId);
-                if (rigNode != null) rig = rigNode.GetComponentInChildren<PromeonInteractableRigBuilder>(true);
+                if (rigNode != null) rig = rigNode.GetComponentInChildren<PromeonProxyRigBuilder>(true);
             }
         }
 
@@ -190,7 +190,7 @@ public class SceneInspectorView : MonoBehaviour
         if (_boneScaleZ != null) _boneScaleZ.text = scale.z.ToString("F2");
     }
 
-    private static bool AreBonesInteractive(PromeonInteractableRigBuilder rig)
+    private static bool AreBonesInteractive(PromeonProxyRigBuilder rig)
     {
         foreach (var go in rig.ProxyGOs)
         {
@@ -240,12 +240,12 @@ public class SceneInspectorView : MonoBehaviour
 
     private void OnShowBonesToggleChanged(bool value)
     {
-        PromeonInteractableRigBuilder rig = null;
+        PromeonProxyRigBuilder rig = null;
         string                        rigNodeId = null;
 
         if (_bound != null)
         {
-            rig       = _bound.GetComponentInChildren<PromeonInteractableRigBuilder>(true);
+            rig       = _bound.GetComponentInChildren<PromeonProxyRigBuilder>(true);
             rigNodeId = _bound.NodeId;
         }
         else if (!string.IsNullOrEmpty(_boneRigId))
@@ -253,7 +253,7 @@ public class SceneInspectorView : MonoBehaviour
             var rigNode = _graph.GetNode(_boneRigId);
             if (rigNode != null)
             {
-                rig       = rigNode.GetComponentInChildren<PromeonInteractableRigBuilder>(true);
+                rig       = rigNode.GetComponentInChildren<PromeonProxyRigBuilder>(true);
                 rigNodeId = rigNode.NodeId;
             }
         }

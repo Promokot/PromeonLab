@@ -2,12 +2,12 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PromeonInteractableRigBuilderTests
+public class PromeonProxyRigBuilderTests
 {
     [Test]
     public void BuildDiamondMesh_HasSixVertices()
     {
-        var mesh = PromeonInteractableRigBuilder.BuildDiamondMesh();
+        var mesh = PromeonProxyRigBuilder.BuildDiamondMesh();
         Assert.AreEqual(6, mesh.vertexCount);
         Object.DestroyImmediate(mesh);
     }
@@ -15,7 +15,7 @@ public class PromeonInteractableRigBuilderTests
     [Test]
     public void BuildDiamondMesh_HasTwentyFourTriangleIndices()
     {
-        var mesh = PromeonInteractableRigBuilder.BuildDiamondMesh();
+        var mesh = PromeonProxyRigBuilder.BuildDiamondMesh();
         Assert.AreEqual(24, mesh.triangles.Length);
         Object.DestroyImmediate(mesh);
     }
@@ -23,7 +23,7 @@ public class PromeonInteractableRigBuilderTests
     [Test]
     public void BuildDiamondMesh_HeadVertexAtOrigin()
     {
-        var mesh = PromeonInteractableRigBuilder.BuildDiamondMesh();
+        var mesh = PromeonProxyRigBuilder.BuildDiamondMesh();
         Assert.AreEqual(Vector3.zero, mesh.vertices[0]);
         Object.DestroyImmediate(mesh);
     }
@@ -31,7 +31,7 @@ public class PromeonInteractableRigBuilderTests
     [Test]
     public void BuildDiamondMesh_TailVertexAtUnitY()
     {
-        var mesh = PromeonInteractableRigBuilder.BuildDiamondMesh();
+        var mesh = PromeonProxyRigBuilder.BuildDiamondMesh();
         Assert.AreEqual(Vector3.up, mesh.vertices[5]);
         Object.DestroyImmediate(mesh);
     }
@@ -39,7 +39,7 @@ public class PromeonInteractableRigBuilderTests
     [Test]
     public void BuildOrientedDiamondMesh_VerticalAxis_MatchesUnitMesh()
     {
-        var mesh = PromeonInteractableRigBuilder.BuildOrientedDiamondMesh(Vector3.up, 1f, 1f);
+        var mesh = PromeonProxyRigBuilder.BuildOrientedDiamondMesh(Vector3.up, 1f, 1f);
         Assert.AreEqual(6,  mesh.vertexCount);
         Assert.AreEqual(24, mesh.triangles.Length);
         Assert.AreEqual(new Vector3(0f, 1f, 0f), mesh.vertices[5]);
@@ -49,7 +49,7 @@ public class PromeonInteractableRigBuilderTests
     [Test]
     public void BuildOrientedDiamondMesh_HorizontalAxis_RotatesVertices()
     {
-        var mesh = PromeonInteractableRigBuilder.BuildOrientedDiamondMesh(Vector3.right, 1f, 1f);
+        var mesh = PromeonProxyRigBuilder.BuildOrientedDiamondMesh(Vector3.right, 1f, 1f);
         var tail = mesh.vertices[5];
         Assert.AreEqual(1f, tail.x, 0.0001f);
         Assert.AreEqual(0f, tail.y, 0.0001f);
@@ -60,7 +60,7 @@ public class PromeonInteractableRigBuilderTests
     [Test]
     public void BuildOrientedDiamondMesh_NonUniformScale_AppliesBeforeRotation()
     {
-        var mesh = PromeonInteractableRigBuilder.BuildOrientedDiamondMesh(Vector3.up, 2f, 0.5f);
+        var mesh = PromeonProxyRigBuilder.BuildOrientedDiamondMesh(Vector3.up, 2f, 0.5f);
         Assert.AreEqual(2f,   mesh.bounds.size.y, 0.001f);
         Assert.AreEqual(0.5f, mesh.bounds.size.x, 0.001f);
         Assert.AreEqual(0.5f, mesh.bounds.size.z, 0.001f);
@@ -91,7 +91,7 @@ public class PromeonInteractableRigBuilderTests
         var parent = MakeGO("Hip");
         var child  = MakeGO("Thigh", parent.transform);
 
-        var pairs = PromeonInteractableRigBuilder.ExtractPairs(
+        var pairs = PromeonProxyRigBuilder.ExtractPairs(
             new[] { parent.transform, child.transform });
 
         Assert.AreEqual(1, pairs.Length);
@@ -105,7 +105,7 @@ public class PromeonInteractableRigBuilderTests
         var parent = MakeGO("Hip");
         MakeGO("Thigh", parent.transform);
 
-        var pairs = PromeonInteractableRigBuilder.ExtractPairs(new[] { parent.transform });
+        var pairs = PromeonProxyRigBuilder.ExtractPairs(new[] { parent.transform });
 
         Assert.AreEqual(0, pairs.Length);
     }
@@ -115,7 +115,7 @@ public class PromeonInteractableRigBuilderTests
     {
         var leaf = MakeGO("Foot");
 
-        var pairs = PromeonInteractableRigBuilder.ExtractPairs(new[] { leaf.transform });
+        var pairs = PromeonProxyRigBuilder.ExtractPairs(new[] { leaf.transform });
 
         Assert.AreEqual(0, pairs.Length);
     }
@@ -126,7 +126,7 @@ public class PromeonInteractableRigBuilderTests
         var parent = MakeGO("Hip");
         var child  = MakeGO("Thigh", parent.transform);
 
-        var pairs = PromeonInteractableRigBuilder.ExtractPairs(
+        var pairs = PromeonProxyRigBuilder.ExtractPairs(
             new Transform[] { null, parent.transform, child.transform, null });
 
         Assert.AreEqual(1, pairs.Length);
@@ -136,21 +136,21 @@ public class PromeonInteractableRigBuilderTests
     public void EffectiveWidth_LongBone_ReturnsBoneWidth()
     {
         // 1.0 >> 5 * 0.06 — returns full boneWidth
-        Assert.AreEqual(0.06f, PromeonInteractableRigBuilder.EffectiveWidth(0.06f, 1.0f), 0.0001f);
+        Assert.AreEqual(0.06f, PromeonProxyRigBuilder.EffectiveWidth(0.06f, 1.0f), 0.0001f);
     }
 
     [Test]
     public void EffectiveWidth_ShortBone_ReturnsCappedWidth()
     {
         // 0.1 * 0.2 = 0.02 < 0.06 — returns scaled width
-        Assert.AreEqual(0.02f, PromeonInteractableRigBuilder.EffectiveWidth(0.06f, 0.1f), 0.0001f);
+        Assert.AreEqual(0.02f, PromeonProxyRigBuilder.EffectiveWidth(0.06f, 0.1f), 0.0001f);
     }
 
     [Test]
     public void EffectiveWidth_AtThreshold_ReturnsBoneWidth()
     {
         // 0.3 * 0.2 = 0.06 = boneWidth — exactly at threshold
-        Assert.AreEqual(0.06f, PromeonInteractableRigBuilder.EffectiveWidth(0.06f, 0.3f), 0.0001f);
+        Assert.AreEqual(0.06f, PromeonProxyRigBuilder.EffectiveWidth(0.06f, 0.3f), 0.0001f);
     }
 
     [Test]
@@ -202,7 +202,7 @@ public class PromeonInteractableRigBuilderTests
         var spineGo     = MakeGO("spine",    pelvisGo.transform);
         spineGo.transform.localPosition = Vector3.up * 0.5f;
 
-        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        var rig = characterGo.AddComponent<PromeonProxyRigBuilder>();
         rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
         rig.Rebuild();
 
@@ -227,7 +227,7 @@ public class PromeonInteractableRigBuilderTests
         spineGo.transform.localPosition = Vector3.up * 0.5f;
         chestGo.transform.localPosition = Vector3.up * 0.5f;
 
-        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        var rig = characterGo.AddComponent<PromeonProxyRigBuilder>();
         rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform, chestGo.transform });
         rig.Rebuild();
 
@@ -251,7 +251,7 @@ public class PromeonInteractableRigBuilderTests
         var spineGo     = MakeGO("spine",    pelvisGo.transform);
         spineGo.transform.localPosition = Vector3.up * 0.5f;
 
-        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        var rig = characterGo.AddComponent<PromeonProxyRigBuilder>();
         rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
         rig.Rebuild();
 
@@ -270,7 +270,7 @@ public class PromeonInteractableRigBuilderTests
         var spineGo     = MakeGO("spine",    pelvisGo.transform);
         spineGo.transform.localPosition = Vector3.up * 1.0f;
 
-        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        var rig = characterGo.AddComponent<PromeonProxyRigBuilder>();
         rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
         rig.Rebuild();
 
@@ -302,7 +302,7 @@ public class PromeonInteractableRigBuilderTests
         var spineGo  = MakeGO("spine",  pelvisGo.transform);
         spineGo.transform.localPosition = Vector3.up * 0.5f;
 
-        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        var rig = characterGo.AddComponent<PromeonProxyRigBuilder>();
         rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
         rig.Rebuild();
 
@@ -325,7 +325,7 @@ public class PromeonInteractableRigBuilderTests
         var spineGo     = MakeGO("spine",    pelvisGo.transform);
         spineGo.transform.localPosition = Vector3.up * 0.5f;
 
-        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        var rig = characterGo.AddComponent<PromeonProxyRigBuilder>();
         rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
         rig.Rebuild();
 
@@ -351,7 +351,7 @@ public class PromeonInteractableRigBuilderTests
         leftHipGo.transform.localPosition  = new Vector3(-0.2f, 0f, 0f);
         rightHipGo.transform.localPosition = new Vector3( 0.2f, 0f, 0f);
 
-        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        var rig = characterGo.AddComponent<PromeonProxyRigBuilder>();
         rig.SetTransforms(new[] { pelvisGo.transform, leftHipGo.transform, rightHipGo.transform });
         rig.Rebuild();
 
@@ -375,7 +375,7 @@ public class PromeonInteractableRigBuilderTests
         var spineGo     = MakeGO("spine",    pelvisGo.transform);
         spineGo.transform.localPosition = Vector3.up * 0.5f;
 
-        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        var rig = characterGo.AddComponent<PromeonProxyRigBuilder>();
         rig.SetRigNodeId("rig1");
         rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
         rig.Rebuild();
@@ -395,7 +395,7 @@ public class PromeonInteractableRigBuilderTests
         var spineGo     = MakeGO("spine",    pelvisGo.transform);
         spineGo.transform.localPosition = Vector3.up * 0.5f;
 
-        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        var rig = characterGo.AddComponent<PromeonProxyRigBuilder>();
         rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
         rig.Rebuild();
 
@@ -414,7 +414,7 @@ public class PromeonInteractableRigBuilderTests
         var spineGo     = MakeGO("spine",    pelvisGo.transform);
         spineGo.transform.localPosition = Vector3.up * 0.5f;
 
-        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        var rig = characterGo.AddComponent<PromeonProxyRigBuilder>();
         rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
         rig.Rebuild();
 
@@ -433,7 +433,7 @@ public class PromeonInteractableRigBuilderTests
         var spineGo     = MakeGO("spine",    pelvisGo.transform);
         spineGo.transform.localPosition = Vector3.up * 0.5f;
 
-        var rig = characterGo.AddComponent<PromeonInteractableRigBuilder>();
+        var rig = characterGo.AddComponent<PromeonProxyRigBuilder>();
         rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
         rig.Rebuild();
 

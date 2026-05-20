@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[AddComponentMenu("PromeonLab/Promeon Interactable Rig Builder")]
-public class PromeonInteractableRigBuilder : MonoBehaviour
+[AddComponentMenu("PromeonLab/Promeon Proxy Rig Builder")]
+public class PromeonProxyRigBuilder : MonoBehaviour
 {
     [SerializeField] private Material _boneMaterial;
     [SerializeField] private float    _boneWidth                = 0.06f;
@@ -246,7 +246,7 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
         go.AddComponent<MeshFilter>().sharedMesh = mesh;
         var mr = go.AddComponent<MeshRenderer>();
         if (_boneMaterial == null)
-            Debug.LogWarning("[PromeonInteractableRigBuilder] _boneMaterial not assigned.", this);
+            Debug.LogWarning("[PromeonProxyRigBuilder] _boneMaterial not assigned.", this);
         mr.sharedMaterial    = _boneMaterial;
 
         var outline          = go.AddComponent<Outline>();
@@ -289,7 +289,7 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
         if (smr != null && smr.bones.Length > 0)
             return smr.bones;
 
-        Debug.LogWarning("[PromeonInteractableRigBuilder] No transforms set and no SkinnedMeshRenderer found.", this);
+        Debug.LogWarning("[PromeonProxyRigBuilder] No transforms set and no SkinnedMeshRenderer found.", this);
         return null;
     }
 

@@ -26,9 +26,9 @@ public class RigRuntime : MonoBehaviour, IRigRuntime
 
     public void ApplyDefinition(RigDefinition definition, SkinnedMeshRenderer smr)
     {
-        var boneRenderer = smr.GetComponentInParent<PromeonInteractableRigBuilder>();
+        var boneRenderer = smr.GetComponentInParent<PromeonProxyRigBuilder>();
         if (boneRenderer == null)
-            boneRenderer = smr.gameObject.AddComponent<PromeonInteractableRigBuilder>();
+            boneRenderer = smr.gameObject.AddComponent<PromeonProxyRigBuilder>();
 
         if (_boneMaterial != null) boneRenderer.SetMaterial(_boneMaterial);
 

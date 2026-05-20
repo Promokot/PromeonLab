@@ -1,8 +1,8 @@
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(PromeonInteractableRigBuilder))]
-public class PromeonInteractableRigBuilderEditor : Editor
+[CustomEditor(typeof(PromeonProxyRigBuilder))]
+public class PromeonProxyRigBuilderEditor : Editor
 {
     public override void OnInspectorGUI()
     {
@@ -11,7 +11,7 @@ public class PromeonInteractableRigBuilderEditor : Editor
         EditorGUILayout.Space();
         if (GUILayout.Button("Rebuild"))
         {
-            var rig = (PromeonInteractableRigBuilder)target;
+            var rig = (PromeonProxyRigBuilder)target;
             // Defer to next editor tick — DestroyImmediate during OnInspectorGUI tears down
             // GameObjects whose Editors are currently being drawn (selected ProxyRig / its
             // proxies / UI RectTransforms in selection), and Unity throws MissingReferenceException
@@ -26,7 +26,7 @@ public class PromeonInteractableRigBuilderEditor : Editor
         }
     }
 
-    private static void ClearSelectionIfInsideProxies(PromeonInteractableRigBuilder rig)
+    private static void ClearSelectionIfInsideProxies(PromeonProxyRigBuilder rig)
     {
         var sel = Selection.activeGameObject;
         if (sel == null) return;
