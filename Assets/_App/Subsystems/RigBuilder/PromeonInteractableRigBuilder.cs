@@ -5,14 +5,14 @@ using UnityEngine;
 public class PromeonInteractableRigBuilder : MonoBehaviour
 {
     [SerializeField] private Material _boneMaterial;
-    [SerializeField] private float    _boneWidth          = 0.06f;
-    [SerializeField] private bool     _useConvexCollider  = true;
+    [SerializeField] private float    _boneWidth         = 0.06f;
+    [SerializeField] private bool     _useConvexCollider = true;
     private Transform[] _transforms;
 
-    private readonly List<GameObject>   _proxyGOs  = new();
-    private readonly List<BoneFollower> _followers = new();
+    private readonly List<GameObject>   _proxyGOs    = new();
+    private readonly List<BoneFollower> _followers   = new();
+    private readonly List<Mesh>         _proxyMeshes = new();
     private Transform _proxyRoot;
-    private Mesh      _boneMesh;
 
     void Awake()     { if (_transforms != null && _transforms.Length > 0) Rebuild(); }
     void OnDestroy() => DestroyBoneGOs();
@@ -25,7 +25,6 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
         DestroyBoneGOs();
         var transforms = ResolveTransforms();
         if (transforms == null || transforms.Length == 0) return;
-        if (_boneMesh == null) _boneMesh = BuildDiamondMesh();
         BuildProxyHierarchy(transforms);
     }
 
@@ -49,13 +48,20 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
         foreach (var bone in transforms)
         {
             if (bone == null) continue;
-            if (set.Contains(bone.parent)) continue;    // not a root bone
+            if (set.Contains(bone.parent)) continue;   // not a root bone
+            if (bone.parent == null)       continue;   // root bone at scene root — skip
 
             if (_proxyRoot == null)
             {
-                var container = new GameObject("_ProxyBones");
-                container.transform.SetParent(bone.parent, worldPositionStays: false);
-                _proxyRoot = container.transform;
+                var armature    = bone.parent;
+                var grandParent = armature.parent;
+
+                var rig = new GameObject("ProxyRig");
+                rig.transform.SetParent(grandParent, worldPositionStays: false);
+                rig.transform.localPosition = armature.localPosition;
+                rig.transform.localRotation = armature.localRotation;
+                rig.transform.localScale    = armature.localScale;
+                _proxyRoot = rig.transform;
             }
 
             BuildProxyNode(bone, _proxyRoot, set);
@@ -71,19 +77,38 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
             if (set.Contains(c)) { firstChild = c; break; }
         }
 
-        float length = firstChild != null
-            ? Mathf.Max((firstChild.position - bone.position).magnitude, 0.0001f)
-            : _boneWidth * 5f;
+        Vector3 localChildDir;
+        float   length;
+        if (firstChild != null)
+        {
+            var worldDir = firstChild.position - bone.position;
+            length        = Mathf.Max(worldDir.magnitude, 0.0001f);
+            localChildDir = bone.InverseTransformDirection(worldDir).normalized;
+            if (localChildDir.sqrMagnitude < 0.0001f) localChildDir = Vector3.up;
+        }
+        else
+        {
+            localChildDir = Vector3.up;
+            length        = _boneWidth * 5f;
+        }
         float width = EffectiveWidth(_boneWidth, length);
+
+        var mesh = BuildOrientedDiamondMesh(localChildDir, length, width);
+        _proxyMeshes.Add(mesh);
 
         var proxyGo = new GameObject($"proxy_{bone.name}");
         proxyGo.transform.SetParent(proxyParent, worldPositionStays: false);
         proxyGo.transform.SetPositionAndRotation(bone.position, bone.rotation);
-        proxyGo.transform.localScale = new Vector3(width, length, width);
+        proxyGo.transform.localScale = Vector3.one;
 
-        AddMeshAndOutline(proxyGo);
-        AddCollider(proxyGo);
+        AddMeshAndOutline(proxyGo, mesh);
+        AddCollider(proxyGo, mesh);
         _proxyGOs.Add(proxyGo);
+
+        // Clean up stale followers that may have survived a domain reload (their _proxy is serialized
+        // but the proxy GameObject is runtime-created and gone, so they would otherwise race-write the bone).
+        foreach (var stale in bone.GetComponents<BoneFollower>())
+            DestroyObj(stale);
 
         var follower = bone.gameObject.AddComponent<BoneFollower>();
         follower.SetProxy(proxyGo.transform);
@@ -97,13 +122,13 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
         }
     }
 
-    void AddCollider(GameObject go)
+    void AddCollider(GameObject go, Mesh mesh)
     {
         if (_useConvexCollider)
         {
-            var mc           = go.AddComponent<MeshCollider>();
-            mc.sharedMesh    = _boneMesh;
-            mc.convex        = true;
+            var mc        = go.AddComponent<MeshCollider>();
+            mc.sharedMesh = mesh;
+            mc.convex     = true;
         }
         else
         {
@@ -114,13 +139,14 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
         }
     }
 
-    void AddMeshAndOutline(GameObject go)
+    void AddMeshAndOutline(GameObject go, Mesh mesh)
     {
-        go.AddComponent<MeshFilter>().sharedMesh = _boneMesh;
+        go.AddComponent<MeshFilter>().sharedMesh = mesh;
         var mr = go.AddComponent<MeshRenderer>();
         if (_boneMaterial == null)
             Debug.LogWarning("[PromeonInteractableRigBuilder] _boneMaterial not assigned.", this);
         mr.sharedMaterial    = _boneMaterial;
+
         var outline          = go.AddComponent<Outline>();
         outline.OutlineMode  = Outline.Mode.SilhouetteOnly;
         outline.OutlineColor = Color.white;
@@ -140,13 +166,15 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
             if (f != null) DestroyObj(f);
         _followers.Clear();
 
-        if (_boneMesh != null) { DestroyObj(_boneMesh); _boneMesh = null; }
+        foreach (var m in _proxyMeshes)
+            if (m != null) DestroyObj(m);
+        _proxyMeshes.Clear();
     }
 
     private static void DestroyObj(Object obj)
     {
         if (Application.isPlaying) Destroy(obj);
-        else                        DestroyImmediate(obj);
+        else                       DestroyImmediate(obj);
     }
 
     Transform[] ResolveTransforms()
