@@ -9622,6 +9622,7 @@ GameObject:
   - component: {fileID: 443945935810089547}
   - component: {fileID: 2256452765364699179}
   - component: {fileID: 8887613427841200977}
+  - component: {fileID: 4687971362535246428}
   m_Layer: 0
   m_Name: Crush Dummy
   m_TagString: Untagged
@@ -9791,6 +9792,18 @@ MonoBehaviour:
   _displayName: 
   _isVisible: 1
   _isLocked: 0
+--- !u!114 &4687971362535246428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5583578640569777744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c60405ee75790034ca99a3a05d7693fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Subsystems.VrInteraction::Selectable
 --- !u!1 &5635273748730653280
 GameObject:
   m_ObjectHideFlags: 0
