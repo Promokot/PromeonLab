@@ -1,0 +1,7 @@
+{
+  "name": "Subsystems.AnimationAuthoring.Tests",
+  "references": ["_Shared", "Subsystems.AnimationAuthoring"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "autoReferenced": false
+}

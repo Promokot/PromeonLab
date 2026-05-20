@@ -55,6 +55,11 @@ public class VrEditingSceneScope : LifetimeScope
         if (assetBrowser != null)
             builder.RegisterBuildCallback(c => c.Inject(assetBrowser));
 
-        // Phase 7: TrackRecorder, PropertyApplicator, PlaybackController
+        builder.RegisterEntryPoint<AnimationClock>(Lifetime.Scoped).AsSelf();
+        builder.RegisterEntryPoint<AnimationAuthoring>(Lifetime.Scoped).AsSelf();
+
+        var animModule = Object.FindAnyObjectByType<AnimationModule>(FindObjectsInactive.Include);
+        if (animModule != null)
+            builder.RegisterBuildCallback(c => c.Inject(animModule));
     }
 }
