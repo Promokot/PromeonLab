@@ -40,15 +40,17 @@ public class XRPromeonInteractable : XRBaseInteractable
         base.Awake();
         _node = GetComponentInParent<SceneNode>();
 
-        if (colliders.Count == 0)
-        {
-            var found = _includeChildColliders
-                ? GetComponentsInChildren<Collider>(includeInactive: true)
-                : GetComponents<Collider>();
-            foreach (var c in found)
-                if (c != null && !colliders.Contains(c))
-                    colliders.Add(c);
-        }
+        // base.Awake auto-discovers GetComponentsInChildren<Collider>(true), which for nested
+        // rig proxies would grab every descendant proxy collider — leading to "collider already
+        // registered" warnings from XRInteractionManager and root-vs-bone selection ambiguity.
+        // Take ownership: clear and re-populate per our policy.
+        colliders.Clear();
+        var found = _includeChildColliders
+            ? GetComponentsInChildren<Collider>(includeInactive: true)
+            : GetComponents<Collider>();
+        foreach (var c in found)
+            if (c != null && !colliders.Contains(c))
+                colliders.Add(c);
     }
 
     [Inject]
