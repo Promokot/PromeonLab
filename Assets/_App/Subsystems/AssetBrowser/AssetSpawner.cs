@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
 public class AssetSpawner : IStartable, IDisposable
@@ -8,14 +9,16 @@ public class AssetSpawner : IStartable, IDisposable
     private readonly EventBus              _bus;
     private readonly SceneGraph            _graph;
     private readonly IInteractableFactory  _factory;
-    private readonly IRigRuntime           _rigRuntime;
+    private readonly IObjectResolver       _resolver;
+    private IRigRuntime                    _rigRuntimeCached;
+    private bool                           _rigRuntimeResolved;
 
-    public AssetSpawner(EventBus bus, SceneGraph graph, IInteractableFactory factory, IRigRuntime rigRuntime)
+    public AssetSpawner(EventBus bus, SceneGraph graph, IInteractableFactory factory, IObjectResolver resolver)
     {
-        _bus        = bus;
-        _graph      = graph;
-        _factory    = factory;
-        _rigRuntime = rigRuntime;
+        _bus      = bus;
+        _graph    = graph;
+        _factory  = factory;
+        _resolver = resolver;
     }
 
     public void Start() =>
@@ -53,13 +56,28 @@ public class AssetSpawner : IStartable, IDisposable
 
     private void ApplyRig(GameObject go)
     {
+        var rigRuntime = ResolveRigRuntimeOrNull();
+        if (rigRuntime == null)
+        {
+            Debug.LogWarning($"AssetSpawner: '{go.name}' has Rig capability but no IRigRuntime is registered in this scope — skipping rig setup.", go);
+            return;
+        }
         var smr = go.GetComponentInChildren<SkinnedMeshRenderer>(includeInactive: true);
         if (smr == null)
         {
             Debug.LogWarning($"AssetSpawner: '{go.name}' has Rig capability but no SkinnedMeshRenderer.", go);
             return;
         }
-        var def = _rigRuntime.BuildFromSkinnedMesh(smr);
-        _rigRuntime.ApplyDefinition(def, smr);
+        var def = rigRuntime.BuildFromSkinnedMesh(smr);
+        rigRuntime.ApplyDefinition(def, smr);
+    }
+
+    private IRigRuntime ResolveRigRuntimeOrNull()
+    {
+        if (_rigRuntimeResolved) return _rigRuntimeCached;
+        _rigRuntimeResolved = true;
+        try { _rigRuntimeCached = _resolver.Resolve<IRigRuntime>(); }
+        catch { _rigRuntimeCached = null; }
+        return _rigRuntimeCached;
     }
 }

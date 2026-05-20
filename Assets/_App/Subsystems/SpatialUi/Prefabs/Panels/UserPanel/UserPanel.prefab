@@ -2551,9 +2551,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Subsystems.SpatialUi::PanelDragHandle
   _panel: {fileID: 8573857923733603883}
-  _normalColor: {r: 1, g: 1, b: 1, a: 0.25}
-  _hoverColor: {r: 0.7935208, g: 0.7935208, b: 0.7935208, a: 0.45}
-  _dragColor: {r: 0.45, g: 0.5, b: 0.55, a: 0.7}
+  _normalColor: {r: 0, g: 0, b: 0, a: 0.7254902}
+  _hoverColor: {r: 0.7935208, g: 0.7935208, b: 0.7935208, a: 0.6745098}
+  _dragColor: {r: 0.17630093, g: 0.34619796, b: 0.503026, a: 0.7}
 --- !u!1 &6798035631670657640
 GameObject:
   m_ObjectHideFlags: 0
