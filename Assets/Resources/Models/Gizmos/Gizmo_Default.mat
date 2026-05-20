@@ -86,12 +86,12 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
-    - _EMISSION_WEIGHT: 0
+    - _EMISSION_WEIGHT: 0.25
     - _EnvironmentReflections: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _METALNESS: 0
+    - _METALNESS: 0.215
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
@@ -100,7 +100,7 @@ Material:
     - _QueueOffset: 0
     - _REFLECTIONS_IOR: 1.52
     - _REFLECTIONS_ROUGHNESS: 0.5
-    - _REFLECTIONS_WEIGHT: 0.5
+    - _REFLECTIONS_WEIGHT: 0
     - _ReceiveShadows: 1
     - _Smoothness: 0.070710674
     - _SmoothnessTextureChannel: 0
