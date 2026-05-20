@@ -1,6 +1,6 @@
 {
     "name": "PromeonLab.Editor",
-    "references": ["_Shared"],
+    "references": ["_Shared", "Subsystems.SpatialUi", "Subsystems.AnimationAuthoring", "Unity.TextMeshPro"],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

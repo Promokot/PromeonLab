@@ -11,7 +11,9 @@
       "mcp__unityMCP__find_gameobjects",
       "mcp__unityMCP__read_console",
       "Bash(git *)",
-      "mcp__unityMCP__execute_code"
+      "mcp__unityMCP__execute_code",
+      "Bash(xargs grep -l \"guid: 7c37c63bd65f73e459e74dcb02a4ac0f\\\\|guid: 5b2b86e231a088147b42ee139a4f0754\")",
+      "mcp__unityMCP__execute_menu_item"
     ]
   },
   "enabledMcpjsonServers": [
