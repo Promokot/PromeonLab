@@ -11,7 +11,66 @@ public class PromeonBoneRenderer : BoneRenderer
     private readonly List<GameObject> _boneGOs = new();
     private static Mesh s_BoneMesh;
 
-    // Awake, Rebuild, ExtractPairs added in later tasks.
+    void Awake() => Rebuild();
+
+    void OnValidate() => Rebuild();
+
+    void OnDestroy() => DestroyBoneGOs();
+
+    public void Rebuild()
+    {
+        DestroyBoneGOs();
+
+        if (!drawBones || transforms == null || transforms.Length == 0) return;
+
+        if (s_BoneMesh == null) s_BoneMesh = BuildDiamondMesh();
+
+        foreach (var (start, end) in ExtractPairs(transforms))
+            _boneGOs.Add(CreateBoneGO(start, end));
+    }
+
+    GameObject CreateBoneGO(Transform start, Transform end)
+    {
+        var go = new GameObject($"Bone_{start.name}");
+        go.transform.SetParent(start, worldPositionStays: false);
+
+        go.AddComponent<MeshFilter>().sharedMesh = s_BoneMesh;
+        var mr = go.AddComponent<MeshRenderer>();
+        mr.sharedMaterial = _boneMaterial;
+        if (_boneMaterial == null)
+            Debug.LogWarning("[PromeonBoneRenderer] _boneMaterial not assigned.", this);
+
+        var col    = go.AddComponent<CapsuleCollider>();
+        col.direction = 1;      // Y-axis, matches bone local Y
+        col.height    = 1f;     // local space; world height = 1 * localScale.y = bone length
+        col.radius    = 0.5f * _boneWidth;
+
+        var localEnd = start.InverseTransformPoint(end.position);
+        float length = localEnd.magnitude;
+        if (length < 0.0001f) length = 0.0001f;
+
+        var dir = localEnd.normalized;
+        if (dir == Vector3.zero) dir = Vector3.up;
+
+        go.transform.localPosition = Vector3.zero;
+        go.transform.localRotation = Quaternion.FromToRotation(Vector3.up, dir);
+        go.transform.localScale    = new Vector3(_boneWidth * length, length, _boneWidth * length);
+
+        return go;
+    }
+
+    void DestroyBoneGOs()
+    {
+        foreach (var go in _boneGOs)
+            if (go != null) DestroyObj(go);
+        _boneGOs.Clear();
+    }
+
+    static void DestroyObj(Object obj)
+    {
+        if (Application.isPlaying) Destroy(obj);
+        else                        DestroyImmediate(obj);
+    }
 
     public static Mesh BuildDiamondMesh()
     {
@@ -19,27 +78,18 @@ public class PromeonBoneRenderer : BoneRenderer
 
         mesh.vertices = new[]
         {
-            new Vector3( 0f,    0f,    0f),    // 0 head
-            new Vector3( 0.5f,  0.15f, 0f),    // 1 shoulder +X
-            new Vector3(-0.5f,  0.15f, 0f),    // 2 shoulder -X
-            new Vector3( 0f,    0.15f, 0.5f),  // 3 shoulder +Z
-            new Vector3( 0f,    0.15f,-0.5f),  // 4 shoulder -Z
-            new Vector3( 0f,    1f,    0f),    // 5 tail
+            new Vector3( 0f,    0f,    0f),
+            new Vector3( 0.5f,  0.15f, 0f),
+            new Vector3(-0.5f,  0.15f, 0f),
+            new Vector3( 0f,    0.15f, 0.5f),
+            new Vector3( 0f,    0.15f,-0.5f),
+            new Vector3( 0f,    1f,    0f),
         };
 
-        // Winding order: clockwise when viewed from outside (Unity left-hand coords).
         mesh.triangles = new[]
         {
-            // Head faces (4 tris from v0 to shoulder ring)
-            0, 1, 3,
-            0, 3, 2,
-            0, 2, 4,
-            0, 4, 1,
-            // Tail faces (4 tris from shoulder ring to v5)
-            1, 5, 3,
-            3, 5, 2,
-            2, 5, 4,
-            4, 5, 1,
+            0, 1, 3,  0, 3, 2,  0, 2, 4,  0, 4, 1,
+            1, 5, 3,  3, 5, 2,  2, 5, 4,  4, 5, 1,
         };
 
         mesh.RecalculateNormals();
