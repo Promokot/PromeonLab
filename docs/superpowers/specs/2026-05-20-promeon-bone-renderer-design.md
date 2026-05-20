@@ -4,7 +4,7 @@
 
 **Goal:** Runtime-visible, VR-interactable bone visualization for Meta Quest 3 (URP, single-pass instanced stereo). Generates diamond-shaped proxy bones from a SkinnedMeshRenderer, wires them to original bones via Animation Rigging `MultiParentConstraint`, and exposes each bone as a grabbable object (CapsuleCollider / convex MeshCollider + Outline silhouette).
 
-**Architecture:** `PromeonInteractableRigBuilder : MonoBehaviour` on the Animator root. Driven by `RigRuntime.ApplyDefinition` — no per-frame logic. All rendering and interaction is via child GameObjects parented to a `_BoneProxies` container (constraint mode) or directly to joint transforms (visual-only mode).
+**Architecture:** `PromeonInteractableRigBuilder : MonoBehaviour` on the Animator root. Driven by `RigRuntime.ApplyDefinition` — no per-frame logic. In constraint mode each bone pair produces two GOs: a **manipulator proxy** (collider only, under `_BoneProxies`) that drives the original bone via `MultiParentConstraint`, and a **visual** (diamond mesh + Outline, child of the original bone) that always reflects the bone's true hierarchy position. In visual-only mode a single combined GO is parented to the bone.
 
 **Tech Stack:** Unity 6, URP 17, Unity Animation Rigging package, QuickOutline.
 
@@ -32,11 +32,15 @@ Assembly: `Subsystems.RigBuilder` — references `Unity.Animation.Rigging`, `Qui
 
 ```csharp
 [SerializeField] private Material _boneMaterial;       // must be assigned; no auto-fallback
-[SerializeField] private float    _boneWidth = 0.06f;  // world-space half-width (meters)
+[SerializeField] private float    _boneWidth = 0.06f;  // world-space half-width (meters), capped by length
 [SerializeField] private bool     _useConvexCollider = true;
 [SerializeField] private bool     _buildConstraints  = true;
 // _transforms is NOT serialized — set at runtime via SetTransforms() or auto-discovered
 ```
+
+### Component menu
+
+`[AddComponentMenu("PromeonLab/Promeon Interactable Rig Builder")]` — searchable by "Promeon Interactable" in Add Component dialog.
 
 ---
 
@@ -48,7 +52,7 @@ Assembly: `Subsystems.RigBuilder` — references `Unity.Animation.Rigging`, `Qui
 | `SetMaterial(Material)` | Set bone material at runtime (called by RigRuntime) |
 | `SetConstraintRigParent(Transform)` | Set the Rig GO under which constraint GOs are created |
 | `Rebuild()` | Destroy existing bones and recreate from current state |
-| `SetVisualsEnabled(bool)` | Toggle MeshRenderer + Outline on all bone GOs |
+| `SetVisualsEnabled(bool)` | Toggle MeshRenderer + Outline on all visual GOs (both modes) |
 
 ---
 
@@ -93,19 +97,13 @@ v5 = (0,    1,    0)    tail — tapers to point
 
 8 triangles (4 head→shoulder, 4 shoulder→tail). Built once per component instance (`_boneMesh` instance field, not static).
 
----
+### Width proportionality
 
-## Bone GO Setup (per bone pair)
+```csharp
+float effectiveWidth = Mathf.Min(_boneWidth, length * 0.2f);
+```
 
-Each proxy bone GO contains:
-- `MeshFilter` — shared diamond mesh
-- `MeshRenderer` — `_boneMaterial`
-- Collider (one of):
-  - `MeshCollider` with `convex = true`, `sharedMesh = diamond` (**default**, `_useConvexCollider = true`)
-  - `CapsuleCollider` Y-axis, height=1, radius=0.5 (in local space — world size determined by scale)
-- `Outline` — `Mode.SilhouetteOnly`, white, width=3
-
-**Scale:** `localScale = (_boneWidth, length, _boneWidth)` where `length` = world-space bone length (in constraint mode) or local-space magnitude (in visual mode). Result: X/Z are absolute world meters; Y spans the bone.
+At `length >= 5 × _boneWidth` → full `_boneWidth`. Shorter bones get proportionally narrower diamonds. Applied to `localScale.x` and `localScale.z` in both modes.
 
 ---
 
@@ -113,38 +111,64 @@ Each proxy bone GO contains:
 
 ### Visual mode (`_buildConstraints = false`)
 
-Proxy GO is **parented to the original bone**. Follows animation automatically via the transform hierarchy. Zero per-frame script cost. Used for pure visualization.
+One combined GO per bone pair, **parented to the original bone**. Contains MeshFilter + MeshRenderer + Collider + Outline. Follows animation automatically via the transform hierarchy.
 
 ```
 CharacterRoot
-└─ Pelvis (bone)
-   └─ Bone_Pelvis (proxy GO — child of bone)
+└─ pelvis (bone)
+   └─ Bone_pelvis   (MeshRenderer + CapsuleCollider + Outline — child of bone)
 ```
 
 ### Constraint mode (`_buildConstraints = true`, default)
 
-Proxy GOs live under `_BoneProxies` (child of this component's GO). Each original bone gets a `MultiParentConstraint` created **under the Rig GO** with the proxy as source (weight=1). Moving the proxy drives the original bone.
+Two GOs per bone pair:
+- **Manipulator proxy** (`Proxy_*`): under `_BoneProxies`, collider only (no mesh), drives the original bone via `MultiParentConstraint`.
+- **Visual** (`Visual_*`): child of the original bone, diamond mesh + Outline, no collider. Follows bone through hierarchy — automatically correct when any ancestor bone moves.
 
 ```
 CharacterRoot
-├─ _BoneProxies
-│  └─ Bone_Pelvis (proxy GO — independent)
-└─ SkinnedMesh
-   └─ _Rig (Rig GO, set via SetConstraintRigParent)
-      ├─ PC_Pelvis (MultiParentConstraint → constrainedObject=Pelvis, source=Bone_Pelvis)
-      └─ ...
+├── _BoneProxies
+│   ├── Proxy_pelvis   (CapsuleCollider/MeshCollider — no mesh, no Outline)
+│   └── Proxy_spine    (CapsuleCollider/MeshCollider)
+└── SkinnedMesh
+    ├── pelvis (bone)
+    │   ├── Visual_pelvis  (diamond MeshRenderer + Outline — no collider)
+    │   └── spine (bone)
+    │       └── Visual_spine   (follows spine via hierarchy automatically)
+    └── _Rig
+        ├── PC_pelvis  (MultiParentConstraint → constrainedObject=pelvis,  source=Proxy_pelvis,  weight=1)
+        └── PC_spine   (MultiParentConstraint → constrainedObject=spine,   source=Proxy_spine,   weight=1)
 ```
 
-`SetConstraintRigParent(rigGo.transform)` must be called before `Rebuild()` when using constraint mode. `RigRuntime` does this automatically.
+**Why two GOs:** in constraint mode the proxy is independent (required for VR grabbing), so it cannot follow ancestor bone movement via hierarchy. The visual must be a bone child to stay accurate when any parent bone is moved by the user or IK.
+
+`SetConstraintRigParent(rigGo.transform)` must be called before `Rebuild()` when using constraint mode. `RigRuntime` does this automatically. When called from the Inspector "Rebuild" button without a rig parent set, the component silently falls back to visual mode (proxy parented to bone) — a soft `Debug.Log` is emitted instead of a warning.
+
+---
+
+## Internal Tracking Lists
+
+| Field | Contents |
+|---|---|
+| `_boneGOs` | Proxy GOs (constraint mode) or combined GOs (visual mode) |
+| `_visualGOs` | Visual-only GOs (constraint mode only; empty in visual mode) |
+| `_constraintGOs` | Constraint GOs (`PC_*`) under the Rig GO |
+| `_proxyRoot` | `_BoneProxies` container transform (constraint mode only) |
+
+---
+
+## `SetVisualsEnabled`
+
+Iterates both `_boneGOs` and `_visualGOs` and toggles `MeshRenderer.enabled` and `Outline.enabled`. In constraint mode `_boneGOs` are collider-only (no MeshRenderer), so the GetComponent calls are no-ops — safe for both modes without branching.
 
 ---
 
 ## Cleanup
 
 `DestroyBoneGOs()` (called by `Rebuild()` and `OnDestroy()`):
-1. Destroys all constraint GOs (removes `MultiParentConstraint` from rig)
-2. Destroys `_proxyRoot` GO (which destroys all proxy bone GOs as children)
-3. OR destroys individual bone GOs if in visual mode
+1. Destroys all `_constraintGOs`
+2. Destroys `_proxyRoot.gameObject` (cascades to all `Proxy_*`) — or individual `_boneGOs` if no proxy root
+3. Destroys all `_visualGOs` explicitly (they are children of original bones, not of `_proxyRoot`)
 
 ---
 
@@ -152,8 +176,8 @@ CharacterRoot
 
 - Bone lengths are assumed constant (rotation-only animation). Position-animated bones show incorrect length.
 - `_boneMaterial` must be assigned manually (no auto-fallback).
-- In constraint mode, `_constraintRigParent` must be set before `Rebuild()` or constraints are silently skipped with a warning.
-- Proxy bone scale uses `_boneWidth` as absolute world meters — may look odd for very short bones (X/Z > Y).
+- In constraint mode, `_constraintRigParent` must be set before `Rebuild()` or the component silently falls back to visual mode.
+- Proxy bone scale uses `effectiveWidth` as absolute world meters — may look odd for very short bones (X/Z > Y not possible due to the proportionality cap, but tiny bones will have tiny handles).
 
 ---
 
