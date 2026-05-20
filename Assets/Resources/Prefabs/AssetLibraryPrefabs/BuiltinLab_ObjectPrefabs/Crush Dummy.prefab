@@ -9618,7 +9618,6 @@ GameObject:
   m_Component:
   - component: {fileID: 551873046670137171}
   - component: {fileID: 8799855291242604075}
-  - component: {fileID: 5093909106551622923}
   - component: {fileID: 443945935810089547}
   - component: {fileID: 2256452765364699179}
   - component: {fileID: 8887613427841200977}
@@ -9669,24 +9668,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.3, y: 1.8314079, z: 0.24218579}
   m_Center: {x: 0, y: 0.91570395, z: -0.012789361}
---- !u!114 &5093909106551622923
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5583578640569777744}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dbc3551a634a9fd4a99307ed5569274c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Subsystems.RigBuilder::PromeonInteractableRigBuilder
-  _boneMaterial: {fileID: 2100000, guid: ad2591d1028f32d4a8bae13135f480f7, type: 2}
-  _boneWidth: 0.06
-  _useConvexCollider: 1
-  _boneOutlineColorDefault: {r: 1, g: 1, b: 1, a: 1}
-  _boneOutlineColorSelected: {r: 1, g: 0.5, b: 0, a: 1}
-  _rootCollider: {fileID: 8799855291242604075}
 --- !u!114 &443945935810089547
 MonoBehaviour:
   m_ObjectHideFlags: 0
