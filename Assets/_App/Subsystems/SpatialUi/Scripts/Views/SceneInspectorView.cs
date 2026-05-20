@@ -35,22 +35,20 @@ public class SceneInspectorView : MonoBehaviour
     [SerializeField] private Toggle         _showBonesToggle;
     [SerializeField] private Button         _deleteButton;
 
-    private EventBus                 _bus;
-    private SceneGraph               _graph;
-    private ISelectionManager        _selection;
-    private IBoneInteractableFactory _boneFactory;
+    private EventBus          _bus;
+    private SceneGraph        _graph;
+    private ISelectionManager _selection;
 
     private SceneNode _bound;          // currently selected rig/object
     private Transform _boneTransform;  // currently selected bone proxy transform
     private string    _boneRigId;      // parent rig node id (when bone selected)
 
     [Inject]
-    public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection, IBoneInteractableFactory boneFactory)
+    public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection)
     {
-        _bus         = bus;
-        _graph       = graph;
-        _selection   = selection;
-        _boneFactory = boneFactory;
+        _bus       = bus;
+        _graph     = graph;
+        _selection = selection;
     }
 
     private void OnEnable()
@@ -170,7 +168,7 @@ public class SceneInspectorView : MonoBehaviour
             _boneParentRigLabel.text = rigNode != null ? $"Rig: {rigNode.DisplayName}" : $"Rig: {_boneRigId}";
         }
 
-        _boneTransform = _boneFactory != null ? _boneFactory.GetBoneTransform(boneNodeId) : null;
+        _boneTransform = _graph.GetNode(boneNodeId)?.transform;
         if (_boneTransform == null) return;
 
         var pos   = _boneTransform.position;

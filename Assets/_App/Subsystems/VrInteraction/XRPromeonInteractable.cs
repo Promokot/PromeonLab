@@ -9,6 +9,11 @@ public class XRPromeonInteractable : XRBaseInteractable
 {
     [SerializeField] private float _tapWindow = 0.5f;
 
+    [Tooltip("If true, the interactable auto-registers colliders found in this GO and its children. " +
+             "Default false: only colliders on the same GameObject are used (the right choice for " +
+             "rig proxies and most prefabs where the collider sits on the root).")]
+    [SerializeField] private bool _includeChildColliders = false;
+
     private ISelectionManager _selectionManager;
     private GizmoController   _gizmoController;
     private IDragStrategy     _dragStrategy = new SingleDragStrategy();
@@ -34,6 +39,16 @@ public class XRPromeonInteractable : XRBaseInteractable
     {
         base.Awake();
         _node = GetComponentInParent<SceneNode>();
+
+        if (colliders.Count == 0)
+        {
+            var found = _includeChildColliders
+                ? GetComponentsInChildren<Collider>(includeInactive: true)
+                : GetComponents<Collider>();
+            foreach (var c in found)
+                if (c != null && !colliders.Contains(c))
+                    colliders.Add(c);
+        }
     }
 
     [Inject]

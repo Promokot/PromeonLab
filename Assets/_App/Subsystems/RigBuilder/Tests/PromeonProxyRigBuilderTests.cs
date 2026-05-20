@@ -367,8 +367,10 @@ public class PromeonProxyRigBuilderTests
     }
 
     [Test]
-    public void BuildProxyHierarchy_BoneNodeId_FollowsBoneFormat()
+    public void BuildProxyHierarchy_SceneNodeId_IsBoneNameOnly_AtBakeTime()
     {
+        // After the bake-into-prefab refactor, builder stores only the bone name.
+        // AssetSpawner/SceneGraph composes the final "bone:{rigNodeId}:{boneName}" form at spawn.
         var characterGo = MakeGO("Character");
         var armatureGo  = MakeGO("Armature", characterGo.transform);
         var pelvisGo    = MakeGO("pelvis",   armatureGo.transform);
@@ -376,18 +378,19 @@ public class PromeonProxyRigBuilderTests
         spineGo.transform.localPosition = Vector3.up * 0.5f;
 
         var rig = characterGo.AddComponent<PromeonProxyRigBuilder>();
-        rig.SetRigNodeId("rig1");
+        rig.SetRigNodeId("rig1");  // Setter retained for backwards compat but ignored at bake.
         rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
         rig.Rebuild();
 
         var proxyPelvis = characterGo.transform.Find("ProxyRig/proxy_pelvis");
         var sn = proxyPelvis.GetComponent<SceneNode>();
         Assert.IsNotNull(sn, "SceneNode missing on proxy_pelvis");
-        Assert.AreEqual("bone:rig1:pelvis", sn.NodeId);
+        Assert.AreEqual("pelvis", sn.NodeId,
+            "Bake-time NodeId stays as bone name regardless of SetRigNodeId.");
     }
 
     [Test]
-    public void BuildProxyHierarchy_BoneNodeId_NoRigId_UsesDefaultNamespace()
+    public void BuildProxyHierarchy_AddsBoneSceneNodeMarkerToEachProxy()
     {
         var characterGo = MakeGO("Character");
         var armatureGo  = MakeGO("Armature", characterGo.transform);
@@ -400,9 +403,56 @@ public class PromeonProxyRigBuilderTests
         rig.Rebuild();
 
         var proxyPelvis = characterGo.transform.Find("ProxyRig/proxy_pelvis");
-        var sn = proxyPelvis.GetComponent<SceneNode>();
-        Assert.IsNotNull(sn);
-        Assert.AreEqual("bone:rig:pelvis", sn.NodeId, "Default namespace must be 'rig'");
+        var proxySpine  = proxyPelvis?.Find("proxy_spine");
+        Assert.IsNotNull(proxyPelvis.GetComponent<BoneSceneNodeMarker>(),
+            "proxy_pelvis missing BoneSceneNodeMarker");
+        Assert.IsNotNull(proxySpine.GetComponent<BoneSceneNodeMarker>(),
+            "proxy_spine missing BoneSceneNodeMarker");
+    }
+
+    [Test]
+    public void BuildProxyHierarchy_AddsSelectableAndXRInteractableToEachProxy()
+    {
+        var characterGo = MakeGO("Character");
+        var armatureGo  = MakeGO("Armature", characterGo.transform);
+        var pelvisGo    = MakeGO("pelvis",   armatureGo.transform);
+        var spineGo     = MakeGO("spine",    pelvisGo.transform);
+        spineGo.transform.localPosition = Vector3.up * 0.5f;
+
+        var rig = characterGo.AddComponent<PromeonProxyRigBuilder>();
+        rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
+        rig.Rebuild();
+
+        var proxyPelvis = characterGo.transform.Find("ProxyRig/proxy_pelvis").gameObject;
+        Assert.IsNotNull(proxyPelvis.GetComponent<Selectable>(),
+            "proxy_pelvis missing Selectable");
+        Assert.IsNotNull(proxyPelvis.GetComponent<XRPromeonInteractable>(),
+            "proxy_pelvis missing XRPromeonInteractable");
+    }
+
+    [Test]
+    public void SetBonesInteractive_TogglesRootCollider()
+    {
+        var characterGo = MakeGO("Character");
+        var armatureGo  = MakeGO("Armature", characterGo.transform);
+        var pelvisGo    = MakeGO("pelvis",   armatureGo.transform);
+        var spineGo     = MakeGO("spine",    pelvisGo.transform);
+        spineGo.transform.localPosition = Vector3.up * 0.5f;
+
+        var rootCollider = characterGo.AddComponent<BoxCollider>();
+        var rig = characterGo.AddComponent<PromeonProxyRigBuilder>();
+        rig.SetRootCollider(rootCollider);
+        rig.SetTransforms(new[] { pelvisGo.transform, spineGo.transform });
+        rig.Rebuild();
+
+        // After Rebuild default: bones disabled → root collider enabled.
+        Assert.IsTrue(rootCollider.enabled, "Root collider must be enabled when bones are hidden");
+
+        rig.SetBonesInteractive(true);
+        Assert.IsFalse(rootCollider.enabled, "Root collider must be disabled when bones are shown");
+
+        rig.SetBonesInteractive(false);
+        Assert.IsTrue(rootCollider.enabled, "Root collider must re-enable when bones are hidden again");
     }
 
     [Test]

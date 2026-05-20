@@ -5,10 +5,13 @@ public class Selectable : MonoBehaviour
     private SceneNode _node;
     private Outline   _outline;
 
-    public string NodeId => _node?.NodeId;
-    public SceneNode Node => _node;
+    public string    NodeId => _node?.NodeId;
+    public SceneNode Node   => _node;
 
-    public void Init(SceneNode node) => _node = node;
+    private void Awake()
+    {
+        _node = GetComponent<SceneNode>();
+    }
 
     public void SetVisualState(SelectionVisual state)
     {

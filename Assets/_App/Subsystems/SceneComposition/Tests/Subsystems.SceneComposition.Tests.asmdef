@@ -1,6 +1,6 @@
 {
   "name": "Subsystems.SceneComposition.Tests",
-  "references": ["_Shared", "Subsystems.SceneComposition", "Subsystems.AssetBrowser", "Subsystems.StorageCore"],
+  "references": ["_Shared", "Subsystems.SceneComposition", "Subsystems.AssetBrowser", "Subsystems.StorageCore", "VContainer"],
   "includePlatforms": ["Editor"],
   "optionalUnityReferences": ["TestAssemblies"],
   "autoReferenced": false

@@ -1,20 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
 public class RigRuntime : MonoBehaviour, IRigRuntime
 {
     [SerializeField] private Material _boneMaterial;
 
-    private IBoneInteractableFactory _boneInteractableFactory;
-    private EventBus                 _eventBus;
+    private IObjectResolver _resolver;
 
     [Inject]
-    public void Construct(IBoneInteractableFactory boneInteractableFactory, EventBus bus)
-    {
-        _boneInteractableFactory = boneInteractableFactory;
-        _eventBus                = bus;
-    }
+    public void Construct(IObjectResolver resolver) => _resolver = resolver;
 
     public RigDefinition BuildFromSkinnedMesh(SkinnedMeshRenderer smr)
     {
@@ -32,11 +28,6 @@ public class RigRuntime : MonoBehaviour, IRigRuntime
 
         if (_boneMaterial != null) boneRenderer.SetMaterial(_boneMaterial);
 
-        var rigNode   = boneRenderer.GetComponentInParent<SceneNode>();
-        var rigNodeId = rigNode != null ? rigNode.NodeId : null;
-        boneRenderer.SetRigNodeId(rigNodeId);
-        boneRenderer.SetEventBus(_eventBus);
-
         var bones = new List<Transform>();
         foreach (var bone in definition.Bones)
         {
@@ -46,11 +37,10 @@ public class RigRuntime : MonoBehaviour, IRigRuntime
         boneRenderer.SetTransforms(bones.ToArray());
         boneRenderer.Rebuild();
 
-        if (_boneInteractableFactory != null)
-        {
-            foreach (var proxyGo in boneRenderer.ProxyGOs)
-                _boneInteractableFactory.MakeBoneInteractable(proxyGo);
-        }
+        // Rebuild may have created brand-new proxy GameObjects (Selectable + XRPromeonInteractable +
+        // BoneSceneNodeMarker + SceneNode are added programmatically by the builder). Their [Inject]
+        // methods have not fired yet — wire DI deps now so they are functional immediately.
+        if (_resolver != null) _resolver.InjectGameObject(boneRenderer.gameObject);
     }
 
     private Transform FindBone(SkinnedMeshRenderer smr, string boneName)

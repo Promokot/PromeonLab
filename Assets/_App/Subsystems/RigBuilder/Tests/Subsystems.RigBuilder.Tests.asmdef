@@ -1,6 +1,6 @@
 {
     "name": "Subsystems.RigBuilder.Tests",
-    "references": ["Subsystems.RigBuilder", "Subsystems.SceneComposition", "QuickOutline", "_Shared"],
+    "references": ["Subsystems.RigBuilder", "Subsystems.SceneComposition", "Subsystems.VrInteraction", "QuickOutline", "_Shared", "Unity.XR.Interaction.Toolkit"],
     "includePlatforms": ["Editor"],
     "optionalUnityReferences": ["TestAssemblies"],
     "autoReferenced": false

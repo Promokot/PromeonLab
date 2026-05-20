@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using VContainer;
 
 [AddComponentMenu("PromeonLab/Promeon Proxy Rig Builder")]
 public class PromeonProxyRigBuilder : MonoBehaviour
@@ -9,6 +10,8 @@ public class PromeonProxyRigBuilder : MonoBehaviour
     [SerializeField] private bool     _useConvexCollider        = true;
     [SerializeField] private Color    _boneOutlineColorDefault  = Color.white;
     [SerializeField] private Color    _boneOutlineColorSelected = new Color(1f, 0.5f, 0f);
+    [SerializeField] private Collider _rootCollider;
+
     private Transform[] _transforms;
     private string      _rigNodeId;
     private EventBus    _eventBus;
@@ -20,7 +23,22 @@ public class PromeonProxyRigBuilder : MonoBehaviour
 
     public IReadOnlyList<GameObject> ProxyGOs => _proxyGOs;
 
-    void Awake()     { if (_transforms != null && _transforms.Length > 0) Rebuild(); }
+    void Awake()
+    {
+        // No automatic Rebuild — proxies are baked into the prefab.
+        // OnEnable handles re-population of _proxyGOs from baked children.
+    }
+
+    void OnEnable()
+    {
+        if (_proxyGOs.Count > 0) return;
+        var proxyRoot = transform.Find("ProxyRig");
+        if (proxyRoot == null) return;
+        _proxyRoot = proxyRoot;
+        foreach (var marker in proxyRoot.GetComponentsInChildren<BoneSceneNodeMarker>(includeInactive: true))
+            _proxyGOs.Add(marker.gameObject);
+    }
+
     void OnDestroy()
     {
         if (_eventBus != null) _eventBus.Unsubscribe<SelectionChangedEvent>(OnSelectionChanged);
@@ -28,16 +46,19 @@ public class PromeonProxyRigBuilder : MonoBehaviour
         DestroyBoneGOs();
     }
 
-    public void SetTransforms(Transform[] transforms) => _transforms   = transforms;
-    public void SetMaterial(Material material)        => _boneMaterial = material;
-    public void SetRigNodeId(string rigNodeId) => _rigNodeId = rigNodeId;
-    public void SetEventBus(EventBus bus)
+    [Inject]
+    public void Construct(EventBus bus)
     {
         if (_eventBus == bus) return;
         if (_eventBus != null) _eventBus.Unsubscribe<SelectionChangedEvent>(OnSelectionChanged);
         _eventBus = bus;
         if (_eventBus != null) _eventBus.Subscribe<SelectionChangedEvent>(OnSelectionChanged);
     }
+
+    public void SetTransforms(Transform[] transforms) => _transforms   = transforms;
+    public void SetMaterial(Material material)        => _boneMaterial = material;
+    public void SetRigNodeId(string rigNodeId)        => _rigNodeId    = rigNodeId; // kept for backwards compatibility; ignored at bake time
+    public void SetRootCollider(Collider rootCollider) => _rootCollider = rootCollider;
 
     public void Rebuild()
     {
@@ -72,6 +93,7 @@ public class PromeonProxyRigBuilder : MonoBehaviour
             var col     = go.GetComponent<Collider>();
             if (col     != null) col.enabled     = enabled;
         }
+        if (_rootCollider != null) _rootCollider.enabled = !enabled;
     }
 
     private void OnSelectionChanged(SelectionChangedEvent evt)
@@ -136,14 +158,10 @@ public class PromeonProxyRigBuilder : MonoBehaviour
         Mesh mesh;
         if (children.Count > 0)
         {
-            // Build one combined mesh that fans a diamond from the bone toward every child.
             mesh = BuildCombinedDiamondMesh(bone, children);
         }
         else
         {
-            // Terminal bone: inherit direction from the parent→bone vector (continue along the chain),
-            // size at half the previous bone's length so the chain tapers visually to its end
-            // and stays smaller than the bone preceding it.
             var worldDir    = bone.position - bone.parent.position;
             float parentLen = Mathf.Max(worldDir.magnitude, 0.0001f);
             float length    = parentLen * 0.5f;
@@ -162,14 +180,19 @@ public class PromeonProxyRigBuilder : MonoBehaviour
         AddMeshAndOutline(proxyGo, mesh);
         AddCollider(proxyGo, mesh);
 
-        var nsRig = string.IsNullOrEmpty(_rigNodeId) ? "rig" : _rigNodeId;
+        // SceneNode + bone marker — runtime SceneGraph rewrites NodeId into "bone:{rigId}:{boneName}".
         var sceneNode = proxyGo.AddComponent<SceneNode>();
-        sceneNode.Init($"bone:{nsRig}:{bone.name}", default, bone.name);
+        sceneNode.Init(bone.name, default, bone.name);
+        proxyGo.AddComponent<BoneSceneNodeMarker>();
+
+        // Interaction components — DI wired by IObjectResolver.InjectGameObject at spawn time.
+        // Colliders auto-discover in XRPromeonInteractable.Awake (own GO only by default).
+        proxyGo.AddComponent<Selectable>();
+        proxyGo.AddComponent<XRPromeonInteractable>();
 
         _proxyGOs.Add(proxyGo);
 
-        // Clean up stale followers that may have survived a domain reload (their _proxy is serialized
-        // but the proxy GameObject is runtime-created and gone, so they would otherwise race-write the bone).
+        // Clean up stale followers that may have survived a domain reload.
         foreach (var stale in bone.GetComponents<BoneFollower>())
             DestroyObj(stale);
 

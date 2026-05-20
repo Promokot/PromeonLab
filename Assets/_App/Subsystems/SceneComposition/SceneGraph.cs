@@ -3,25 +3,27 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
 public class SceneGraph : ISceneGraph, IStartable, IDisposable
 {
-    private readonly EventBus             _bus;
-    private readonly IAssetRegistry       _registry;
-    private readonly IInteractableFactory _factory;
-    private readonly AppStorage           _storage;
-    private readonly Dictionary<string, SceneNode> _nodes = new();
+    private readonly EventBus        _bus;
+    private readonly IAssetRegistry  _registry;
+    private readonly IObjectResolver _resolver;
+    private readonly AppStorage      _storage;
+    private readonly Dictionary<string, SceneNode> _nodes          = new();
+    private readonly Dictionary<string, SceneNode> _transientNodes = new();
 
     private Transform _spawnedRoot;
 
     public IReadOnlyDictionary<string, SceneNode> Nodes => _nodes;
 
-    public SceneGraph(EventBus bus, IAssetRegistry registry, IInteractableFactory factory, AppStorage storage)
+    public SceneGraph(EventBus bus, IAssetRegistry registry, IObjectResolver resolver, AppStorage storage)
     {
         _bus      = bus;
         _registry = registry;
-        _factory  = factory;
+        _resolver = resolver;
         _storage  = storage;
     }
 
@@ -39,6 +41,7 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
     {
         _bus.Unsubscribe<SceneOpenedEvent>(OnSceneOpened);
         _nodes.Clear();
+        _transientNodes.Clear();
         if (_spawnedRoot != null)
             UnityEngine.Object.Destroy(_spawnedRoot.gameObject);
     }
@@ -60,10 +63,30 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
         _bus.Publish(new SceneModifiedEvent());
     }
 
-    public SceneNode GetNode(string nodeId) =>
-        _nodes.TryGetValue(nodeId, out var n) ? n : null;
+    public SceneNode GetNode(string nodeId)
+    {
+        if (string.IsNullOrEmpty(nodeId)) return null;
+        if (_nodes.TryGetValue(nodeId, out var n) && n != null) return n;
+        if (_transientNodes.TryGetValue(nodeId, out var t))
+        {
+            if (t == null)
+            {
+                _transientNodes.Remove(nodeId);
+                return null;
+            }
+            return t;
+        }
+        return null;
+    }
 
     GameObject ISceneGraph.GetNode(string nodeId) => GetNode(nodeId)?.gameObject;
+
+    public void AddTransientNode(SceneNode sn)
+    {
+        if (sn == null || string.IsNullOrEmpty(sn.NodeId)) return;
+        _transientNodes[sn.NodeId] = sn;
+        // Intentionally no SceneModifiedEvent — outliner does not rebuild for bones.
+    }
 
     private SceneNode AddNodeInternal(GameObject go, string nodeId, AssetRef assetRef,
                                        string displayName, string parentId, bool isLoad)
@@ -73,12 +96,26 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
         node.Init(nodeId, assetRef, displayName);
         if (!string.IsNullOrEmpty(displayName)) go.name = displayName;
 
-        // Selectable wiring is done by SelectionInteractorFactory after SceneNode is added.
-        // See SelectionInteractorFactory.MakeInteractable — it looks up SceneNode at call time.
-
         _nodes[nodeId] = node;
+        RewriteBoneNodeIds(go, nodeId);
+
         if (!isLoad) _bus.Publish(new SceneModifiedEvent());
         return node;
+    }
+
+    /// Rewrites bake-time-relative bone NodeIds ("pelvis") into runtime composite form
+    /// ("bone:{rigNodeId}:pelvis") and registers each bone proxy in the transient-nodes dict.
+    private void RewriteBoneNodeIds(GameObject root, string rigNodeId)
+    {
+        var markers = root.GetComponentsInChildren<BoneSceneNodeMarker>(includeInactive: true);
+        foreach (var marker in markers)
+        {
+            var sn = marker.GetComponent<SceneNode>();
+            if (sn == null) continue;
+            var boneName = sn.NodeId;
+            sn.SetNodeId($"bone:{rigNodeId}:{boneName}");
+            AddTransientNode(sn);
+        }
     }
 
     private void OnSceneOpened(SceneOpenedEvent e) => _ = OnSceneOpenedAsync(e);
@@ -109,10 +146,9 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
                     Debug.LogWarning($"SceneGraph: SpawnAsync not implemented for {nd.AssetRef} (likely Imported/Saved before Spec B)");
                     continue;
                 }
-                // Order: spawn → graph adds (and SceneNode) → factory (Selectable links to SceneNode)
                 go.transform.localScale = nd.Scale;
                 AddNodeInternal(go, nd.NodeId, nd.AssetRef, nd.DisplayName, nd.ParentNodeId, isLoad: true);
-                _factory.MakeInteractable(go, asset.Capabilities);
+                _resolver.InjectGameObject(go);
             }
 
             foreach (var nd in data.Nodes)
@@ -135,6 +171,7 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
     private void ClearAll()
     {
         _nodes.Clear();
+        _transientNodes.Clear();
         if (_spawnedRoot != null)
         {
             foreach (Transform t in _spawnedRoot)
