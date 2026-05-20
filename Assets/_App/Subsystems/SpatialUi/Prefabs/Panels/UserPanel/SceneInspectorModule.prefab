@@ -30,7 +30,6 @@ RectTransform:
   m_Children:
   - {fileID: 4415931156896922669}
   - {fileID: 7274737982946546834}
-  - {fileID: 1364904362290623123}
   m_Father: {fileID: 4508681058809537717}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1408,7 +1407,7 @@ GameObject:
   - component: {fileID: 8089720664748933260}
   - component: {fileID: 8073368477806665898}
   m_Layer: 5
-  m_Name: ' Header (TMP)'
+  m_Name: header (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2347,7 +2346,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &850192696243214922
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2355,14 +2354,14 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1819805804081627484}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6896125978860442207}
   - {fileID: 6652997832692112115}
-  m_Father: {fileID: 625747688127546370}
+  m_Father: {fileID: 4508681058809537717}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -3804,7 +3803,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1364904362290623123
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3819,11 +3818,11 @@ RectTransform:
   m_Children:
   - {fileID: 3902789428512750843}
   - {fileID: 5937288630875991496}
-  m_Father: {fileID: 5457128500062113370}
+  m_Father: {fileID: 4508681058809537717}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 101.3, y: -210}
+  m_AnchoredPosition: {x: 192.31886, y: -396.9}
   m_SizeDelta: {x: 110, y: 29.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4130651710093078978
@@ -3891,7 +3890,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.52011395, g: 0.24894741, b: 0.24894741, a: 0.85}
+  m_Color: {r: 0.52011395, g: 0.24894741, b: 0.24894741, a: 0.9411765}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5908,6 +5907,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1364904362290623123}
+  - {fileID: 850192696243214922}
   - {fileID: 8461847725781534359}
   - {fileID: 2962931642541286793}
   - {fileID: 5457128500062113370}
@@ -5984,8 +5985,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Subsystems.SpatialUi::SceneInspectorView
   _emptyState: {fileID: 2158450120422665291}
   _content: {fileID: 27637979970900070}
-  _multiState: {fileID: 8186926765210728690}
-  _multiCountLabel: {fileID: 5184749970662623459}
   _nameField: {fileID: 3670757576625293382}
   _typeLabel: {fileID: 7033440259988391075}
   _posX: {fileID: 5952041859981951490}
@@ -5997,11 +5996,20 @@ MonoBehaviour:
   _scaleX: {fileID: 4143238397635839018}
   _scaleY: {fileID: 1352537195012146372}
   _scaleZ: {fileID: 2115687170982024560}
+  _boneState: {fileID: 4634047552398824860}
+  _boneNameLabel: {fileID: 6767392306433210868}
+  _boneParentRigLabel: {fileID: 4087387360520057123}
+  _bonePosX: {fileID: 8992959977100612997}
+  _bonePosY: {fileID: 810262839039828413}
+  _bonePosZ: {fileID: 7753187009273383537}
+  _boneRotX: {fileID: 7757599839067790593}
+  _boneRotY: {fileID: 1232840368090573065}
+  _boneRotZ: {fileID: 3191775622876417385}
+  _boneScaleX: {fileID: 3517081709291064057}
+  _boneScaleY: {fileID: 6588963992723127365}
+  _boneScaleZ: {fileID: 3019808633125773804}
+  _showBonesToggle: {fileID: 2457047226637056593}
   _deleteButton: {fileID: 4130651710093078978}
-  _boneState: {fileID: 0}
-  _boneNameLabel: {fileID: 0}
-  _boneParentRigLabel: {fileID: 0}
-  _showBonesToggle: {fileID: 0}
 --- !u!1 &4634047552398824860
 GameObject:
   m_ObjectHideFlags: 0
@@ -6034,7 +6042,6 @@ RectTransform:
   - {fileID: 8659143957620597671}
   - {fileID: 86917397974551266}
   - {fileID: 4268015100463500318}
-  - {fileID: 850192696243214922}
   m_Father: {fileID: 4508681058809537717}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}

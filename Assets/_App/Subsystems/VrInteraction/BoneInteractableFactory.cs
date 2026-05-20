@@ -1,11 +1,13 @@
+using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
 public class BoneInteractableFactory : IBoneInteractableFactory
 {
-    private readonly ISelectionManager _selectionManager;
-    private readonly IObjectResolver   _resolver;
-    private GizmoController            _gizmoCached;
+    private readonly ISelectionManager                _selectionManager;
+    private readonly IObjectResolver                  _resolver;
+    private readonly Dictionary<string, SceneNode>    _bonesByNodeId = new();
+    private GizmoController                           _gizmoCached;
 
     public BoneInteractableFactory(ISelectionManager selectionManager, IObjectResolver resolver)
     {
@@ -23,12 +25,28 @@ public class BoneInteractableFactory : IBoneInteractableFactory
         var existing = proxyGo.GetComponents<Collider>();
 
         var sel = proxyGo.GetComponent<Selectable>() ?? proxyGo.AddComponent<Selectable>();
-        if (sn != null) sel.Init(sn);
+        if (sn != null)
+        {
+            sel.Init(sn);
+            _bonesByNodeId[sn.NodeId] = sn;
+        }
 
         _gizmoCached ??= _resolver.Resolve<GizmoController>();
 
         var xri = proxyGo.GetComponent<XRPromeonInteractable>() ?? proxyGo.AddComponent<XRPromeonInteractable>();
         xri.RegisterColliders(existing);
         xri.Construct(_selectionManager, _gizmoCached);
+    }
+
+    public Transform GetBoneTransform(string nodeId)
+    {
+        if (string.IsNullOrEmpty(nodeId)) return null;
+        if (!_bonesByNodeId.TryGetValue(nodeId, out var sn) || sn == null)
+        {
+            // Stale entry (proxy destroyed on Rebuild) — clean up lazily.
+            _bonesByNodeId.Remove(nodeId);
+            return null;
+        }
+        return sn.transform;
     }
 }

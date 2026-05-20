@@ -7,8 +7,6 @@ public class SceneInspectorView : MonoBehaviour
 {
     [SerializeField] private GameObject     _emptyState;
     [SerializeField] private GameObject     _content;
-    [SerializeField] private GameObject     _multiState;
-    [SerializeField] private TMP_Text       _multiCountLabel;
     [SerializeField] private TMP_InputField _nameField;
     [SerializeField] private TMP_Text       _typeLabel;
     [SerializeField] private TMP_Text       _posX;
@@ -20,23 +18,39 @@ public class SceneInspectorView : MonoBehaviour
     [SerializeField] private TMP_Text       _scaleX;
     [SerializeField] private TMP_Text       _scaleY;
     [SerializeField] private TMP_Text       _scaleZ;
-    [SerializeField] private Button         _deleteButton;
+
     [SerializeField] private GameObject     _boneState;
     [SerializeField] private TMP_Text       _boneNameLabel;
     [SerializeField] private TMP_Text       _boneParentRigLabel;
-    [SerializeField] private Toggle         _showBonesToggle;
+    [SerializeField] private TMP_Text       _bonePosX;
+    [SerializeField] private TMP_Text       _bonePosY;
+    [SerializeField] private TMP_Text       _bonePosZ;
+    [SerializeField] private TMP_Text       _boneRotX;
+    [SerializeField] private TMP_Text       _boneRotY;
+    [SerializeField] private TMP_Text       _boneRotZ;
+    [SerializeField] private TMP_Text       _boneScaleX;
+    [SerializeField] private TMP_Text       _boneScaleY;
+    [SerializeField] private TMP_Text       _boneScaleZ;
 
-    private EventBus          _bus;
-    private SceneGraph        _graph;
-    private ISelectionManager _selection;
-    private SceneNode         _bound;
+    [SerializeField] private Toggle         _showBonesToggle;
+    [SerializeField] private Button         _deleteButton;
+
+    private EventBus                 _bus;
+    private SceneGraph               _graph;
+    private ISelectionManager        _selection;
+    private IBoneInteractableFactory _boneFactory;
+
+    private SceneNode _bound;          // currently selected rig/object
+    private Transform _boneTransform;  // currently selected bone proxy transform
+    private string    _boneRigId;      // parent rig node id (when bone selected)
 
     [Inject]
-    public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection)
+    public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection, IBoneInteractableFactory boneFactory)
     {
-        _bus       = bus;
-        _graph     = graph;
-        _selection = selection;
+        _bus         = bus;
+        _graph       = graph;
+        _selection   = selection;
+        _boneFactory = boneFactory;
     }
 
     private void OnEnable()
@@ -48,8 +62,7 @@ public class SceneInspectorView : MonoBehaviour
             _nameField.onValueChanged.AddListener(OnNameLiveEdit);
             _nameField.onEndEdit.AddListener(OnNameCommit);
         }
-        if (_deleteButton != null)
-            _deleteButton.onClick.AddListener(OnDeleteClicked);
+        if (_deleteButton != null)    _deleteButton.onClick.AddListener(OnDeleteClicked);
         if (_showBonesToggle != null) _showBonesToggle.onValueChanged.AddListener(OnShowBonesToggleChanged);
         Refresh();
     }
@@ -63,57 +76,71 @@ public class SceneInspectorView : MonoBehaviour
             _nameField.onValueChanged.RemoveListener(OnNameLiveEdit);
             _nameField.onEndEdit.RemoveListener(OnNameCommit);
         }
-        if (_deleteButton != null)
-            _deleteButton.onClick.RemoveListener(OnDeleteClicked);
+        if (_deleteButton != null)    _deleteButton.onClick.RemoveListener(OnDeleteClicked);
         if (_showBonesToggle != null) _showBonesToggle.onValueChanged.RemoveListener(OnShowBonesToggleChanged);
     }
 
     private void OnSelectionChanged(SelectionChangedEvent _) => Refresh();
 
-    private enum InspectorState { Empty, Single, Multi, Bone }
+    private enum InspectorState { Empty, Single, Bone }
 
     private void Refresh()
     {
         if (_selection == null || _graph == null) return;
 
-        var count    = _selection.SelectedIds?.Count ?? 0;
         var activeId = _selection.ActiveId;
-        var state    = count == 0                                ? InspectorState.Empty
-                     : count > 1                                 ? InspectorState.Multi
-                     : (activeId != null && activeId.StartsWith("bone:")) ? InspectorState.Bone
+        var state    = string.IsNullOrEmpty(activeId)            ? InspectorState.Empty
+                     : activeId.StartsWith("bone:")              ? InspectorState.Bone
                      :                                             InspectorState.Single;
 
         if (_emptyState != null) _emptyState.SetActive(state == InspectorState.Empty);
         if (_content    != null) _content   .SetActive(state == InspectorState.Single);
-        if (_multiState != null) _multiState.SetActive(state == InspectorState.Multi);
         if (_boneState  != null) _boneState .SetActive(state == InspectorState.Bone);
 
-        if (state == InspectorState.Multi && _multiCountLabel != null)
-            _multiCountLabel.text = $"Multiple Objects Selected ({count})";
+        _bound         = null;
+        _boneTransform = null;
+        _boneRigId     = null;
 
-        if (state == InspectorState.Bone)
+        PromeonInteractableRigBuilder rig = null;
+
+        if (state == InspectorState.Single)
         {
-            RefreshBoneState(activeId);
-            _bound = null;
-            return;
+            _bound = _graph.GetNode(activeId);
+            if (_bound != null)
+            {
+                BindSingle(_bound);
+                rig = _bound.GetComponentInChildren<PromeonInteractableRigBuilder>(true);
+            }
+        }
+        else if (state == InspectorState.Bone)
+        {
+            BindBone(activeId);
+            if (!string.IsNullOrEmpty(_boneRigId))
+            {
+                var rigNode = _graph.GetNode(_boneRigId);
+                if (rigNode != null) rig = rigNode.GetComponentInChildren<PromeonInteractableRigBuilder>(true);
+            }
         }
 
-        if (state != InspectorState.Single)
+        // Delete: only when a normal (non-bone) node is selected.
+        if (_deleteButton != null) _deleteButton.gameObject.SetActive(state == InspectorState.Single && _bound != null);
+
+        // ShowBones: visible when we can resolve a rig (Single rig OR Bone with known parent rig).
+        if (_showBonesToggle != null)
         {
-            _bound = null;
-            if (_showBonesToggle != null) _showBonesToggle.gameObject.SetActive(false);
-            return;
+            _showBonesToggle.gameObject.SetActive(rig != null);
+            if (rig != null) _showBonesToggle.SetIsOnWithoutNotify(AreBonesInteractive(rig));
         }
+    }
 
-        _bound = _graph.GetNode(_selection.ActiveId);
-        if (_bound == null) return;
+    private void BindSingle(SceneNode node)
+    {
+        if (_nameField != null) _nameField.SetTextWithoutNotify(node.DisplayName);
+        if (_typeLabel != null) _typeLabel.text = $"Type: {node.AssetRef}";
 
-        if (_nameField != null) _nameField.SetTextWithoutNotify(_bound.DisplayName);
-        if (_typeLabel != null) _typeLabel.text = $"Type: {_bound.AssetRef}";
-
-        var pos   = _bound.transform.position;
-        var rot   = _bound.transform.rotation.eulerAngles;
-        var scale = _bound.transform.localScale;
+        var pos   = node.transform.position;
+        var rot   = node.transform.rotation.eulerAngles;
+        var scale = node.transform.localScale;
 
         if (_posX != null) _posX.text = pos.x.ToString("F2");
         if (_posY != null) _posY.text = pos.y.ToString("F2");
@@ -126,33 +153,41 @@ public class SceneInspectorView : MonoBehaviour
         if (_scaleX != null) _scaleX.text = scale.x.ToString("F2");
         if (_scaleY != null) _scaleY.text = scale.y.ToString("F2");
         if (_scaleZ != null) _scaleZ.text = scale.z.ToString("F2");
-
-        // Show Bones toggle is visible only when the selected node carries a rig builder.
-        if (_showBonesToggle != null)
-        {
-            var rig = _bound.GetComponentInChildren<PromeonInteractableRigBuilder>(true);
-            _showBonesToggle.gameObject.SetActive(rig != null);
-            _showBonesToggle.SetIsOnWithoutNotify(rig != null && AreBonesInteractive(rig));
-        }
     }
 
-    private void RefreshBoneState(string boneNodeId)
+    private void BindBone(string boneNodeId)
     {
         // NodeId format: "bone:{rigNodeId}:{boneName}"
-        var parts = boneNodeId.Split(':');
+        var parts     = boneNodeId.Split(':');
         var boneName  = parts.Length >= 3 ? parts[2] : boneNodeId;
-        var rigNodeId = parts.Length >= 2 ? parts[1] : "";
+        _boneRigId    = parts.Length >= 2 ? parts[1] : "";
 
-        if (_boneNameLabel != null)
-            _boneNameLabel.text = $"Bone: {boneName}";
+        if (_boneNameLabel != null) _boneNameLabel.text = $"Bone: {boneName}";
 
         if (_boneParentRigLabel != null)
         {
-            var rigNode = _graph.GetNode(rigNodeId);
-            _boneParentRigLabel.text = rigNode != null ? $"Rig: {rigNode.DisplayName}" : $"Rig: {rigNodeId}";
+            var rigNode = _graph.GetNode(_boneRigId);
+            _boneParentRigLabel.text = rigNode != null ? $"Rig: {rigNode.DisplayName}" : $"Rig: {_boneRigId}";
         }
 
-        if (_showBonesToggle != null) _showBonesToggle.gameObject.SetActive(false);
+        _boneTransform = _boneFactory != null ? _boneFactory.GetBoneTransform(boneNodeId) : null;
+        if (_boneTransform == null) return;
+
+        var pos   = _boneTransform.position;
+        var rot   = _boneTransform.rotation.eulerAngles;
+        var scale = _boneTransform.localScale;
+
+        if (_bonePosX != null) _bonePosX.text = pos.x.ToString("F2");
+        if (_bonePosY != null) _bonePosY.text = pos.y.ToString("F2");
+        if (_bonePosZ != null) _bonePosZ.text = pos.z.ToString("F2");
+
+        if (_boneRotX != null) _boneRotX.text = rot.x.ToString("F1");
+        if (_boneRotY != null) _boneRotY.text = rot.y.ToString("F1");
+        if (_boneRotZ != null) _boneRotZ.text = rot.z.ToString("F1");
+
+        if (_boneScaleX != null) _boneScaleX.text = scale.x.ToString("F2");
+        if (_boneScaleY != null) _boneScaleY.text = scale.y.ToString("F2");
+        if (_boneScaleZ != null) _boneScaleZ.text = scale.z.ToString("F2");
     }
 
     private static bool AreBonesInteractive(PromeonInteractableRigBuilder rig)
@@ -205,9 +240,31 @@ public class SceneInspectorView : MonoBehaviour
 
     private void OnShowBonesToggleChanged(bool value)
     {
-        if (_bound == null) return;
-        var rig = _bound.GetComponentInChildren<PromeonInteractableRigBuilder>(true);
+        PromeonInteractableRigBuilder rig = null;
+        string                        rigNodeId = null;
+
+        if (_bound != null)
+        {
+            rig       = _bound.GetComponentInChildren<PromeonInteractableRigBuilder>(true);
+            rigNodeId = _bound.NodeId;
+        }
+        else if (!string.IsNullOrEmpty(_boneRigId))
+        {
+            var rigNode = _graph.GetNode(_boneRigId);
+            if (rigNode != null)
+            {
+                rig       = rigNode.GetComponentInChildren<PromeonInteractableRigBuilder>(true);
+                rigNodeId = rigNode.NodeId;
+            }
+        }
+
         if (rig == null) return;
+
         rig.SetBonesInteractive(value);
+
+        // If bones get hidden while a bone is the active selection, jump the selection up to the rig
+        // so the user keeps an inspector context and the toggle reflects the now-false state.
+        if (!value && _boneTransform != null && !string.IsNullOrEmpty(rigNodeId))
+            _selection?.Select(rigNodeId);
     }
 }
