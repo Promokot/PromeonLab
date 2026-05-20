@@ -1339,6 +1339,7 @@ GameObject:
   - component: {fileID: 1423720157734124355}
   - component: {fileID: 5742785142592942730}
   - component: {fileID: 6104235177687467112}
+  - component: {fileID: 5093909106551622923}
   m_Layer: 0
   m_Name: Crush Dummy
   m_TagString: Untagged
@@ -1447,6 +1448,23 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 0.35322428, z: 0.14124526}
   m_Center: {x: 0, y: 1.2366445, z: -0.08609777}
+--- !u!114 &5093909106551622923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5583578640569777744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbc3551a634a9fd4a99307ed5569274c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Subsystems.RigBuilder::PromeonInteractableRigBuilder
+  _boneMaterial: {fileID: 2100000, guid: ad2591d1028f32d4a8bae13135f480f7, type: 2}
+  _boneWidth: 0.06
+  _useConvexCollider: 1
+  _boneOutlineColorDefault: {r: 1, g: 1, b: 1, a: 1}
+  _boneOutlineColorSelected: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!1 &5635273748730653280
 GameObject:
   m_ObjectHideFlags: 0
