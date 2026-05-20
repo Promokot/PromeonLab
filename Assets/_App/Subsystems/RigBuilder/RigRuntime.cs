@@ -6,6 +6,7 @@ using VContainer;
 public class RigRuntime : MonoBehaviour, IRigRuntime
 {
     [SerializeField] private GameObject _boneProxyPrefab;
+    [SerializeField] private Material   _boneMaterial;
 
     private ISelectionManager     _selectionManager;
     private readonly List<BoneProxy> _proxies = new();
@@ -41,6 +42,7 @@ public class RigRuntime : MonoBehaviour, IRigRuntime
 
         var boneRenderer = animator.gameObject.GetComponent<PromeonInteractableRigBuilder>();
         if (boneRenderer == null) boneRenderer = animator.gameObject.AddComponent<PromeonInteractableRigBuilder>();
+        if (_boneMaterial != null) boneRenderer.SetMaterial(_boneMaterial);
         var boneTransforms = new List<Transform>();
         foreach (var bone in definition.Bones)
         {

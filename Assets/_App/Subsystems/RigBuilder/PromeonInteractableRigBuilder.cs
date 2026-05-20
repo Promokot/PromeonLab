@@ -16,10 +16,12 @@ public class PromeonInteractableRigBuilder : MonoBehaviour
     private Transform _proxyRoot;
     private Mesh _boneMesh;
 
-    void Awake()    => Rebuild();
+    void Awake()     { if (_transforms != null && _transforms.Length > 0) Rebuild(); }
     void OnDestroy() => DestroyBoneGOs();
 
     public void SetTransforms(Transform[] transforms) => _transforms = transforms;
+
+    public void SetMaterial(Material material) => _boneMaterial = material;
 
     public void Rebuild()
     {
