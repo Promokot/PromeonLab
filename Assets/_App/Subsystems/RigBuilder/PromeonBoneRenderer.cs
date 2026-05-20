@@ -45,4 +45,23 @@ public class PromeonBoneRenderer : BoneRenderer
         mesh.RecalculateNormals();
         return mesh;
     }
+
+    public static (Transform start, Transform end)[] ExtractPairs(Transform[] transforms)
+    {
+        var set    = new HashSet<Transform>(transforms);
+        set.Remove(null);
+        var result = new List<(Transform, Transform)>();
+
+        foreach (var t in transforms)
+        {
+            if (t == null) continue;
+            for (int i = 0; i < t.childCount; i++)
+            {
+                var child = t.GetChild(i);
+                if (set.Contains(child))
+                    result.Add((t, child));
+            }
+        }
+        return result.ToArray();
+    }
 }
