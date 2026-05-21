@@ -23,7 +23,25 @@ public class GizmoHierarchy : MonoBehaviour
     [SerializeField] private Transform _scaleY;
     [SerializeField] private Transform _scaleZ;
 
+    [Header("Highlight")]
+    [SerializeField] private Color _highlightColor = new Color(1f, 0.85f, 0.1f, 1f);
+
     private readonly Dictionary<Transform, TransformState> _defaultStates = new();
+
+    // На GRIP DOWN сохраняем оригинальные sharedMaterials активной ручки, подменяем первый
+    // (основной) на тонированный инстанс. Outline-проходы QuickOutline не трогаем — они идут
+    // следующими в массиве. На release возвращаем оригиналы и уничтожаем созданные инстансы.
+    private readonly List<HighlightedRenderer> _highlighted = new();
+    private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor"); // URP Lit
+    private static readonly int ColorId     = Shader.PropertyToID("_Color");     // legacy / custom
+    private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
+
+    private struct HighlightedRenderer
+    {
+        public Renderer  Renderer;
+        public Material[] OriginalSharedMaterials;
+        public Material   TintedInstance;
+    }
 
     private void Awake() => CacheInitialState();
 
@@ -37,6 +55,9 @@ public class GizmoHierarchy : MonoBehaviour
     public void OnHandleGrabbed(GizmoHandle handle)
     {
         if (handle == null) return;
+        // Highlight снимается с рендереров ДО reparenting — иначе после SetAsParent в дочерние
+        // войдут другие оси и они тоже подсветятся жёлтым.
+        ApplyHighlight(handle);
         switch (handle.Kind)
         {
             case HandleKind.MoveAxis:
@@ -51,8 +72,53 @@ public class GizmoHierarchy : MonoBehaviour
 
     public void OnHandleReleased(GizmoMode currentMode)
     {
+        ClearHighlight();
         ResetHierarchy();
         ShowMode(currentMode);
+    }
+
+    private void ApplyHighlight(GizmoHandle handle)
+    {
+        var renderers = handle.GetComponentsInChildren<Renderer>(includeInactive: false);
+        foreach (var r in renderers)
+        {
+            if (r == null) continue;
+            var originals = r.sharedMaterials;
+            if (originals == null || originals.Length == 0 || originals[0] == null) continue;
+
+            var tinted = new Material(originals[0]) { name = originals[0].name + " (Highlight)" };
+            // Перебрать известные имена color-property и оверрайднуть те, что есть у шейдера.
+            // Покрывает URP Lit (_BaseColor), legacy (_Color), и кастомные шейдеры с _Color.
+            if (tinted.HasProperty(BaseColorId))     tinted.SetColor(BaseColorId, _highlightColor);
+            if (tinted.HasProperty(ColorId))         tinted.SetColor(ColorId,     _highlightColor);
+            if (tinted.HasProperty(EmissionColorId))
+            {
+                tinted.EnableKeyword("_EMISSION");
+                tinted.SetColor(EmissionColorId, _highlightColor * 0.5f);
+            }
+
+            var newArr = new Material[originals.Length];
+            newArr[0] = tinted;
+            for (int i = 1; i < originals.Length; i++) newArr[i] = originals[i];
+            r.sharedMaterials = newArr;
+
+            _highlighted.Add(new HighlightedRenderer
+            {
+                Renderer = r,
+                OriginalSharedMaterials = originals,
+                TintedInstance = tinted,
+            });
+        }
+    }
+
+    private void ClearHighlight()
+    {
+        foreach (var h in _highlighted)
+        {
+            if (h.Renderer != null) h.Renderer.sharedMaterials = h.OriginalSharedMaterials;
+            if (h.TintedInstance != null) Destroy(h.TintedInstance);
+        }
+        _highlighted.Clear();
     }
 
     public void ResetHierarchy()

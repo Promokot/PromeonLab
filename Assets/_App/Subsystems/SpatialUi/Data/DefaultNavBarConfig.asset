@@ -29,7 +29,7 @@ MonoBehaviour:
     VisibleModes: 01000000
     ExclusiveGroup: center
   - Id: rigging
-    VisibleModes: 0100000004000000
+    VisibleModes: 
     ExclusiveGroup: 
   - Id: gizmo
     VisibleModes: 0100000004000000
