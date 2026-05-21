@@ -38,17 +38,19 @@ public class SceneInspectorView : MonoBehaviour
     private EventBus          _bus;
     private SceneGraph        _graph;
     private ISelectionManager _selection;
+    private IAssetRegistry    _registry;
 
     private SceneNode _bound;          // currently selected rig/object
     private Transform _boneTransform;  // currently selected bone proxy transform
     private string    _boneRigId;      // parent rig node id (when bone selected)
 
     [Inject]
-    public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection)
+    public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection, IAssetRegistry registry)
     {
         _bus       = bus;
         _graph     = graph;
         _selection = selection;
+        _registry  = registry;
     }
 
     private void OnEnable()
@@ -134,7 +136,13 @@ public class SceneInspectorView : MonoBehaviour
     private void BindSingle(SceneNode node)
     {
         if (_nameField != null) _nameField.SetTextWithoutNotify(node.DisplayName);
-        if (_typeLabel != null) _typeLabel.text = $"Type: {node.AssetRef}";
+        if (_typeLabel != null)
+        {
+            var asset = _registry?.Find(node.AssetRef);
+            _typeLabel.text = asset != null
+                ? $"Type: {asset.Type}"
+                : $"Type: {node.AssetRef.Source}";
+        }
 
         var pos   = node.transform.position;
         var rot   = node.transform.rotation.eulerAngles;
