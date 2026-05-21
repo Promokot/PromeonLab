@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using VContainer;
 
@@ -103,6 +105,22 @@ public class PromeonProxyRigBuilder : MonoBehaviour
             if (enabled && !go.activeSelf) go.SetActive(true);
             var mr      = go.GetComponent<MeshRenderer>();
             if (mr      != null) mr.enabled      = enabled;
+
+            // Strip any baked-in / leftover outline materials BEFORE re-enabling Outline.
+            // QuickOutline.OnEnable appends outlineMask + outlineFill without checking for
+            // existing entries — duplicates accumulate across edit sessions or repeated toggles.
+            // Stacked outline materials caused stencil-write conflicts that hid the outline until
+            // a subsequent OnDisable/OnEnable cycle (triggered by clicking the bone) thinned them
+            // back down.
+            if (enabled && mr != null)
+            {
+                var current = mr.sharedMaterials;
+                var cleaned = current.Where(m => m == null ||
+                    (!m.name.StartsWith("OutlineMask") && !m.name.StartsWith("OutlineFill"))).ToArray();
+                if (cleaned.Length != current.Length)
+                    mr.materials = cleaned;
+            }
+
             var outline = go.GetComponent<Outline>();
             if (outline != null) outline.enabled = enabled;
             var col     = go.GetComponent<Collider>();
@@ -116,10 +134,26 @@ public class PromeonProxyRigBuilder : MonoBehaviour
         }
         if (_rootCollider != null) _rootCollider.enabled = !enabled;
 
-        // Direct color set per proxy — identical to what OnSelectionChanged → ApplyBoneOutlineColors
-        // does on first click. The coroutine variant (WaitForEndOfFrame) did not push the outline
-        // material through; calling it inline matches the click path exactly.
         if (enabled) ApplyBoneOutlineColors(null);
+
+        // Forced disable→enable cycle after one frame: the first OnEnable on a freshly toggled
+        // Outline did not light up the outline visually until an external event (click) nudged
+        // the XR render pipeline. A second toggle cycle, one frame later, reliably triggers it.
+        if (enabled && isActiveAndEnabled) StartCoroutine(BumpOutlineNextFrame());
+    }
+
+    private IEnumerator BumpOutlineNextFrame()
+    {
+        yield return null; // wait one full frame so the first enable cycle has rendered
+        foreach (var go in _proxyGOs)
+        {
+            if (go == null) continue;
+            var outline = go.GetComponent<Outline>();
+            if (outline == null) continue;
+            outline.enabled = false;
+            outline.enabled = true;
+        }
+        ApplyBoneOutlineColors(null);
     }
 
     /// Walks each proxy GO and re-creates its diamond mesh if the MeshFilter has lost its sharedMesh
