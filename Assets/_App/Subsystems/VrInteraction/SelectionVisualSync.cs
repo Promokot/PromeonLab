@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using VContainer.Unity;
 
 public class SelectionVisualSync : IStartable, IDisposable
@@ -18,17 +17,13 @@ public class SelectionVisualSync : IStartable, IDisposable
 
     private void OnSelectionChanged(SelectionChangedEvent e)
     {
-        var activeId = e.SelectedNodeId;
-        var set      = e.SelectedNodeIds == null ? new HashSet<string>() : new HashSet<string>(e.SelectedNodeIds);
         foreach (var pair in _graph.Nodes)
         {
             var sel = pair.Value.GetComponent<Selectable>();
             if (sel == null) continue;
-            var state = pair.Key == activeId
-                ? SelectionVisual.Active
-                : set.Contains(pair.Key) ? SelectionVisual.InSet
-                                         : SelectionVisual.None;
-            sel.SetVisualState(state);
+            sel.SetVisualState(pair.Key == e.SelectedNodeId
+                ? SelectionVisual.Selected
+                : SelectionVisual.None);
         }
     }
 }

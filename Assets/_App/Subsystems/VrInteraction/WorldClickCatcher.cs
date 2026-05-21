@@ -33,7 +33,7 @@ public class WorldClickCatcher : MonoBehaviour
 
         if (interactor.interactablesHovered.Count > 0) return;
 
-        _selectionManager.Clear();
+        _selectionManager.Select(null);
     }
 
     // NearFarInteractor implements IUIInteractor — TryGetCurrentUIRaycastResult is available directly.

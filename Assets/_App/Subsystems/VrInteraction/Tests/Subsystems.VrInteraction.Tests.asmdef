@@ -1,0 +1,7 @@
+{
+    "name": "Subsystems.VrInteraction.Tests",
+    "references": ["Subsystems.VrInteraction", "Subsystems.SceneComposition", "_Shared", "VContainer", "Unity.XR.Interaction.Toolkit", "Unity.InputSystem", "QuickOutline"],
+    "includePlatforms": ["Editor"],
+    "optionalUnityReferences": ["TestAssemblies"],
+    "autoReferenced": false
+}

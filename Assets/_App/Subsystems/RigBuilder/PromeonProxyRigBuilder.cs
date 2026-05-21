@@ -216,21 +216,18 @@ public class PromeonProxyRigBuilder : MonoBehaviour
 
     private void OnSelectionChanged(SelectionChangedEvent evt)
     {
-        ApplyBoneOutlineColors(evt.SelectedNodeIds);
+        ApplyBoneOutlineColors(evt.SelectedNodeId);
     }
 
-    private void ApplyBoneOutlineColors(string[] selectedIds)
+    private void ApplyBoneOutlineColors(string selectedId)
     {
-        var selected = selectedIds != null
-            ? new HashSet<string>(selectedIds)
-            : null;
         foreach (var go in _proxyGOs)
         {
             if (go == null) continue;
             var sn      = go.GetComponent<SceneNode>();
             var outline = go.GetComponent<Outline>();
             if (sn == null || outline == null) continue;
-            outline.OutlineColor = selected != null && selected.Contains(sn.NodeId)
+            outline.OutlineColor = sn.NodeId == selectedId
                 ? _boneOutlineColorSelected
                 : _boneOutlineColorDefault;
         }

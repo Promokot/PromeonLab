@@ -92,14 +92,12 @@ public class SceneOutlinerView : MonoBehaviour
     private void ApplyHighlight()
     {
         if (_rowsRoot == null || _selection == null) return;
-        var active = _selection.ActiveId;
-        var set    = new HashSet<string>(_selection.SelectedIds);
+        var selectedId = _selection.SelectedNodeId;
         foreach (var row in _rowsRoot.GetComponentsInChildren<OutlinerItem>())
         {
-            var state = row.NodeId == active ? SelectionVisual.Active
-                      : set.Contains(row.NodeId) ? SelectionVisual.InSet
-                                                 : SelectionVisual.None;
-            row.SetVisualState(state);
+            row.SetVisualState(row.NodeId == selectedId
+                ? SelectionVisual.Selected
+                : SelectionVisual.None);
         }
     }
 }

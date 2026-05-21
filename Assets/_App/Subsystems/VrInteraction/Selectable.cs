@@ -21,12 +21,7 @@ public class Selectable : MonoBehaviour
             case SelectionVisual.None:
                 _outline.enabled = false;
                 break;
-            case SelectionVisual.InSet:
-                _outline.enabled      = true;
-                _outline.OutlineColor = new Color(1f, 0.55f, 0f);
-                _outline.OutlineWidth = 4f;
-                break;
-            case SelectionVisual.Active:
+            case SelectionVisual.Selected:
                 _outline.enabled      = true;
                 _outline.OutlineColor = new Color(1f, 0.95f, 0.15f);
                 _outline.OutlineWidth = 6f;

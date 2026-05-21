@@ -438,6 +438,7 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects: []
   _panelRegistry: {fileID: 11400000, guid: a887d01d6cbad31468655994aa5adb01, type: 2}
+  _gizmoConfig: {fileID: 11400000, guid: ba9f00b526ca5664abcc429525a0ce13, type: 2}
 --- !u!1 &520393064
 GameObject:
   m_ObjectHideFlags: 0

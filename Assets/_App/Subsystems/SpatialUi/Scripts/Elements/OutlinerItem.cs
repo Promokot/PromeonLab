@@ -31,12 +31,9 @@ public class OutlinerItem : MonoBehaviour
     {
         if (_highlight == null) return;
         _highlight.enabled = state != SelectionVisual.None;
-        _highlight.color = state switch
-        {
-            SelectionVisual.Active => new Color(1f, 0.95f, 0.15f, 0.35f),
-            SelectionVisual.InSet  => new Color(1f, 0.55f,  0f,   0.25f),
-            _                      => Color.clear,
-        };
+        _highlight.color = state == SelectionVisual.Selected
+            ? new Color(1f, 0.95f, 0.15f, 0.35f)
+            : Color.clear;
     }
 
     public void SetLabel(string newName)

@@ -19,7 +19,7 @@ public class XRPromeonInteractable : XRBaseInteractable
     private IDragStrategy     _dragStrategy = new SingleDragStrategy();
     private SceneNode         _node;
 
-    private enum State { Idle, TriggerPressed, TriggerMove, GripRotate }
+    private enum State { Idle, TriggerPressed, TriggerRotate, GripMove }
     private State              _state;
     private NearFarInteractor  _locked;
     private NearFarInteractor  _lastHovering;
@@ -95,8 +95,8 @@ public class XRPromeonInteractable : XRBaseInteractable
                 if (ni.selectInput.ReadWasPerformedThisFrame() && IsObjectSelected())
                 {
                     Lock(ni);
-                    CaptureRotationOffset();
-                    _state = State.GripRotate;
+                    CapturePositionOffset();
+                    _state = State.GripMove;
                 }
                 break;
 
@@ -110,12 +110,12 @@ public class XRPromeonInteractable : XRBaseInteractable
                 }
                 if (Time.time - _pressTime > _tapWindow && IsObjectSelected())
                 {
-                    CapturePositionOffset();
-                    _state = State.TriggerMove;
+                    CaptureRotationOffset();
+                    _state = State.TriggerRotate;
                 }
                 break;
 
-            case State.TriggerMove:
+            case State.TriggerRotate:
                 if (_locked.activateInput.ReadWasCompletedThisFrame())
                 {
                     var pos = transform.position;
@@ -125,10 +125,10 @@ public class XRPromeonInteractable : XRBaseInteractable
                     _gizmoController.CommitTransform(transform, pos, rot, scl);
                     break;
                 }
-                ApplyMove();
+                ApplyRotate();
                 break;
 
-            case State.GripRotate:
+            case State.GripMove:
                 if (_locked.selectInput.ReadWasCompletedThisFrame())
                 {
                     var pos = transform.position;
@@ -138,7 +138,7 @@ public class XRPromeonInteractable : XRBaseInteractable
                     _gizmoController.CommitTransform(transform, pos, rot, scl);
                     break;
                 }
-                ApplyRotate();
+                ApplyMove();
                 break;
         }
     }
@@ -184,10 +184,7 @@ public class XRPromeonInteractable : XRBaseInteractable
     private bool IsObjectSelected()
     {
         if (_node == null || _selectionManager == null) return false;
-        var ids = _selectionManager.SelectedIds;
-        for (int i = 0; i < ids.Count; i++)
-            if (ids[i] == _node.NodeId) return true;
-        return false;
+        return _selectionManager.SelectedNodeId == _node.NodeId;
     }
 
     private void Lock(NearFarInteractor interactor) => _locked = interactor;

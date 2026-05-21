@@ -13,71 +13,46 @@ public class SelectionManagerTests
     }
 
     [Test]
-    public void Toggle_FirstCall_AddsAndSetsActive()
+    public void Select_SetsSelectedNodeId()
     {
-        _sut.Toggle("a");
-        Assert.AreEqual("a", _sut.ActiveId);
-        CollectionAssert.AreEqual(new[] { "a" }, _sut.SelectedIds);
+        _sut.Select("a");
+        Assert.AreEqual("a", _sut.SelectedNodeId);
     }
 
     [Test]
-    public void Toggle_SecondDifferent_AddsAndSetsActiveToSecond()
+    public void Select_ReplacesPrevious()
     {
-        _sut.Toggle("a");
-        _sut.Toggle("b");
-        Assert.AreEqual("b", _sut.ActiveId);
-        CollectionAssert.AreEqual(new[] { "a", "b" }, _sut.SelectedIds);
+        _sut.Select("a");
+        _sut.Select("b");
+        Assert.AreEqual("b", _sut.SelectedNodeId);
     }
 
     [Test]
-    public void Toggle_ExistingActive_RemovesAndActivatesLastRemaining()
+    public void Select_Null_Clears()
     {
-        _sut.Toggle("a");
-        _sut.Toggle("b");
-        _sut.Toggle("b");
-        Assert.AreEqual("a", _sut.ActiveId);
-        CollectionAssert.AreEqual(new[] { "a" }, _sut.SelectedIds);
+        _sut.Select("a");
+        _sut.Select(null);
+        Assert.IsNull(_sut.SelectedNodeId);
     }
 
     [Test]
-    public void Toggle_ExistingNonActive_RemovesKeepsActive()
-    {
-        _sut.Toggle("a");
-        _sut.Toggle("b");
-        _sut.Toggle("a");
-        Assert.AreEqual("b", _sut.ActiveId);
-        CollectionAssert.AreEqual(new[] { "b" }, _sut.SelectedIds);
-    }
-
-    [Test]
-    public void Clear_EmptiesSelectionAndActive()
-    {
-        _sut.Toggle("a");
-        _sut.Toggle("b");
-        _sut.Clear();
-        Assert.IsNull(_sut.ActiveId);
-        Assert.AreEqual(0, _sut.SelectedIds.Count);
-    }
-
-    [Test]
-    public void Select_ReplacesWholeSelectionWithSingle()
-    {
-        _sut.Toggle("a");
-        _sut.Toggle("b");
-        _sut.Select("c");
-        Assert.AreEqual("c", _sut.ActiveId);
-        CollectionAssert.AreEqual(new[] { "c" }, _sut.SelectedIds);
-    }
-
-    [Test]
-    public void Toggle_PublishesSelectionChangedEvent()
+    public void Select_PublishesSelectionChangedEvent()
     {
         SelectionChangedEvent received = default;
         bool fired = false;
         _bus.Subscribe<SelectionChangedEvent>(e => { received = e; fired = true; });
-        _sut.Toggle("a");
+        _sut.Select("a");
         Assert.IsTrue(fired);
         Assert.AreEqual("a", received.SelectedNodeId);
-        CollectionAssert.AreEqual(new[] { "a" }, received.SelectedNodeIds);
+    }
+
+    [Test]
+    public void Select_SameId_DoesNotRefire()
+    {
+        int count = 0;
+        _bus.Subscribe<SelectionChangedEvent>(_ => count++);
+        _sut.Select("a");
+        _sut.Select("a");
+        Assert.AreEqual(1, count);
     }
 }

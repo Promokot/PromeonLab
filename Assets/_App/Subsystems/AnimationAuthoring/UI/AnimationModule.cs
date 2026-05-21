@@ -117,7 +117,7 @@ public class AnimationModule : MonoBehaviour
 
     private void RefreshActiveNode()
     {
-        _activeNodeId = _selection?.ActiveId;
+        _activeNodeId = _selection?.SelectedNodeId;
         RefreshMarkers();
     }
 

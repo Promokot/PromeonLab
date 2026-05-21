@@ -5,10 +5,12 @@ using UnityEngine;
 public class SandboxSceneScope : LifetimeScope
 {
     [SerializeField] private PanelRegistry _panelRegistry;
+    [SerializeField] private GizmoConfig   _gizmoConfig;
 
     protected override void Configure(IContainerBuilder builder)
     {
         builder.RegisterInstance(_panelRegistry);
+        if (_gizmoConfig != null) builder.RegisterInstance(_gizmoConfig);
         builder.RegisterInstance(Camera.main);
         builder.Register<UiPanelManager>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SceneGraph>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
@@ -24,7 +26,7 @@ public class SandboxSceneScope : LifetimeScope
 
         var undo = Object.FindAnyObjectByType<UndoKeyHandler>(FindObjectsInactive.Include);
         if (undo != null)
-            builder.RegisterInstance(undo);
+            builder.RegisterBuildCallback(c => c.Inject(undo));
 
         var rigRuntime = Object.FindAnyObjectByType<RigRuntime>(FindObjectsInactive.Include);
         if (rigRuntime != null) builder.RegisterInstance(rigRuntime).AsImplementedInterfaces().AsSelf();
@@ -51,5 +53,13 @@ public class SandboxSceneScope : LifetimeScope
         var assetBrowser = Object.FindAnyObjectByType<AssetBrowserModule>(FindObjectsInactive.Include);
         if (assetBrowser != null)
             builder.RegisterBuildCallback(c => c.Inject(assetBrowser));
+
+        var gizmoActivator = Object.FindAnyObjectByType<GizmoActivator>(FindObjectsInactive.Include);
+        if (gizmoActivator != null)
+            builder.RegisterBuildCallback(c => c.Inject(gizmoActivator));
+
+        var gizmoToolsPanel = Object.FindAnyObjectByType<GizmoToolsPanel>(FindObjectsInactive.Include);
+        if (gizmoToolsPanel != null)
+            builder.RegisterBuildCallback(c => c.Inject(gizmoToolsPanel));
     }
 }

@@ -2,7 +2,7 @@ public struct SceneOpenedEvent       { public string SceneId; }
 public struct SceneModifiedEvent     { }
 public struct SceneClosedEvent       { }
 public struct AssetImportedEvent     { public string AssetId; }
-public struct SelectionChangedEvent  { public string SelectedNodeId; public string[] SelectedNodeIds; }
+public struct SelectionChangedEvent  { public string SelectedNodeId; }
 public struct NodeRenamedEvent       { public string NodeId; public string NewName; }
 public struct ModeChangedEvent       { public AppMode PreviousMode; public AppMode CurrentMode; }
 public struct FrameChangedEvent      { public int Frame; }
@@ -15,3 +15,8 @@ public struct PanelDetachedEvent { public string EntryId; }
 public struct PanelLinkedEvent   { public string EntryId; }
 public struct PanelClosedEvent   { public string EntryId; }
 public struct AnimationKeyframeChangedEvent { public string NodeId; }
+public struct GizmoToolsPanelOpenedEvent { }
+public struct GizmoToolsPanelClosedEvent { }
+public struct GizmoModeChangedEvent      { public GizmoMode Mode; }
+public struct GizmoDragStartedEvent      { public string TargetNodeId; }
+public struct GizmoDragEndedEvent        { public string TargetNodeId; }

@@ -88,7 +88,7 @@ public class SceneInspectorView : MonoBehaviour
     {
         if (_selection == null || _graph == null) return;
 
-        var activeId = _selection.ActiveId;
+        var activeId = _selection.SelectedNodeId;
         var state    = string.IsNullOrEmpty(activeId)            ? InspectorState.Empty
                      : activeId.StartsWith("bone:")              ? InspectorState.Bone
                      :                                             InspectorState.Single;
@@ -240,7 +240,7 @@ public class SceneInspectorView : MonoBehaviour
         if (_bound == null) return;
         var nodeId = _bound.NodeId;
         _bound = null;
-        _selection?.Clear();
+        _selection?.Select(null);
         _graph.RemoveNode(nodeId); // destroys GO, publishes SceneModifiedEvent → outliner rebuilds
     }
 
