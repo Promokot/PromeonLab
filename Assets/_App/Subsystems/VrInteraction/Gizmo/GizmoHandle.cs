@@ -27,7 +27,12 @@ public class GizmoHandle : XRBaseInteractable
         colliders.Clear();
         foreach (var c in GetComponents<Collider>())
             if (c != null && !colliders.Contains(c)) colliders.Add(c);
+        Debug.Log($"[GizmoHandle:{name}] Awake. kind={_kind}, axis={_axis}, colliders={colliders.Count}");
     }
+
+    private int _hoverFrames;
+    private bool _hoverLoggedThisSession;
+    private bool _gripWasDownLastFrame;
 
     public override bool IsSelectableBy(IXRSelectInteractor _) => false;
 
@@ -38,6 +43,7 @@ public class GizmoHandle : XRBaseInteractable
 
         if (_state == HandleState.Dragging && (_locked == null || !_locked.isActiveAndEnabled))
         {
+            Debug.LogWarning($"[GizmoHandle:{name}] DEFENSIVE ABORT — _locked={(_locked == null ? "null" : "exists,enabled=" + _locked.isActiveAndEnabled)}");
             _activator?.OnHandleAborted();
             _state  = HandleState.Idle;
             _locked = null;
@@ -49,22 +55,41 @@ public class GizmoHandle : XRBaseInteractable
             case HandleState.Idle:
                 UpdateLastHovering();
                 var ni = CurrentHoverer();
-                if (ni == null || !IsPrimaryFor(ni)) break;
-                if (ni.selectInput.ReadWasPerformedThisFrame())
+                if (ni == null)
                 {
+                    if (_hoverLoggedThisSession) { Debug.Log($"[GizmoHandle:{name}] hover ENDED"); _hoverLoggedThisSession = false; }
+                    break;
+                }
+                if (!_hoverLoggedThisSession)
+                {
+                    Debug.Log($"[GizmoHandle:{name}] hover BEGAN. activator={(_activator != null ? "OK" : "NULL")}, primary={IsPrimaryFor(ni)}");
+                    _hoverLoggedThisSession = true;
+                }
+                if (!IsPrimaryFor(ni)) break;
+                // Raw-state polling instead of WasPerformed/WasCompleted edge detection.
+                // XRI's edge events misfire on interactables with IsSelectableBy=false (select-flow
+                // rejection cancels the InputAction same frame, causing WasCompleted next frame).
+                bool gripDownNow = ni.selectInput.ReadIsPerformed();
+                if (gripDownNow && !_gripWasDownLastFrame)
+                {
+                    Debug.Log($"[GizmoHandle:{name}] GRIP DOWN — entering Dragging");
                     _locked = ni;
                     _state  = HandleState.Dragging;
                     var attach = ni.GetAttachTransform(this);
                     _activator?.OnHandleGrabbed(this, attach.position, attach.rotation);
                 }
+                _gripWasDownLastFrame = gripDownNow;
                 break;
 
             case HandleState.Dragging:
-                if (_locked.selectInput.ReadWasCompletedThisFrame())
+                bool gripStillDown = _locked.selectInput.ReadIsPerformed();
+                if (!gripStillDown)
                 {
+                    Debug.Log($"[GizmoHandle:{name}] GRIP UP — releasing");
                     _activator?.OnHandleReleased();
                     _locked = null;
                     _state  = HandleState.Idle;
+                    _gripWasDownLastFrame = false;
                     break;
                 }
                 var a = _locked.GetAttachTransform(this);

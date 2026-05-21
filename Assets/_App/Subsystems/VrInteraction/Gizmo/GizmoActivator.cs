@@ -147,6 +147,7 @@ public class GizmoActivator : MonoBehaviour
 
     public void OnHandleGrabbed(GizmoHandle handle, Vector3 handPos, Quaternion handRot)
     {
+        Debug.Log($"[GizmoActivator] OnHandleGrabbed: handle={(handle != null ? handle.name : "null")}, dragActive={_dragActive}, target={(_target != null ? _target.name : "null")}");
         if (_dragActive || _target == null || handle == null) return;
         _dragActive     = true;
         _originalPos    = _target.position;
@@ -191,6 +192,7 @@ public class GizmoActivator : MonoBehaviour
 
     public void OnHandleAborted()
     {
+        Debug.LogWarning($"[GizmoActivator] OnHandleAborted called, dragActive={_dragActive}");
         if (!_dragActive) return;
         AbortDrag();
     }
