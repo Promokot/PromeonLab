@@ -47,8 +47,6 @@ public class ModeOrchestrator
         {
             AppMode.MainMenu  => "MainMenu",
             AppMode.VrEditing => "VrEditing",
-            AppMode.ArMapping => "ArMapping",
-            AppMode.ArPreview => "ArPreview",
             AppMode.Sandbox   => "Sandbox",
             _                 => null
         };
@@ -62,8 +60,6 @@ public class ModeOrchestrator
         {
             AppMode.MainMenu  => "MainMenu",
             AppMode.VrEditing => "VrEditing",
-            AppMode.ArMapping => "ArMapping",
-            AppMode.ArPreview => "ArPreview",
             AppMode.Sandbox   => "Sandbox",
             _                 => null
         };

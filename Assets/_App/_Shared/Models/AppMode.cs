@@ -1,1 +1,1 @@
-public enum AppMode { MainMenu, VrEditing, ArMapping, ArPreview, Sandbox, Debug }
+public enum AppMode { MainMenu, VrEditing, Sandbox, Debug }

@@ -19,7 +19,6 @@ Assets/
 │   ├── StorageCore/
 │   ├── AssetBrowser/
 │   ├── SceneComposition/
-│   ├── EnvironmentMapping/
 │   ├── RigBuilder/
 │   ├── AnimationAuthoring/
 │   ├── AnimationPlayback/
@@ -50,7 +49,7 @@ Subsystems/{SubsystemName}/
 | Category | Convention | Example |
 |---|---|---|
 | Classes, structs | `PascalCase` | `SceneGraph`, `RigDefinition` |
-| Interfaces | `I` + `PascalCase` | `IMarkerTracker`, `IAnimationExporter` |
+| Interfaces | `I` + `PascalCase` | `IAnimationExporter`, `ISelectionManager` |
 | ScriptableObjects | suffix by role: `Config`, `Profile`, `Graph` | `ModeTransitionGraph`, `BindingProfile` |
 | Enums | `PascalCase` type, `PascalCase` members | `AppMode.VrEditing`, `GizmoMode.Rotate` |
 | Event message types | suffix `Event` | `SceneOpenedEvent`, `MarkerDetectedEvent` |
@@ -151,7 +150,7 @@ Subsystems/{SubsystemName}/
 - **One public type per file** — file name matches the type name exactly
 - **`CommandStack` for all user-reversible actions** — no direct mutation bypassing commands
 - **`PathProvider` as the single path-building authority** — no manual string concatenation for asset/scene paths
-- **Interface-first for platform-dependent code** — `IMarkerTracker` at call sites, not `QuestMarkerTracker`
+- **Interface-first for platform-dependent code** — wrappers behind interfaces in `_Shared/Interfaces`, not concrete platform classes at call sites
 - **Per-scope event buses** — Root-scope events never carry scene-specific data
 - **Feature code in `FeatureLifetimeScope`** — nothing mode-specific in `SceneLifetimeScope` or above
 - **Subsystem-specific code stays in its subsystem folder** — only shared abstractions go to `_Shared`
@@ -165,7 +164,7 @@ Subsystems/{SubsystemName}/
 |---|---|
 | `RootLifetimeScope` | App-lifetime singletons: `AppStorage`, `AssetImporter`, `PathProvider`, `AnimationClock` |
 | `SceneLifetimeScope` | Scene-lifetime services: `ModeOrchestrator`, `SceneGraph`, `SelectionManager`, `UiPanelManager`, `CommandStack` |
-| `FeatureLifetimeScope` | Mode-specific: `MappingSession`, `PlaybackController`, `RigRuntime`, `TrackRecorder` |
+| `FeatureLifetimeScope` | Mode-specific: `PlaybackController`, `RigRuntime`, `TrackRecorder` |
 
 - Child scopes may depend on parent scope registrations; parent scopes must never depend on child scopes
 - `FeatureLifetimeScope` is created and disposed by `ModeOrchestrator` on mode transitions

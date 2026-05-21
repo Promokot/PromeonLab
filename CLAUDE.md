@@ -26,11 +26,10 @@ This is a Unity project — there is no CLI build script. All compilation, build
 
 ## Architecture
 
-### Three-Tier VR Workflow
+### VR Workflow
 
-1. **AR Mapping** — capture physical space with ArUco markers + OpenXR image tracking → builds `SpatialMesh` and defines the `SceneAnchor` (world origin)
-2. **VR Editing** — create/edit skeletal animations in immersive VR (rigs, keyframes, NLA composition)
-3. **Export** — FBX (via Unity FBX Exporter SDK) or custom JSON fallback
+1. **VR Editing** — create/edit skeletal animations in immersive VR (rigs, keyframes, NLA composition)
+2. **Export** — FBX (via Unity FBX Exporter SDK) or custom JSON fallback
 
 ### VContainer Scope Hierarchy
 
@@ -38,15 +37,15 @@ This is a Unity project — there is no CLI build script. All compilation, build
 |---|---|---|
 | `RootLifetimeScope` | App lifetime | `AppStorage`, `AssetImporter`, `PathProvider`, `AnimationClock` |
 | `SceneLifetimeScope` | Unity scene loaded | `ModeOrchestrator`, `SceneGraph`, `SelectionManager`, `UiPanelManager`, `CommandStack` |
-| `FeatureLifetimeScope` | Active app mode | `MappingSession`, `PlaybackController`, `RigRuntime`, `TrackRecorder` |
+| `FeatureLifetimeScope` | Active app mode | `PlaybackController`, `RigRuntime`, `TrackRecorder` |
 
 Child scopes may depend on parent registrations; **never the reverse**. `FeatureLifetimeScope` is created/disposed by `ModeOrchestrator` on mode transitions.
 
 ### App Modes (`ModeOrchestrator` + `AppStateMachine`)
 
-`MainMenu` → `VrEditing` ↔ `ArMapping` ↔ `ArPreview`; `Debug` overlays any mode.
+`MainMenu` ↔ `VrEditing`; `MainMenu` ↔ `Sandbox`; `Debug` overlays any mode.
 
-### 13 Subsystems
+### Subsystems
 
 Located in `Assets/_App/Subsystems/`. Each is isolated behind interfaces declared in `Assets/_App/_Shared/Interfaces/`.
 
@@ -55,7 +54,6 @@ Located in `Assets/_App/Subsystems/`. Each is isolated behind interfaces declare
 | `StorageCore` | File I/O, JSON serialization, `PathProvider`, schema migration via `StorageMigrator` |
 | `AssetBrowser` | VR gallery UI over `StorageCore`; drag-and-drop to scene; no direct file access |
 | `SceneComposition` | Scene node hierarchy, `CommandStack` (undo/redo), `SelectionManager` |
-| `EnvironmentMapping` | AR marker tracking (`IMarkerTracker`), `AnchorPoint` placement, `SpatialMesh` build |
 | `RigBuilder` | Skeletal rigging from imported mesh; IK/FK via Unity Animation Rigging |
 | `AnimationAuthoring` | `ActionData`, keyframe recording, NLA composition (`NlaComposer`) |
 | `AnimationPlayback` | `PlaybackController`, `AnimationEvaluator`, scrub/loop/speed transport |
@@ -70,12 +68,11 @@ Located in `Assets/_App/Subsystems/`. Each is isolated behind interfaces declare
 
 All cross-subsystem messages are `struct` types suffixed `Event` (e.g., `SceneOpenedEvent`, `ModeChangedEvent`), published via the per-scope MessagePipe bus. **Direct method calls across subsystem boundaries are forbidden.** Key events:
 
-`SceneOpened` → SceneComposition, AssetBrowser, EnvironmentMapping  
+`SceneOpened` → SceneComposition, AssetBrowser  
 `SceneModified` → UnsavedChangesGuard  
 `SelectionChanged` → PropertyPanel, GizmoController  
 `FrameChanged` → AnimationEvaluator, TrackRecorder  
 `ModeChanged` → UiPanelManager, FeatureLifetimeScope  
-`AnchorUpdated` → SceneGraph  
 
 ### Data Storage Layout
 
@@ -88,7 +85,6 @@ Application.persistentDataPath/scenes/{SceneId}/
 ├── assets/Models|Textures|Materials|Media/
 ├── Rigs/                 rig-{assetId}.json
 ├── Poses/                pose-{assetId}.json
-├── mappings/             mapping.json
 └── export/               *.fbx / *.json
 ```
 
@@ -136,7 +132,7 @@ Assets/
 - ScriptableObjects for config/graphs/profiles only — **not** for runtime mutable state
 - One public type per file; file name matches type name exactly
 - All user-reversible actions go through `CommandStack` — no direct mutation bypassing it
-- Platform-dependent code behind interfaces (`IMarkerTracker`, not `QuestMarkerTracker` at call sites)
+- Platform-dependent code behind interfaces in `_Shared/Interfaces` (no concrete platform classes at call sites)
 - All serialized data carries a `schemaVersion` field; migrations only in `StorageMigrator`
 - No `.asmdef` cross-references between subsystems — contracts flow through `_Shared`
 - Subsystem-specific code stays in its subsystem folder
