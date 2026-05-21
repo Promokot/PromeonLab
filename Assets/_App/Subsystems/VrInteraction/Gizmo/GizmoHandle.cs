@@ -33,6 +33,10 @@ public class GizmoHandle : XRBaseInteractable
     private int _hoverFrames;
     private bool _hoverLoggedThisSession;
     private bool _gripWasDownLastFrame;
+    // Расстояние controller→handle в момент grip-down. Используется чтобы вычислять виртуальную
+    // hand-позицию как точку перед контроллером (controllerPos + forward*dist). Так поворот
+    // контроллера двигает виртуальную точку по сфере — как у XRI regular grab.
+    private float _grabRayDistance;
 
     public override bool IsSelectableBy(IXRSelectInteractor _) => false;
 
@@ -74,8 +78,14 @@ public class GizmoHandle : XRBaseInteractable
                     Debug.Log($"[GizmoHandle:{name}] GRIP DOWN — entering Dragging");
                     _locked = ni;
                     _state  = HandleState.Dragging;
-                    var attach = ni.GetAttachTransform(this);
-                    _activator?.OnHandleGrabbed(this, attach.position, attach.rotation);
+                    var ctrl = ni.transform;
+                    // Виртуальная hand-точка = controllerPos + forward*dist. dist — расстояние
+                    // от контроллера до этой ручки в момент grip. Так поворот контроллера
+                    // двигает точку по сфере (как у regular grab — wrist twist = motion).
+                    _grabRayDistance = Vector3.Distance(ctrl.position, transform.position);
+                    if (_grabRayDistance < 0.05f) _grabRayDistance = 0.05f;
+                    var virtualPos = ctrl.position + ctrl.forward * _grabRayDistance;
+                    _activator?.OnHandleGrabbed(this, virtualPos, ctrl.rotation);
                 }
                 _gripWasDownLastFrame = gripDownNow;
                 break;
@@ -93,8 +103,9 @@ public class GizmoHandle : XRBaseInteractable
                     _gripWasDownLastFrame = false;
                     break;
                 }
-                var a = _locked.GetAttachTransform(this);
-                _activator?.OnHandleDragged(a.position, a.rotation);
+                var ctrlNow = _locked.transform;
+                var virtualPosNow = ctrlNow.position + ctrlNow.forward * _grabRayDistance;
+                _activator?.OnHandleDragged(virtualPosNow, ctrlNow.rotation);
                 break;
         }
     }

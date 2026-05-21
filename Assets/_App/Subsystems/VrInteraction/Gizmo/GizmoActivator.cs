@@ -24,6 +24,10 @@ public class GizmoActivator : MonoBehaviour
     private Vector3             _originalPos;
     private Quaternion          _originalRot;
     private Vector3             _originalScale;
+    // Scale-inversion baselines: при scale-drag гизмо мутирует свою localScale, а target
+    // получает пропорциональный фактор (instance.scale / instanceAtGrab → target = targetAtGrab * factor).
+    private Vector3             _instanceScaleAtGrab;
+    private Vector3             _targetScaleAtGrab;
 
     [Inject]
     public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection, GizmoController gizmoController)
@@ -63,8 +67,11 @@ public class GizmoActivator : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (_instance == null || _dragActive) return;
-        if (_target == null) { Despawn(); return; }
+        if (_instance == null) return;
+        if (_target == null) { if (!_dragActive) Despawn(); return; }
+        // Во время drag гизмо — primary source-of-truth (strategy мутирует instance напрямую,
+        // target подтягивается за ним в OnHandleDragged). Не переписываем instance из target.
+        if (_dragActive) return;
         _instance.transform.position = _target.position;
         _instance.transform.rotation = _target.rotation;
     }
@@ -148,38 +155,52 @@ public class GizmoActivator : MonoBehaviour
     public void OnHandleGrabbed(GizmoHandle handle, Vector3 handPos, Quaternion handRot)
     {
         Debug.Log($"[GizmoActivator] OnHandleGrabbed: handle={(handle != null ? handle.name : "null")}, dragActive={_dragActive}, target={(_target != null ? _target.name : "null")}");
-        if (_dragActive || _target == null || handle == null) return;
-        _dragActive     = true;
-        _originalPos    = _target.position;
-        _originalRot    = _target.rotation;
-        _originalScale  = _target.localScale;
-        _activeStrategy = ResolveStrategy(handle);
+        if (_dragActive || _target == null || handle == null || _instance == null) return;
+        _dragActive          = true;
+        _originalPos         = _target.position;
+        _originalRot         = _target.rotation;
+        _originalScale       = _target.localScale;
+        _instanceScaleAtGrab = _instance.transform.localScale;
+        _targetScaleAtGrab   = _target.localScale;
+        _activeStrategy      = ResolveStrategy(handle);
         _hierarchy?.OnHandleGrabbed(handle);
-        _activeStrategy.BeginDrag(_target, handle.Axis, handPos, handRot);
+        // Гизмо — primary: strategy мутирует _instance.transform во всех режимах.
+        // Target подтягивается за гизмо в OnHandleDragged в зависимости от типа стратегии.
+        _activeStrategy.BeginDrag(_instance.transform, handle.Axis, handPos, handRot);
         _bus?.Publish(new GizmoDragStartedEvent { TargetNodeId = _targetNodeId });
     }
-
-    private Vector3 _diagPrevHandPos;
-    private Vector3 _diagPrevTargetPos;
-    private int     _diagLogCounter;
 
     public void OnHandleDragged(Vector3 handPos, Quaternion handRot)
     {
         if (!_dragActive) return;
-        if (_target == null) { OnHandleAborted(); return; }
-        var targetBefore = _target.position;
+        if (_target == null || _instance == null) { OnHandleAborted(); return; }
         _activeStrategy?.UpdateDrag(handPos, handRot);
-        var targetAfter = _target.position;
-        // Diagnostic: каждые 30 кадров печатаем deltы hand и target, плюс активную strategy.
-        if ((_diagLogCounter++ % 30) == 0)
+        // Target follows гизмо. Тип синка зависит от стратегии.
+        switch (_activeStrategy)
         {
-            var handDelta   = handPos     - _diagPrevHandPos;
-            var targetDelta = targetAfter - _diagPrevTargetPos;
-            Debug.Log($"[GizmoActivator] DRAG strat={_activeStrategy?.GetType().Name} hand={handPos:F3} handΔ30={handDelta.magnitude:F4} target={targetAfter:F3} targetΔ30={targetDelta.magnitude:F4} mutated={(targetAfter - targetBefore).magnitude:F5}");
-            _diagPrevHandPos   = handPos;
-            _diagPrevTargetPos = targetAfter;
+            case AxisMoveStrategy:
+                _target.position = _instance.transform.position;
+                break;
+            case RingRotateStrategy:
+                _target.rotation = _instance.transform.rotation;
+                break;
+            case AxisScaleStrategy:
+            case UniformScaleStrategy:
+                // Гизмо сама масштабируется визуально → target получает тот же фактор изменения,
+                // применённый к собственной исходной шкале (не к гизмовой bounds-fit шкале).
+                var inst = _instance.transform.localScale;
+                var fX = SafeRatio(inst.x, _instanceScaleAtGrab.x);
+                var fY = SafeRatio(inst.y, _instanceScaleAtGrab.y);
+                var fZ = SafeRatio(inst.z, _instanceScaleAtGrab.z);
+                _target.localScale = new Vector3(
+                    _targetScaleAtGrab.x * fX,
+                    _targetScaleAtGrab.y * fY,
+                    _targetScaleAtGrab.z * fZ);
+                break;
         }
     }
+
+    private static float SafeRatio(float num, float den) => Mathf.Abs(den) < 1e-6f ? 1f : num / den;
 
     public void OnHandleReleased()
     {
