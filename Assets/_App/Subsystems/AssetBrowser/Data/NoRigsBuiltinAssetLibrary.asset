@@ -18,28 +18,23 @@ MonoBehaviour:
     _type: 0
     _icon: {fileID: 21300000, guid: 7b44e63be4ca308418f6de1e37336057, type: 3}
     _prefab: {fileID: 2299578420850200342, guid: b235c805f008f6f4da469f7364846b10, type: 3}
-    _capabilities: -1
   - _id: 002
     _displayName: Drawer
     _type: 0
     _icon: {fileID: 21300000, guid: 4679f7b7343bdbf46822ce9537199054, type: 3}
     _prefab: {fileID: 1511515837578834361, guid: 676edecf7cf6d7645a15b3550dce3e70, type: 3}
-    _capabilities: -1
   - _id: 003
     _displayName: Storage
     _type: 0
     _icon: {fileID: 21300000, guid: 6456abc86c4b64c4ca478b0f17051174, type: 3}
     _prefab: {fileID: 2412714583272646910, guid: 6f78a21f077ae8f4f85a5d7128a8056d, type: 3}
-    _capabilities: -1
   - _id: 004
     _displayName: Toilet
     _type: 0
     _icon: {fileID: 21300000, guid: 1ba136227da9cbf428376981c1a70d00, type: 3}
     _prefab: {fileID: 7584598876083903512, guid: 5e1b8b1cf115f2940b01346027776031, type: 3}
-    _capabilities: -1
   - _id: 005
     _displayName: Crush Dummy
     _type: 1
     _icon: {fileID: 21300000, guid: a5e778c81bf5fc14697bca0b5685d5f9, type: 3}
     _prefab: {fileID: 3157851632893615986, guid: 82ecb4e002572ab429958ed4d024d1e1, type: 3}
-    _capabilities: -1

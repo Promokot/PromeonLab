@@ -4,11 +4,10 @@ using UnityEngine;
 
 public interface ILabAsset
 {
-    string             Id           { get; }
-    string             DisplayName  { get; }
-    AssetType          Type         { get; }
-    Sprite             Icon         { get; }
-    AssetCapabilities  Capabilities { get; }
+    string    Id          { get; }
+    string    DisplayName { get; }
+    AssetType Type        { get; }
+    Sprite    Icon        { get; }
 
     Task<GameObject> SpawnAsync(Vector3 position, Quaternion rotation, CancellationToken ct);
 }

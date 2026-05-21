@@ -43,6 +43,10 @@ public class RootLifetimeScope : LifetimeScope
             builder.RegisterBuildCallback(c => c.Inject(spawnApplier));
         }
 
+        var appBootstrap = Object.FindAnyObjectByType<AppBootstrap>(FindObjectsInactive.Include);
+        if (appBootstrap != null)
+            builder.RegisterBuildCallback(c => c.Inject(appBootstrap));
+
         var keyboard = Object.FindAnyObjectByType<VrKeyboard>(FindObjectsInactive.Include);
         if (keyboard != null)
             builder.RegisterBuildCallback(c => c.Inject(keyboard));

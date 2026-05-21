@@ -97,7 +97,16 @@ public class PromeonProxyRigBuilder : MonoBehaviour
             var mr      = go.GetComponent<MeshRenderer>();
             if (mr      != null) mr.enabled      = enabled;
             var outline = go.GetComponent<Outline>();
-            if (outline != null) outline.enabled = enabled;
+            if (outline != null)
+            {
+                outline.enabled = enabled;
+                // OutlineColor setter sets the private needsUpdate flag inside Outline. Without this
+                // poke, OnEnable adds the outline materials but UpdateMaterialProperties does not run
+                // until some other property change → the outline appears only after a later click /
+                // selection event triggers ApplyBoneOutlineColors. Forcing the assignment makes the
+                // visual appear immediately on toggle.
+                if (enabled) outline.OutlineColor = _boneOutlineColorDefault;
+            }
             var col     = go.GetComponent<Collider>();
             if (col     != null) col.enabled     = enabled;
         }
