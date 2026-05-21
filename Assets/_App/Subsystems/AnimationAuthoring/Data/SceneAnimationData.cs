@@ -4,24 +4,33 @@ using System.Collections.Generic;
 [Serializable]
 public class SceneAnimationData
 {
-    public int                 schemaVersion = 1;
-    public int                 Fps           = 30;
-    public int                 TotalFrames   = 120;
-    public List<AnimTrackData> Tracks        = new();
+    public int                   schemaVersion = 2;
+    public List<ActionContainer> Containers    = new();
 
-    public AnimTrackData GetOrCreateTrack(string nodeId)
+    public ActionContainer FindByOwner(string ownerNodeId)
     {
-        foreach (var t in Tracks)
-            if (t.NodeId == nodeId) return t;
-        var track = new AnimTrackData { NodeId = nodeId };
-        Tracks.Add(track);
-        return track;
+        foreach (var c in Containers)
+            if (c.OwnerNodeId == ownerNodeId) return c;
+        return null;
     }
 
-    public AnimTrackData FindTrack(string nodeId)
+    public ActionContainer CreateContainer(string ownerNodeId, int totalFrames = 60, int fps = 24)
     {
-        foreach (var t in Tracks)
-            if (t.NodeId == nodeId) return t;
-        return null;
+        var existing = FindByOwner(ownerNodeId);
+        if (existing != null) return existing;
+        var c = new ActionContainer
+        {
+            OwnerNodeId = ownerNodeId,
+            TotalFrames = totalFrames,
+            Fps         = fps
+        };
+        Containers.Add(c);
+        return c;
+    }
+
+    public void RemoveContainer(string ownerNodeId)
+    {
+        for (int i = Containers.Count - 1; i >= 0; i--)
+            if (Containers[i].OwnerNodeId == ownerNodeId) Containers.RemoveAt(i);
     }
 }

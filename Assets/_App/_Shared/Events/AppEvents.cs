@@ -14,7 +14,13 @@ public struct KeyboardFocusEvent          { public TMPro.TMP_InputField Target; 
 public struct PanelDetachedEvent { public string EntryId; }
 public struct PanelLinkedEvent   { public string EntryId; }
 public struct PanelClosedEvent   { public string EntryId; }
-public struct AnimationKeyframeChangedEvent { public string NodeId; }
+public struct AnimationKeyframeChangedEvent
+{
+    public string          NodeId;
+    public string          OwnerNodeId;
+    public int             Frame;
+    public KeyframeChange  Change;
+}
 public struct GizmoToolsPanelOpenedEvent { }
 public struct GizmoToolsPanelClosedEvent { }
 public struct GizmoModeChangedEvent      { public GizmoMode Mode; }

@@ -17,6 +17,10 @@ public class AnimationAuthoring : IStartable, IDisposable
     private SceneAnimationData                     _data;
     private readonly Dictionary<string, AnimationClip> _clips = new();
     private string _sceneId;
+    private string _activeContainerOwner;
+
+    private CancellationTokenSource _saveCts;
+    private const int SAVE_DEBOUNCE_MS = 200;
 
     public AnimationAuthoring(AnimationClock clock, ISceneGraph sceneGraph,
                                PathProvider paths, AppStorage storage, EventBus bus)
@@ -26,6 +30,112 @@ public class AnimationAuthoring : IStartable, IDisposable
         _paths      = paths;
         _storage    = storage;
         _bus        = bus;
+    }
+
+    public static string OwnerOf(string nodeId)
+    {
+        if (nodeId == null) return null;
+        if (!nodeId.StartsWith("bone:")) return nodeId;
+        var parts = nodeId.Split(':');
+        return parts.Length >= 2 ? parts[1] : nodeId;
+    }
+
+    public bool HasContainer(string ownerNodeId) =>
+        _data?.FindByOwner(ownerNodeId) != null;
+
+    public ActionContainer GetContainer(string ownerNodeId) =>
+        _data?.FindByOwner(ownerNodeId);
+
+    public ActionContainer CreateContainer(string ownerNodeId)
+    {
+        EnsureData();
+        var c = _data.CreateContainer(ownerNodeId);
+        _bus.Publish(new AnimationContainerChangedEvent
+        {
+            OwnerNodeId = ownerNodeId,
+            Change      = ContainerChange.Added
+        });
+        RequestSave();
+        RebuildActiveClips();
+        return c;
+    }
+
+    public void RemoveContainer(string ownerNodeId)
+    {
+        if (_data == null) return;
+        if (_data.FindByOwner(ownerNodeId) == null) return;
+        _data.RemoveContainer(ownerNodeId);
+        _bus.Publish(new AnimationContainerChangedEvent
+        {
+            OwnerNodeId = ownerNodeId,
+            Change      = ContainerChange.Removed
+        });
+        RequestSave();
+        RebuildActiveClips();
+    }
+
+    public void SetActiveContainerOwner(string ownerNodeId)
+    {
+        _activeContainerOwner = ownerNodeId;
+        RebuildActiveClips();
+    }
+
+    private void RebuildActiveClips()
+    {
+        _clips.Clear();
+        if (string.IsNullOrEmpty(_activeContainerOwner)) return;
+        var c = _data?.FindByOwner(_activeContainerOwner);
+        if (c == null) return;
+        foreach (var t in c.Tracks) RebuildClip(t, c.Fps);
+    }
+
+    public void SetTotalFrames(string ownerNodeId, int frames)
+    {
+        var c = _data?.FindByOwner(ownerNodeId);
+        if (c == null) return;
+        c.TotalFrames = Mathf.Max(1, frames);
+        c.TruncateToTotalFrames();
+        _bus.Publish(new AnimationContainerChangedEvent
+        {
+            OwnerNodeId = ownerNodeId,
+            Change      = ContainerChange.LengthChanged
+        });
+        RequestSave();
+        RebuildActiveClips();
+    }
+
+    public void SetFps(string ownerNodeId, int fps)
+    {
+        var c = _data?.FindByOwner(ownerNodeId);
+        if (c == null) return;
+        c.Fps = Mathf.Max(1, fps);
+        _bus.Publish(new AnimationContainerChangedEvent
+        {
+            OwnerNodeId = ownerNodeId,
+            Change      = ContainerChange.FpsChanged
+        });
+        RequestSave();
+        RebuildActiveClips();
+    }
+
+    internal void InitForTest() => _data = new SceneAnimationData();
+
+    private void RequestSave()
+    {
+        _saveCts?.Cancel();
+        _saveCts = new CancellationTokenSource();
+        _ = DebouncedSave(_saveCts.Token);
+    }
+
+    private async Task DebouncedSave(CancellationToken ct)
+    {
+        try
+        {
+            await Task.Delay(SAVE_DEBOUNCE_MS, ct);
+            if (ct.IsCancellationRequested) return;
+            await SaveAsync(ct);
+        }
+        catch (TaskCanceledException) { }
     }
 
     public void Start()
@@ -42,53 +152,205 @@ public class AnimationAuthoring : IStartable, IDisposable
     {
         _bus.Unsubscribe<SceneOpenedEvent>(OnSceneOpened);
         _bus.Unsubscribe<FrameChangedEvent>(OnFrameChanged);
+        _saveCts?.Cancel();
+        _saveCts?.Dispose();
     }
 
     public void SetKey(string nodeId, int frame)
     {
-        var go = _sceneGraph.GetNode(nodeId);
+        var go = _sceneGraph?.GetNode(nodeId);
         if (go == null) return;
+        SetKey(nodeId, frame, go.transform.localPosition, go.transform.localRotation, go.transform.localScale);
+    }
 
+    public void SetKey(string nodeId, int frame, Vector3 pos, Quaternion rot, Vector3 scale)
+    {
+        var owner = OwnerOf(nodeId);
+        if (string.IsNullOrEmpty(owner)) return;
         EnsureData();
-        var track = _data.GetOrCreateTrack(nodeId);
-        track.UpsertKey(frame, go.transform.localPosition,
-                                go.transform.localRotation,
-                                go.transform.localScale);
-        RebuildClip(track);
-        _ = SaveAsync(CancellationToken.None);
-        _bus.Publish(new AnimationKeyframeChangedEvent { NodeId = nodeId });
+        var c = _data.FindByOwner(owner);
+        if (c == null) return;
+
+        var track    = c.GetOrCreateTrack(nodeId);
+        bool existed = track.HasKey(frame);
+        track.UpsertKey(frame, pos, rot, scale);
+
+        _bus.Publish(new AnimationKeyframeChangedEvent
+        {
+            NodeId      = nodeId,
+            OwnerNodeId = owner,
+            Frame       = frame,
+            Change      = existed ? KeyframeChange.Overwritten : KeyframeChange.Added
+        });
+        RequestSave();
+        RebuildActiveClips();
     }
 
     public void DeleteKey(string nodeId, int frame)
     {
-        var track = _data?.FindTrack(nodeId);
+        var owner = OwnerOf(nodeId);
+        var c     = _data?.FindByOwner(owner);
+        var track = c?.FindTrack(nodeId);
         if (track == null) return;
 
+        if (!track.HasKey(frame)) return;
         track.RemoveKey(frame);
-        if (track.Keys.Count == 0)
+        if (track.Keys.Count == 0) c.Tracks.Remove(track);
+
+        _bus.Publish(new AnimationKeyframeChangedEvent
         {
-            _data.Tracks.Remove(track);
-            _clips.Remove(nodeId);
-        }
-        else
-        {
-            RebuildClip(track);
-        }
-        _ = SaveAsync(CancellationToken.None);
-        _bus.Publish(new AnimationKeyframeChangedEvent { NodeId = nodeId });
+            NodeId      = nodeId,
+            OwnerNodeId = owner,
+            Frame       = frame,
+            Change      = KeyframeChange.Removed
+        });
+        RequestSave();
+        RebuildActiveClips();
     }
 
-    public bool HasKey(string nodeId, int frame) =>
-        _data?.FindTrack(nodeId)?.HasKey(frame) ?? false;
+    public bool HasKey(string nodeId, int frame)
+    {
+        var owner = OwnerOf(nodeId);
+        return _data?.FindByOwner(owner)?.FindTrack(nodeId)?.HasKey(frame) ?? false;
+    }
 
     public IReadOnlyList<int> GetKeyFrames(string nodeId)
     {
-        var track = _data?.FindTrack(nodeId);
-        if (track == null) return Array.Empty<int>();
+        var owner = OwnerOf(nodeId);
+        var track = _data?.FindByOwner(owner)?.FindTrack(nodeId);
+        if (track == null) return System.Array.Empty<int>();
         var frames = new int[track.Keys.Count];
-        for (int i = 0; i < track.Keys.Count; i++)
-            frames[i] = track.Keys[i].Frame;
+        for (int i = 0; i < track.Keys.Count; i++) frames[i] = track.Keys[i].Frame;
         return frames;
+    }
+
+    public void SetKeyForFrame(string ownerNodeId, string activeNodeId, int frame)
+    {
+        var c = _data?.FindByOwner(ownerNodeId);
+        if (c == null) return;
+
+        var snapshots = new Dictionary<string, (Vector3, Quaternion, Vector3)>();
+
+        if (!string.IsNullOrEmpty(activeNodeId) && _sceneGraph != null)
+        {
+            var go = _sceneGraph.GetNode(activeNodeId);
+            if (go != null)
+                snapshots[activeNodeId] = (go.transform.localPosition, go.transform.localRotation, go.transform.localScale);
+        }
+
+        foreach (var t in c.Tracks)
+        {
+            if (snapshots.ContainsKey(t.NodeId)) continue;
+            var go = _sceneGraph?.GetNode(t.NodeId);
+            if (go == null) continue;
+            snapshots[t.NodeId] = (go.transform.localPosition, go.transform.localRotation, go.transform.localScale);
+        }
+
+        SetKeyForFrame_Test(ownerNodeId, activeNodeId, frame, snapshots);
+    }
+
+    internal void SetKeyForFrame_Test(
+        string ownerNodeId, string activeNodeId, int frame,
+        Dictionary<string, (Vector3 Pos, Quaternion Rot, Vector3 Scale)> snapshots)
+    {
+        var c = _data?.FindByOwner(ownerNodeId);
+        if (c == null) return;
+
+        if (!string.IsNullOrEmpty(activeNodeId) && snapshots.TryGetValue(activeNodeId, out var aSnap))
+        {
+            SetKey(activeNodeId, frame, aSnap.Pos, aSnap.Rot, aSnap.Scale);
+        }
+
+        var existingIds = new List<string>(c.ExistingTrackNodeIds());
+        foreach (var tid in existingIds)
+        {
+            if (tid == activeNodeId) continue;
+            if (!snapshots.TryGetValue(tid, out var snap)) continue;
+            SetKey(tid, frame, snap.Pos, snap.Rot, snap.Scale);
+        }
+    }
+
+    public void DeleteAllKeysAtFrame(string ownerNodeId, int frame)
+    {
+        var c = _data?.FindByOwner(ownerNodeId);
+        if (c == null) return;
+
+        var trackIds = new List<string>(c.ExistingTrackNodeIds());
+        foreach (var id in trackIds)
+            DeleteKey(id, frame);
+    }
+
+    public FrameClipboard CopyFrame(string ownerNodeId, int frame)
+    {
+        var clip = new FrameClipboard { OwnerNodeId = ownerNodeId, SourceFrame = frame };
+        var c    = _data?.FindByOwner(ownerNodeId);
+        if (c == null) return clip;
+
+        foreach (var t in c.Tracks)
+        {
+            foreach (var k in t.Keys)
+            {
+                if (k.Frame != frame) continue;
+                clip.Entries.Add(new FrameClipboardEntry
+                {
+                    TrackNodeId = t.NodeId,
+                    Position    = k.Position,
+                    Rotation    = k.Rotation,
+                    Scale       = k.Scale
+                });
+                break;
+            }
+        }
+        return clip;
+    }
+
+    public void PasteFrame(string ownerNodeId, int frame, FrameClipboard clip)
+    {
+        if (clip == null || clip.IsEmpty) return;
+        var c = _data?.FindByOwner(ownerNodeId);
+        if (c == null) return;
+
+        foreach (var e in clip.Entries)
+        {
+            var track    = c.GetOrCreateTrack(e.TrackNodeId);
+            bool existed = track.HasKey(frame);
+            track.UpsertKey(frame, e.Position, e.Rotation, e.Scale);
+            _bus.Publish(new AnimationKeyframeChangedEvent
+            {
+                NodeId      = e.TrackNodeId,
+                OwnerNodeId = ownerNodeId,
+                Frame       = frame,
+                Change      = existed ? KeyframeChange.Overwritten : KeyframeChange.Added
+            });
+        }
+        RequestSave();
+        RebuildActiveClips();
+    }
+
+    public int? NearestKeyBefore(string ownerNodeId, int frame)
+    {
+        var c = _data?.FindByOwner(ownerNodeId);
+        if (c == null) return null;
+
+        int? best = null;
+        foreach (var t in c.Tracks)
+            foreach (var k in t.Keys)
+                if (k.Frame < frame && (!best.HasValue || k.Frame > best.Value))
+                    best = k.Frame;
+        return best;
+    }
+
+    public int? NearestKeyAfter(string ownerNodeId, int frame)
+    {
+        var c = _data?.FindByOwner(ownerNodeId);
+        if (c == null) return null;
+
+        int? best = null;
+        foreach (var t in c.Tracks)
+            foreach (var k in t.Keys)
+                if (k.Frame > frame && (!best.HasValue || k.Frame < best.Value))
+                    best = k.Frame;
+        return best;
     }
 
     private void OnSceneOpened(SceneOpenedEvent e) =>
@@ -96,17 +358,21 @@ public class AnimationAuthoring : IStartable, IDisposable
 
     private void OnFrameChanged(FrameChangedEvent e)
     {
-        if (_data == null || !_clock.IsPlaying) return;
+        if (_data == null || _clock == null || !_clock.IsPlaying) return;
         ApplyFrame(e.Frame);
     }
 
     private void ApplyFrame(int frame)
     {
-        float t = (float)frame / (_data.Fps > 0 ? _data.Fps : 30);
-        foreach (var track in _data.Tracks)
+        if (string.IsNullOrEmpty(_activeContainerOwner)) return;
+        var c = _data?.FindByOwner(_activeContainerOwner);
+        if (c == null || c.Fps <= 0) return;
+
+        float t = (float)frame / c.Fps;
+        foreach (var track in c.Tracks)
         {
             if (!_clips.TryGetValue(track.NodeId, out var clip)) continue;
-            var go = _sceneGraph.GetNode(track.NodeId);
+            var go = _sceneGraph?.GetNode(track.NodeId);
             if (go == null) continue;
             clip.SampleAnimation(go, t);
         }
@@ -115,19 +381,41 @@ public class AnimationAuthoring : IStartable, IDisposable
     private async Task LoadAsync(string sceneId, CancellationToken ct)
     {
         _sceneId = sceneId;
-        _clips.Clear();
         var path = _paths.AnimationJson(sceneId);
+
         if (!File.Exists(path))
         {
             _data = new SceneAnimationData();
             return;
         }
+
         try
         {
-            var json = await File.ReadAllTextAsync(path, ct);
-            _data = JsonUtility.FromJson<SceneAnimationData>(json) ?? new SceneAnimationData();
-            foreach (var track in _data.Tracks)
-                RebuildClip(track);
+            var json   = await File.ReadAllTextAsync(path, ct);
+            var loaded = JsonUtility.FromJson<SceneAnimationData>(json);
+
+            if (loaded == null || loaded.schemaVersion < 2)
+            {
+                Debug.LogWarning(
+                    $"AnimationAuthoring: discarding old animation data at '{path}' (schemaVersion={loaded?.schemaVersion ?? 0}). Starting fresh.");
+                try { File.Delete(path); }
+                catch (Exception delEx)
+                {
+                    Debug.LogError($"AnimationAuthoring: failed to delete v1 file '{path}': {delEx.Message}");
+                }
+                _data = new SceneAnimationData();
+                return;
+            }
+
+            if (loaded.schemaVersion > 2)
+            {
+                Debug.LogError(
+                    $"AnimationAuthoring: animation file '{path}' has schemaVersion={loaded.schemaVersion} (newer than supported 2). Opening empty in-memory data; file NOT touched.");
+                _data = new SceneAnimationData();
+                return;
+            }
+
+            _data = loaded;
         }
         catch (Exception ex)
         {
@@ -153,11 +441,9 @@ public class AnimationAuthoring : IStartable, IDisposable
 
     private void EnsureData() => _data ??= new SceneAnimationData();
 
-    private void RebuildClip(AnimTrackData track)
+    private void RebuildClip(AnimTrackData track, int fps)
     {
         var clip = new AnimationClip { legacy = true };
-        int fps  = _data?.Fps > 0 ? _data.Fps : 30;
-
         var px = new AnimationCurve(); var py = new AnimationCurve(); var pz = new AnimationCurve();
         var rx = new AnimationCurve(); var ry = new AnimationCurve();
         var rz = new AnimationCurve(); var rw = new AnimationCurve();

@@ -268,6 +268,12 @@ public class SceneInspectorView : MonoBehaviour
 
         rig.SetBonesInteractive(value);
 
+        _bus?.Publish(new BonesVisibilityChangedEvent
+        {
+            RigNodeId = rigNodeId,
+            Visible   = value
+        });
+
         // If bones get hidden while a bone is the active selection, jump the selection up to the rig
         // so the user keeps an inspector context and the toggle reflects the now-false state.
         if (!value && _boneTransform != null && !string.IsNullOrEmpty(rigNodeId))

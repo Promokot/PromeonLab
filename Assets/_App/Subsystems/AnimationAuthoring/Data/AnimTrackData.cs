@@ -26,6 +26,12 @@ public class AnimTrackData
             if (Keys[i].Frame == frame) Keys.RemoveAt(i);
     }
 
+    public void TrimKeysAfter(int maxFrame)
+    {
+        for (int i = Keys.Count - 1; i >= 0; i--)
+            if (Keys[i].Frame > maxFrame) Keys.RemoveAt(i);
+    }
+
     public bool HasKey(int frame)
     {
         foreach (var k in Keys)

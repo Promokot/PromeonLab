@@ -73,4 +73,35 @@ public class AnimationClockTests
         Assert.AreEqual(0, _sut.CurrentFrame);
         Assert.IsTrue(_sut.IsPlaying);
     }
+
+    [Test]
+    public void Configure_UpdatesTotalAndFps()
+    {
+        _sut.Configure(90, 60);
+        Assert.AreEqual(90, _sut.TotalFrames);
+        Assert.AreEqual(60, _sut.Fps);
+    }
+
+    [Test]
+    public void Configure_ClampsCurrentFrameAndPublishesFrameChanged()
+    {
+        _sut.Configure(120, 30);
+        _sut.Seek(100);
+        Assert.AreEqual(100, _sut.CurrentFrame);
+
+        int received = -1;
+        _bus.Subscribe<FrameChangedEvent>(e => received = e.Frame);
+        _sut.Configure(50, 24);
+
+        Assert.AreEqual(50, _sut.CurrentFrame);
+        Assert.AreEqual(50, received);
+    }
+
+    [Test]
+    public void Configure_ClampsMinValues()
+    {
+        _sut.Configure(0, 0);
+        Assert.AreEqual(1, _sut.TotalFrames);
+        Assert.AreEqual(1, _sut.Fps);
+    }
 }

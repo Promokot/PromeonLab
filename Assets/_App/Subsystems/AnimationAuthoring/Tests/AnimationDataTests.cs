@@ -55,39 +55,80 @@ public class AnimationDataTests
     }
 
     [Test]
-    public void GetOrCreateTrack_CreatesNewTrack()
+    public void TrimKeysAfter_RemovesKeysBeyondFrame()
     {
-        var data  = new SceneAnimationData();
-        var track = data.GetOrCreateTrack("abc");
-        Assert.AreEqual("abc", track.NodeId);
-        Assert.AreEqual(1, data.Tracks.Count);
+        var track = new AnimTrackData { NodeId = "n1" };
+        track.UpsertKey(5,  Vector3.zero, Quaternion.identity, Vector3.one);
+        track.UpsertKey(15, Vector3.zero, Quaternion.identity, Vector3.one);
+        track.UpsertKey(25, Vector3.zero, Quaternion.identity, Vector3.one);
+
+        track.TrimKeysAfter(15);
+
+        Assert.AreEqual(2,  track.Keys.Count);
+        Assert.AreEqual(5,  track.Keys[0].Frame);
+        Assert.AreEqual(15, track.Keys[1].Frame);
     }
 
     [Test]
-    public void GetOrCreateTrack_ReturnsExistingTrack()
+    public void SceneAnimationData_JsonRoundTrip_v2()
     {
-        var data   = new SceneAnimationData();
-        var first  = data.GetOrCreateTrack("abc");
-        var second = data.GetOrCreateTrack("abc");
-        Assert.AreSame(first, second);
-        Assert.AreEqual(1, data.Tracks.Count);
-    }
-
-    [Test]
-    public void SceneAnimationData_JsonRoundTrip()
-    {
-        var data  = new SceneAnimationData { Fps = 24, TotalFrames = 60 };
-        var track = data.GetOrCreateTrack("node1");
-        track.UpsertKey(5, new Vector3(1, 2, 3), Quaternion.Euler(10, 20, 30), Vector3.one);
+        var data = new SceneAnimationData();
+        var c    = data.CreateContainer("rig", 60, 24);
+        var t    = c.GetOrCreateTrack("rig");
+        t.UpsertKey(5, new Vector3(1, 2, 3), Quaternion.Euler(10, 20, 30), Vector3.one);
 
         var json   = UnityEngine.JsonUtility.ToJson(data);
         var loaded = UnityEngine.JsonUtility.FromJson<SceneAnimationData>(json);
 
-        Assert.AreEqual(24,      loaded.Fps);
-        Assert.AreEqual(60,      loaded.TotalFrames);
-        Assert.AreEqual(1,       loaded.Tracks.Count);
-        Assert.AreEqual("node1", loaded.Tracks[0].NodeId);
-        Assert.AreEqual(5,       loaded.Tracks[0].Keys[0].Frame);
-        Assert.AreEqual(1f,      loaded.Tracks[0].Keys[0].Position.x, 0.001f);
+        Assert.AreEqual(2, loaded.schemaVersion);
+        Assert.AreEqual(1, loaded.Containers.Count);
+        Assert.AreEqual("rig", loaded.Containers[0].OwnerNodeId);
+        Assert.AreEqual(24,    loaded.Containers[0].Fps);
+        Assert.AreEqual(60,    loaded.Containers[0].TotalFrames);
+        Assert.AreEqual(1,     loaded.Containers[0].Tracks.Count);
+        Assert.AreEqual(5,     loaded.Containers[0].Tracks[0].Keys[0].Frame);
+        Assert.AreEqual(1f,    loaded.Containers[0].Tracks[0].Keys[0].Position.x, 0.001f);
+    }
+
+    [Test]
+    public void FindByOwner_ReturnsNullWhenMissing()
+    {
+        var data = new SceneAnimationData();
+        Assert.IsNull(data.FindByOwner("missing"));
+    }
+
+    [Test]
+    public void CreateContainer_AddsAndReturns()
+    {
+        var data = new SceneAnimationData();
+        var c    = data.CreateContainer("rig", 90, 30);
+
+        Assert.AreEqual(1,    data.Containers.Count);
+        Assert.AreEqual("rig", c.OwnerNodeId);
+        Assert.AreEqual(90,    c.TotalFrames);
+        Assert.AreEqual(30,    c.Fps);
+    }
+
+    [Test]
+    public void CreateContainer_DefaultArgs_60_24()
+    {
+        var data = new SceneAnimationData();
+        var c    = data.CreateContainer("rig");
+
+        Assert.AreEqual(60, c.TotalFrames);
+        Assert.AreEqual(24, c.Fps);
+    }
+
+    [Test]
+    public void RemoveContainer_RemovesByOwner()
+    {
+        var data = new SceneAnimationData();
+        data.CreateContainer("a");
+        data.CreateContainer("b");
+
+        data.RemoveContainer("a");
+
+        Assert.AreEqual(1,   data.Containers.Count);
+        Assert.AreEqual("b", data.Containers[0].OwnerNodeId);
     }
 }

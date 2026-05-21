@@ -4,8 +4,8 @@ using VContainer.Unity;
 public class AnimationClock : ITickable
 {
     public int  CurrentFrame { get; private set; }
-    public int  TotalFrames  { get; private set; } = 120;
-    public int  Fps          { get; private set; } = 30;
+    public int  TotalFrames  { get; private set; } = 60;
+    public int  Fps          { get; private set; } = 24;
     public bool IsPlaying    { get; private set; }
 
     private float            _accumulated;
@@ -61,5 +61,18 @@ public class AnimationClock : ITickable
         CurrentFrame = Mathf.Clamp(frame, 0, TotalFrames);
         _accumulated = CurrentFrame;
         _bus.Publish(new FrameChangedEvent { Frame = CurrentFrame });
+    }
+
+    public void Configure(int totalFrames, int fps)
+    {
+        TotalFrames = Mathf.Max(1, totalFrames);
+        Fps         = Mathf.Max(1, fps);
+
+        if (CurrentFrame > TotalFrames)
+        {
+            CurrentFrame = TotalFrames;
+            _accumulated = TotalFrames;
+            _bus.Publish(new FrameChangedEvent { Frame = CurrentFrame });
+        }
     }
 }
