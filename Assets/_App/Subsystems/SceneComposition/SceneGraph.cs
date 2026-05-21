@@ -92,7 +92,11 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
                                        string displayName, string parentId, bool isLoad)
     {
         go.transform.SetParent(_spawnedRoot, worldPositionStays: true);
-        var node = go.AddComponent<SceneNode>();
+        // Re-use a pre-attached SceneNode (baked into the prefab per the bake-time refactor)
+        // so that all Awake-time references (Selectable._node, XRPromeonInteractable._node) point
+        // to the SAME SceneNode instance whose NodeId we now stamp with the runtime GUID.
+        var node = go.GetComponent<SceneNode>();
+        if (node == null) node = go.AddComponent<SceneNode>();
         node.Init(nodeId, assetRef, displayName);
         if (!string.IsNullOrEmpty(displayName)) go.name = displayName;
 
