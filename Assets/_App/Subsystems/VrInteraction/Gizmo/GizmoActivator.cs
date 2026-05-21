@@ -32,18 +32,17 @@ public class GizmoActivator : MonoBehaviour
         _graph           = graph;
         _selection       = selection;
         _gizmoController = gizmoController;
-    }
 
-    private void OnEnable()
-    {
-        if (_bus == null) return;
+        // Subscribe immediately. Doing this in OnEnable would race with LifetimeScope.Awake's
+        // BuildCallback — if Activator's OnEnable ran first, _bus would be null and the bail-out
+        // would silently skip all subscriptions, causing panel events to go unheard.
         _bus.Subscribe<GizmoToolsPanelOpenedEvent>(OnPanelOpened);
         _bus.Subscribe<GizmoToolsPanelClosedEvent>(OnPanelClosed);
         _bus.Subscribe<GizmoModeChangedEvent>(OnModeChanged);
         _bus.Subscribe<SelectionChangedEvent>(OnSelectionChanged);
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         if (_bus == null) return;
         _bus.Unsubscribe<GizmoToolsPanelOpenedEvent>(OnPanelOpened);

@@ -79,7 +79,6 @@ GameObject:
   - component: {fileID: 6209610178671762348}
   - component: {fileID: 8573857923733603883}
   - component: {fileID: 6805981937465144605}
-  - component: {fileID: 8346676943717051094}
   m_Layer: 0
   m_Name: UserPanel
   m_TagString: Untagged
@@ -190,7 +189,7 @@ MonoBehaviour:
     Panel: {fileID: 0}
   - EntryId: gizmo
     NavButton: {fileID: 4707510726574906873}
-    Panel: {fileID: 0}
+    Panel: {fileID: 5076402122448668064}
   - EntryId: timeline
     NavButton: {fileID: 3054878361867091274}
     Panel: {fileID: 4014570541383562498}
@@ -221,20 +220,6 @@ MonoBehaviour:
   _keyboardButton: {fileID: 1558720005864284642}
   _defaultContent: {fileID: 2537349046291802713}
   _keyboardContent: {fileID: 4051305821850677800}
---- !u!114 &8346676943717051094
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 276269292298337097}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c946479cf10f99a4cb04b69be5512109, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Subsystems.VrInteraction::GizmoToolsPanelOpener
-  _toggleButton: {fileID: 4707510726574906873}
-  _subPanel: {fileID: 5076402122448668064}
 --- !u!1 &703539235416321424
 GameObject:
   m_ObjectHideFlags: 0

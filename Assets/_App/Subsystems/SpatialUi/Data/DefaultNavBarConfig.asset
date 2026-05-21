@@ -33,4 +33,4 @@ MonoBehaviour:
     ExclusiveGroup: 
   - Id: gizmo
     VisibleModes: 0100000004000000
-    ExclusiveGroup: 
+    ExclusiveGroup: center
