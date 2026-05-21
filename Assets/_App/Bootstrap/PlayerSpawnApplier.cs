@@ -1,28 +1,14 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion;
-using VContainer;
+using Scene = UnityEngine.SceneManagement.Scene;
 
-// Teleports the XR Rig to the PlayerSpawnAnchor of newly loaded scenes.
-// Driven by PlayerSpawnRequestedEvent on EventBus; publishers are AppBootstrap (initial MainMenu)
-// and ModeOrchestrator (subsequent scene transitions). Uses XRBodyTransformer.QueueTransformation
-// so the locomotion system applies the move correctly — direct transform.SetPositionAndRotation
-// is overridden by XRBodyTransformer.
+// Teleports the XR Rig to world origin on every additively loaded scene.
+// Uses XRBodyTransformer.QueueTransformation so the locomotion system applies the move correctly —
+// direct transform.SetPositionAndRotation is overridden by XRBodyTransformer.
 public class PlayerSpawnApplier : MonoBehaviour
 {
     private XRBodyTransformer _bodyTransformer;
-    private EventBus          _bus;
-
-    private Vector3    _lastSpawnPos;
-    private Quaternion _lastSpawnRot;
-    private bool       _hasSpawn;
-
-    [Inject]
-    public void Construct(EventBus bus)
-    {
-        if (_bus != null) _bus.Unsubscribe<PlayerSpawnRequestedEvent>(OnSpawnRequested);
-        _bus = bus;
-        _bus.Subscribe<PlayerSpawnRequestedEvent>(OnSpawnRequested);
-    }
 
     private void Awake()
     {
@@ -31,34 +17,18 @@ public class PlayerSpawnApplier : MonoBehaviour
             Debug.LogWarning("PlayerSpawnApplier: no XRBodyTransformer found on rig — teleport will be a no-op.");
     }
 
-    private void OnDestroy()
-    {
-        _bus?.Unsubscribe<PlayerSpawnRequestedEvent>(OnSpawnRequested);
-    }
+    private void OnEnable()  => SceneManager.sceneLoaded += OnSceneLoaded;
+    private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
-    private void OnSpawnRequested(PlayerSpawnRequestedEvent e)
-    {
-        _lastSpawnPos = e.Position;
-        _lastSpawnRot = e.Rotation;
-        _hasSpawn     = true;
-        ApplyTeleport(e.Position, e.Rotation);
-    }
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => TeleportToOrigin();
 
-    public void Respawn()
-    {
-        if (!_hasSpawn)
-        {
-            Debug.LogWarning("PlayerSpawnApplier.Respawn: no cached anchor yet — call ignored.");
-            return;
-        }
-        ApplyTeleport(_lastSpawnPos, _lastSpawnRot);
-    }
+    public void Respawn() => TeleportToOrigin();
 
-    private void ApplyTeleport(Vector3 pos, Quaternion rot)
+    private void TeleportToOrigin()
     {
         if (_bodyTransformer == null) return;
         _bodyTransformer.QueueTransformation(
-            new TeleportToAnchor(pos, rot),
+            new TeleportToAnchor(Vector3.zero, Quaternion.identity),
             priority: int.MaxValue);
     }
 

@@ -38,14 +38,7 @@ public class RootLifetimeScope : LifetimeScope
 
         var spawnApplier = Object.FindAnyObjectByType<PlayerSpawnApplier>(FindObjectsInactive.Include);
         if (spawnApplier != null)
-        {
             builder.RegisterInstance(spawnApplier);
-            builder.RegisterBuildCallback(c => c.Inject(spawnApplier));
-        }
-
-        var appBootstrap = Object.FindAnyObjectByType<AppBootstrap>(FindObjectsInactive.Include);
-        if (appBootstrap != null)
-            builder.RegisterBuildCallback(c => c.Inject(appBootstrap));
 
         var keyboard = Object.FindAnyObjectByType<VrKeyboard>(FindObjectsInactive.Include);
         if (keyboard != null)
