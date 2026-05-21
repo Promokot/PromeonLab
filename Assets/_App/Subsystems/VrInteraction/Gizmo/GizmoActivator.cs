@@ -159,11 +159,26 @@ public class GizmoActivator : MonoBehaviour
         _bus?.Publish(new GizmoDragStartedEvent { TargetNodeId = _targetNodeId });
     }
 
+    private Vector3 _diagPrevHandPos;
+    private Vector3 _diagPrevTargetPos;
+    private int     _diagLogCounter;
+
     public void OnHandleDragged(Vector3 handPos, Quaternion handRot)
     {
         if (!_dragActive) return;
         if (_target == null) { OnHandleAborted(); return; }
+        var targetBefore = _target.position;
         _activeStrategy?.UpdateDrag(handPos, handRot);
+        var targetAfter = _target.position;
+        // Diagnostic: каждые 30 кадров печатаем deltы hand и target, плюс активную strategy.
+        if ((_diagLogCounter++ % 30) == 0)
+        {
+            var handDelta   = handPos     - _diagPrevHandPos;
+            var targetDelta = targetAfter - _diagPrevTargetPos;
+            Debug.Log($"[GizmoActivator] DRAG strat={_activeStrategy?.GetType().Name} hand={handPos:F3} handΔ30={handDelta.magnitude:F4} target={targetAfter:F3} targetΔ30={targetDelta.magnitude:F4} mutated={(targetAfter - targetBefore).magnitude:F5}");
+            _diagPrevHandPos   = handPos;
+            _diagPrevTargetPos = targetAfter;
+        }
     }
 
     public void OnHandleReleased()

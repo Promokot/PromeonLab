@@ -66,10 +66,9 @@ public class GizmoHandle : XRBaseInteractable
                     _hoverLoggedThisSession = true;
                 }
                 if (!IsPrimaryFor(ni)) break;
-                // Raw-state polling instead of WasPerformed/WasCompleted edge detection.
-                // XRI's edge events misfire on interactables with IsSelectableBy=false (select-flow
-                // rejection cancels the InputAction same frame, causing WasCompleted next frame).
-                bool gripDownNow = ni.selectInput.ReadIsPerformed();
+                bool gripDownNow = ni.selectInput.ReadValue() > 0.5f;
+                // DIAGNOSTIC (закомментировано — спам подтвердил что hold-input работает корректно):
+                // Debug.Log($"[GizmoHandle:{name}] f={Time.frameCount} HOVER ReadValue={ni.selectInput.ReadValue():F2} IsPerformed={ni.selectInput.ReadIsPerformed()} WasPerformed={ni.selectInput.ReadWasPerformedThisFrame()} WasCompleted={ni.selectInput.ReadWasCompletedThisFrame()}");
                 if (gripDownNow && !_gripWasDownLastFrame)
                 {
                     Debug.Log($"[GizmoHandle:{name}] GRIP DOWN — entering Dragging");
@@ -82,7 +81,9 @@ public class GizmoHandle : XRBaseInteractable
                 break;
 
             case HandleState.Dragging:
-                bool gripStillDown = _locked.selectInput.ReadIsPerformed();
+                bool gripStillDown = _locked.selectInput.ReadValue() > 0.5f;
+                // DIAGNOSTIC (закомментировано — спам подтвердил что hold-input сохраняется во время DRAG):
+                // Debug.Log($"[GizmoHandle:{name}] f={Time.frameCount} DRAG ReadValue={_locked.selectInput.ReadValue():F2} IsPerformed={_locked.selectInput.ReadIsPerformed()} WasCompleted={_locked.selectInput.ReadWasCompletedThisFrame()}");
                 if (!gripStillDown)
                 {
                     Debug.Log($"[GizmoHandle:{name}] GRIP UP — releasing");
