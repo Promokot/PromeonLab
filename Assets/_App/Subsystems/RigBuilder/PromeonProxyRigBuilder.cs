@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -91,26 +92,62 @@ public class PromeonProxyRigBuilder : MonoBehaviour
 
     public void SetBonesInteractive(bool enabled)
     {
+        // Force-activate the proxy hierarchy. If the baked prefab serialized any proxy GO (or the
+        // ProxyRig parent) as inactive, just toggling Behaviour.enabled on its components does
+        // nothing — Unity skips Update/render for inactive GameObjects.
+        if (enabled && _proxyRoot != null && !_proxyRoot.gameObject.activeSelf)
+            _proxyRoot.gameObject.SetActive(true);
+
+        bool logged = false;
         foreach (var go in _proxyGOs)
         {
             if (go == null) continue;
+            if (enabled && !go.activeSelf) go.SetActive(true);
             var mr      = go.GetComponent<MeshRenderer>();
             if (mr      != null) mr.enabled      = enabled;
             var outline = go.GetComponent<Outline>();
-            if (outline != null)
-            {
-                outline.enabled = enabled;
-                // OutlineColor setter sets the private needsUpdate flag inside Outline. Without this
-                // poke, OnEnable adds the outline materials but UpdateMaterialProperties does not run
-                // until some other property change → the outline appears only after a later click /
-                // selection event triggers ApplyBoneOutlineColors. Forcing the assignment makes the
-                // visual appear immediately on toggle.
-                if (enabled) outline.OutlineColor = _boneOutlineColorDefault;
-            }
+            if (outline != null) outline.enabled = enabled;
             var col     = go.GetComponent<Collider>();
             if (col     != null) col.enabled     = enabled;
+
+            // Brute-force renderer invalidation: writing sharedMaterial back to itself can force
+            // the render pipeline to re-evaluate this renderer in case it's been deferred for some
+            // reason (URP+XR sometimes lazily skips newly-enabled renderers until something nudges).
+            if (enabled && mr != null && mr.sharedMaterial != null)
+                mr.sharedMaterial = mr.sharedMaterial;
+
+            if (enabled && !logged)
+            {
+                logged = true;
+                var mf = go.GetComponent<MeshFilter>();
+                Debug.Log($"[ShowBones] go={go.name} " +
+                          $"activeInHierarchy={go.activeInHierarchy} " +
+                          $"layer={LayerMask.LayerToName(go.layer)} " +
+                          $"mr.enabled={(mr != null ? mr.enabled.ToString() : "null")} " +
+                          $"mr.isVisible={(mr != null ? mr.isVisible.ToString() : "null")} " +
+                          $"mr.forceRenderingOff={(mr != null ? mr.forceRenderingOff.ToString() : "null")} " +
+                          $"mr.shadowCastingMode={(mr != null ? mr.shadowCastingMode.ToString() : "null")} " +
+                          $"mr.bounds={(mr != null ? mr.bounds.ToString() : "null")} " +
+                          $"sharedMaterial={(mr != null && mr.sharedMaterial != null ? mr.sharedMaterial.name : "null")} " +
+                          $"sharedMesh={(mf?.sharedMesh != null)} " +
+                          $"meshBounds={(mf?.sharedMesh != null ? mf.sharedMesh.bounds.ToString() : "null")} " +
+                          $"proxyRoot.layer={(_proxyRoot != null ? LayerMask.LayerToName(_proxyRoot.gameObject.layer) : "null")}");
+            }
         }
         if (_rootCollider != null) _rootCollider.enabled = !enabled;
+
+        if (enabled && isActiveAndEnabled) StartCoroutine(PokeOutlineColorsNextFrame());
+    }
+
+    private IEnumerator PokeOutlineColorsNextFrame()
+    {
+        yield return new WaitForEndOfFrame();
+        foreach (var go in _proxyGOs)
+        {
+            if (go == null) continue;
+            var outline = go.GetComponent<Outline>();
+            if (outline != null) outline.OutlineColor = _boneOutlineColorDefault;
+        }
     }
 
     /// Walks each proxy GO and re-creates its diamond mesh if the MeshFilter has lost its sharedMesh
