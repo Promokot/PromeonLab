@@ -34,3 +34,6 @@ MonoBehaviour:
   - Id: gizmo
     VisibleModes: 0100000004000000
     ExclusiveGroup: center
+  - Id: animator
+    VisibleModes: 0100000002000000
+    ExclusiveGroup: center

@@ -23,7 +23,8 @@
       "mcp__unityMCP__refresh_unity",
       "mcp__unityMCP__batch_execute",
       "mcp__unityMCP__run_tests",
-      "mcp__unityMCP__get_test_job"
+      "mcp__unityMCP__get_test_job",
+      "mcp__unityMCP__manage_editor"
     ]
   },
   "enabledMcpjsonServers": [
