@@ -1,0 +1,311 @@
+<h2 class="sr-only">Wider VR-scale mockup of the Animator Panel UI with remove animation button aligned with the frame counter</h2>
+
+<style>
+  .anim-root { font-family: var(--font-sans); color: var(--color-text-primary); width: 100%; }
+  .anim-frame { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 14px; width: 100%; box-sizing: border-box; }
+  .anim-panel { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); overflow: hidden; }
+
+  .anim-toolbar { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 0.5px solid var(--color-border-tertiary); flex-wrap: nowrap; }
+  .anim-toolbar.bottom { border-bottom: 0; border-top: 0.5px solid var(--color-border-tertiary); justify-content: center; }
+
+  .anim-btn { background: transparent; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 0 12px; font-size: 14px; color: var(--color-text-primary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 44px; min-width: 44px; white-space: nowrap; }
+  .anim-btn i { font-size: 20px; }
+  .anim-btn:hover { background: var(--color-background-secondary); }
+  .anim-btn.primary { background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info); }
+  .anim-btn.danger { color: var(--color-text-danger); border-color: var(--color-border-danger); }
+  .anim-btn.large { height: 52px; min-width: 52px; padding: 0 16px; }
+  .anim-btn.large i { font-size: 24px; }
+
+  .anim-divider { width: 1px; height: 32px; background: var(--color-border-tertiary); }
+
+  .anim-input { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0 8px; font-size: 16px; color: var(--color-text-primary); font-family: var(--font-mono); height: 44px; box-sizing: border-box; }
+  .anim-input.frame-input { width: 72px; text-align: center; font-weight: 500; }
+  .anim-input.small { width: 60px; text-align: center; }
+  .anim-label { font-size: 13px; color: var(--color-text-secondary); }
+
+  .anim-body { display: flex; min-height: 280px; }
+
+  .anim-tracks-col { width: 220px; border-right: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); display: flex; flex-direction: column; flex-shrink: 0; }
+  .anim-tracks-header { height: 36px; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; align-items: center; padding: 0 14px; font-size: 13px; color: var(--color-text-secondary); background: var(--color-background-secondary); }
+
+  .anim-track-row { height: 52px; display: flex; align-items: center; padding: 0 12px; gap: 10px; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 14px; cursor: pointer; }
+  .anim-track-row.child { padding-left: 30px; background: color-mix(in srgb, var(--color-background-secondary) 40%, transparent); }
+  .anim-track-row.active { background: var(--color-background-info); }
+  .anim-track-row.active .anim-track-name { color: var(--color-text-info); font-weight: 500; }
+  .anim-track-icon { font-size: 20px; color: var(--color-text-secondary); }
+  .anim-track-row.active .anim-track-icon { color: var(--color-text-info); }
+  .anim-track-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .anim-track-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-text-tertiary); }
+  .anim-track-dot.on { background: var(--color-text-success); }
+
+  .anim-timeline-col { flex: 1; min-width: 0; position: relative; overflow: hidden; background: var(--color-background-primary); }
+  .anim-timeline-scroll { overflow-x: auto; overflow-y: hidden; position: relative; }
+  .anim-timeline-scroll::-webkit-scrollbar { height: 14px; }
+  .anim-timeline-scroll::-webkit-scrollbar-track { background: var(--color-background-secondary); }
+  .anim-timeline-scroll::-webkit-scrollbar-thumb { background: var(--color-border-secondary); border-radius: 6px; }
+  .anim-timeline-inner { position: relative; }
+
+  .anim-ruler { height: 36px; border-bottom: 0.5px solid var(--color-border-tertiary); position: relative; background: var(--color-background-secondary); }
+  .anim-tick { position: absolute; top: 20px; bottom: 0; width: 1px; background: var(--color-border-tertiary); }
+  .anim-tick.major { background: var(--color-border-secondary); top: 12px; }
+  .anim-tick-label { position: absolute; top: 6px; font-size: 12px; color: var(--color-text-secondary); font-family: var(--font-mono); transform: translateX(6px); font-weight: 500; }
+
+  .anim-tracks-area { position: relative; }
+  .anim-track-lane { height: 52px; border-bottom: 0.5px solid var(--color-border-tertiary); position: relative; }
+  .anim-track-lane.child { background: color-mix(in srgb, var(--color-background-secondary) 40%, transparent); }
+  .anim-track-lane.active { background: color-mix(in srgb, var(--color-background-info) 60%, transparent); }
+
+  .anim-grid-line { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--color-border-tertiary); opacity: 0.35; pointer-events: none; }
+  .anim-grid-line.major { opacity: 0.7; background: var(--color-border-secondary); }
+
+  .anim-key { position: absolute; top: 50%; width: 22px; height: 22px; background: var(--color-text-info); transform: translate(-50%, -50%) rotate(45deg); border: 1.5px solid var(--color-background-primary); cursor: pointer; z-index: 2; }
+  .anim-key.selected { background: var(--color-text-warning); width: 26px; height: 26px; }
+  .anim-key.bone { background: #534AB7; }
+
+  .anim-playhead { position: absolute; top: 0; bottom: 0; width: 20px; background: color-mix(in srgb, var(--color-text-danger) 14%, transparent); border-left: 2px solid var(--color-text-danger); border-right: 2px solid var(--color-text-danger); pointer-events: none; z-index: 5; transform: translateX(-50%); box-sizing: border-box; }
+  .anim-playhead::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 16px solid var(--color-text-danger); }
+  .anim-playhead-label { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); font-size: 13px; font-family: var(--font-mono); color: var(--color-text-danger); font-weight: 500; background: var(--color-background-primary); padding: 2px 8px; border-radius: 4px; border: 0.5px solid var(--color-border-danger); white-space: nowrap; }
+
+  .anim-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 56px 20px; gap: 16px; color: var(--color-text-secondary); min-height: 280px; }
+
+  .anim-tab-bar { display: flex; gap: 8px; margin-bottom: 10px; }
+  .anim-tab { background: transparent; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 8px 14px; font-size: 13px; cursor: pointer; color: var(--color-text-secondary); height: 36px; }
+  .anim-tab.active { background: var(--color-background-primary); border-color: var(--color-border-secondary); color: var(--color-text-primary); font-weight: 500; }
+  .anim-section-title { font-size: 13px; color: var(--color-text-secondary); margin: 0 0 8px 4px; }
+
+  /* break out of widget container to use viewport width */
+  .anim-wide-wrap { width: 96vw; max-width: 1400px; margin-left: calc(50% - 48vw); margin-right: calc(50% - 48vw); }
+  @media (max-width: 700px) { .anim-wide-wrap { width: 100%; margin-left: 0; margin-right: 0; } }
+</style>
+
+<div class="anim-root" style="padding: 0.5rem 0;">
+  <div class="anim-wide-wrap">
+
+    <div class="anim-tab-bar">
+      <button class="anim-tab" data-view="full">simple object</button>
+      <button class="anim-tab active" data-view="rig">rig (bones expanded)</button>
+      <button class="anim-tab" data-view="empty">empty state</button>
+    </div>
+
+    <p class="anim-section-title">animator panel · wide layout · remove aligned with frame counter</p>
+
+    <div class="anim-frame">
+
+      <div class="anim-panel" id="view-full" style="display:none;">
+
+        <div class="anim-toolbar">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="anim-label">frame</span>
+            <input class="anim-input frame-input" value="12" />
+            <span class="anim-label">/</span>
+            <input class="anim-input frame-input" value="60" />
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="anim-label">fps</span>
+            <input class="anim-input small" value="24" />
+          </div>
+          <div class="anim-divider"></div>
+          <button class="anim-btn primary"><i class="ti ti-plus" aria-hidden="true"></i> key</button>
+          <button class="anim-btn danger"><i class="ti ti-minus" aria-hidden="true"></i> key</button>
+          <button class="anim-btn"><i class="ti ti-copy" aria-hidden="true"></i></button>
+          <button class="anim-btn"><i class="ti ti-clipboard" aria-hidden="true"></i></button>
+          <div style="margin-left:auto;">
+            <button class="anim-btn danger"><i class="ti ti-trash" aria-hidden="true"></i> remove animation</button>
+          </div>
+        </div>
+
+        <div class="anim-body">
+          <div class="anim-tracks-col">
+            <div class="anim-tracks-header">objects</div>
+            <div class="anim-track-row active">
+              <i class="ti ti-cube anim-track-icon" aria-hidden="true"></i>
+              <span class="anim-track-name">crate_object</span>
+              <span class="anim-track-dot on"></span>
+            </div>
+          </div>
+          <div class="anim-timeline-col">
+            <div class="anim-timeline-scroll">
+              <div class="anim-timeline-inner" style="width: 1820px;">
+                <div class="anim-ruler" id="ruler-full"></div>
+                <div class="anim-tracks-area" id="tracks-full"></div>
+                <div class="anim-playhead" style="left: 360px;">
+                  <span class="anim-playhead-label">12</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="anim-toolbar bottom">
+          <button class="anim-btn large" title="prev key"><i class="ti ti-chevrons-left" aria-hidden="true"></i></button>
+          <button class="anim-btn large" title="prev frame"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+          <button class="anim-btn large" title="go to start"><i class="ti ti-player-skip-back" aria-hidden="true"></i></button>
+          <button class="anim-btn large primary" title="play"><i class="ti ti-player-play" aria-hidden="true"></i></button>
+          <button class="anim-btn large" title="go to end"><i class="ti ti-player-skip-forward" aria-hidden="true"></i></button>
+          <button class="anim-btn large" title="next frame"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+          <button class="anim-btn large" title="next key"><i class="ti ti-chevrons-right" aria-hidden="true"></i></button>
+        </div>
+      </div>
+
+      <div class="anim-panel" id="view-rig" style="display:block;">
+
+        <div class="anim-toolbar">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="anim-label">frame</span>
+            <input class="anim-input frame-input" value="18" />
+            <span class="anim-label">/</span>
+            <input class="anim-input frame-input" value="60" />
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="anim-label">fps</span>
+            <input class="anim-input small" value="24" />
+          </div>
+          <div class="anim-divider"></div>
+          <button class="anim-btn primary"><i class="ti ti-plus" aria-hidden="true"></i> key</button>
+          <button class="anim-btn danger"><i class="ti ti-minus" aria-hidden="true"></i> key</button>
+          <button class="anim-btn"><i class="ti ti-copy" aria-hidden="true"></i></button>
+          <button class="anim-btn"><i class="ti ti-clipboard" aria-hidden="true"></i></button>
+          <div style="margin-left:auto;">
+            <button class="anim-btn danger"><i class="ti ti-trash" aria-hidden="true"></i> remove animation</button>
+          </div>
+        </div>
+
+        <div class="anim-body">
+          <div class="anim-tracks-col">
+            <div class="anim-tracks-header">objects · bones</div>
+            <div class="anim-track-row">
+              <i class="ti ti-body-scan anim-track-icon" aria-hidden="true"></i>
+              <span class="anim-track-name">character_rig</span>
+              <span class="anim-track-dot on"></span>
+            </div>
+            <div class="anim-track-row child active">
+              <i class="ti ti-bone anim-track-icon" aria-hidden="true"></i>
+              <span class="anim-track-name">bone.spine</span>
+              <span class="anim-track-dot on"></span>
+            </div>
+            <div class="anim-track-row child">
+              <i class="ti ti-bone anim-track-icon" aria-hidden="true"></i>
+              <span class="anim-track-name">bone.arm.L</span>
+              <span class="anim-track-dot on"></span>
+            </div>
+            <div class="anim-track-row child">
+              <i class="ti ti-bone anim-track-icon" aria-hidden="true"></i>
+              <span class="anim-track-name">bone.leg.R</span>
+              <span class="anim-track-dot on"></span>
+            </div>
+          </div>
+
+          <div class="anim-timeline-col">
+            <div class="anim-timeline-scroll">
+              <div class="anim-timeline-inner" style="width: 1820px;">
+                <div class="anim-ruler" id="ruler-rig"></div>
+                <div class="anim-tracks-area" id="tracks-rig"></div>
+                <div class="anim-playhead" style="left: 540px;">
+                  <span class="anim-playhead-label">18</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="anim-toolbar bottom">
+          <button class="anim-btn large" title="prev key"><i class="ti ti-chevrons-left" aria-hidden="true"></i></button>
+          <button class="anim-btn large" title="prev frame"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+          <button class="anim-btn large" title="go to start"><i class="ti ti-player-skip-back" aria-hidden="true"></i></button>
+          <button class="anim-btn large primary" title="play"><i class="ti ti-player-play" aria-hidden="true"></i></button>
+          <button class="anim-btn large" title="go to end"><i class="ti ti-player-skip-forward" aria-hidden="true"></i></button>
+          <button class="anim-btn large" title="next frame"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+          <button class="anim-btn large" title="next key"><i class="ti ti-chevrons-right" aria-hidden="true"></i></button>
+        </div>
+      </div>
+
+      <div class="anim-panel" id="view-empty" style="display:none;">
+        <div class="anim-toolbar">
+          <span class="anim-label" style="font-size:14px;">animator</span>
+          <span style="font-size:13px;color:var(--color-text-tertiary);">— no animation on this object</span>
+        </div>
+        <div class="anim-empty-state">
+          <i class="ti ti-movie" aria-hidden="true" style="font-size:48px;color:var(--color-text-tertiary);"></i>
+          <p style="margin:0;font-size:15px;">this object has no animation container yet</p>
+          <button class="anim-btn primary large" style="padding:0 20px;font-size:15px;"><i class="ti ti-plus" aria-hidden="true"></i> add animation</button>
+          <p style="margin:0;font-size:12px;color:var(--color-text-tertiary);">creates an action container with default 60 frames @ 24 fps</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const FRAME_PX = 30;
+  const TOTAL = 60;
+
+  function buildTimeline(rulerId, tracksId, tracks){
+    const ruler = document.getElementById(rulerId);
+    const tracksArea = document.getElementById(tracksId);
+    if(!ruler || !tracksArea) return;
+    ruler.innerHTML = '';
+    tracksArea.innerHTML = '';
+
+    for(let f = 0; f <= TOTAL; f++){
+      const tick = document.createElement('div');
+      tick.className = 'anim-tick' + (f % 5 === 0 ? ' major' : '');
+      tick.style.left = (f * FRAME_PX) + 'px';
+      ruler.appendChild(tick);
+      if(f % 5 === 0){
+        const lbl = document.createElement('div');
+        lbl.className = 'anim-tick-label';
+        lbl.style.left = (f * FRAME_PX) + 'px';
+        lbl.textContent = f;
+        ruler.appendChild(lbl);
+      }
+    }
+
+    tracks.forEach((track) => {
+      const lane = document.createElement('div');
+      lane.className = 'anim-track-lane' + (track.child ? ' child' : '') + (track.active ? ' active' : '');
+      for(let f = 0; f <= TOTAL; f++){
+        if(f % 5 === 0){
+          const gl = document.createElement('div');
+          gl.className = 'anim-grid-line' + (f % 10 === 0 ? ' major' : '');
+          gl.style.left = (f * FRAME_PX) + 'px';
+          lane.appendChild(gl);
+        }
+      }
+      (track.keys || []).forEach(k => {
+        const key = document.createElement('div');
+        key.className = 'anim-key' + (k.selected ? ' selected' : '') + (track.bone ? ' bone' : '');
+        key.style.left = (k.frame * FRAME_PX) + 'px';
+        key.title = 'frame ' + k.frame;
+        lane.appendChild(key);
+      });
+      tracksArea.appendChild(lane);
+    });
+  }
+
+  const fullTracks = [
+    { active: true, keys: [{frame:0},{frame:6},{frame:12,selected:true},{frame:24},{frame:40},{frame:54}] },
+  ];
+  buildTimeline('ruler-full', 'tracks-full', fullTracks);
+
+  const rigTracks = [
+    { keys: [{frame:0},{frame:18,selected:true},{frame:36},{frame:60}] },
+    { child: true, active: true, bone: true, keys: [{frame:0},{frame:18,selected:true},{frame:36}] },
+    { child: true, bone: true, keys: [{frame:6},{frame:24},{frame:48}] },
+    { child: true, bone: true, keys: [{frame:0},{frame:12},{frame:30},{frame:48}] },
+  ];
+  buildTimeline('ruler-rig', 'tracks-rig', rigTracks);
+
+  document.querySelectorAll('.anim-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.anim-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const v = tab.dataset.view;
+      document.getElementById('view-full').style.display = v === 'full' ? 'block' : 'none';
+      document.getElementById('view-rig').style.display = v === 'rig' ? 'block' : 'none';
+      document.getElementById('view-empty').style.display = v === 'empty' ? 'block' : 'none';
+    });
+  });
+})();
+</script>
