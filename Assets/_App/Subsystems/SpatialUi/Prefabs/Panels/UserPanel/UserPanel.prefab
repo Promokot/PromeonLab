@@ -86,7 +86,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3770651613785946415
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4810,7 +4810,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 852352612146810929, guid: 2cd966e584e7bdb4e9bbb92e38d27723, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 262.08002
+      value: 332.5
       objectReference: {fileID: 0}
     - target: {fileID: 852352612146810929, guid: 2cd966e584e7bdb4e9bbb92e38d27723, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -4856,9 +4856,17 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -32
       objectReference: {fileID: 0}
+    - target: {fileID: 1811048742829651403, guid: 2cd966e584e7bdb4e9bbb92e38d27723, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1816581802598176629, guid: 2cd966e584e7bdb4e9bbb92e38d27723, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -0.023742676
+      objectReference: {fileID: 0}
+    - target: {fileID: 1816581802598176629, guid: 2cd966e584e7bdb4e9bbb92e38d27723, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.0060424805
       objectReference: {fileID: 0}
     - target: {fileID: 1834130817089044454, guid: 2cd966e584e7bdb4e9bbb92e38d27723, type: 3}
       propertyPath: m_AnchorMax.y
@@ -5307,6 +5315,14 @@ PrefabInstance:
     - target: {fileID: 8093873688468665278, guid: 2cd966e584e7bdb4e9bbb92e38d27723, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -32
+      objectReference: {fileID: 0}
+    - target: {fileID: 8177595018543306474, guid: 2cd966e584e7bdb4e9bbb92e38d27723, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8177595018543306474, guid: 2cd966e584e7bdb4e9bbb92e38d27723, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8378339493215462899, guid: 2cd966e584e7bdb4e9bbb92e38d27723, type: 3}
       propertyPath: m_AnchorMax.y
