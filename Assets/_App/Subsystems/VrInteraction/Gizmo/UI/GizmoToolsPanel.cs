@@ -29,11 +29,13 @@ public class GizmoToolsPanel : MonoBehaviour
     {
         _current = GizmoMode.Move;
         UpdateIndicators();
+        Debug.Log($"[GizmoToolsPanel] OnEnable fired. _bus={(_bus != null ? "OK" : "NULL")}");
         if (_bus != null)
         {
             _bus.Subscribe<GizmoDragStartedEvent>(OnDragStarted);
             _bus.Subscribe<GizmoDragEndedEvent>(OnDragEnded);
             _bus.Publish(new GizmoToolsPanelOpenedEvent());
+            Debug.Log("[GizmoToolsPanel] Published GizmoToolsPanelOpenedEvent.");
         }
     }
 

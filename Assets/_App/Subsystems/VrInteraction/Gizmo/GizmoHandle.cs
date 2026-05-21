@@ -18,10 +18,11 @@ public class GizmoHandle : XRBaseInteractable
     private enum HandleState { Idle, Dragging }
     private HandleState _state;
 
+    public void Bind(GizmoActivator activator) => _activator = activator;
+
     protected override void Awake()
     {
         base.Awake();
-        _activator = GetComponentInParent<GizmoActivator>();
         // base.Awake auto-adds child colliders; keep only same-GO collider for hit-test precision.
         colliders.Clear();
         foreach (var c in GetComponents<Collider>())
