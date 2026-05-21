@@ -9,6 +9,7 @@
     "Subsystems.SceneComposition",
     "Subsystems.AssetBrowser",
     "Subsystems.RigBuilder",
+    "Subsystems.AnimationAuthoring",
     "SimpleFileBrowser.Runtime",
     "Unity.TextMeshPro",
     "Unity.InputSystem"
