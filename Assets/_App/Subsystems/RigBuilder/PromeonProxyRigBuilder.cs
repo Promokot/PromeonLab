@@ -31,12 +31,20 @@ public class PromeonProxyRigBuilder : MonoBehaviour
 
     void OnEnable()
     {
-        if (_proxyGOs.Count > 0) return;
-        var proxyRoot = transform.Find("ProxyRig");
-        if (proxyRoot == null) return;
-        _proxyRoot = proxyRoot;
-        foreach (var marker in proxyRoot.GetComponentsInChildren<BoneSceneNodeMarker>(includeInactive: true))
-            _proxyGOs.Add(marker.gameObject);
+        if (_proxyGOs.Count == 0)
+        {
+            var proxyRoot = transform.Find("ProxyRig");
+            if (proxyRoot == null) return;
+            _proxyRoot = proxyRoot;
+            foreach (var marker in proxyRoot.GetComponentsInChildren<BoneSceneNodeMarker>(includeInactive: true))
+                _proxyGOs.Add(marker.gameObject);
+        }
+
+        // Procedurally generated meshes (assigned in editor Rebuild) do NOT survive prefab save/load —
+        // Unity serializes null fileID for un-named runtime meshes. Re-create them here from the live
+        // bone transforms. We don't touch GO transforms or any other component state, so animation/pose
+        // is preserved.
+        RegenerateMissingProxyMeshes();
     }
 
     void OnDestroy()
@@ -94,6 +102,64 @@ public class PromeonProxyRigBuilder : MonoBehaviour
             if (col     != null) col.enabled     = enabled;
         }
         if (_rootCollider != null) _rootCollider.enabled = !enabled;
+    }
+
+    /// Walks each proxy GO and re-creates its diamond mesh if the MeshFilter has lost its sharedMesh
+    /// reference (i.e. the procedural mesh did not survive prefab serialization). Uses the live
+    /// SkinnedMeshRenderer.bones to derive each proxy's bone + children. Transforms and components
+    /// are not touched.
+    private void RegenerateMissingProxyMeshes()
+    {
+        var transforms = ResolveTransforms();
+        if (transforms == null || transforms.Length == 0) return;
+
+        var boneSet     = new HashSet<Transform>(transforms);
+        boneSet.Remove(null);
+        var bonesByName = new Dictionary<string, Transform>();
+        foreach (var t in transforms)
+            if (t != null && !bonesByName.ContainsKey(t.name)) bonesByName[t.name] = t;
+
+        foreach (var proxyGo in _proxyGOs)
+        {
+            if (proxyGo == null) continue;
+            var mf = proxyGo.GetComponent<MeshFilter>();
+            if (mf == null) continue;
+            if (mf.sharedMesh != null) continue; // already has mesh
+
+            // Proxy GO is named "proxy_<boneName>" by BuildProxyNode.
+            var name = proxyGo.name;
+            var boneName = name.StartsWith("proxy_") ? name.Substring("proxy_".Length) : name;
+            if (!bonesByName.TryGetValue(boneName, out var bone) || bone == null) continue;
+
+            var children = new List<Transform>();
+            for (int i = 0; i < bone.childCount; i++)
+            {
+                var c = bone.GetChild(i);
+                if (boneSet.Contains(c)) children.Add(c);
+            }
+
+            Mesh mesh;
+            if (children.Count > 0)
+            {
+                mesh = BuildCombinedDiamondMesh(bone, children);
+            }
+            else
+            {
+                if (bone.parent == null) continue;
+                var worldDir    = bone.position - bone.parent.position;
+                float parentLen = Mathf.Max(worldDir.magnitude, 0.0001f);
+                float length    = parentLen * 0.5f;
+                Vector3 localChildDir = bone.InverseTransformDirection(worldDir).normalized;
+                if (localChildDir.sqrMagnitude < 0.0001f) localChildDir = Vector3.up;
+                float width = EffectiveWidth(_boneWidth, length);
+                mesh = BuildOrientedDiamondMesh(localChildDir, length, width);
+            }
+
+            _proxyMeshes.Add(mesh);
+            mf.sharedMesh = mesh;
+            var mc = proxyGo.GetComponent<MeshCollider>();
+            if (mc != null) mc.sharedMesh = mesh;
+        }
     }
 
     private void OnSelectionChanged(SelectionChangedEvent evt)

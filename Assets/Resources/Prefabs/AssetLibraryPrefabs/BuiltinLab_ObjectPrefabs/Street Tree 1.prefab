@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2366065402080755868}
   - component: {fileID: 4954383793669471149}
   - component: {fileID: -4705697203629853415}
+  - component: {fileID: 6615415209832674290}
   m_Layer: 0
   m_Name: Street Tree 1
   m_TagString: Untagged
@@ -208,3 +209,15 @@ MonoBehaviour:
   _displayName: 
   _isVisible: 1
   _isLocked: 0
+--- !u!114 &6615415209832674290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 805797623111974284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c60405ee75790034ca99a3a05d7693fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Subsystems.VrInteraction::Selectable
