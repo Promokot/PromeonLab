@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -98,7 +97,6 @@ public class PromeonProxyRigBuilder : MonoBehaviour
         if (enabled && _proxyRoot != null && !_proxyRoot.gameObject.activeSelf)
             _proxyRoot.gameObject.SetActive(true);
 
-        bool logged = false;
         foreach (var go in _proxyGOs)
         {
             if (go == null) continue;
@@ -110,44 +108,18 @@ public class PromeonProxyRigBuilder : MonoBehaviour
             var col     = go.GetComponent<Collider>();
             if (col     != null) col.enabled     = enabled;
 
-            // Brute-force renderer invalidation: writing sharedMaterial back to itself can force
-            // the render pipeline to re-evaluate this renderer in case it's been deferred for some
-            // reason (URP+XR sometimes lazily skips newly-enabled renderers until something nudges).
+            // Brute-force renderer invalidation: writing sharedMaterial back to itself kicks the
+            // render pipeline into re-evaluating this renderer. Without this, URP+XR was deferring
+            // newly-enabled mesh renderers until an unrelated event (e.g. click) nudged the pipeline.
             if (enabled && mr != null && mr.sharedMaterial != null)
                 mr.sharedMaterial = mr.sharedMaterial;
-
-            if (enabled && !logged)
-            {
-                logged = true;
-                var mf = go.GetComponent<MeshFilter>();
-                Debug.Log($"[ShowBones] go={go.name} " +
-                          $"activeInHierarchy={go.activeInHierarchy} " +
-                          $"layer={LayerMask.LayerToName(go.layer)} " +
-                          $"mr.enabled={(mr != null ? mr.enabled.ToString() : "null")} " +
-                          $"mr.isVisible={(mr != null ? mr.isVisible.ToString() : "null")} " +
-                          $"mr.forceRenderingOff={(mr != null ? mr.forceRenderingOff.ToString() : "null")} " +
-                          $"mr.shadowCastingMode={(mr != null ? mr.shadowCastingMode.ToString() : "null")} " +
-                          $"mr.bounds={(mr != null ? mr.bounds.ToString() : "null")} " +
-                          $"sharedMaterial={(mr != null && mr.sharedMaterial != null ? mr.sharedMaterial.name : "null")} " +
-                          $"sharedMesh={(mf?.sharedMesh != null)} " +
-                          $"meshBounds={(mf?.sharedMesh != null ? mf.sharedMesh.bounds.ToString() : "null")} " +
-                          $"proxyRoot.layer={(_proxyRoot != null ? LayerMask.LayerToName(_proxyRoot.gameObject.layer) : "null")}");
-            }
         }
         if (_rootCollider != null) _rootCollider.enabled = !enabled;
 
-        if (enabled && isActiveAndEnabled) StartCoroutine(PokeOutlineColorsNextFrame());
-    }
-
-    private IEnumerator PokeOutlineColorsNextFrame()
-    {
-        yield return new WaitForEndOfFrame();
-        foreach (var go in _proxyGOs)
-        {
-            if (go == null) continue;
-            var outline = go.GetComponent<Outline>();
-            if (outline != null) outline.OutlineColor = _boneOutlineColorDefault;
-        }
+        // Direct color set per proxy — identical to what OnSelectionChanged → ApplyBoneOutlineColors
+        // does on first click. The coroutine variant (WaitForEndOfFrame) did not push the outline
+        // material through; calling it inline matches the click path exactly.
+        if (enabled) ApplyBoneOutlineColors(null);
     }
 
     /// Walks each proxy GO and re-creates its diamond mesh if the MeshFilter has lost its sharedMesh

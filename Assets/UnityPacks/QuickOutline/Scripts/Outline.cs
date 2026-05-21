@@ -164,8 +164,18 @@ public class Outline : MonoBehaviour {
 
     foreach (var meshFilter in GetComponentsInChildren<MeshFilter>()) {
 
+      // Skip meshfilters without an assigned mesh (proxy/runtime GOs may briefly exist in this state).
+      if (meshFilter.sharedMesh == null) {
+        continue;
+      }
+
       // Skip duplicates
       if (!bakedMeshes.Add(meshFilter.sharedMesh)) {
+        continue;
+      }
+
+      // Skip non-readable meshes — vertex/normal access throws on isReadable=false
+      if (!meshFilter.sharedMesh.isReadable) {
         continue;
       }
 
