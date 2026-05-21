@@ -1,12 +1,12 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "VrAnimApp/Animator Panel Config")]
+[CreateAssetMenu(menuName = "PromeonLab/Animator Panel Config")]
 public class AnimatorPanelConfig : ScriptableObject
 {
     [Header("Timeline metrics")]
     public float FramePx             = 30f;
     public int   MajorTickInterval   = 5;
-    public int   DefaultTotalFrames  = 60;
+    public int   DefaultTotalFrames  = 100;
     public int   DefaultFps          = 24;
 
     [Header("Key marker colors")]

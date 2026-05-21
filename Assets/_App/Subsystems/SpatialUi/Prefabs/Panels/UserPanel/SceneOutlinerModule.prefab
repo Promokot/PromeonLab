@@ -104,7 +104,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Subsystems.SpatialUi::SceneOutlinerView
   _rowsRoot: {fileID: 3118048587844026723}
-  _rowPrefab: {fileID: 1648571246966754811, guid: c6e3f45b8da76744bb23ba4ac6e10be3, type: 3}
+  _objectRowPrefab: {fileID: 1648571246966754811, guid: c6e3f45b8da76744bb23ba4ac6e10be3, type: 3}
+  _rigRowPrefab: {fileID: 1648571246966754811, guid: c0f7f57a816073f43866eb0f13d67c20, type: 3}
   _indentPx: 16
 --- !u!1 &1110867782430635458
 GameObject:

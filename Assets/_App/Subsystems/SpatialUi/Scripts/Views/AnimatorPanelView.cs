@@ -285,7 +285,6 @@ public class AnimatorPanelView : MonoBehaviour
         if (_playhead != null)
         {
             _playhead.SetFrame(_clock.CurrentFrame);
-            _playhead.SetHeight((c.Tracks.Count + 1) * 52f);
         }
     }
 

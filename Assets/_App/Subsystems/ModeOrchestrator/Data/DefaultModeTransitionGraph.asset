@@ -15,12 +15,12 @@ MonoBehaviour:
   _allowed:
   - From: 0
     To: 1
+  - From: 0
+    To: 2
   - From: 1
     To: 0
-  - From: 1
-    To: 2
   - From: 2
-    To: 1
+    To: 0
   - From: 0
     To: 4
   - From: 4

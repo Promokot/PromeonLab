@@ -27,7 +27,7 @@ public class GizmoHandle : XRBaseInteractable
         colliders.Clear();
         foreach (var c in GetComponents<Collider>())
             if (c != null && !colliders.Contains(c)) colliders.Add(c);
-        Debug.Log($"[GizmoHandle:{name}] Awake. kind={_kind}, axis={_axis}, colliders={colliders.Count}");
+        //Debug.Log($"[GizmoHandle:{name}] Awake. kind={_kind}, axis={_axis}, colliders={colliders.Count}");
     }
 
     private int _hoverFrames;

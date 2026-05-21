@@ -17,7 +17,13 @@
       "Skill(superpowers:writing-plans)",
       "Bash(not exist *)",
       "Bash(xargs grep -l \"Catalog\\\\|LabAsset\")",
-      "Bash(xargs grep -l \"BuiltinAssetLibrary\")"
+      "Bash(xargs grep -l \"BuiltinAssetLibrary\")",
+      "mcp__unityMCP__manage_prefabs",
+      "mcp__unityMCP__manage_components",
+      "mcp__unityMCP__refresh_unity",
+      "mcp__unityMCP__batch_execute",
+      "mcp__unityMCP__run_tests",
+      "mcp__unityMCP__get_test_job"
     ]
   },
   "enabledMcpjsonServers": [
