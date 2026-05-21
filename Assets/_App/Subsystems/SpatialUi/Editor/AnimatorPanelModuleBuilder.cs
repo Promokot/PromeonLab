@@ -1277,4 +1277,224 @@ public static class AnimatorPanelModuleBuilder
             current = next;
         }
     }
+
+    // ---------------------------------------------------------------------
+    // One-shot migration: TimelineBtn -> AnimatorBtn binding swap in UserPanel
+    // ---------------------------------------------------------------------
+    [MenuItem("PromeonLab/Build/Wire AnimatorBtn From TimelineBtn")]
+    public static void MigrateTimelineBtnToAnimator()
+    {
+        var root = PrefabUtility.LoadPrefabContents(UserPanelPath);
+        if (root == null)
+        {
+            Debug.LogError("[MigrateTimelineBtnToAnimator] could not load " + UserPanelPath);
+            return;
+        }
+
+        try
+        {
+            var userPanel = root.GetComponent<UserPanel>();
+            if (userPanel == null)
+            {
+                Debug.LogError("[MigrateTimelineBtnToAnimator] UserPanel component not found on root.");
+                return;
+            }
+
+            var so       = new SerializedObject(userPanel);
+            var bindings = so.FindProperty("_bindings");
+            if (bindings == null || !bindings.isArray)
+            {
+                Debug.LogError("[MigrateTimelineBtnToAnimator] _bindings array not found.");
+                return;
+            }
+
+            int timelineIdx = -1;
+            int animatorIdx = -1;
+            for (int i = 0; i < bindings.arraySize; i++)
+            {
+                var el = bindings.GetArrayElementAtIndex(i);
+                var id = el.FindPropertyRelative("EntryId").stringValue;
+                if (id == "timeline") timelineIdx = i;
+                else if (id == "animator") animatorIdx = i;
+            }
+
+            if (timelineIdx < 0 || animatorIdx < 0)
+            {
+                Debug.LogError($"[MigrateTimelineBtnToAnimator] expected both 'timeline' and 'animator' entries. timelineIdx={timelineIdx}, animatorIdx={animatorIdx}");
+                return;
+            }
+
+            var timelineEl = bindings.GetArrayElementAtIndex(timelineIdx);
+            var animatorEl = bindings.GetArrayElementAtIndex(animatorIdx);
+
+            var timelineBtnRef   = timelineEl.FindPropertyRelative("NavButton").objectReferenceValue;
+            var timelinePanelRef = timelineEl.FindPropertyRelative("Panel").objectReferenceValue;
+
+            // Move button reference: animator <- timeline; timeline <- null
+            animatorEl.FindPropertyRelative("NavButton").objectReferenceValue = timelineBtnRef;
+            timelineEl.FindPropertyRelative("NavButton").objectReferenceValue = null;
+
+            // Rename button + update label
+            bool renamed       = false;
+            bool labelChanged  = false;
+            string oldLabel    = null;
+            var btnComponent   = timelineBtnRef as Button;
+            GameObject btnGo   = null;
+            if (btnComponent != null)
+            {
+                btnGo = btnComponent.gameObject;
+            }
+            else if (timelineBtnRef is Component compRef)
+            {
+                btnGo = compRef.gameObject;
+            }
+            else if (timelineBtnRef is GameObject goRef)
+            {
+                btnGo = goRef;
+            }
+
+            if (btnGo != null)
+            {
+                btnGo.name = "AnimatorBtn";
+                renamed    = true;
+
+                var label = btnGo.GetComponentInChildren<TMP_Text>(true);
+                if (label != null)
+                {
+                    oldLabel = label.text;
+                    var lowered = oldLabel == null ? string.Empty : oldLabel.Trim().ToLowerInvariant();
+                    if (lowered == "timeline")
+                    {
+                        label.text   = "Animator";
+                        labelChanged = true;
+                    }
+                    else
+                    {
+                        Debug.Log($"[MigrateTimelineBtnToAnimator] label text is '{oldLabel}', not 'Timeline' — leaving as-is for user review.");
+                    }
+                }
+                else
+                {
+                    Debug.Log("[MigrateTimelineBtnToAnimator] no TMP_Text label child found under button — check for sprite/icon manually.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[MigrateTimelineBtnToAnimator] timeline NavButton reference is null or not resolvable to a GameObject.");
+            }
+
+            // Destroy orphan AnimationModule panel (was timeline's Panel)
+            bool orphanDestroyed = false;
+            var orphanGo = timelinePanelRef as GameObject;
+            if (orphanGo == null && timelinePanelRef is Component orphanComp)
+                orphanGo = orphanComp.gameObject;
+
+            if (orphanGo != null)
+            {
+                if (orphanGo.transform.parent != null)
+                {
+                    Debug.Log($"[MigrateTimelineBtnToAnimator] destroying orphan panel '{orphanGo.name}' under parent '{orphanGo.transform.parent.name}'.");
+                    Object.DestroyImmediate(orphanGo);
+                    orphanDestroyed = true;
+                }
+                else
+                {
+                    Debug.LogWarning("[MigrateTimelineBtnToAnimator] orphan panel has no parent — refusing to destroy.");
+                }
+            }
+            else
+            {
+                Debug.Log("[MigrateTimelineBtnToAnimator] timeline Panel reference is null; nothing to destroy.");
+            }
+
+            // Remove timeline binding entry
+            // Re-resolve timeline index in case the indices shifted (they didn't here, but be safe)
+            int removeAt = -1;
+            for (int i = 0; i < bindings.arraySize; i++)
+            {
+                var el = bindings.GetArrayElementAtIndex(i);
+                if (el.FindPropertyRelative("EntryId").stringValue == "timeline")
+                {
+                    removeAt = i;
+                    break;
+                }
+            }
+            bool bindingRemoved = false;
+            if (removeAt >= 0)
+            {
+                bindings.DeleteArrayElementAtIndex(removeAt);
+                bindingRemoved = true;
+            }
+
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            PrefabUtility.SaveAsPrefabAsset(root, UserPanelPath);
+
+            Debug.Log(
+                $"[MigrateTimelineBtnToAnimator] summary: " +
+                $"buttonRenamed={renamed}, labelChanged={labelChanged} (oldText='{oldLabel}'), " +
+                $"timelineBindingRemoved={bindingRemoved}, animationModuleDestroyed={orphanDestroyed}, " +
+                $"finalBindingsSize={bindings.arraySize}");
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // One-shot migration: remove 'timeline' entry from NavBarConfig
+    // ---------------------------------------------------------------------
+    [MenuItem("PromeonLab/Build/Remove Timeline NavBarEntry")]
+    public static void RemoveTimelineNavBarEntry()
+    {
+        var asset = AssetDatabase.LoadAssetAtPath<NavBarConfig>(NavBarConfigPath);
+        if (asset == null)
+        {
+            var guids = AssetDatabase.FindAssets("t:NavBarConfig");
+            if (guids != null && guids.Length > 0)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                asset = AssetDatabase.LoadAssetAtPath<NavBarConfig>(path);
+                Debug.Log($"[RemoveTimelineNavBarEntry] default path missing, using found asset at {path}");
+            }
+        }
+        if (asset == null)
+        {
+            Debug.LogError("[RemoveTimelineNavBarEntry] NavBarConfig asset not found.");
+            return;
+        }
+
+        var so      = new SerializedObject(asset);
+        var entries = so.FindProperty("_entries");
+        if (entries == null || !entries.isArray)
+        {
+            Debug.LogError("[RemoveTimelineNavBarEntry] _entries array not found.");
+            return;
+        }
+
+        int removeAt = -1;
+        for (int i = 0; i < entries.arraySize; i++)
+        {
+            var el = entries.GetArrayElementAtIndex(i);
+            if (el.FindPropertyRelative("Id").stringValue == "timeline")
+            {
+                removeAt = i;
+                break;
+            }
+        }
+
+        if (removeAt < 0)
+        {
+            Debug.Log($"[RemoveTimelineNavBarEntry] no 'timeline' entry to remove, final size={entries.arraySize}");
+            return;
+        }
+
+        entries.DeleteArrayElementAtIndex(removeAt);
+        so.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(asset);
+        AssetDatabase.SaveAssets();
+
+        Debug.Log($"[RemoveTimelineNavBarEntry] removed timeline entry, final size={entries.arraySize}");
+    }
 }

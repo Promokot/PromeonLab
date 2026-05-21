@@ -25,9 +25,6 @@ MonoBehaviour:
   - Id: inspector
     VisibleModes: 0100000004000000
     ExclusiveGroup: right
-  - Id: timeline
-    VisibleModes: 01000000
-    ExclusiveGroup: center
   - Id: rigging
     VisibleModes: 
     ExclusiveGroup: 
