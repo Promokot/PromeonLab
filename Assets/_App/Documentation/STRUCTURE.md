@@ -1,6 +1,6 @@
 # PromeonLab — File Structure (Assets/)
 
-> Regenerated 2026-05-29 (post-restructure). Unity 6000.3.7f1.
+> Regenerated 2026-05-29 (post-restructure + folder cleanup). Unity 6000.3.7f1.
 
 ---
 
@@ -9,26 +9,27 @@
 | Folder / File | Purpose |
 |---|---|
 | `_App/` | All project-owned code, content, scenes, and documentation |
-| `CompositionLayers/` | Meta XR Composition Layers package user-settings (auto-generated) |
-| `Resources/` | Reserved for future `Resources.Load` use; currently empty |
-| `Samples/` | XR Interaction Toolkit 3.0.7 sample assets (Starter Assets + XR Device Simulator) |
-| `Screenshots/` | Debug in-game screenshots (capture output) |
+| `CompositionLayers/` | Meta XR Composition Layers package user-settings (auto-generated, transitive via Meta OpenXR) |
+| `Samples/` | XR Interaction Toolkit 3.0.7 sample assets (Starter Assets + XR Device Simulator) — **live dependency:** base of the `User XR Origin (XR Rig)` prefab variant |
 | `Settings/` | URP renderer and pipeline assets (Mobile + PC profiles, global URP settings) |
 | `TextMesh Pro/` | Standard TMP package (Resources, Fonts, Shaders, Examples) |
-| `TutorialInfo/` | Unity URP template readme and editor scripts (not project code) |
 | `UnityPacks/` | Third-party packs: ColorSkies, Downtown Game Studio (nature), HouseInteriorPack, Keyboard Package, QuickOutline, SimpleFileBrowser |
 | `XR/` | XR Plug-in Management settings (OpenXR + XR Simulation loaders) |
 | `XRI/` | XR Interaction Toolkit project settings (Interaction Layers + Device Simulator) |
-| `_Recovery/` | Unity Editor autosave (recovery); not used at runtime |
 | `InputSystem_Actions.inputactions` | Root Input System action-map asset |
-| `Readme.asset` | Unity template readme ScriptableObject |
+| `Readme.asset` | Unity template readme ScriptableObject — **orphaned:** its script lived in the deleted `TutorialInfo/`, so the asset now has a missing script reference (safe to delete) |
 
-> **Removed/moved by restructure (no longer exist):** `_App/_Shared/`, `_App/Subsystems/`,
+> **Removed/moved by restructure:** `_App/_Shared/`, `_App/Subsystems/`,
 > `_App/DemoAssets/`, and the top-level `_App/Bootstrap/` (now `_App/Scripts/Bootstrap/`).
-> `Resources/` sub-content (materials/textures/models/prefabs) moved into `_App/Content/`,
-> leaving `Resources/` empty. **All other top-level folders are unchanged** — `XR/`, `XRI/`,
-> `TextMesh Pro/`, `CompositionLayers/`, `Samples/`, `Settings/`, `TutorialInfo/`, `UnityPacks/`
-> (incl. Downtown Game Studio & HouseInteriorPack), `Screenshots/`, `_Recovery/` all still exist.
+> `Resources/` sub-content (materials/textures/models/prefabs) moved into `_App/Content/`.
+>
+> **Removed by 2026-05-29 folder cleanup:** `Resources/` (was empty — `_App` does not use
+> `Resources.Load`), `TutorialInfo/` (Unity URP template readme/editor scripts — not project
+> code), `Screenshots/` (dev capture output — not game content), `_Recovery/` (Editor autosave
+> scene). Leftover: `Readme.asset` at root now references the deleted `TutorialInfo` script.
+>
+> **Unchanged, retained on purpose** (package/engine-managed at fixed paths, or live deps):
+> `XR/`, `XRI/`, `TextMesh Pro/`, `CompositionLayers/`, `Samples/`, `Settings/`, `UnityPacks/`.
 
 ---
 
@@ -64,8 +65,6 @@ Assets/
 │       └── Resources/
 │           └── CompositionLayersRuntimeSettings.asset
 │
-├── Resources/                              (empty — reserved)
-│
 ├── Samples/
 │   └── XR Interaction Toolkit/
 │       └── 3.0.7/
@@ -82,15 +81,6 @@ Assets/
 │   ├── PC_RPAsset.asset
 │   ├── SampleSceneProfile.asset
 │   └── UniversalRenderPipelineGlobalSettings.asset
-│
-├── TutorialInfo/
-│   ├── Layout.wlt
-│   ├── Icons/
-│   │   └── URP.png
-│   └── Scripts/
-│       ├── Readme.cs
-│       └── Editor/
-│           └── ReadmeEditor.cs
 │
 ├── UnityPacks/                             (third-party; do not modify without noting changes)
 │   ├── ColorSkies/                         skybox cubemap materials
