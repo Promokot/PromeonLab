@@ -1,5 +1,5 @@
 {
   "name": "KeyboardPackage",
-  "references": ["Subsystems.SpatialUi", "Unity.TextMeshPro"],
+  "references": ["_App.Runtime", "Unity.TextMeshPro"],
   "autoReferenced": false
 }

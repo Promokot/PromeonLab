@@ -1,1 +1,0 @@
-{ "name": "Subsystems.SceneComposition", "references": ["_Shared", "VContainer", "Unity.TextMeshPro", "Subsystems.StorageCore"], "autoReferenced": false }

@@ -1,1 +1,0 @@
-{ "name": "Subsystems.ModeOrchestrator", "references": ["_Shared", "VContainer"], "autoReferenced": false }

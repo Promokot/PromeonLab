@@ -1,1 +1,0 @@
-{ "name": "Subsystems.RigBuilder", "references": ["_Shared","VContainer","QuickOutline","Subsystems.SceneComposition","Subsystems.VrInteraction","Unity.XR.Interaction.Toolkit"], "autoReferenced": false }

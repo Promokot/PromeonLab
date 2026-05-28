@@ -1,0 +1,7 @@
+{
+  "name": "_App.Tests",
+  "references": ["_App.Runtime", "VContainer", "Unity.XR.Interaction.Toolkit", "Unity.InputSystem", "QuickOutline"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "autoReferenced": false
+}

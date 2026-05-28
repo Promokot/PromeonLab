@@ -1,0 +1,6 @@
+{
+  "name": "_App.Editor",
+  "references": ["_App.Runtime", "Unity.TextMeshPro", "Unity.Animation.Rigging"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false
+}

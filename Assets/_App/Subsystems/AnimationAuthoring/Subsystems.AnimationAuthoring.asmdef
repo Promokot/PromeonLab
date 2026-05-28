@@ -1,1 +1,0 @@
-{ "name": "Subsystems.AnimationAuthoring", "references": ["_Shared", "VContainer", "Subsystems.StorageCore", "Unity.TextMeshPro"], "autoReferenced": false }
