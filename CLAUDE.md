@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Language:** C# (no namespaces for runtime gameplay code; `VrAnimApp.Editor` for editor code; `VrAnimApp.Adapters` for platform wrappers)
 - **VR Runtime:** OpenXR (cross-platform, not locked to Meta SDK)
 - **DI:** VContainer (Root → Scene → Feature scope hierarchy)
-- **Events:** MessagePipe per-scope event buses
+- **Events:** Custom `EventBus` (`Publish<T>`/`Subscribe<T>`, per-scope)
 - **Graphics:** URP 17.3.0
 - **Serialization:** Unity JsonUtility (all data versioned with `schemaVersion`)
 
@@ -20,7 +20,7 @@ This is a Unity project — there is no CLI build script. All compilation, build
 
 - **Build target:** Android (Meta Quest standalone)
 - **XR configuration:** ProjectSettings/XR (OpenXR + Meta OpenXR loaders)
-- **Tests:** Run via Unity Test Runner (`Window > General > Test Runner`); subsystem tests live in `_App/Subsystems/{Name}/Tests/`
+- **Tests:** Run via Unity Test Runner (`Window > General > Test Runner`); subsystem tests live in `Assets/_App/Tests/<Subsystem>/` (single `_App.Tests` assembly)
 - **Editor-only tooling:** `Assets/_App/Editor/` folder; excluded from builds automatically via `.asmdef` platform constraints
 - **Third-party packages:** Imported into `Assets/Plugins/` or via Package Manager — keep `Assets/` root clean for packs
 
@@ -47,7 +47,7 @@ Child scopes may depend on parent registrations; **never the reverse**. `Feature
 
 ### Subsystems
 
-Located in `Assets/_App/Subsystems/`. Each is isolated behind interfaces declared in `Assets/_App/_Shared/Interfaces/`.
+Located in `Assets/_App/Scripts/<Subsystem>/`. Interfaces and contracts for each subsystem live in that subsystem's own folder; only the two truly-generic primitives (`EventBus.cs`, `ICommand.cs`) live in `Scripts/Core/`.
 
 | Subsystem | Core Responsibility |
 |---|---|
@@ -66,7 +66,7 @@ Located in `Assets/_App/Subsystems/`. Each is isolated behind interfaces declare
 
 ### Cross-Subsystem Communication
 
-All cross-subsystem messages are `struct` types suffixed `Event` (e.g., `SceneOpenedEvent`, `ModeChangedEvent`), published via the per-scope MessagePipe bus. **Direct method calls across subsystem boundaries are forbidden.** Key events:
+All cross-subsystem messages are `struct` types suffixed `Event` (e.g., `SceneOpenedEvent`, `ModeChangedEvent`), published via the per-scope `EventBus` (`Publish<T>`/`Subscribe<T>`). `*Event` structs live in each subsystem's `Events/` subfolder. **Direct method calls across subsystem boundaries are forbidden.** Key events:
 
 `SceneOpened` → SceneComposition, AssetBrowser  
 `SceneModified` → UnsavedChangesGuard  
@@ -92,20 +92,29 @@ Application.persistentDataPath/scenes/{SceneId}/
 
 ```
 Assets/
-├── _App/                             ← ALL project code lives here
-│   ├── Bootstrap/                    ← LifetimeScopes, AppBootstrap, scene loader
-│   ├── DemoAssets/                   ← pre-bundled FBX prefabs + DemoAssetCatalog SO
-│   ├── _Shared/Events|Interfaces|Models|UI  ← cross-subsystem abstractions only
-│   ├── Subsystems/{Name}/
-│   │   ├── {Name}.cs                 ← primary façade (if needed)
-│   │   ├── Data/                     ← structs, enums, ScriptableObjects
-│   │   ├── UI/                       ← subsystem-specific panels/views
-│   │   ├── Tests/
-│   │   └── Editor/
-│   ├── Editor/                       ← project-wide editor-only code
-│   └── _App.asmdef                   ← composition root assembly
+├── _App/                             ← ALL project code and owned assets live here
+│   ├── Scripts/                      ← ALL runtime C# code (_App.Runtime.asmdef)
+│   │   ├── Core/                     ← Generic primitives: EventBus.cs, ICommand.cs
+│   │   ├── Bootstrap/                ← LifetimeScopes, AppBootstrap, scene loader
+│   │   └── {SubsystemName}/          ← one folder per subsystem
+│   │       ├── {Name}.cs             ← primary façade (if needed)
+│   │       ├── Data/                 ← structs, enums, ScriptableObjects
+│   │       ├── Events/               ← *Event structs for this subsystem
+│   │       └── UI/                   ← subsystem-specific panels/views
+│   ├── Editor/                       ← project-wide editor-only code (_App.Editor.asmdef)
+│   ├── Tests/                        ← all tests (_App.Tests.asmdef)
+│   │   └── {SubsystemName}/          ← tests per subsystem
+│   ├── Content/                      ← owned art/asset files
+│   │   ├── Prefabs/                  ← UI, Gizmos, Assets, Environment, XR
+│   │   ├── ScriptableObjects/
+│   │   ├── Materials/
+│   │   ├── Models/
+│   │   ├── Textures/
+│   │   └── Shaders/
+│   ├── Scenes/
+│   └── Documentation/
 ├── Plugins/                          ← third-party plugins (e.g. SimpleFileBrowser)
-└── Resources/                        ← minimise use; prefer prefab references
+└── Resources/                        ← not used by _App; avoid
 ```
 
 ## Key Conventions
@@ -132,10 +141,10 @@ Assets/
 - ScriptableObjects for config/graphs/profiles only — **not** for runtime mutable state
 - One public type per file; file name matches type name exactly
 - All user-reversible actions go through `CommandStack` — no direct mutation bypassing it
-- Platform-dependent code behind interfaces in `_Shared/Interfaces` (no concrete platform classes at call sites)
+- Platform-dependent code behind interfaces declared in the owning subsystem's folder (no concrete platform classes at call sites)
 - All serialized data carries a `schemaVersion` field; migrations only in `StorageMigrator`
-- No `.asmdef` cross-references between subsystems — contracts flow through `_Shared`
-- Subsystem-specific code stays in its subsystem folder
+- Cross-subsystem boundaries are enforced by convention (folder structure + code review) — there are no per-subsystem assemblies; all runtime code compiles into `_App.Runtime`
+- Subsystem-specific code stays in its subsystem folder under `Scripts/`
 
 ### Strictly Forbidden
 
@@ -143,7 +152,7 @@ Assets/
 - `Singleton.Instance` pattern — use VContainer scopes
 - `static` fields holding mutable runtime state
 - Generic type name suffixes: `Manager`, `Handler`, `Utils`, `Helper`, `Controller`, `Processor`, `Service`
-- `Resources.Load` without explicit justification
+- `Resources.Load` — `_App` code must not use this; use prefab references via DI or `Content/` folder
 - `MonoBehaviour` as a data container
 - `Update()`-based polling where an event suffices
 - Swallowing exceptions silently

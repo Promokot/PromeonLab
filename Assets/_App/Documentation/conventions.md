@@ -6,40 +6,34 @@
 
 ```
 Assets/
-├── _App/                         ← Bootstrap, root-level entry points
-│   ├── Bootstrap/
-│   └── Scenes/
+├── _App/                         ← ALL project code and owned assets
+│   ├── Scripts/                  ← ALL runtime C# (_App.Runtime.asmdef)
+│   │   ├── Core/                 ← Generic primitives only: EventBus.cs, ICommand.cs
+│   │   ├── Bootstrap/            ← LifetimeScopes, AppBootstrap, scene loader
+│   │   └── {SubsystemName}/      ← one folder per subsystem
+│   ├── Editor/                   ← Editor-only code (_App.Editor.asmdef), excluded from builds
+│   ├── Tests/                    ← All tests (_App.Tests.asmdef)
+│   │   └── {SubsystemName}/
+│   ├── Content/                  ← Owned art/asset files
+│   │   ├── Prefabs/              ← UI, Gizmos, Assets, Environment, XR
+│   │   ├── ScriptableObjects/
+│   │   ├── Materials/
+│   │   ├── Models/
+│   │   ├── Textures/
+│   │   └── Shaders/
+│   ├── Scenes/
 │   └── Documentation/
-├── _Shared/                      ← Cross-subsystem abstractions only (no subsystem-specific code)
-│   ├── Extensions/
-│   ├── Interfaces/
-│   ├── Models/                   ← Shared data structs/enums
-│   └── UI/                       ← Generic UI widgets (not tied to any subsystem)
-├── Subsystems/
-│   ├── StorageCore/
-│   ├── AssetBrowser/
-│   ├── SceneComposition/
-│   ├── RigBuilder/
-│   ├── AnimationAuthoring/
-│   ├── AnimationPlayback/
-│   ├── ExportPipeline/
-│   ├── InputBindings/
-│   ├── ModeOrchestrator/
-│   ├── VrInteraction/
-│   └── SpatialUi/
-├── Editor/                       ← Editor-only code, excluded from builds
-└── Resources/                    ← Runtime-loaded assets (minimise use)
+└── Plugins/                      ← Third-party plugins (e.g. SimpleFileBrowser)
 ```
 
 ### Per-Subsystem Layout
 
 ```
-Subsystems/{SubsystemName}/
+Scripts/{SubsystemName}/
 ├── {SubsystemName}.cs            ← Primary façade / entry point (if applicable)
 ├── Data/                         ← Subsystem-specific data structs, enums, SOs
-├── UI/                           ← Subsystem-specific panels and views
-├── Tests/                        ← Unit/integration tests for this subsystem
-└── Editor/                       ← Subsystem-specific editor tools
+├── Events/                       ← *Event structs published by this subsystem
+└── UI/                           ← Subsystem-specific panels and views
 ```
 
 ---
@@ -84,14 +78,14 @@ Subsystems/{SubsystemName}/
 | Materials | `PascalCase` | `BoneGizmo.mat` |
 | Shaders | `PascalCase` | `PassthroughOverlay.shader` |
 | Textures | `PascalCase` + type suffix | `GripIcon_UI.png`, `BoneShape_Mesh.png` |
-| Asmdef files | match folder name | `Subsystems.RigBuilder.asmdef` |
+| Asmdef files | match assembly role | `_App.Runtime.asmdef`, `_App.Editor.asmdef`, `_App.Tests.asmdef` |
 
 ---
 
 ## Naming — Folders
 
 - `PascalCase` always
-- No spaces, no underscores (except `_App`, `_Shared` — leading underscore for sort priority only)
+- No spaces, no underscores (except `_App` — leading underscore for sort priority only)
 - Subsystem folder names must match the subsystem name exactly
 
 ---
@@ -109,8 +103,8 @@ Subsystems/{SubsystemName}/
 - Third-party adapters/wrappers: namespace `VrAnimApp.Adapters`
 
 ### Events
-- All cross-subsystem messages are `struct` types suffixed `Event`
-- Published via MessagePipe per-scope bus — never via direct method calls across subsystem boundaries
+- All cross-subsystem messages are `struct` types suffixed `Event`; live in the owning subsystem's `Events/` subfolder
+- Published via the per-scope `EventBus` (`Publish<T>`/`Subscribe<T>`) — never via direct method calls across subsystem boundaries
 - C# `event` delegates used only for intra-subsystem callbacks
 
 ### Async
@@ -135,7 +129,7 @@ Subsystems/{SubsystemName}/
 - **`FindObjectOfType` / `GameObject.Find`** at runtime — use DI
 - **Singleton `Instance` pattern** — use VContainer scopes instead
 - **God objects** — types responsible for more than one cohesive concern
-- **Concrete cross-subsystem dependencies** — depend on interfaces declared in `_Shared`
+- **Concrete cross-subsystem dependencies** — depend on interfaces declared in the owning subsystem's folder
 - **Magic strings** for `ChannelPath`, asset paths, scene names — use constants or typed wrappers
 - **`Resources.Load`** outside of explicitly justified cases — use prefab references
 - **MonoBehaviours as data containers** — data structs are plain C# classes/structs
@@ -150,10 +144,10 @@ Subsystems/{SubsystemName}/
 - **One public type per file** — file name matches the type name exactly
 - **`CommandStack` for all user-reversible actions** — no direct mutation bypassing commands
 - **`PathProvider` as the single path-building authority** — no manual string concatenation for asset/scene paths
-- **Interface-first for platform-dependent code** — wrappers behind interfaces in `_Shared/Interfaces`, not concrete platform classes at call sites
-- **Per-scope event buses** — Root-scope events never carry scene-specific data
+- **Interface-first for platform-dependent code** — wrappers behind interfaces in the owning subsystem's folder, not concrete platform classes at call sites
+- **Per-scope `EventBus`** — Root-scope events never carry scene-specific data
 - **Feature code in `FeatureLifetimeScope`** — nothing mode-specific in `SceneLifetimeScope` or above
-- **Subsystem-specific code stays in its subsystem folder** — only shared abstractions go to `_Shared`
+- **Subsystem-specific code stays in its subsystem folder** under `Scripts/`
 - **All serialized data versioned** with a `schemaVersion` field — migrations handled exclusively in `StorageMigrator`
 
 ---
@@ -173,7 +167,12 @@ Subsystems/{SubsystemName}/
 
 ## Assembly Definitions
 
-- Each subsystem has its own `.asmdef`
-- `_Shared` has its own `.asmdef` referenced by all subsystems
-- `Editor/` folders have a separate `.asmdef` with `Editor` platform constraint
-- No subsystem `.asmdef` references another subsystem `.asmdef` directly — cross-subsystem contracts flow through `_Shared` interfaces
+The project uses exactly three `.asmdef` files:
+
+| Assembly | Location | Contents |
+|---|---|---|
+| `_App.Runtime` | `Assets/_App/Scripts/_App.Runtime.asmdef` | All runtime gameplay C# — every subsystem and `Core/` |
+| `_App.Editor` | `Assets/_App/Editor/` | All editor-only tooling; `Editor` platform constraint |
+| `_App.Tests` | `Assets/_App/Tests/` | All unit and integration tests |
+
+Subsystems are organizational folders within `_App.Runtime`, not separate assemblies. Cross-subsystem boundaries are enforced by convention (folder structure + code review), not by assembly references.
