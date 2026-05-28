@@ -22,7 +22,7 @@ This is a Unity project — there is no CLI build script. All compilation, build
 - **XR configuration:** ProjectSettings/XR (OpenXR + Meta OpenXR loaders)
 - **Tests:** Run via Unity Test Runner (`Window > General > Test Runner`); subsystem tests live in `Assets/_App/Tests/<Subsystem>/` (single `_App.Tests` assembly)
 - **Editor-only tooling:** `Assets/_App/Editor/` folder; excluded from builds automatically via `.asmdef` platform constraints
-- **Third-party packages:** Imported into `Assets/Plugins/` or via Package Manager — keep `Assets/` root clean for packs
+- **Third-party packages:** Vendored under `Assets/_App/ThirdParty/` (asset packs + imported C# packages) or pulled via Package Manager — keep `Assets/` root clean
 
 ## Architecture
 
@@ -92,7 +92,7 @@ Application.persistentDataPath/scenes/{SceneId}/
 
 ```
 Assets/
-├── _App/                             ← ALL project code and owned assets live here
+├── _App/                             ← ALL project code, owned content, AND vendored third-party
 │   ├── Scripts/                      ← ALL runtime C# code (_App.Runtime.asmdef)
 │   │   ├── Core/                     ← Generic primitives: EventBus.cs, ICommand.cs
 │   │   ├── Bootstrap/                ← LifetimeScopes, AppBootstrap, scene loader
@@ -112,9 +112,9 @@ Assets/
 │   │   ├── Textures/
 │   │   └── Shaders/
 │   ├── Scenes/
-│   └── Documentation/
-├── Plugins/                          ← third-party plugins (e.g. SimpleFileBrowser)
-└── Resources/                        ← not used by _App; avoid
+│   ├── Documentation/
+│   └── ThirdParty/                   ← vendored 3rd-party packs (QuickOutline, SimpleFileBrowser, Keyboard Package, ColorSkies, model packs); reimport overwrites local patches
+└── (root also holds package/engine-managed folders — Settings/, XR/, XRI/, TextMesh Pro/, CompositionLayers/, Samples/ — do not relocate)
 ```
 
 ## Key Conventions

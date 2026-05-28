@@ -8,16 +8,14 @@
 
 | Folder / File | Purpose |
 |---|---|
-| `_App/` | All project-owned code, content, scenes, and documentation |
+| `_App/` | All project code, owned content, scenes, docs, and vendored third-party (under `ThirdParty/`) |
 | `CompositionLayers/` | Meta XR Composition Layers package user-settings (auto-generated, transitive via Meta OpenXR) |
 | `Samples/` | XR Interaction Toolkit 3.0.7 sample assets (Starter Assets + XR Device Simulator) — **live dependency:** base of the `User XR Origin (XR Rig)` prefab variant |
 | `Settings/` | URP renderer and pipeline assets (Mobile + PC profiles, global URP settings) |
 | `TextMesh Pro/` | Standard TMP package (Resources, Fonts, Shaders, Examples) |
-| `UnityPacks/` | Third-party packs: ColorSkies, Downtown Game Studio (nature), HouseInteriorPack, Keyboard Package, QuickOutline, SimpleFileBrowser |
 | `XR/` | XR Plug-in Management settings (OpenXR + XR Simulation loaders) |
 | `XRI/` | XR Interaction Toolkit project settings (Interaction Layers + Device Simulator) |
 | `InputSystem_Actions.inputactions` | Root Input System action-map asset |
-| `Readme.asset` | Unity template readme ScriptableObject — **orphaned:** its script lived in the deleted `TutorialInfo/`, so the asset now has a missing script reference (safe to delete) |
 
 > **Removed/moved by restructure:** `_App/_Shared/`, `_App/Subsystems/`,
 > `_App/DemoAssets/`, and the top-level `_App/Bootstrap/` (now `_App/Scripts/Bootstrap/`).
@@ -26,10 +24,15 @@
 > **Removed by 2026-05-29 folder cleanup:** `Resources/` (was empty — `_App` does not use
 > `Resources.Load`), `TutorialInfo/` (Unity URP template readme/editor scripts — not project
 > code), `Screenshots/` (dev capture output — not game content), `_Recovery/` (Editor autosave
-> scene). Leftover: `Readme.asset` at root now references the deleted `TutorialInfo` script.
+> scene), and the root `Readme.asset` (template ScriptableObject orphaned once `TutorialInfo`
+> was removed).
+>
+> **Moved by 2026-05-29 reorg:** top-level `UnityPacks/` → `_App/ThirdParty/` (all third-party
+> asset packs + C# packages now vendored under `_App`; GUIDs, `.meta`, asmdef names, and the
+> QuickOutline `isReadable` patch all preserved through the `AssetDatabase` move).
 >
 > **Unchanged, retained on purpose** (package/engine-managed at fixed paths, or live deps):
-> `XR/`, `XRI/`, `TextMesh Pro/`, `CompositionLayers/`, `Samples/`, `Settings/`, `UnityPacks/`.
+> `XR/`, `XRI/`, `TextMesh Pro/`, `CompositionLayers/`, `Samples/`, `Settings/`.
 
 ---
 
@@ -57,7 +60,6 @@ git grep "<guid>" -- "*.meta"
 ```
 Assets/
 ├── InputSystem_Actions.inputactions
-├── Readme.asset
 │
 ├── CompositionLayers/
 │   └── UserSettings/
@@ -81,83 +83,6 @@ Assets/
 │   ├── PC_RPAsset.asset
 │   ├── SampleSceneProfile.asset
 │   └── UniversalRenderPipelineGlobalSettings.asset
-│
-├── UnityPacks/                             (third-party; do not modify without noting changes)
-│   ├── ColorSkies/                         skybox cubemap materials
-│   │   ├── Demo/
-│   │   │   ├── DemoScene.unity
-│   │   │   └── Scripts/
-│   │   │       ├── LookCamera.cs
-│   │   │       └── SkyboxChanger.cs
-│   │   ├── Skies/                          (8 × .mat: Sky_1..Sky_8)
-│   │   └── Textures/                       (6 skybox sets × 6 cubemap faces = ~36 .png)
-│   │
-│   ├── Keyboard Package/                   VR on-screen keyboard
-│   │   ├── Prefabs/
-│   │   │   ├── Base Structure/             (3 × .prefab)
-│   │   │   ├── Keyboard Layouts/           (2 × .prefab)
-│   │   │   └── Keyboard Rows/              (15 × .prefab)
-│   │   ├── Scenes/                         (2 × demo .unity)
-│   │   ├── Scripts/
-│   │   │   ├── KeyboardPackage.asmdef
-│   │   │   ├── ColorDataStore.cs
-│   │   │   ├── GameManager.cs
-│   │   │   ├── KeyboardButtonController.cs
-│   │   │   └── KeyboardController.cs
-│   │   └── Sprites/                        (3 × .png: Backspace, BorderThin, Fill)
-│   │
-│   ├── QuickOutline/                       mesh-outline effect
-│   │   │                                   NOTE: isReadable guard patched in LoadSmoothNormals.
-│   │   │                                   Re-importing this package overwrites the fix.
-│   │   ├── Resources/
-│   │   │   ├── Materials/
-│   │   │   │   ├── OutlineFill.mat
-│   │   │   │   └── OutlineMask.mat
-│   │   │   └── Shaders/
-│   │   │       ├── OutlineFill.shader
-│   │   │       └── OutlineMask.shader
-│   │   ├── Samples/
-│   │   │   ├── Materials/
-│   │   │   │   └── Plane.mat
-│   │   │   └── Scenes/
-│   │   │       └── QuickOutline.unity
-│   │   └── Scripts/
-│   │       ├── QuickOutline.asmdef
-│   │       └── Outline.cs
-│   │
-│   └── SimpleFileBrowser/                  Android file-picker dialog
-│       ├── SimpleFileBrowser.Runtime.asmdef
-│       ├── Android/
-│       │   ├── FBCallbackHelper.cs
-│       │   ├── FBDirectoryReceiveCallbackAndroid.cs
-│       │   └── FBPermissionCallbackAndroid.cs
-│       ├── Prefabs/
-│       │   ├── SimpleFileBrowserItem.prefab
-│       │   └── SimpleFileBrowserQuickLink.prefab
-│       ├── Resources/
-│       │   └── SimpleFileBrowserCanvas.prefab
-│       ├── Scripts/
-│       │   ├── EventSystemHandler.cs
-│       │   ├── FileBrowser.cs
-│       │   ├── FileBrowserAccessRestrictedPanel.cs
-│       │   ├── FileBrowserContextMenu.cs
-│       │   ├── FileBrowserCursorHandler.cs
-│       │   ├── FileBrowserFileOperationConfirmationPanel.cs
-│       │   ├── FileBrowserHelpers.cs
-│       │   ├── FileBrowserItem.cs
-│       │   ├── FileBrowserMovement.cs
-│       │   ├── FileBrowserQuickLink.cs
-│       │   ├── FileBrowserRenamedItem.cs
-│       │   ├── NonDrawingGraphic.cs
-│       │   ├── UISkin.cs
-│       │   └── SimpleRecycledListView/
-│       │       ├── IListViewAdapter.cs
-│       │       ├── ListItem.cs
-│       │       └── RecycledListView.cs
-│       ├── Skins/
-│       │   ├── DarkSkin.asset
-│       │   └── LightSkin.asset
-│       └── Sprites/                        (~16 .psd/.png/.spriteatlas — file icons + cursors)
 │
 └── _App/
     │
@@ -527,6 +452,14 @@ Assets/
     │               ├── RingRotateStrategy.cs
     │               └── UniformScaleStrategy.cs
     │
+    ├── ThirdParty/                         ← vendored third-party (moved 2026-05-29 from top-level UnityPacks/)
+    │   ├── ColorSkies/                     skybox cubemaps + 2 demo .cs (Assembly-CSharp, no asmdef)
+    │   ├── Downtown Game Studio/           nature/city demo models
+    │   ├── HouseInteriorPack/              interior demo models
+    │   ├── Keyboard Package/               VR keyboard — KeyboardPackage.asmdef → _App.Runtime
+    │   ├── QuickOutline/                   outline FX — QuickOutline.asmdef; PATCHED isReadable guard (reimport overwrites)
+    │   └── SimpleFileBrowser/              Android file dialog — SimpleFileBrowser.Runtime.asmdef
+    │
     └── Tests/                              ← NUnit tests (_App.Tests.asmdef)
         ├── _App.Tests.asmdef
         ├── AnimationAuthoring/             (5 × .cs)
@@ -581,7 +514,7 @@ Assets/
 | `_App/Content/Prefabs/` | — | **39** | — | — |
 | `_App/Content/ScriptableObjects/` | — | — | — | **8** |
 | `_App/Scenes/` | — | — | **8** | — |
-| `UnityPacks/` (third-party) | ~30 | ~23 | 3 | ~2 |
+| `_App/ThirdParty/` (vendored) | ~30 | ~23 | 3 | ~2 |
 | `Samples/XRI 3.0.7/` | 17 | ~52 | — | — |
 
 > Notes:

@@ -22,8 +22,8 @@ Assets/
 │   │   ├── Textures/
 │   │   └── Shaders/
 │   ├── Scenes/
-│   └── Documentation/
-└── Plugins/                      ← Third-party plugins (e.g. SimpleFileBrowser)
+│   ├── Documentation/
+│   └── ThirdParty/               ← Vendored third-party packs (QuickOutline, SimpleFileBrowser, …)
 ```
 
 ### Per-Subsystem Layout
