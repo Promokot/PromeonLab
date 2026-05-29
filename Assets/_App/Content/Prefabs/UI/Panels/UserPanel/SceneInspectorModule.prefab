@@ -5888,6 +5888,7 @@ GameObject:
   - component: {fileID: 6319970308532648212}
   - component: {fileID: 8738806285347969435}
   - component: {fileID: 8880147048140985411}
+  - component: {fileID: 285807900250746227}
   m_Layer: 0
   m_Name: SceneInspectorModule
   m_TagString: Untagged
@@ -6010,6 +6011,19 @@ MonoBehaviour:
   _boneScaleZ: {fileID: 3019808633125773804}
   _showBonesToggle: {fileID: 2457047226637056593}
   _deleteButton: {fileID: 4130651710093078978}
+--- !u!114 &285807900250746227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4583740447116755973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d70e3e1ff24530840976ce3476eef7fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: _App.Runtime::RegionMember
+  _moduleId: inspector
 --- !u!1 &4634047552398824860
 GameObject:
   m_ObjectHideFlags: 0
