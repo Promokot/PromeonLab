@@ -113,9 +113,37 @@ public class PanelRegionRouter : IDisposable
         if (toClose != null)
             foreach (var id in toClose) Close(id);
 
+        // open each region's default surface when the region is otherwise empty and the
+        // default is visible in this mode — the resting-state half of Close()'s reopen,
+        // applied on mode entry/startup (otherwise a region with an inactive default member
+        // stays blank until something else in it opens and closes).
+        EnsureRegionDefaults(mode);
+
         // refresh every button's visibility + highlight for the new mode
         foreach (var kv in _buttons)
             ApplyButtonState(kv.Key);
+    }
+
+    private void EnsureRegionDefaults(AppMode mode)
+    {
+        HashSet<string> regions = null;
+        foreach (var kv in _modules)
+            if (_config.TryGetRegion(kv.Key, out var region) && !string.IsNullOrEmpty(region))
+                (regions ??= new HashSet<string>()).Add(region);
+        if (regions == null) return;
+
+        foreach (var region in regions)
+        {
+            // region already holds a live, open module? leave it alone.
+            if (_openByRegion.TryGetValue(region, out var open)
+                && TryGetAlive(open, out var openSurface) && openSurface.IsOpen)
+                continue;
+
+            if (_config.TryGetRegionDefault(region, out var def)
+                && _modules.ContainsKey(def)
+                && _config.IsVisibleInMode(def, mode))
+                Open(def);
+        }
     }
 
     private void OnModeChanged(ModeChangedEvent e) => ApplyMode(e.CurrentMode);
