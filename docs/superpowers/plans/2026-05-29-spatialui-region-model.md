@@ -12,9 +12,9 @@ keyboard button, and the asset browser all open/close through it.
 from `NavBarConfig` (via new `IRegionConfig`). Each opanable surface carries a `RegionMember`
 (MonoBehaviour implementing `IRegionSurface`, default = `SetActive`, delegating to a sibling
 `IRegionSurface` adapter when present). Modules are discovered + registered in a scope build callback
-(covers inactive objects). Trigger behaviors (`RegionNavButton`, `KeyboardToggleButton`,
-`AssetBrowserPanel`) call the router; the file browser participates via a `FileBrowserSurface` adapter
-over the third-party `SimpleFileBrowser` modal.
+(covers inactive objects). Trigger behaviors (`RegionNavButton` — used by nav buttons *and* the keyboard
+button — and `AssetBrowserPanel`) call the router; the file browser participates via a
+`FileBrowserSurface` adapter over the third-party `SimpleFileBrowser` modal.
 
 **Tech Stack:** Unity 6000.3.7f1, C# (no namespaces, single `_App.Runtime` assembly), VContainer DI,
 custom `EventBus`, OpenXR, NUnit (EditMode tests in `_App.Tests`), SimpleFileBrowser (ThirdParty).
@@ -45,8 +45,8 @@ planning addendum — keyboard is button-toggled, `NavBarConfig` is reused, not 
 - `RegionMember.cs` — per-module registrar + default `IRegionSurface`.
 - `Events/RegionChangedEvent.cs` — `{ string RegionKey; string OpenModuleId; }`.
 - `Events/FilePickedEvent.cs` — `{ string Path; }`.
-- `Behaviors/RegionNavButton.cs` — nav button → `router.Toggle`, per-mode visibility, brightness.
-- `Behaviors/KeyboardToggleButton.cs` — keyboard button → 2-way `Open` swap.
+- `Behaviors/RegionNavButton.cs` — nav button → `router.Toggle`, per-mode visibility, brightness
+  (the keyboard button reuses this — no keyboard-specific class).
 - `Behaviors/FileBrowserSurface.cs` — `IRegionSurface` adapter over SimpleFileBrowser.
 
 **Create (tests, `Assets/_App/Tests/SpatialUi/`):**
@@ -64,11 +64,11 @@ planning addendum — keyboard is button-toggled, `NavBarConfig` is reused, not 
 - `Scripts/SpatialUi/Behaviors/UserPanelKeyboardToggle.cs`.
 
 **Prefab/scene (Unity MCP):**
-- `Content/Prefabs/UI/Panels/UserPanel/UserPanel.prefab` — add `RegionMember` to each nav module +
-  `_defaultContent`/`_keyboardContent`; add `RegionNavButton`/`KeyboardToggleButton` to buttons.
+- `Content/Prefabs/UI/Panels/UserPanel/UserPanel.prefab` — add `RegionMember` to each nav module + to
+  `_keyboardContent`; add `RegionNavButton` to each nav button and to the keyboard button.
 - `Content/Prefabs/UI/Panels/UserPanel/SimpleFileBrowserCanvas.prefab` — add `RegionMember` +
   `FileBrowserSurface`.
-- `DefaultNavBarConfig.asset` — add `userPanelDefault`, `keyboard`, `fileBrowser` entries.
+- `DefaultNavBarConfig.asset` — add `keyboard`, `fileBrowser` entries.
 - Both scene scope GameObjects — assign the `_navBarConfig` field.
 
 ---
@@ -525,8 +525,6 @@ At the **end** of `Configure(...)` (after the existing `gizmoToolsPanel` block),
 
             foreach (var nav in Object.FindObjectsByType<RegionNavButton>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                 c.Inject(nav);
-            foreach (var kb in Object.FindObjectsByType<KeyboardToggleButton>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-                c.Inject(kb);
             foreach (var fbs in Object.FindObjectsByType<FileBrowserSurface>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                 c.Inject(fbs);
             foreach (var anchor in Object.FindObjectsByType<FileBrowserVrAnchor>(FindObjectsInactive.Include, FindObjectsSortMode.None))
@@ -543,10 +541,9 @@ At the **end** of `Configure(...)` (after the existing `gizmoToolsPanel` block),
         });
 ```
 
-> `RegionNavButton`, `KeyboardToggleButton`, `FileBrowserSurface` are created in later tasks. This task
-> may compile-warn that the build callback references types not yet present — so create the three
-> behavior files as **empty stubs first** (Step 0 below) OR implement Task 4 only after Tasks 5–7's
-> behavior classes exist. To keep the build green, do Step 0.
+> `RegionNavButton` and `FileBrowserSurface` are created in later tasks. This task may compile-fail that
+> the build callback references types not yet present — so create the two behavior files as **empty
+> stubs first** (Step 0 below). To keep the build green, do Step 0.
 
 - [ ] **Step 0 (do first): Create empty behavior stubs so Task 4 compiles**
 
@@ -556,11 +553,6 @@ Create minimal stubs (filled in Tasks 5–7):
 ```csharp
 using UnityEngine;
 public class RegionNavButton : MonoBehaviour { }
-```
-`Assets/_App/Scripts/SpatialUi/Behaviors/KeyboardToggleButton.cs`:
-```csharp
-using UnityEngine;
-public class KeyboardToggleButton : MonoBehaviour { }
 ```
 `Assets/_App/Scripts/SpatialUi/Behaviors/FileBrowserSurface.cs`:
 ```csharp
@@ -606,8 +598,8 @@ any pre-existing RegionMembers, which is none). `run_tests(mode=EditMode)` → 1
 - [ ] **Step 6: Commit**
 
 ```bash
-git add Assets/_App/Scripts/Bootstrap/VrEditingSceneScope.cs Assets/_App/Scripts/Bootstrap/SandboxSceneScope.cs Assets/_App/Scripts/Bootstrap/RootLifetimeScope.cs Assets/_App/Scripts/SpatialUi/Behaviors/RegionNavButton.cs Assets/_App/Scripts/SpatialUi/Behaviors/KeyboardToggleButton.cs Assets/_App/Scripts/SpatialUi/Behaviors/FileBrowserSurface.cs Assets/_App/Scenes/VrEditing.unity Assets/_App/Scenes/Sandbox.unity
-git add Assets/_App/Scripts/SpatialUi/Behaviors/RegionNavButton.cs.meta Assets/_App/Scripts/SpatialUi/Behaviors/KeyboardToggleButton.cs.meta Assets/_App/Scripts/SpatialUi/Behaviors/FileBrowserSurface.cs.meta
+git add Assets/_App/Scripts/Bootstrap/VrEditingSceneScope.cs Assets/_App/Scripts/Bootstrap/SandboxSceneScope.cs Assets/_App/Scripts/Bootstrap/RootLifetimeScope.cs Assets/_App/Scripts/SpatialUi/Behaviors/RegionNavButton.cs Assets/_App/Scripts/SpatialUi/Behaviors/FileBrowserSurface.cs Assets/_App/Scenes/VrEditing.unity Assets/_App/Scenes/Sandbox.unity
+git add Assets/_App/Scripts/SpatialUi/Behaviors/RegionNavButton.cs.meta Assets/_App/Scripts/SpatialUi/Behaviors/FileBrowserSurface.cs.meta
 git commit -m "feat(ui): register PanelRegionRouter + module discovery in scene scopes"
 ```
 
@@ -924,89 +916,69 @@ git commit -m "feat(ui): migrate UserPanel nav modules to PanelRegionRouter via 
 
 ---
 
-## Task 6: Migrate the keyboard to a 2-way region swap
+## Task 6: Migrate the keyboard to a region module (no keyboard-specific logic)
+
+The keyboard becomes a normal region module in the **same region as the swappable nav content
+modules**, opened by a plain `RegionNavButton` on its existing button. No dedicated toggle class. Its
+control is already a UnityUI `Button` (`UserPanelKeyboardToggle._keyboardButton` is `Button`), so there
+is **no component swap** — only the behavior moves from `UserPanelKeyboardToggle` to `RegionNavButton`.
 
 **Files:**
-- Modify: `Assets/_App/Scripts/SpatialUi/Behaviors/KeyboardToggleButton.cs`
 - Delete: `Assets/_App/Scripts/SpatialUi/Behaviors/UserPanelKeyboardToggle.cs`
 - Asset: `DefaultNavBarConfig.asset`
 - Prefab: `UserPanel.prefab`
 
-- [ ] **Step 1: Add region entries to `DefaultNavBarConfig.asset`**
+- [ ] **Step 1: Determine the nav content region**
 
-Add three entries (Unity MCP `manage_scriptable_object` or edit in Inspector), each
+From Task 5's enumeration, identify the `ExclusiveGroup` shared by the swappable **content** modules
+(the ones that occupy the main content area — e.g. Outliner / Settings / AssetBrowser). Call it
+`<contentRegion>`. (If nav modules span more than one group, pick the group for the primary content
+area where the keyboard should appear.) Record it.
+
+- [ ] **Step 2: Add region entries to `DefaultNavBarConfig.asset`**
+
+Add two entries (Unity MCP `manage_scriptable_object` or edit in Inspector), each
 `VisibleModes = [VrEditing, Sandbox]`:
-- `Id = "userPanelDefault"`, `ExclusiveGroup = "userPanelShell"`
-- `Id = "keyboard"`,         `ExclusiveGroup = "userPanelShell"`
-- `Id = "fileBrowser"`,      `ExclusiveGroup = "dialog"` (used in Task 7)
+- `Id = "keyboard"`,    `ExclusiveGroup = "<contentRegion>"`  (the value from Step 1)
+- `Id = "fileBrowser"`, `ExclusiveGroup = "dialog"`           (used in Task 7)
 
-- [ ] **Step 2: Implement `KeyboardToggleButton.cs`**
+- [ ] **Step 3: Inspect, then delete `UserPanelKeyboardToggle.cs`**
 
-Replaces `UserPanelKeyboardToggle`'s direct `SetActive` swap with a router 2-way swap between the two
-`userPanelShell` members.
-
-```csharp
-using UnityEngine;
-using UnityEngine.UI;
-using VContainer;
-
-public class KeyboardToggleButton : MonoBehaviour
-{
-    [SerializeField] private Button _keyboardButton;
-    [SerializeField] private string _keyboardModuleId = "keyboard";
-    [SerializeField] private string _defaultModuleId  = "userPanelDefault";
-
-    private PanelRegionRouter _router;
-
-    [Inject]
-    public void Construct(PanelRegionRouter router) => _router = router;
-
-    private void Start()
-    {
-        if (_keyboardButton != null) _keyboardButton.onClick.AddListener(OnToggle);
-    }
-
-    private void OnDestroy()
-    {
-        if (_keyboardButton != null) _keyboardButton.onClick.RemoveListener(OnToggle);
-    }
-
-    private void OnToggle()
-    {
-        if (_router == null) return;
-        if (_router.IsOpen(_keyboardModuleId)) _router.Open(_defaultModuleId);
-        else                                   _router.Open(_keyboardModuleId);
-    }
-}
-```
-
-- [ ] **Step 3: Delete `UserPanelKeyboardToggle.cs`**
-
-Remove the file (and its `.meta`). Before deleting, note which prefab GameObject it sits on and its
-`_defaultContent` / `_keyboardContent` / `_keyboardButton` references — Step 4 re-wires those.
+First inspect the `UserPanelKeyboardToggle` component on `UserPanel.prefab` and record: the GameObject
+it sits on, and its `_keyboardButton`, `_defaultContent`, `_keyboardContent` references. Then remove the
+file (and its `.meta`).
 
 - [ ] **Step 4: Prefab wiring on `UserPanel.prefab`**
 
-- Add `RegionMember` to the `_defaultContent` GameObject; `_moduleId = "userPanelDefault"`.
-- Add `RegionMember` to the `_keyboardContent` GameObject; `_moduleId = "keyboard"`.
-- On the GameObject that previously held `UserPanelKeyboardToggle`, add `KeyboardToggleButton`; set
-  `_keyboardButton` to the same keyboard Button reference.
-- Ensure authored initial state matches today: `_defaultContent` active, `_keyboardContent` inactive
-  (so the router registers `userPanelDefault` as the open member of `userPanelShell`).
+- Add `RegionMember` to the `_keyboardContent` GameObject; `_moduleId = "keyboard"`. Authored initial
+  state: **inactive**. (Manual positioning of the keyboard within the content area is expected — see
+  the spec's region note; author it to sit where the content modules appear.)
+- Add `RegionNavButton` to the GameObject that held `UserPanelKeyboardToggle`'s `_keyboardButton`
+  (i.e. the keyboard button object); set `_moduleId = "keyboard"`, `_button` = that `Button`, and the
+  **same brightness params** as the other nav buttons (`_inactiveHoverBrightness`, `_activeBrightness`,
+  `_activeHoverBrightness`).
+- Remove the now-orphaned `UserPanelKeyboardToggle` component from its GameObject.
+- `_defaultContent` stays **always active** — it is the base/nav chrome; its child nav modules are
+  individually `RegionMember`s (from Task 5). **Overlap check:** if `_defaultContent` carries a visible
+  content-area background that the keyboard should cover, ensure the keyboard's authored panel covers it
+  (the keyboard is the active module; default chrome stays behind). Verify visually in Step 5.
 
 - [ ] **Step 5: Compile + verify**
 
-`refresh_unity`; `read_console(filter_text="CS")` → none. Open `VrEditing`, Play: tapping the keyboard
-button shows the keyboard and hides default content; tapping again restores default content (2-way
-swap, as before). Typing still works (`VrInputFieldProxy`→`VrKeyboard` path untouched). No "missing
-script" (the deleted `UserPanelKeyboardToggle` was re-homed). `run_tests` → 151/7.
+`refresh_unity`; `read_console(filter_text="CS")` → none. Open `VrEditing`, Play:
+- Tap the keyboard button → keyboard opens; any open nav content module closes (shared region).
+- Tap the keyboard button again → keyboard closes; content region empty, nav bar still visible.
+- Tap another nav module while keyboard is open → that module opens, keyboard closes (region swap).
+- Typing still works (`VrInputFieldProxy`→`VrKeyboard` path untouched).
+- No "missing script" (the deleted `UserPanelKeyboardToggle` was re-homed to `RegionNavButton`).
+`run_tests(mode=EditMode)` → 151/7.
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add Assets/_App/Scripts/SpatialUi/Behaviors/KeyboardToggleButton.cs "Assets/_App/Content/Prefabs/UI/Panels/UserPanel/UserPanel.prefab" Assets/_App/Content/ScriptableObjects/DefaultNavBarConfig.asset
+git add "Assets/_App/Content/Prefabs/UI/Panels/UserPanel/UserPanel.prefab" Assets/_App/Content/ScriptableObjects/DefaultNavBarConfig.asset
 git rm Assets/_App/Scripts/SpatialUi/Behaviors/UserPanelKeyboardToggle.cs
-git commit -m "feat(ui): migrate keyboard to router 2-way region swap; remove UserPanelKeyboardToggle"
+git commit -m "feat(ui): make keyboard a region module via RegionNavButton; remove UserPanelKeyboardToggle"
 ```
 
 ---
@@ -1230,8 +1202,8 @@ swap + typing; file browser open/import/cancel + VR positioning; mode transition
 - [ ] **Step 2: Update `STRUCTURE.md`**
 
 Update the `SpatialUi/` subtree: add `PanelRegionRouter.cs`, `IRegionSurface.cs`, `IRegionConfig.cs`,
-`RegionMember.cs` at root; `Behaviors/RegionNavButton.cs`, `KeyboardToggleButton.cs`,
-`FileBrowserSurface.cs`; `Events/RegionChangedEvent.cs`, `FilePickedEvent.cs`; remove
+`RegionMember.cs` at root; `Behaviors/RegionNavButton.cs`, `Behaviors/FileBrowserSurface.cs`;
+`Events/RegionChangedEvent.cs`, `Events/FilePickedEvent.cs`; remove
 `Behaviors/UserPanelKeyboardToggle.cs`. Refresh counts.
 
 - [ ] **Step 3: Update `conventions.md`**

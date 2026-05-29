@@ -6,14 +6,19 @@
 
 > **Planning addendum (2026-05-29, post-review corrections):** Two adjustments made while writing
 > the implementation plan, after re-reading the actual code:
-> 1. **Keyboard is button-toggled, not focus-driven.** `UserPanelKeyboardToggle` swaps
->    `_defaultContent`↔`_keyboardContent` via a keyboard *button*; `KeyboardFocusEvent`
->    (`VrInputFieldProxy`) only routes keystrokes to `VrKeyboard`, it does not open anything. So the
->    keyboard migration is a **behavior-preserving 2-way region swap**: `_defaultContent` and
->    `_keyboardContent` become two `RegionMember`s in one region (`userPanelShell`); the keyboard
->    button calls `router.Open("keyboard")` / `router.Open("userPanelDefault")`. The
->    `KeyboardFocusEvent`→`VrKeyboard` typing path is untouched. (Replaces the spec's incorrect
->    "open on KeyboardFocusEvent / close on submit/blur".)
+> 1. **Keyboard is opened by a button, and becomes a plain region module — no dedicated toggle logic.**
+>    `UserPanelKeyboardToggle` swaps `_defaultContent`↔`_keyboardContent` via a keyboard *button*;
+>    `KeyboardFocusEvent` (`VrInputFieldProxy`) only routes keystrokes to `VrKeyboard`, it does not open
+>    anything. The keyboard's control is already a UnityUI `Button` (not a `Toggle` component), so **no
+>    component swap is needed**: we delete `UserPanelKeyboardToggle` and put a standard `RegionNavButton`
+>    on that same button (with the same brightness/visual parameters as the other nav buttons). The
+>    keyboard content becomes a normal `RegionMember` (`moduleId = "keyboard"`) sharing the **nav content
+>    region** with the other swappable modules, so opening the keyboard closes the open nav module and
+>    vice versa; closing it returns to "no module open" (the nav bar stays visible). This deliberately
+>    drops the strict `_defaultContent`↔`_keyboardContent` full-content swap in favour of standard region
+>    exclusion — chosen so we write **no keyboard-specific logic**. The `KeyboardFocusEvent`→`VrKeyboard`
+>    typing path is untouched. (Replaces the spec's incorrect "open on KeyboardFocusEvent / close on
+>    submit/blur" and the planning draft's dedicated `KeyboardToggleButton`/`userPanelDefault` pair.)
 > 2. **No `NavBarConfig`→`PanelRegionConfig` rename in B1.** `NavBarConfig.Entry` already carries
 >    exactly the needed fields (`Id`=moduleId, `ExclusiveGroup`=regionKey, `VisibleModes`). The
 >    router consumes it via a new `IRegionConfig` interface that `NavBarConfig` implements (so the
