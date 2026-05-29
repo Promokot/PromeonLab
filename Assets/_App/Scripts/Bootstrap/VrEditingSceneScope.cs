@@ -59,7 +59,7 @@ public class VrEditingSceneScope : LifetimeScope
         builder.RegisterEntryPoint<AnimationClock>(Lifetime.Scoped).AsSelf();
         builder.RegisterEntryPoint<AnimationAuthoring>(Lifetime.Scoped).AsSelf();
 
-        var animPanel = Object.FindAnyObjectByType<AnimatorPanelView>(FindObjectsInactive.Include);
+        var animPanel = Object.FindAnyObjectByType<AnimatorPanel>(FindObjectsInactive.Include);
         if (animPanel != null)
             builder.RegisterBuildCallback(c => c.Inject(animPanel));
 

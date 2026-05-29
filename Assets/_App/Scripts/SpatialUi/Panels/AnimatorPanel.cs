@@ -2,20 +2,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
-public class AnimatorPanelView : MonoBehaviour
+public class AnimatorPanel : MonoBehaviour
 {
-    [SerializeField] private AnimatorPanelConfig    _config;
-    [SerializeField] private RectTransform          _timelineContent;
-    [SerializeField] private AnimatorToolbarView    _toolbar;
-    [SerializeField] private AnimatorTransportView  _transport;
-    [SerializeField] private AnimatorEmptyStateView _emptyState;
-    [SerializeField] private GameObject             _activeStateRoot;
-    [SerializeField] private TimelineRulerView      _ruler;
-    [SerializeField] private TimelineLanesView      _lanes;
-    [SerializeField] private TimelinePlayheadView   _playhead;
-    [SerializeField] private TimelineInputHandler   _timelineInput;
-    [SerializeField] private RectTransform          _tracksColumnContent;
-    [SerializeField] private TrackRowView           _trackRowPrefab;
+    [SerializeField] private AnimatorPanelConfig   _config;
+    [SerializeField] private RectTransform         _timelineContent;
+    [SerializeField] private AnimatorSubToolbar    _toolbar;
+    [SerializeField] private AnimatorSubTransport  _transport;
+    [SerializeField] private AnimatorSubEmptyState _emptyState;
+    [SerializeField] private GameObject            _activeStateRoot;
+    [SerializeField] private AnimatorSubRuler      _ruler;
+    [SerializeField] private AnimatorSubLanes      _lanes;
+    [SerializeField] private AnimatorSubPlayhead   _playhead;
+    [SerializeField] private TimelineScrubInput    _timelineInput;
+    [SerializeField] private RectTransform         _tracksColumnContent;
+    [SerializeField] private TrackRow              _trackRowPrefab;
 
     private EventBus           _bus;
     private AnimationAuthoring _authoring;
@@ -25,7 +25,7 @@ public class AnimatorPanelView : MonoBehaviour
     private SceneGraph         _graph;
 
     private string                   _activeOwner;
-    private readonly List<TrackRowView> _rowPool = new();
+    private readonly List<TrackRow> _rowPool = new();
 
     [Inject]
     public void Construct(EventBus bus, AnimationAuthoring authoring, AnimationClock clock,
@@ -215,7 +215,7 @@ public class AnimatorPanelView : MonoBehaviour
         if (string.IsNullOrEmpty(selected))
         {
             _activeOwner = null;
-            ShowEmpty(AnimatorEmptyStateView.State.NoSelection);
+            ShowEmpty(AnimatorSubEmptyState.State.NoSelection);
             _authoring.SetActiveContainerOwner(null);
             _clock.Configure(_config.DefaultTotalFrames, _config.DefaultFps);
             return;
@@ -224,7 +224,7 @@ public class AnimatorPanelView : MonoBehaviour
         if (!has)
         {
             _activeOwner = null;
-            ShowEmpty(AnimatorEmptyStateView.State.NoContainer);
+            ShowEmpty(AnimatorSubEmptyState.State.NoContainer);
             _authoring.SetActiveContainerOwner(null);
             _clock.Configure(_config.DefaultTotalFrames, _config.DefaultFps);
             return;
@@ -238,7 +238,7 @@ public class AnimatorPanelView : MonoBehaviour
         RefreshKeyButtonStates();
     }
 
-    private void ShowEmpty(AnimatorEmptyStateView.State state)
+    private void ShowEmpty(AnimatorSubEmptyState.State state)
     {
         if (_activeStateRoot != null) _activeStateRoot.SetActive(false);
         if (_emptyState != null) _emptyState.Show(state);
@@ -311,7 +311,7 @@ public class AnimatorPanelView : MonoBehaviour
         }
     }
 
-    private TrackRowView GetOrCreateRow(int idx)
+    private TrackRow GetOrCreateRow(int idx)
     {
         while (_rowPool.Count <= idx)
         {

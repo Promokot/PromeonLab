@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class TimelineInputHandler : MonoBehaviour, IPointerDownHandler, IDragHandler
+public class TimelineScrubInput : MonoBehaviour, IPointerDownHandler, IDragHandler
 {
     [SerializeField] private RectTransform        _content;
     [SerializeField] private AnimatorPanelConfig  _config;

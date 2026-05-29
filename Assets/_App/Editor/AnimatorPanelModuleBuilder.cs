@@ -67,24 +67,24 @@ public static class AnimatorPanelModuleBuilder
         if (prefab == null) { Debug.LogError("[Verify] prefab not found at " + PrefabPath); return; }
 
         int missing = 0;
-        missing += CheckComponent<AnimatorPanelView>(prefab,
+        missing += CheckComponent<AnimatorPanel>(prefab,
             new[] { "_config", "_timelineContent", "_toolbar", "_transport", "_emptyState", "_activeStateRoot",
                     "_ruler", "_lanes", "_playhead", "_timelineInput", "_tracksColumnContent", "_trackRowPrefab" });
-        missing += CheckComponent<AnimatorEmptyStateView>(prefab,
+        missing += CheckComponent<AnimatorSubEmptyState>(prefab,
             new[] { "_noSelectionPanel", "_noContainerPanel", "_addAnimationButton" });
-        missing += CheckComponent<AnimatorToolbarView>(prefab,
+        missing += CheckComponent<AnimatorSubToolbar>(prefab,
             new[] { "_currentFrameInput", "_totalFramesInput", "_fpsInput", "_setKeyButton", "_deleteKeyButton",
                     "_copyButton", "_pasteButton", "_removeAnimationButton" });
-        missing += CheckComponent<AnimatorTransportView>(prefab,
+        missing += CheckComponent<AnimatorSubTransport>(prefab,
             new[] { "_prevKeyButton", "_prevFrameButton", "_startButton", "_playPauseButton",
                     "_endButton", "_nextFrameButton", "_nextKeyButton", "_playPauseIcon" });
-        missing += CheckComponent<TimelineRulerView>(prefab,
+        missing += CheckComponent<AnimatorSubRuler>(prefab,
             new[] { "_content", "_tickPrefab", "_labelPrefab", "_config" });
-        missing += CheckComponent<TimelineLanesView>(prefab,
+        missing += CheckComponent<AnimatorSubLanes>(prefab,
             new[] { "_root", "_lanePrefab" });
-        missing += CheckComponent<TimelinePlayheadView>(prefab,
+        missing += CheckComponent<AnimatorSubPlayhead>(prefab,
             new[] { "_root", "_frameLabel", "_config" });
-        missing += CheckComponent<TimelineInputHandler>(prefab,
+        missing += CheckComponent<TimelineScrubInput>(prefab,
             new[] { "_content", "_config" });
         missing += CheckComponent<TimelineScrollSync>(prefab,
             new[] { "_leftTracks", "_rightTimeline" });
@@ -143,12 +143,12 @@ public static class AnimatorPanelModuleBuilder
     {
         var config = AssetDatabase.LoadAssetAtPath<AnimatorPanelConfig>(ConfigPath);
         if (config == null) { Debug.LogError("Missing AnimatorPanelConfig at " + ConfigPath); return null; }
-        var trackRowPrefab = AssetDatabase.LoadAssetAtPath<TrackRowView>(TrackRowPath);
+        var trackRowPrefab = AssetDatabase.LoadAssetAtPath<TrackRow>(TrackRowPath);
         if (trackRowPrefab == null) { Debug.LogError("Missing TrackRow prefab at " + TrackRowPath); return null; }
 
         var root = new GameObject("AnimatorPanelModule",
             typeof(RectTransform), typeof(Canvas), typeof(GraphicRaycaster), typeof(Image),
-            typeof(SpatialPanelDetachable), typeof(AnimatorPanelView));
+            typeof(SpatialPanelDetachable), typeof(AnimatorPanel));
 
         var rt = (RectTransform)root.transform;
         rt.anchorMin = new Vector2(0.5f, 0.5f);
@@ -165,7 +165,7 @@ public static class AnimatorPanelModuleBuilder
 
         // EmptyStateRoot
         var emptyRt = CreateChild(root.transform, "EmptyStateRoot",
-            typeof(RectTransform), typeof(AnimatorEmptyStateView));
+            typeof(RectTransform), typeof(AnimatorSubEmptyState));
         StretchFill((RectTransform)emptyRt.transform);
         BuildEmptyState(emptyRt);
 
@@ -186,19 +186,19 @@ public static class AnimatorPanelModuleBuilder
         var body       = BuildBody(activeRt.transform, config);
         var toolbarBot = BuildToolbarBottom(activeRt.transform);
 
-        // Wire AnimatorPanelView
-        var view = root.GetComponent<AnimatorPanelView>();
+        // Wire AnimatorPanel
+        var view = root.GetComponent<AnimatorPanel>();
         var so = new SerializedObject(view);
         SetRef(so, "_config",              config);
         SetRef(so, "_timelineContent",     body.timelineContent);
-        SetRef(so, "_toolbar",             toolbarTop.GetComponent<AnimatorToolbarView>());
-        SetRef(so, "_transport",           toolbarBot.GetComponent<AnimatorTransportView>());
-        SetRef(so, "_emptyState",          emptyRt.GetComponent<AnimatorEmptyStateView>());
+        SetRef(so, "_toolbar",             toolbarTop.GetComponent<AnimatorSubToolbar>());
+        SetRef(so, "_transport",           toolbarBot.GetComponent<AnimatorSubTransport>());
+        SetRef(so, "_emptyState",          emptyRt.GetComponent<AnimatorSubEmptyState>());
         SetRef(so, "_activeStateRoot",     activeRt);
-        SetRef(so, "_ruler",               body.ruler.GetComponent<TimelineRulerView>());
-        SetRef(so, "_lanes",               body.lanesContent.GetComponent<TimelineLanesView>());
-        SetRef(so, "_playhead",            body.playhead.GetComponent<TimelinePlayheadView>());
-        SetRef(so, "_timelineInput",       body.lanesContent.GetComponent<TimelineInputHandler>());
+        SetRef(so, "_ruler",               body.ruler.GetComponent<AnimatorSubRuler>());
+        SetRef(so, "_lanes",               body.lanesContent.GetComponent<AnimatorSubLanes>());
+        SetRef(so, "_playhead",            body.playhead.GetComponent<AnimatorSubPlayhead>());
+        SetRef(so, "_timelineInput",       body.lanesContent.GetComponent<TimelineScrubInput>());
         SetRef(so, "_tracksColumnContent", body.tracksColumnContent);
         SetRef(so, "_trackRowPrefab",      trackRowPrefab);
         so.ApplyModifiedPropertiesWithoutUndo();
@@ -216,7 +216,7 @@ public static class AnimatorPanelModuleBuilder
 
     private static void BuildEmptyState(GameObject emptyRoot)
     {
-        var view = emptyRoot.GetComponent<AnimatorEmptyStateView>();
+        var view = emptyRoot.GetComponent<AnimatorSubEmptyState>();
 
         var noSel = BuildCenteredPanel(emptyRoot.transform, "NoSelectionPanel",
             labelText: "Select an object to view its animator", labelSize: 16,
@@ -288,7 +288,7 @@ public static class AnimatorPanelModuleBuilder
     {
         var go = CreateChild(parent, "ToolbarTop",
             typeof(RectTransform), typeof(Image), typeof(HorizontalLayoutGroup),
-            typeof(LayoutElement), typeof(AnimatorToolbarView));
+            typeof(LayoutElement), typeof(AnimatorSubToolbar));
 
         go.GetComponent<Image>().color = BgPrimary;
 
@@ -321,7 +321,7 @@ public static class AnimatorPanelModuleBuilder
         BuildSpacer(go.transform, "Spacer");
         var rmAnim  = BuildToolbarButton(go.transform, "RemoveAnimationButton", "remove animation", 200f, BtnH, BgDangerSubtle, TextDanger, BorderDanger);
 
-        var view = go.GetComponent<AnimatorToolbarView>();
+        var view = go.GetComponent<AnimatorSubToolbar>();
         var so = new SerializedObject(view);
         SetRef(so, "_currentFrameInput",     curIn);
         SetRef(so, "_totalFramesInput",      totIn);
@@ -493,7 +493,7 @@ public static class AnimatorPanelModuleBuilder
 
         // LanesContent (sibling 0) — below ruler
         var lanesContent = CreateChild(timelineContent.transform, "LanesContent",
-            typeof(RectTransform), typeof(TimelineLanesView), typeof(TimelineInputHandler));
+            typeof(RectTransform), typeof(AnimatorSubLanes), typeof(TimelineScrubInput));
         var lcRt = (RectTransform)lanesContent.transform;
         lcRt.anchorMin = new Vector2(0f, 1f);
         lcRt.anchorMax = new Vector2(1f, 1f);
@@ -503,7 +503,7 @@ public static class AnimatorPanelModuleBuilder
 
         // Ruler (sibling 1)
         var ruler = CreateChild(timelineContent.transform, "Ruler",
-            typeof(RectTransform), typeof(Image), typeof(TimelineRulerView));
+            typeof(RectTransform), typeof(Image), typeof(AnimatorSubRuler));
         var rRt = (RectTransform)ruler.transform;
         rRt.anchorMin = new Vector2(0f, 1f);
         rRt.anchorMax = new Vector2(1f, 1f);
@@ -517,7 +517,7 @@ public static class AnimatorPanelModuleBuilder
 
         // Playhead (sibling 2)
         var playhead = CreateChild(timelineContent.transform, "Playhead",
-            typeof(RectTransform), typeof(TimelinePlayheadView));
+            typeof(RectTransform), typeof(AnimatorSubPlayhead));
         var pRt = (RectTransform)playhead.transform;
         pRt.anchorMin = new Vector2(0f, 0f);
         pRt.anchorMax = new Vector2(0f, 1f);
@@ -578,10 +578,10 @@ public static class AnimatorPanelModuleBuilder
         timelineScroll.content  = tcRt2;
 
         // Wire sub-views
-        WireTimelineLanesView (lanesContent.GetComponent<TimelineLanesView>(), lcRt);
-        WireTimelineInputHandler(lanesContent.GetComponent<TimelineInputHandler>(), lcRt, config);
-        WireTimelineRulerView (ruler.GetComponent<TimelineRulerView>(), (RectTransform)rulerContent.transform, config);
-        WireTimelinePlayheadView(playhead.GetComponent<TimelinePlayheadView>(), pRt, fltT, config);
+        WireAnimatorSubLanes (lanesContent.GetComponent<AnimatorSubLanes>(), lcRt);
+        WireTimelineScrubInput(lanesContent.GetComponent<TimelineScrubInput>(), lcRt, config);
+        WireAnimatorSubRuler (ruler.GetComponent<AnimatorSubRuler>(), (RectTransform)rulerContent.transform, config);
+        WireAnimatorSubPlayhead(playhead.GetComponent<AnimatorSubPlayhead>(), pRt, fltT, config);
 
         // Wire TimelineScrollSync on Body
         var sync = body.GetComponent<TimelineScrollSync>();
@@ -603,15 +603,15 @@ public static class AnimatorPanelModuleBuilder
         };
     }
 
-    private static void WireTimelineLanesView(TimelineLanesView lanes, RectTransform root)
+    private static void WireAnimatorSubLanes(AnimatorSubLanes lanes, RectTransform root)
     {
         var so = new SerializedObject(lanes);
         SetRef(so, "_root",       root);
-        SetRef(so, "_lanePrefab", AssetDatabase.LoadAssetAtPath<TimelineLaneView>(LanePath));
+        SetRef(so, "_lanePrefab", AssetDatabase.LoadAssetAtPath<TimelineLane>(LanePath));
         so.ApplyModifiedPropertiesWithoutUndo();
     }
 
-    private static void WireTimelineInputHandler(TimelineInputHandler input, RectTransform content, AnimatorPanelConfig config)
+    private static void WireTimelineScrubInput(TimelineScrubInput input, RectTransform content, AnimatorPanelConfig config)
     {
         var so = new SerializedObject(input);
         SetRef(so, "_content", content);
@@ -619,7 +619,7 @@ public static class AnimatorPanelModuleBuilder
         so.ApplyModifiedPropertiesWithoutUndo();
     }
 
-    private static void WireTimelineRulerView(TimelineRulerView ruler, RectTransform content, AnimatorPanelConfig config)
+    private static void WireAnimatorSubRuler(AnimatorSubRuler ruler, RectTransform content, AnimatorPanelConfig config)
     {
         var so = new SerializedObject(ruler);
         SetRef(so, "_content",     content);
@@ -629,7 +629,7 @@ public static class AnimatorPanelModuleBuilder
         so.ApplyModifiedPropertiesWithoutUndo();
     }
 
-    private static void WireTimelinePlayheadView(TimelinePlayheadView ph, RectTransform root, TMP_Text label, AnimatorPanelConfig config)
+    private static void WireAnimatorSubPlayhead(AnimatorSubPlayhead ph, RectTransform root, TMP_Text label, AnimatorPanelConfig config)
     {
         var so = new SerializedObject(ph);
         SetRef(so, "_root",       root);
@@ -646,7 +646,7 @@ public static class AnimatorPanelModuleBuilder
     {
         var go = CreateChild(parent, "ToolbarBottom",
             typeof(RectTransform), typeof(Image), typeof(HorizontalLayoutGroup),
-            typeof(LayoutElement), typeof(AnimatorTransportView));
+            typeof(LayoutElement), typeof(AnimatorSubTransport));
 
         go.GetComponent<Image>().color = BgPrimary;
         var hlg = go.GetComponent<HorizontalLayoutGroup>();
@@ -681,7 +681,7 @@ public static class AnimatorPanelModuleBuilder
         iconImg.color = Color.white;
         iconImg.preserveAspect = true;
 
-        var view = go.GetComponent<AnimatorTransportView>();
+        var view = go.GetComponent<AnimatorSubTransport>();
         var so = new SerializedObject(view);
         SetRef(so, "_prevKeyButton",   prevKey);
         SetRef(so, "_prevFrameButton", prevFr);

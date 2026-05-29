@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public enum TrackRowKind { Object, Rig, Bone }
 
-public class TrackRowView : MonoBehaviour
+public class TrackRow : MonoBehaviour
 {
     [SerializeField] private TMP_Text             _label;
     [SerializeField] private Image                _icon;

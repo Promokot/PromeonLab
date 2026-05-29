@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class TimelineRulerView : MonoBehaviour
+public class AnimatorSubRuler : MonoBehaviour
 {
     [SerializeField] private RectTransform       _content;
     [SerializeField] private RectTransform       _tickPrefab;

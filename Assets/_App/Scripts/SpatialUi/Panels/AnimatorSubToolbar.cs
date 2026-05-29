@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class AnimatorToolbarView : MonoBehaviour
+public class AnimatorSubToolbar : MonoBehaviour
 {
     [SerializeField] private TMP_InputField _currentFrameInput;
     [SerializeField] private TMP_InputField _totalFramesInput;

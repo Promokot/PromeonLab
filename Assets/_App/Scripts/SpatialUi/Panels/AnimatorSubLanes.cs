@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TimelineLanesView : MonoBehaviour
+public class AnimatorSubLanes : MonoBehaviour
 {
-    [SerializeField] private RectTransform     _root;
-    [SerializeField] private TimelineLaneView  _lanePrefab;
+    [SerializeField] private RectTransform _root;
+    [SerializeField] private TimelineLane  _lanePrefab;
 
-    private readonly List<TimelineLaneView> _lanePool = new();
+    private readonly List<TimelineLane> _lanePool = new();
 
-    public IReadOnlyList<TimelineLaneView> Lanes => _lanePool;
+    public IReadOnlyList<TimelineLane> Lanes => _lanePool;
 
     public void Rebuild(IReadOnlyList<(string TrackNodeId, bool IsBone)> tracks)
     {
@@ -24,14 +24,14 @@ public class TimelineLanesView : MonoBehaviour
         }
     }
 
-    public TimelineLaneView FindLane(string trackNodeId)
+    public TimelineLane FindLane(string trackNodeId)
     {
         foreach (var l in _lanePool)
             if (l != null && l.gameObject.activeSelf && l.TrackNodeId == trackNodeId) return l;
         return null;
     }
 
-    private TimelineLaneView GetOrCreate(int idx)
+    private TimelineLane GetOrCreate(int idx)
     {
         while (_lanePool.Count <= idx)
         {
