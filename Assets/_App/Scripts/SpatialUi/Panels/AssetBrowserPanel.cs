@@ -32,6 +32,7 @@ public class AssetBrowserPanel : MonoBehaviour
     private IAssetLibrary _activeLibrary;
     private ILabAsset     _selectedAsset;
     private bool          _isEditableMode;
+    private bool          _reopenAfterFileBrowser;
 
     [Inject]
     public void Construct(ModeOrchestrator orchestrator, BuiltinAssetLibrary builtin, ImportedAssetLibrary imported, SavedAssetLibrary saved, EventBus bus, PanelRegionRouter router)
@@ -57,6 +58,7 @@ public class AssetBrowserPanel : MonoBehaviour
     {
         _bus?.Subscribe<ModeChangedEvent>(OnModeChanged);
         _bus?.Subscribe<FilePickedEvent>(OnFilePicked);
+        _bus?.Subscribe<RegionChangedEvent>(OnRegionChanged);
         _isEditableMode = _orchestrator?.CurrentMode is AppMode.VrEditing or AppMode.Sandbox;
         RefreshSpawnButton();
         if (_builtinLibrary != null)
@@ -67,11 +69,13 @@ public class AssetBrowserPanel : MonoBehaviour
     {
         _bus?.Unsubscribe<ModeChangedEvent>(OnModeChanged);
         _bus?.Unsubscribe<FilePickedEvent>(OnFilePicked);
+        _bus?.Unsubscribe<RegionChangedEvent>(OnRegionChanged);
     }
 
     private void OnModeChanged(ModeChangedEvent e)
     {
         _isEditableMode = e.CurrentMode is AppMode.VrEditing or AppMode.Sandbox;
+        _reopenAfterFileBrowser = false; // don't carry a pending return across a mode switch
         RefreshSpawnButton();
     }
 
@@ -159,8 +163,21 @@ public class AssetBrowserPanel : MonoBehaviour
 
     private void OnAddClicked()
     {
-        Debug.Log($"[FBDBG] AssetBrowserPanel.OnAddClicked routerNull={_router == null}");
+        // We launch the file browser, which shares our `center_top` region and so hides us.
+        // Flag a return so we re-open ourselves once it closes (success or cancel).
+        _reopenAfterFileBrowser = true;
         _router?.Open("fileBrowser");
+    }
+
+    private void OnRegionChanged(RegionChangedEvent e)
+    {
+        // Re-open the asset browser after the file browser we launched closes. Guard on the
+        // router's live state so unrelated region changes (or our own re-open) don't retrigger.
+        if (_reopenAfterFileBrowser && _router != null && !_router.IsOpen("fileBrowser"))
+        {
+            _reopenAfterFileBrowser = false;
+            _router.Open("assets");
+        }
     }
 
     private void OnFilePicked(FilePickedEvent e) => _ = HandleImportAsync(e.Path);
