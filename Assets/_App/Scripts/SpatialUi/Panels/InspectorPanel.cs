@@ -36,8 +36,7 @@ public class InspectorPanel : MonoBehaviour
     [SerializeField] private Button         _deleteButton;
 
     private EventBus          _bus;
-    private SceneGraph        _graph;
-    private ISelectionManager _selection;
+    private SceneContext      _ctx;
     private IAssetRegistry    _registry;
 
     private SceneNode _bound;          // currently selected rig/object
@@ -45,17 +44,17 @@ public class InspectorPanel : MonoBehaviour
     private string    _boneRigId;      // parent rig node id (when bone selected)
 
     [Inject]
-    public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection, IAssetRegistry registry)
+    public void Construct(EventBus bus, SceneContext ctx, IAssetRegistry registry)
     {
-        _bus       = bus;
-        _graph     = graph;
-        _selection = selection;
-        _registry  = registry;
+        _bus      = bus;
+        _ctx      = ctx;
+        _registry = registry;
     }
 
     private void OnEnable()
     {
         if (_bus == null) return;
+        _bus.Subscribe<SceneContextChangedEvent>(OnSceneContextChanged);
         _bus.Subscribe<SelectionChangedEvent>(OnSelectionChanged);
         if (_nameField != null)
         {
@@ -70,6 +69,7 @@ public class InspectorPanel : MonoBehaviour
     private void OnDisable()
     {
         if (_bus == null) return;
+        _bus.Unsubscribe<SceneContextChangedEvent>(OnSceneContextChanged);
         _bus.Unsubscribe<SelectionChangedEvent>(OnSelectionChanged);
         if (_nameField != null)
         {
@@ -82,13 +82,24 @@ public class InspectorPanel : MonoBehaviour
 
     private void OnSelectionChanged(SelectionChangedEvent _) => Refresh();
 
+    private void OnSceneContextChanged(SceneContextChangedEvent e)
+    {
+        if (e.HasScene) Refresh();
+        else if (_emptyState != null)
+        {
+            _emptyState.SetActive(true);
+            if (_content   != null) _content.SetActive(false);
+            if (_boneState != null) _boneState.SetActive(false);
+        }
+    }
+
     private enum InspectorState { Empty, Single, Bone }
 
     private void Refresh()
     {
-        if (_selection == null || _graph == null) return;
+        if (!_ctx.HasScene) return;
 
-        var activeId = _selection.SelectedNodeId;
+        var activeId = _ctx.Selection.SelectedNodeId;
         var state    = string.IsNullOrEmpty(activeId)            ? InspectorState.Empty
                      : activeId.StartsWith("bone:")              ? InspectorState.Bone
                      :                                             InspectorState.Single;
@@ -105,7 +116,7 @@ public class InspectorPanel : MonoBehaviour
 
         if (state == InspectorState.Single)
         {
-            _bound = _graph.GetNode(activeId);
+            _bound = _ctx.Graph.GetNode(activeId);
             if (_bound != null)
             {
                 BindSingle(_bound);
@@ -117,7 +128,7 @@ public class InspectorPanel : MonoBehaviour
             BindBone(activeId);
             if (!string.IsNullOrEmpty(_boneRigId))
             {
-                var rigNode = _graph.GetNode(_boneRigId);
+                var rigNode = _ctx.Graph.GetNode(_boneRigId);
                 if (rigNode != null) rig = rigNode.GetComponentInChildren<PromeonProxyRigBuilder>(true);
             }
         }
@@ -172,11 +183,11 @@ public class InspectorPanel : MonoBehaviour
 
         if (_boneParentRigLabel != null)
         {
-            var rigNode = _graph.GetNode(_boneRigId);
+            var rigNode = _ctx.Graph.GetNode(_boneRigId);
             _boneParentRigLabel.text = rigNode != null ? $"Rig: {rigNode.DisplayName}" : $"Rig: {_boneRigId}";
         }
 
-        _boneTransform = _graph.GetNode(boneNodeId)?.transform;
+        _boneTransform = _ctx.Graph.GetNode(boneNodeId)?.transform;
         if (_boneTransform == null) return;
 
         var pos   = _boneTransform.position;
@@ -240,8 +251,8 @@ public class InspectorPanel : MonoBehaviour
         if (_bound == null) return;
         var nodeId = _bound.NodeId;
         _bound = null;
-        _selection?.Select(null);
-        _graph.RemoveNode(nodeId); // destroys GO, publishes SceneModifiedEvent → outliner rebuilds
+        _ctx.Selection?.Select(null);
+        _ctx.Graph.RemoveNode(nodeId); // destroys GO, publishes SceneModifiedEvent → outliner rebuilds
     }
 
     private void OnShowBonesToggleChanged(bool value)
@@ -256,7 +267,7 @@ public class InspectorPanel : MonoBehaviour
         }
         else if (!string.IsNullOrEmpty(_boneRigId))
         {
-            var rigNode = _graph.GetNode(_boneRigId);
+            var rigNode = _ctx.Graph.GetNode(_boneRigId);
             if (rigNode != null)
             {
                 rig       = rigNode.GetComponentInChildren<PromeonProxyRigBuilder>(true);
@@ -277,6 +288,6 @@ public class InspectorPanel : MonoBehaviour
         // If bones get hidden while a bone is the active selection, jump the selection up to the rig
         // so the user keeps an inspector context and the toggle reflects the now-false state.
         if (!value && _boneTransform != null && !string.IsNullOrEmpty(rigNodeId))
-            _selection?.Select(rigNodeId);
+            _ctx.Selection?.Select(rigNodeId);
     }
 }

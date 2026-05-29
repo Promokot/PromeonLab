@@ -22,7 +22,7 @@ public class SceneContextBinder : IStartable, IDisposable
     public void Start()
     {
         _ctx.Bind(
-            Resolve<ISceneGraph>(),
+            Resolve<SceneGraph>(),
             Resolve<ISelectionManager>(),
             Resolve<CommandStack>(),
             Resolve<GizmoController>(),

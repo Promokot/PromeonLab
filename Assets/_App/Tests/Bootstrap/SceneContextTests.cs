@@ -1,18 +1,10 @@
 using NUnit.Framework;
-using UnityEngine;
 
 public class SceneContextTests
 {
-    // --------------- Fake ---------------
-
-    private class FakeSceneGraph : ISceneGraph
-    {
-        public GameObject GetNode(string nodeId)  => throw new System.NotImplementedException();
-        public void AddNode(GameObject go, AssetRef assetRef, string displayName, string parentId = null) => throw new System.NotImplementedException();
-        public void RemoveNode(string nodeId)     => throw new System.NotImplementedException();
-    }
-
-    // --------------- Tests ---------------
+    // SceneGraph's constructor only stores its dependencies, so nulls are safe for a
+    // reference-only test double. (We never call any SceneGraph method here.)
+    private static SceneGraph MakeGraph() => new SceneGraph(new EventBus(), null, null, null);
 
     [Test]
     public void New_HasNoScene()
@@ -28,7 +20,7 @@ public class SceneContextTests
     public void Bind_WithGraph_SetsHasSceneAndExposesServices()
     {
         var ctx   = new SceneContext();
-        var graph = new FakeSceneGraph();
+        var graph = MakeGraph();
 
         ctx.Bind(graph, null, null, null, null, null, null);
 
@@ -40,10 +32,9 @@ public class SceneContextTests
     [Test]
     public void Clear_NullsEverythingAndHasNoScene()
     {
-        var ctx   = new SceneContext();
-        var graph = new FakeSceneGraph();
+        var ctx = new SceneContext();
+        ctx.Bind(MakeGraph(), null, null, null, null, null, null);
 
-        ctx.Bind(graph, null, null, null, null, null, null);
         ctx.Clear();
 
         Assert.IsFalse(ctx.HasScene);

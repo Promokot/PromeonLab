@@ -18,30 +18,24 @@ public class AnimatorPanel : MonoBehaviour
     [SerializeField] private TrackRow              _trackRowPrefab;
 
     private EventBus           _bus;
-    private AnimationAuthoring _authoring;
-    private AnimationClock     _clock;
-    private ISelectionManager  _selection;
     private AnimationClipboard _clipboard;
-    private SceneGraph         _graph;
+    private SceneContext       _ctx;
 
     private string                   _activeOwner;
     private readonly List<TrackRow> _rowPool = new();
 
     [Inject]
-    public void Construct(EventBus bus, AnimationAuthoring authoring, AnimationClock clock,
-                          ISelectionManager selection, AnimationClipboard clipboard, SceneGraph graph)
+    public void Construct(EventBus bus, AnimationClipboard clipboard, SceneContext ctx)
     {
         _bus       = bus;
-        _authoring = authoring;
-        _clock     = clock;
-        _selection = selection;
         _clipboard = clipboard;
-        _graph     = graph;
+        _ctx       = ctx;
     }
 
     private void OnEnable()
     {
         if (_bus == null) return;
+        _bus.Subscribe<SceneContextChangedEvent>(OnSceneContextChanged);
         _bus.Subscribe<SelectionChangedEvent>(OnSelectionChanged);
         _bus.Subscribe<FrameChangedEvent>(OnFrameChanged);
         _bus.Subscribe<PlaybackStateChangedEvent>(OnPlaybackStateChanged);
@@ -59,6 +53,7 @@ public class AnimatorPanel : MonoBehaviour
     private void OnDisable()
     {
         if (_bus == null) return;
+        _bus.Unsubscribe<SceneContextChangedEvent>(OnSceneContextChanged);
         _bus.Unsubscribe<SelectionChangedEvent>(OnSelectionChanged);
         _bus.Unsubscribe<FrameChangedEvent>(OnFrameChanged);
         _bus.Unsubscribe<PlaybackStateChangedEvent>(OnPlaybackStateChanged);
@@ -69,9 +64,9 @@ public class AnimatorPanel : MonoBehaviour
     private void WireToolbar()
     {
         if (_toolbar == null) return;
-        _toolbar.OnCurrentFrameSubmitted = f => _clock?.Seek(Mathf.Clamp(f, 0, CurrentTotal()));
-        _toolbar.OnTotalFramesSubmitted  = f => { if (_activeOwner != null) _authoring.SetTotalFrames(_activeOwner, f); };
-        _toolbar.OnFpsSubmitted          = f => { if (_activeOwner != null) _authoring.SetFps(_activeOwner, f); };
+        _toolbar.OnCurrentFrameSubmitted = f => _ctx.Clock?.Seek(Mathf.Clamp(f, 0, CurrentTotal()));
+        _toolbar.OnTotalFramesSubmitted  = f => { if (_activeOwner != null) _ctx.Authoring.SetTotalFrames(_activeOwner, f); };
+        _toolbar.OnFpsSubmitted          = f => { if (_activeOwner != null) _ctx.Authoring.SetFps(_activeOwner, f); };
         _toolbar.OnSetKey                = OnSetKeyClicked;
         _toolbar.OnDeleteKey             = OnDeleteKeyClicked;
         _toolbar.OnCopy                  = OnCopyClicked;
@@ -82,10 +77,10 @@ public class AnimatorPanel : MonoBehaviour
     private void WireTransport()
     {
         if (_transport == null) return;
-        _transport.OnPrevFrame  = () => _clock?.Seek(Mathf.Max(0, _clock.CurrentFrame - 1));
-        _transport.OnNextFrame  = () => _clock?.Seek(Mathf.Min(CurrentTotal(), _clock.CurrentFrame + 1));
-        _transport.OnStart      = () => _clock?.Seek(0);
-        _transport.OnEnd        = () => _clock?.Seek(CurrentTotal());
+        _transport.OnPrevFrame  = () => _ctx.Clock?.Seek(Mathf.Max(0, _ctx.Clock.CurrentFrame - 1));
+        _transport.OnNextFrame  = () => _ctx.Clock?.Seek(Mathf.Min(CurrentTotal(), _ctx.Clock.CurrentFrame + 1));
+        _transport.OnStart      = () => _ctx.Clock?.Seek(0);
+        _transport.OnEnd        = () => _ctx.Clock?.Seek(CurrentTotal());
         _transport.OnPlayPause  = OnPlayPauseClicked;
         _transport.OnPrevKey    = OnPrevKeyClicked;
         _transport.OnNextKey    = OnNextKeyClicked;
@@ -100,8 +95,10 @@ public class AnimatorPanel : MonoBehaviour
     private void WireTimelineInput()
     {
         if (_timelineInput == null) return;
-        _timelineInput.OnFrameRequested = frame => _clock?.Seek(frame);
+        _timelineInput.OnFrameRequested = frame => _ctx.Clock?.Seek(frame);
     }
+
+    private void OnSceneContextChanged(SceneContextChangedEvent e) => Refresh();
 
     private void OnSelectionChanged(SelectionChangedEvent _) => Refresh();
 
@@ -149,34 +146,34 @@ public class AnimatorPanel : MonoBehaviour
 
     private void OnAddAnimationClicked()
     {
-        var owner = AnimationAuthoring.OwnerOf(_selection?.SelectedNodeId);
+        var owner = AnimationAuthoring.OwnerOf(_ctx.Selection?.SelectedNodeId);
         if (string.IsNullOrEmpty(owner)) return;
-        _authoring.CreateContainer(owner);
+        _ctx.Authoring.CreateContainer(owner);
     }
 
     private void OnRemoveAnimationClicked()
     {
         if (string.IsNullOrEmpty(_activeOwner)) return;
-        _authoring.RemoveContainer(_activeOwner);
+        _ctx.Authoring.RemoveContainer(_activeOwner);
     }
 
     private void OnSetKeyClicked()
     {
         if (string.IsNullOrEmpty(_activeOwner)) return;
-        var active = _selection?.SelectedNodeId ?? _activeOwner;
-        _authoring.SetKeyForFrame(_activeOwner, active, _clock.CurrentFrame);
+        var active = _ctx.Selection?.SelectedNodeId ?? _activeOwner;
+        _ctx.Authoring.SetKeyForFrame(_activeOwner, active, _ctx.Clock.CurrentFrame);
     }
 
     private void OnDeleteKeyClicked()
     {
         if (string.IsNullOrEmpty(_activeOwner)) return;
-        _authoring.DeleteAllKeysAtFrame(_activeOwner, _clock.CurrentFrame);
+        _ctx.Authoring.DeleteAllKeysAtFrame(_activeOwner, _ctx.Clock.CurrentFrame);
     }
 
     private void OnCopyClicked()
     {
         if (string.IsNullOrEmpty(_activeOwner)) return;
-        var clip = _authoring.CopyFrame(_activeOwner, _clock.CurrentFrame);
+        var clip = _ctx.Authoring.CopyFrame(_activeOwner, _ctx.Clock.CurrentFrame);
         _clipboard.Set(clip);
         RefreshKeyButtonStates();
     }
@@ -184,40 +181,42 @@ public class AnimatorPanel : MonoBehaviour
     private void OnPasteClicked()
     {
         if (string.IsNullOrEmpty(_activeOwner) || _clipboard.IsEmpty) return;
-        _authoring.PasteFrame(_activeOwner, _clock.CurrentFrame, _clipboard.Current);
+        _ctx.Authoring.PasteFrame(_activeOwner, _ctx.Clock.CurrentFrame, _clipboard.Current);
     }
 
     private void OnPrevKeyClicked()
     {
-        var prev = _authoring.NearestKeyBefore(_activeOwner, _clock.CurrentFrame);
-        if (prev.HasValue) _clock.Seek(prev.Value);
+        var prev = _ctx.Authoring.NearestKeyBefore(_activeOwner, _ctx.Clock.CurrentFrame);
+        if (prev.HasValue) _ctx.Clock.Seek(prev.Value);
     }
 
     private void OnNextKeyClicked()
     {
-        var next = _authoring.NearestKeyAfter(_activeOwner, _clock.CurrentFrame);
-        if (next.HasValue) _clock.Seek(next.Value);
+        var next = _ctx.Authoring.NearestKeyAfter(_activeOwner, _ctx.Clock.CurrentFrame);
+        if (next.HasValue) _ctx.Clock.Seek(next.Value);
     }
 
     private void OnPlayPauseClicked()
     {
-        if (_clock == null) return;
-        if (_clock.IsPlaying) _clock.Pause();
-        else                  _clock.Play();
+        if (_ctx.Clock == null) return;
+        if (_ctx.Clock.IsPlaying) _ctx.Clock.Pause();
+        else                      _ctx.Clock.Play();
     }
 
     private void Refresh()
     {
-        var selected = _selection?.SelectedNodeId;
+        if (!_ctx.HasScene) { ShowEmpty(AnimatorSubEmptyState.State.NoSelection); return; }
+
+        var selected = _ctx.Selection?.SelectedNodeId;
         var owner    = AnimationAuthoring.OwnerOf(selected);
-        var has      = !string.IsNullOrEmpty(owner) && _authoring.HasContainer(owner);
+        var has      = !string.IsNullOrEmpty(owner) && _ctx.Authoring.HasContainer(owner);
 
         if (string.IsNullOrEmpty(selected))
         {
             _activeOwner = null;
             ShowEmpty(AnimatorSubEmptyState.State.NoSelection);
-            _authoring.SetActiveContainerOwner(null);
-            _clock.Configure(_config.DefaultTotalFrames, _config.DefaultFps);
+            _ctx.Authoring.SetActiveContainerOwner(null);
+            _ctx.Clock.Configure(_config.DefaultTotalFrames, _config.DefaultFps);
             return;
         }
 
@@ -225,14 +224,14 @@ public class AnimatorPanel : MonoBehaviour
         {
             _activeOwner = null;
             ShowEmpty(AnimatorSubEmptyState.State.NoContainer);
-            _authoring.SetActiveContainerOwner(null);
-            _clock.Configure(_config.DefaultTotalFrames, _config.DefaultFps);
+            _ctx.Authoring.SetActiveContainerOwner(null);
+            _ctx.Clock.Configure(_config.DefaultTotalFrames, _config.DefaultFps);
             return;
         }
 
         _activeOwner = owner;
         ShowActive();
-        _authoring.SetActiveContainerOwner(_activeOwner);
+        _ctx.Authoring.SetActiveContainerOwner(_activeOwner);
         ApplyContainerToClock();
         RebuildTimeline();
         RefreshKeyButtonStates();
@@ -252,20 +251,20 @@ public class AnimatorPanel : MonoBehaviour
 
     private void ApplyContainerToClock()
     {
-        var c = _authoring.GetContainer(_activeOwner);
+        var c = _ctx.Authoring.GetContainer(_activeOwner);
         if (c == null) return;
-        _clock.Configure(c.TotalFrames, c.Fps);
+        _ctx.Clock.Configure(c.TotalFrames, c.Fps);
         if (_toolbar != null)
         {
             _toolbar.SetTotalFrames(c.TotalFrames);
             _toolbar.SetFps(c.Fps);
-            _toolbar.SetCurrentFrame(_clock.CurrentFrame);
+            _toolbar.SetCurrentFrame(_ctx.Clock.CurrentFrame);
         }
     }
 
     private void RebuildTimeline()
     {
-        var c = _authoring.GetContainer(_activeOwner);
+        var c = _ctx.Authoring.GetContainer(_activeOwner);
         if (c == null) return;
 
         if (_timelineContent != null && _config != null)
@@ -284,7 +283,7 @@ public class AnimatorPanel : MonoBehaviour
 
         if (_playhead != null)
         {
-            _playhead.SetFrame(_clock.CurrentFrame);
+            _playhead.SetFrame(_ctx.Clock.CurrentFrame);
         }
     }
 
@@ -296,7 +295,7 @@ public class AnimatorPanel : MonoBehaviour
         for (int i = 0; i < c.Tracks.Count; i++)
         {
             var t  = c.Tracks[i];
-            var go = _graph?.GetNode(t.NodeId);
+            var go = _ctx.Graph?.GetNode(t.NodeId);
             var display = go != null ? go.DisplayName : t.NodeId;
             bool isBone = t.NodeId.StartsWith("bone:");
             var kind    = isBone ? TrackRowKind.Bone : (c.OwnerNodeId == t.NodeId ? TrackRowKind.Rig : TrackRowKind.Object);
@@ -305,9 +304,9 @@ public class AnimatorPanel : MonoBehaviour
             var row = GetOrCreateRow(i);
             row.gameObject.SetActive(true);
             row.Bind(t.NodeId, display, kind, t.Keys.Count > 0, indent,
-                () => _selection.Select(t.NodeId));
+                () => _ctx.Selection.Select(t.NodeId));
 
-            row.SetActive(t.NodeId == _selection.SelectedNodeId);
+            row.SetActive(t.NodeId == _ctx.Selection.SelectedNodeId);
         }
     }
 
@@ -332,20 +331,20 @@ public class AnimatorPanel : MonoBehaviour
 
         foreach (var lane in _lanes.Lanes)
             if (lane != null && lane.gameObject.activeSelf)
-                lane.SetActive(lane.TrackNodeId == _selection.SelectedNodeId);
+                lane.SetActive(lane.TrackNodeId == _ctx.Selection.SelectedNodeId);
     }
 
     private void RefreshLaneKeys()
     {
         if (_lanes == null || string.IsNullOrEmpty(_activeOwner)) return;
-        var c = _authoring.GetContainer(_activeOwner);
+        var c = _ctx.Authoring.GetContainer(_activeOwner);
         if (c == null) return;
         foreach (var t in c.Tracks)
         {
             var lane = _lanes.FindLane(t.NodeId);
             if (lane == null) continue;
-            var frames = _authoring.GetKeyFrames(t.NodeId);
-            lane.SetKeys(frames, _clock.CurrentFrame);
+            var frames = _ctx.Authoring.GetKeyFrames(t.NodeId);
+            lane.SetKeys(frames, _ctx.Clock.CurrentFrame);
         }
     }
 
@@ -353,7 +352,7 @@ public class AnimatorPanel : MonoBehaviour
     {
         if (_toolbar == null) return;
         bool hasContainer = !string.IsNullOrEmpty(_activeOwner);
-        bool hasKey = hasContainer && (_authoring.GetContainer(_activeOwner)?.HasAnyKeyAtFrame(_clock.CurrentFrame) ?? false);
+        bool hasKey = hasContainer && (_ctx.Authoring.GetContainer(_activeOwner)?.HasAnyKeyAtFrame(_ctx.Clock.CurrentFrame) ?? false);
         _toolbar.SetSetKeyInteractable   (hasContainer);
         _toolbar.SetDeleteKeyInteractable(hasKey);
         _toolbar.SetPasteInteractable    (!_clipboard.IsEmpty);
@@ -362,6 +361,6 @@ public class AnimatorPanel : MonoBehaviour
     private int CurrentTotal()
     {
         if (string.IsNullOrEmpty(_activeOwner)) return _config?.DefaultTotalFrames ?? 60;
-        return _authoring.GetContainer(_activeOwner)?.TotalFrames ?? _config?.DefaultTotalFrames ?? 60;
+        return _ctx.Authoring.GetContainer(_activeOwner)?.TotalFrames ?? _config?.DefaultTotalFrames ?? 60;
     }
 }

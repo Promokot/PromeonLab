@@ -10,23 +10,22 @@ public class OutlinerPanel : MonoBehaviour
     [SerializeField] private RigOutlinerItem _rigRowPrefab;
     [SerializeField] private float           _indentPx = 16f;
 
-    private EventBus          _bus;
-    private SceneGraph        _graph;
-    private ISelectionManager _selection;
+    private EventBus    _bus;
+    private SceneContext _ctx;
 
     private readonly Dictionary<string, bool> _bonesActiveByRig = new();
 
     [Inject]
-    public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection)
+    public void Construct(EventBus bus, SceneContext ctx)
     {
-        _bus       = bus;
-        _graph     = graph;
-        _selection = selection;
+        _bus = bus;
+        _ctx = ctx;
     }
 
     private void OnEnable()
     {
         if (_bus == null) return;
+        _bus.Subscribe<SceneContextChangedEvent>(OnSceneContextChanged);
         _bus.Subscribe<SceneModifiedEvent>(OnModified);
         _bus.Subscribe<SelectionChangedEvent>(OnSelectionChanged);
         _bus.Subscribe<NodeRenamedEvent>(OnNodeRenamed);
@@ -37,6 +36,7 @@ public class OutlinerPanel : MonoBehaviour
     private void OnDisable()
     {
         if (_bus == null) return;
+        _bus.Unsubscribe<SceneContextChangedEvent>(OnSceneContextChanged);
         _bus.Unsubscribe<SceneModifiedEvent>(OnModified);
         _bus.Unsubscribe<SelectionChangedEvent>(OnSelectionChanged);
         _bus.Unsubscribe<NodeRenamedEvent>(OnNodeRenamed);
@@ -63,11 +63,11 @@ public class OutlinerPanel : MonoBehaviour
 
     private void Rebuild()
     {
-        if (_rowsRoot == null || _objectRowPrefab == null || _rigRowPrefab == null || _graph == null) return;
+        if (_rowsRoot == null || _objectRowPrefab == null || _rigRowPrefab == null || _ctx.Graph == null) return;
         foreach (Transform t in _rowsRoot) Destroy(t.gameObject);
 
         var byParent = new Dictionary<string, List<SceneNode>>();
-        foreach (var pair in _graph.Nodes)
+        foreach (var pair in _ctx.Graph.Nodes)
         {
             var p = GetParentId(pair.Value) ?? "";
             if (!byParent.TryGetValue(p, out var list))
@@ -101,7 +101,7 @@ public class OutlinerPanel : MonoBehaviour
                 ? Instantiate(_rigRowPrefab, _rowsRoot)
                 : Instantiate(_objectRowPrefab, _rowsRoot);
 
-            row.Bind(node, depth * _indentPx, () => _selection.Select(node.NodeId));
+            row.Bind(node, depth * _indentPx, () => _ctx.Selection?.Select(node.NodeId));
 
             if (row is RigOutlinerItem rigRow
                 && _bonesActiveByRig.TryGetValue(node.NodeId, out var bonesOn))
@@ -113,10 +113,22 @@ public class OutlinerPanel : MonoBehaviour
         }
     }
 
+    private void ClearRows()
+    {
+        if (_rowsRoot == null) return;
+        foreach (Transform t in _rowsRoot) Destroy(t.gameObject);
+    }
+
+    private void OnSceneContextChanged(SceneContextChangedEvent e)
+    {
+        if (e.HasScene) Rebuild();
+        else            ClearRows();
+    }
+
     private void ApplyHighlight()
     {
-        if (_rowsRoot == null || _selection == null) return;
-        var selectedId = _selection.SelectedNodeId;
+        if (_rowsRoot == null || _ctx.Selection == null) return;
+        var selectedId = _ctx.Selection.SelectedNodeId;
         foreach (var row in _rowsRoot.GetComponentsInChildren<OutlinerItem>())
         {
             row.SetVisualState(row.NodeId == selectedId

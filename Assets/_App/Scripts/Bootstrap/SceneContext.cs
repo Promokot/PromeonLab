@@ -4,7 +4,7 @@
 // only by SceneContextBinder.
 public class SceneContext
 {
-    public ISceneGraph       Graph     { get; private set; }
+    public SceneGraph        Graph     { get; private set; }
     public ISelectionManager Selection { get; private set; }
     public CommandStack      Commands  { get; private set; }
     public GizmoController    Gizmo     { get; private set; }
@@ -14,7 +14,7 @@ public class SceneContext
 
     public bool HasScene => Graph != null;
 
-    public void Bind(ISceneGraph graph, ISelectionManager selection, CommandStack commands,
+    public void Bind(SceneGraph graph, ISelectionManager selection, CommandStack commands,
                      GizmoController gizmo, AnimationAuthoring authoring, AnimationClock clock,
                      IRigRuntime rig)
     {
