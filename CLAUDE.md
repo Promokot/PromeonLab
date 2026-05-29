@@ -36,7 +36,7 @@ This is a Unity project — there is no CLI build script. All compilation, build
 | Scope | Lifetime | Key Registrations |
 |---|---|---|
 | `RootLifetimeScope` | App lifetime | `AppStorage`, `AssetImporter`, `PathProvider`, `AnimationClock` |
-| `SceneLifetimeScope` | Unity scene loaded | `ModeOrchestrator`, `SceneGraph`, `SelectionManager`, `UiPanelManager`, `CommandStack` |
+| `SceneLifetimeScope` | Unity scene loaded | `ModeOrchestrator`, `SceneGraph`, `SelectionManager`, `UiPanelOrchestrator`, `CommandStack` |
 | `FeatureLifetimeScope` | Active app mode | `PlaybackController`, `RigRuntime`, `TrackRecorder` |
 
 Child scopes may depend on parent registrations; **never the reverse**. `FeatureLifetimeScope` is created/disposed by `ModeOrchestrator` on mode transitions.
@@ -55,8 +55,7 @@ Located in `Assets/_App/Scripts/<Subsystem>/`. Interfaces and contracts for each
 | `AssetBrowser` | VR gallery UI over `StorageCore`; drag-and-drop to scene; no direct file access |
 | `SceneComposition` | Scene node hierarchy, `CommandStack` (undo/redo), `SelectionManager` |
 | `RigBuilder` | Skeletal rigging from imported mesh; IK/FK via Unity Animation Rigging |
-| `AnimationAuthoring` | `ActionData`, keyframe recording, NLA composition (`NlaComposer`) |
-| `AnimationPlayback` | `PlaybackController`, `AnimationEvaluator`, scrub/loop/speed transport |
+| `Animation` | `ActionData`, keyframe recording/authoring, NLA composition, and playback transport (scrub/loop/speed). Key types: `AnimationAuthoring`, `AnimationPlayback`, `AnimationClock` |
 | `ExportPipeline` | FBX + custom JSON export; no reverse import |
 | `InputBindings` | OpenXR controller mapping; context-switched (`Navigation`, `Ui`, `GizmoManipulation`, …) |
 | `ModeOrchestrator` | `AppStateMachine`, `ModeTransitionGraph` SO, `FeatureLifetimeScope` lifecycle |
@@ -72,7 +71,7 @@ All cross-subsystem messages are `struct` types suffixed `Event` (e.g., `SceneOp
 `SceneModified` → UnsavedChangesGuard  
 `SelectionChanged` → PropertyPanel, GizmoController  
 `FrameChanged` → AnimationEvaluator, TrackRecorder  
-`ModeChanged` → UiPanelManager, FeatureLifetimeScope  
+`ModeChanged` → UiPanelOrchestrator, FeatureLifetimeScope  
 
 ### Data Storage Layout
 

@@ -227,8 +227,7 @@ Assets/
     │   ├── architecture_context.md
     │   ├── conventions.md
     │   ├── coursework_context.md
-    │   ├── STRUCTURE.md                    (this file)
-    │   └── STRUCTURE_TARGET.md
+    │   └── STRUCTURE.md                    (this file)
     │
     ├── Editor/                             ← editor-only code (_App.Editor.asmdef)
     │   ├── _App.Editor.asmdef
@@ -256,13 +255,14 @@ Assets/
     │   │   ├── EventBus.cs
     │   │   └── ICommand.cs
     │   │
-    │   ├── AnimationAuthoring/
+    │   ├── Animation/                      (merged AnimationAuthoring + AnimationPlayback)
     │   │   ├── ActionContainer.cs
     │   │   ├── AnimKeyData.cs
     │   │   ├── AnimTrackData.cs
     │   │   ├── AnimationAuthoring.cs
     │   │   ├── AnimationClipboard.cs
     │   │   ├── AnimationClock.cs
+    │   │   ├── AnimationPlayback.cs
     │   │   ├── ContainerChange.cs
     │   │   ├── FrameClipboard.cs
     │   │   ├── FrameClipboardEntry.cs
@@ -274,9 +274,6 @@ Assets/
     │   │       ├── AnimationKeyframeChangedEvent.cs
     │   │       ├── FrameChangedEvent.cs
     │   │       └── PlaybackStateChangedEvent.cs
-    │   │
-    │   ├── AnimationPlayback/
-    │   │   └── AnimationPlayback.cs
     │   │
     │   ├── AssetBrowser/
     │   │   ├── AssetEntry.cs
@@ -363,54 +360,54 @@ Assets/
     │   │       ├── SceneSelectedEvent.cs
     │   │       └── SelectionChangedEvent.cs
     │   │
-    │   ├── SpatialUi/
-    │   │   ├── AnimatorPanelConfig.cs
-    │   │   ├── AssetBrowserModule.cs
-    │   │   ├── BoneInspectorPanel.cs
-    │   │   ├── DetachablePanel.cs
-    │   │   ├── IkSetupWizard.cs
-    │   │   ├── MainMenuPanel.cs
-    │   │   ├── NavBarConfig.cs
-    │   │   ├── PanelId.cs
-    │   │   ├── PanelRegistry.cs
-    │   │   ├── PanelType.cs
-    │   │   ├── PropertyPanel.cs
-    │   │   ├── ScenePickerPanel.cs
-    │   │   ├── SettingsModule.cs
-    │   │   ├── SpatialPanel.cs
-    │   │   ├── UiPanelManager.cs
-    │   │   ├── UserPanel.cs
-    │   │   ├── Elements/               (self-contained UI MonoBehaviours and widgets)
-    │   │   │   ├── DetachablePanelDragHandle.cs
-    │   │   │   ├── FileBrowserVrAnchor.cs
+    │   ├── SpatialUi/                      (role-based layout — see conventions.md)
+    │   │   ├── SpatialPanel.cs             base class
+    │   │   ├── SpatialPanelDetachable.cs   detachable-panel chrome (link/lock/close/drag)
+    │   │   ├── UiPanelOrchestrator.cs      spawns panels + toggles per-mode visibility
+    │   │   ├── PanelRegistry.cs            SO: panel list + per-mode visibility
+    │   │   ├── PanelId.cs                  enum
+    │   │   ├── PanelType.cs                enum
+    │   │   ├── AnimatorPanelConfig.cs      config SO
+    │   │   ├── NavBarConfig.cs             config SO
+    │   │   ├── VrKeyboard.cs               keyboard widget (root-scoped; reclassify pending — spec B)
+    │   │   ├── Panels/                 (root *Panel scripts + AnimatorSub* parts)
+    │   │   │   ├── AnimatorPanel.cs
+    │   │   │   ├── AnimatorSubToolbar.cs
+    │   │   │   ├── AnimatorSubTransport.cs
+    │   │   │   ├── AnimatorSubEmptyState.cs
+    │   │   │   ├── AnimatorSubRuler.cs
+    │   │   │   ├── AnimatorSubPlayhead.cs
+    │   │   │   ├── AnimatorSubLanes.cs
+    │   │   │   ├── AssetBrowserPanel.cs
+    │   │   │   ├── BoneInspectorPanel.cs
+    │   │   │   ├── IkWizardPanel.cs
+    │   │   │   ├── InspectorPanel.cs
+    │   │   │   ├── MainMenuPanel.cs
+    │   │   │   ├── OutlinerPanel.cs
+    │   │   │   ├── PropertyPanel.cs
+    │   │   │   ├── ScenePickerPanel.cs
+    │   │   │   ├── SettingsPanel.cs
+    │   │   │   └── UserPanel.cs
+    │   │   ├── Elements/               (list-row widgets, instantiated per item)
     │   │   │   ├── LabAssetCard.cs
     │   │   │   ├── OutlinerItem.cs
-    │   │   │   ├── PanelDragHandle.cs
     │   │   │   ├── RigOutlinerItem.cs
     │   │   │   ├── SceneItem.cs
-    │   │   │   ├── TimelineInputHandler.cs
-    │   │   │   ├── TimelineLaneView.cs
-    │   │   │   ├── TimelineLanesView.cs
-    │   │   │   ├── TimelinePlayheadView.cs
-    │   │   │   ├── TimelineRulerView.cs
+    │   │   │   ├── TimelineLane.cs
+    │   │   │   └── TrackRow.cs
+    │   │   ├── Behaviors/              (one interaction/behavior per GameObject)
+    │   │   │   ├── DetachablePanelDragHandle.cs
+    │   │   │   ├── FileBrowserVrAnchor.cs
+    │   │   │   ├── PanelDragHandle.cs
     │   │   │   ├── TimelineScrollSync.cs
-    │   │   │   ├── TrackRowView.cs
+    │   │   │   ├── TimelineScrubInput.cs
     │   │   │   ├── UserPanelKeyboardToggle.cs
-    │   │   │   ├── UserPanelOpener.cs
-    │   │   │   └── VrKeyboard.cs
-    │   │   ├── Events/
-    │   │   │   ├── KeyboardFocusEvent.cs
-    │   │   │   ├── PanelClosedEvent.cs
-    │   │   │   ├── PanelDetachedEvent.cs
-    │   │   │   └── PanelLinkedEvent.cs
-    │   │   └── Views/                  (data-bound read-only display components)
-    │   │       ├── AnimatorEmptyStateView.cs
-    │   │       ├── AnimatorPanelView.cs
-    │   │       ├── AnimatorToolbarView.cs
-    │   │       ├── AnimatorTransportView.cs
-    │   │       ├── AssetPropertiesView.cs
-    │   │       ├── SceneInspectorView.cs
-    │   │       └── SceneOutlinerView.cs
+    │   │   │   └── UserPanelOpener.cs
+    │   │   └── Events/
+    │   │       ├── KeyboardFocusEvent.cs
+    │   │       ├── PanelClosedEvent.cs
+    │   │       ├── PanelDetachedEvent.cs
+    │   │       └── PanelLinkedEvent.cs
     │   │
     │   ├── StorageCore/
     │   │   ├── AppStorage.cs
@@ -462,7 +459,7 @@ Assets/
     │
     └── Tests/                              ← NUnit tests (_App.Tests.asmdef)
         ├── _App.Tests.asmdef
-        ├── AnimationAuthoring/             (5 × .cs)
+        ├── Animation/                      (5 × .cs; was AnimationAuthoring/)
         │   ├── ActionContainerTests.cs
         │   ├── AnimationAuthoringTests.cs
         │   ├── AnimationClipboardTests.cs
@@ -494,10 +491,9 @@ Assets/
 
 | Folder | `.cs` | `.prefab` | `.unity` | `.asset` |
 |---|---|---|---|---|
-| `_App/Scripts/` total | **156** | — | — | — |
+| `_App/Scripts/` total | **155** | — | — | — |
 | — `Core/` | 2 | — | — | — |
-| — `AnimationAuthoring/` | 16 | — | — | — |
-| — `AnimationPlayback/` | 1 | — | — | — |
+| — `Animation/` | 17 | — | — | — |
 | — `AssetBrowser/` | 17 | — | — | — |
 | — `Bootstrap/` | 9 | — | — | — |
 | — `ErrorHandling/` | 3 | — | — | — |
@@ -506,7 +502,7 @@ Assets/
 | — `ModeOrchestrator/` | 4 | — | — | — |
 | — `RigBuilder/` | 11 | — | — | — |
 | — `SceneComposition/` | 14 | — | — | — |
-| — `SpatialUi/` | 44 | — | — | — |
+| — `SpatialUi/` | 43 | — | — | — |
 | — `StorageCore/` | 7 | — | — | — |
 | — `VrInteraction/` | 26 | — | — | — |
 | `_App/Editor/` | 4 | — | — | — |
@@ -518,7 +514,7 @@ Assets/
 | `Samples/XRI 3.0.7/` | 17 | ~52 | — | — |
 
 > Notes:
-> - `.cs` counts include all `Events/`, `Views/`, `Elements/`, `Constraints/`, and
+> - `.cs` counts include all `Events/`, `Panels/`, `Elements/`, `Behaviors/`, `Constraints/`, and
 >   `Gizmo/Strategies/` subfiles; `.asmdef` files are excluded.
 > - `_App/Content/Prefabs/` count of 39 is exact and includes all UI items, panels, gizmos,
 >   environment, XR-rig, and spawnable asset prefabs.

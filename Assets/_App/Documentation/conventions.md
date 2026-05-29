@@ -33,8 +33,29 @@ Scripts/{SubsystemName}/
 ├── {SubsystemName}.cs            ← Primary façade / entry point (if applicable)
 ├── Data/                         ← Subsystem-specific data structs, enums, SOs
 ├── Events/                       ← *Event structs published by this subsystem
-└── UI/                           ← Subsystem-specific panels and views
+└── UI/                           ← Subsystem-specific panels and views (most subsystems)
 ```
+
+> **`SpatialUi` is the exception** — instead of a single `UI/` folder it uses role-based folders. See "SpatialUi Script Roles" below.
+
+---
+
+## SpatialUi Script Roles
+
+`SpatialUi` scripts are classified by **what the code does** (not by name). The role determines suffix and folder:
+
+| Role | Criteria (by signature) | Suffix | Folder |
+|---|---|---|---|
+| **Panel** | Root MonoBehaviour of a panel/module/overlay. Holds `[SerializeField]` control refs **and** logic: receives services via `[Inject]`/constructor and/or subscribes to `EventBus`. | `*Panel` | `Panels/` |
+| **Sub-part** | A fixed, singular piece a *complex* panel was split into. Dumb widget — no DI, no `EventBus`; driven by its parent via `Bind`/`Set*`/`On*`. | `<Panel>Sub<Part>` | `Panels/` (flat) |
+| **Element** | A widget **instantiated per list entry** (rows, cards). Dumb — `Bind`/`Set*` only. | `Item` / `Card` / `Row` / `Lane` | `Elements/` |
+| **Behavior** | Adds one interaction/behavior to its GameObject (drag / scroll / toggle / anchor / input translation). Renders no domain data, owns no panel logic, is not a list row. | descriptive (`Handle`/`Toggle`/`Anchor`/`Sync`/`Input`) | `Behaviors/` |
+| **Framework / Config** | Base class (`SpatialPanel`), orchestrator (`UiPanelOrchestrator`), registry SO (`PanelRegistry`), enums (`PanelId`/`PanelType`), config SOs. | as-is | `SpatialUi/` root |
+
+Notes:
+- A *simple* panel needs only its root `*Panel` script (it is both "brain" and "hands"). Sub-parts appear only when a panel grows large enough to split (today: `AnimatorPanel`).
+- `Panels/` is **flat** — the `<Panel>` prefix groups a panel with its sub-parts (e.g. `AnimatorPanel`, `AnimatorSubToolbar`, `AnimatorSubRuler`).
+- `Module` / `Overlay` are *placements* of a Panel, not script types — expressed by hierarchy, not the suffix.
 
 ---
 
@@ -157,7 +178,7 @@ Scripts/{SubsystemName}/
 | Scope | Contents |
 |---|---|
 | `RootLifetimeScope` | App-lifetime singletons: `AppStorage`, `AssetImporter`, `PathProvider`, `AnimationClock` |
-| `SceneLifetimeScope` | Scene-lifetime services: `ModeOrchestrator`, `SceneGraph`, `SelectionManager`, `UiPanelManager`, `CommandStack` |
+| `SceneLifetimeScope` | Scene-lifetime services: `ModeOrchestrator`, `SceneGraph`, `SelectionManager`, `UiPanelOrchestrator`, `CommandStack` |
 | `FeatureLifetimeScope` | Mode-specific: `PlaybackController`, `RigRuntime`, `TrackRecorder` |
 
 - Child scopes may depend on parent scope registrations; parent scopes must never depend on child scopes
