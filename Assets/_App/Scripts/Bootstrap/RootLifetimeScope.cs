@@ -25,6 +25,13 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<ImportedAssetLibrary>(Lifetime.Singleton);
         builder.Register<SavedAssetLibrary>(Lifetime.Singleton);
         builder.Register<AssetRegistry>(Lifetime.Singleton).As<IAssetRegistry>();
+
+        var transition = Object.FindAnyObjectByType<SceneTransitionRunner>(FindObjectsInactive.Include);
+        if (transition != null)
+            builder.RegisterInstance(transition).As<ISceneTransition>();
+        else
+            Debug.LogError("RootLifetimeScope: SceneTransitionRunner not found — mode transitions will fail.");
+
         builder.Register<ModeOrchestrator>(Lifetime.Singleton);
         // AssetImporter registered in VrEditingSceneScope (needs SceneGraph)
 

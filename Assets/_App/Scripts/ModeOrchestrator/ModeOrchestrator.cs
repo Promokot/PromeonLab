@@ -1,24 +1,25 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using Scene = UnityEngine.SceneManagement.Scene;
 
 public class ModeOrchestrator
 {
-    private readonly EventBus _bus;
+    private readonly EventBus            _bus;
     private readonly ModeTransitionGraph _graph;
+    private readonly ISceneTransition    _transition;
 
     private AppMode _current = AppMode.MainMenu;
     public AppMode CurrentMode => _current;
 
-    public ModeOrchestrator(EventBus bus, ModeTransitionGraph graph)
+    public ModeOrchestrator(EventBus bus, ModeTransitionGraph graph, ISceneTransition transition)
     {
-        _bus   = bus;
-        _graph = graph;
+        _bus        = bus;
+        _graph      = graph;
+        _transition = transition;
     }
 
     public void TransitionTo(AppMode target)
     {
         if (_current == target) return;
+        if (_transition.IsTransitioning) return;
         if (!_graph.IsAllowed(_current, target))
         {
             Debug.LogWarning($"Transition {_current} → {target} not allowed");
@@ -28,42 +29,15 @@ public class ModeOrchestrator
         var prev = _current;
         _current = target;
 
-        SceneManager.sceneLoaded += OnSceneLoadedSetActive;
-        UnloadCurrentScene(prev);
-        LoadScene(target);
-
-        _bus.Publish(new ModeChangedEvent { PreviousMode = prev, CurrentMode = target });
+        _transition.Load(SceneNameFor(target), () =>
+            _bus.Publish(new ModeChangedEvent { PreviousMode = prev, CurrentMode = target }));
     }
 
-    private void OnSceneLoadedSetActive(Scene scene, LoadSceneMode mode)
+    private static string SceneNameFor(AppMode mode) => mode switch
     {
-        SceneManager.sceneLoaded -= OnSceneLoadedSetActive;
-        SceneManager.SetActiveScene(scene);
-    }
-
-    private void LoadScene(AppMode mode)
-    {
-        var sceneName = mode switch
-        {
-            AppMode.MainMenu  => "MainMenu",
-            AppMode.VrEditing => "VrEditing",
-            AppMode.Sandbox   => "Sandbox",
-            _                 => null
-        };
-        if (sceneName != null)
-            SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
-    }
-
-    private void UnloadCurrentScene(AppMode mode)
-    {
-        var sceneName = mode switch
-        {
-            AppMode.MainMenu  => "MainMenu",
-            AppMode.VrEditing => "VrEditing",
-            AppMode.Sandbox   => "Sandbox",
-            _                 => null
-        };
-        if (sceneName != null && SceneManager.GetSceneByName(sceneName).isLoaded)
-            SceneManager.UnloadSceneAsync(sceneName);
-    }
+        AppMode.MainMenu  => "MainMenu",
+        AppMode.VrEditing => "VrEditing",
+        AppMode.Sandbox   => "Sandbox",
+        _                 => null,
+    };
 }

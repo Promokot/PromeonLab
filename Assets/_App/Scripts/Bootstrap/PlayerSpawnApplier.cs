@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion;
 using Scene = UnityEngine.SceneManagement.Scene;
 
-// Teleports the XR Rig to world origin on every additively loaded scene.
+// Teleports the XR Rig to world origin on every scene load (single-mode transitions).
 // Uses XRBodyTransformer.QueueTransformation so the locomotion system applies the move correctly —
 // direct transform.SetPositionAndRotation is overridden by XRBodyTransformer.
 public class PlayerSpawnApplier : MonoBehaviour
