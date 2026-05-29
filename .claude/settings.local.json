@@ -25,7 +25,12 @@
       "mcp__unityMCP__run_tests",
       "mcp__unityMCP__get_test_job",
       "mcp__unityMCP__manage_editor",
-      "mcp__unityMCP__manage_asset"
+      "mcp__unityMCP__manage_asset",
+      "PowerShell(git -C $root status --short)",
+      "PowerShell($root = \"S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\")",
+      "PowerShell(git -C $root commit -m \"feat\\(ui\\): add PanelRegionRouter with per-region mutual exclusion + tests\")",
+      "Bash(python *)",
+      "mcp__unityMCP__manage_scriptable_object"
     ]
   },
   "enabledMcpjsonServers": [
