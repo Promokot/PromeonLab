@@ -52,12 +52,8 @@ public class VrEditingSceneScope : LifetimeScope
         if (inspector != null)
             builder.RegisterBuildCallback(c => c.Inject(inspector));
 
-        var assetBrowser = Object.FindAnyObjectByType<AssetBrowserPanel>(FindObjectsInactive.Include);
-        if (assetBrowser != null)
-        {
-            builder.RegisterInstance(assetBrowser);
-            builder.RegisterBuildCallback(c => c.Inject(assetBrowser));
-        }
+        // AssetBrowserPanel + FileBrowserSurface are persistent (XR rig / UserPanel) with
+        // root-only deps → injected in RootLifetimeScope so they work in every mode.
 
         builder.RegisterEntryPoint<AnimationClock>(Lifetime.Scoped).AsSelf();
         builder.RegisterEntryPoint<AnimationAuthoring>(Lifetime.Scoped).AsSelf();
@@ -81,11 +77,8 @@ public class VrEditingSceneScope : LifetimeScope
         {
             var router = c.Resolve<PanelRegionRouter>();
 
-            foreach (var fbs in Object.FindObjectsByType<FileBrowserSurface>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-                c.Inject(fbs);
-            foreach (var anchor in Object.FindObjectsByType<FileBrowserVrAnchor>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-                c.Inject(anchor);
-
+            // Re-register any scene-resident region members (persistent ones are already
+            // registered by RootLifetimeScope; RegisterModule is idempotent).
             foreach (var rm in Object.FindObjectsByType<RegionMember>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
                 c.Inject(rm);
