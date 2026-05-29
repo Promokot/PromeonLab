@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using VContainer;
 using SimpleFileBrowser;
 
-public class AssetBrowserModule : MonoBehaviour
+public class AssetBrowserPanel : MonoBehaviour
 {
     [Header("Library Tabs")]
     [SerializeField] private Button _builtinTabButton;

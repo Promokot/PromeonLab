@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using VContainer;
 using TMPro;
 
-public class IkSetupWizard : MonoBehaviour
+public class IkWizardPanel : MonoBehaviour
 {
     [SerializeField] private TMP_Dropdown _rootBoneDropdown;
     [SerializeField] private TMP_Dropdown _endBoneDropdown;

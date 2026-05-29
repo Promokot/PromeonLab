@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
 
-public class SceneInspectorView : MonoBehaviour
+public class InspectorPanel : MonoBehaviour
 {
     [SerializeField] private GameObject     _emptyState;
     [SerializeField] private GameObject     _content;

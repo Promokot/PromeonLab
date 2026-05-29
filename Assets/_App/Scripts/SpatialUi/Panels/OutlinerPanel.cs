@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
-public class SceneOutlinerView : MonoBehaviour
+public class OutlinerPanel : MonoBehaviour
 {
     [SerializeField] private Transform       _rowsRoot;
     [SerializeField] private OutlinerItem    _objectRowPrefab;

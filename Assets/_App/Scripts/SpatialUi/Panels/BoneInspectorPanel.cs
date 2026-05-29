@@ -12,10 +12,10 @@ public class BoneInspectorPanel : MonoBehaviour
     private IRigRuntime       _rigRuntime;
     private ISelectionManager _selectionManager;
     private ISceneGraph       _sceneGraph;
-    private IkSetupWizard     _ikWizard;
+    private IkWizardPanel     _ikWizard;
 
     [Inject]
-    public void Construct(IRigRuntime rigRuntime, ISelectionManager selectionManager, ISceneGraph sceneGraph, IkSetupWizard ikWizard)
+    public void Construct(IRigRuntime rigRuntime, ISelectionManager selectionManager, ISceneGraph sceneGraph, IkWizardPanel ikWizard)
     {
         _rigRuntime       = rigRuntime;
         _selectionManager = selectionManager;

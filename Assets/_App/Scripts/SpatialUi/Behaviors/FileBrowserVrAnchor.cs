@@ -7,11 +7,11 @@ public class FileBrowserVrAnchor : MonoBehaviour
     [SerializeField] private float _forwardOffset = 0.02f;
     [SerializeField] private float _scale         = 0.001f;
 
-    private AssetBrowserModule _target;
+    private AssetBrowserPanel _target;
 
     private void Start()
     {
-        _target = Object.FindAnyObjectByType<AssetBrowserModule>(FindObjectsInactive.Include);
+        _target = Object.FindAnyObjectByType<AssetBrowserPanel>(FindObjectsInactive.Include);
 
         transform.localScale = Vector3.one * _scale;
 

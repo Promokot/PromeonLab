@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class SettingsModule : MonoBehaviour
+public class SettingsPanel : MonoBehaviour
 {
     // Settings UI content goes here
 }

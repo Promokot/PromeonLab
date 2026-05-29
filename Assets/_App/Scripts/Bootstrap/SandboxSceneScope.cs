@@ -31,7 +31,7 @@ public class SandboxSceneScope : LifetimeScope
         var rigRuntime = Object.FindAnyObjectByType<RigRuntime>(FindObjectsInactive.Include);
         if (rigRuntime != null) builder.RegisterInstance(rigRuntime).AsImplementedInterfaces().AsSelf();
 
-        var ikWizard = Object.FindAnyObjectByType<IkSetupWizard>(FindObjectsInactive.Include);
+        var ikWizard = Object.FindAnyObjectByType<IkWizardPanel>(FindObjectsInactive.Include);
         if (ikWizard != null) builder.RegisterInstance(ikWizard);
 
         var bonePanel = Object.FindAnyObjectByType<BoneInspectorPanel>(FindObjectsInactive.Include);
@@ -42,15 +42,15 @@ public class SandboxSceneScope : LifetimeScope
 
         builder.Register<AssetSpawner>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
 
-        var outliner = Object.FindAnyObjectByType<SceneOutlinerView>(FindObjectsInactive.Include);
+        var outliner = Object.FindAnyObjectByType<OutlinerPanel>(FindObjectsInactive.Include);
         if (outliner != null)
             builder.RegisterBuildCallback(c => c.Inject(outliner));
 
-        var inspector = Object.FindAnyObjectByType<SceneInspectorView>(FindObjectsInactive.Include);
+        var inspector = Object.FindAnyObjectByType<InspectorPanel>(FindObjectsInactive.Include);
         if (inspector != null)
             builder.RegisterBuildCallback(c => c.Inject(inspector));
 
-        var assetBrowser = Object.FindAnyObjectByType<AssetBrowserModule>(FindObjectsInactive.Include);
+        var assetBrowser = Object.FindAnyObjectByType<AssetBrowserPanel>(FindObjectsInactive.Include);
         if (assetBrowser != null)
             builder.RegisterBuildCallback(c => c.Inject(assetBrowser));
 
