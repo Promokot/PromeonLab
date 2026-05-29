@@ -9,15 +9,15 @@ using UnityEngine.UI;
 
 public static class AnimatorPanelModuleBuilder
 {
-    private const string PrefabPath        = "Assets/_App/Subsystems/SpatialUi/Prefabs/Panels/UserPanel/AnimatorPanelModule.prefab";
-    private const string ConfigPath        = "Assets/_App/Subsystems/SpatialUi/Data/AnimatorPanelConfig.asset";
-    private const string TrackRowPath      = "Assets/_App/Subsystems/SpatialUi/Prefabs/Items/TrackRow.prefab";
-    private const string TickPath          = "Assets/_App/Subsystems/SpatialUi/Prefabs/Items/TimelineTick.prefab";
-    private const string TickLabelPath     = "Assets/_App/Subsystems/SpatialUi/Prefabs/Items/TimelineTickLabel.prefab";
-    private const string LanePath          = "Assets/_App/Subsystems/SpatialUi/Prefabs/Items/TimelineLane.prefab";
-    private const string KeyDiamondPath    = "Assets/_App/Subsystems/SpatialUi/Prefabs/Items/TimelineKeyDiamond.prefab";
-    private const string UserPanelPath     = "Assets/_App/Subsystems/SpatialUi/Prefabs/Panels/UserPanel/UserPanel.prefab";
-    private const string NavBarConfigPath  = "Assets/_App/Subsystems/SpatialUi/Data/DefaultNavBarConfig.asset";
+    private const string PrefabPath        = "Assets/_App/Content/Prefabs/UI/Panels/UserPanel/AnimatorPanelModule.prefab";
+    private const string ConfigPath        = "Assets/_App/Content/ScriptableObjects/DefaultAnimatorPanelConfig.asset";
+    private const string TrackRowPath      = "Assets/_App/Content/Prefabs/UI/Elements/TrackRow.prefab";
+    private const string TickPath          = "Assets/_App/Content/Prefabs/UI/Elements/TimelineTick.prefab";
+    private const string TickLabelPath     = "Assets/_App/Content/Prefabs/UI/Elements/TimelineTickLabel.prefab";
+    private const string LanePath          = "Assets/_App/Content/Prefabs/UI/Elements/TimelineLane.prefab";
+    private const string KeyDiamondPath    = "Assets/_App/Content/Prefabs/UI/Elements/TimelineKeyDiamond.prefab";
+    private const string UserPanelPath     = "Assets/_App/Content/Prefabs/UI/Panels/UserPanel/UserPanel.prefab";
+    private const string NavBarConfigPath  = "Assets/_App/Content/ScriptableObjects/DefaultNavBarConfig.asset";
     private const string AnimatorEntryId   = "animator";
 
     private const string SandboxSceneDir   = "Assets/_App/Scenes/_Sandbox";
