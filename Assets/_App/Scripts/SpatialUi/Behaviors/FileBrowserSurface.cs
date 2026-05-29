@@ -19,6 +19,11 @@ public class FileBrowserSurface : MonoBehaviour, IRegionSurface
     public void Show()
     {
         if (FileBrowser.IsOpen) return;
+        // Activate our in-hierarchy canvas BEFORE touching the static FileBrowser API.
+        // SetActive(true) runs FileBrowser.Awake synchronously → registers m_instance, so the
+        // Instance getter never hits its dead Resources fallback (the canvas prefab moved to
+        // Content/ and the Resources copy is renamed *_legacy → Resources.Load returns null).
+        if (!gameObject.activeSelf) gameObject.SetActive(true);
         FileBrowser.ShowLoadDialog(
             onSuccess:      paths =>
             {

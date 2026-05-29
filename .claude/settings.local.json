@@ -30,7 +30,8 @@
       "PowerShell($root = \"S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\")",
       "PowerShell(git -C $root commit -m \"feat\\(ui\\): add PanelRegionRouter with per-region mutual exclusion + tests\")",
       "Bash(python *)",
-      "mcp__unityMCP__manage_scriptable_object"
+      "mcp__unityMCP__manage_scriptable_object",
+      "Bash(grep -h guid: Assets/_App/Scripts/SpatialUi/RegionMember.cs.meta Assets/_App/Scripts/SpatialUi/Behaviors/__TRACKED_VAR__.cs.meta)"
     ]
   },
   "enabledMcpjsonServers": [
