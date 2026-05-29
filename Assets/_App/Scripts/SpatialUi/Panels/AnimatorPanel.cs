@@ -146,6 +146,7 @@ public class AnimatorPanel : MonoBehaviour
 
     private void OnAddAnimationClicked()
     {
+        if (_ctx.Authoring == null) return;
         var owner = AnimationAuthoring.OwnerOf(_ctx.Selection?.SelectedNodeId);
         if (string.IsNullOrEmpty(owner)) return;
         _ctx.Authoring.CreateContainer(owner);
@@ -205,7 +206,10 @@ public class AnimatorPanel : MonoBehaviour
 
     private void Refresh()
     {
-        if (!_ctx.HasScene) { ShowEmpty(AnimatorSubEmptyState.State.NoSelection); return; }
+        // The animation services are absent in scenes without an animation system (e.g. Sandbox),
+        // where SceneContext binds Graph but leaves Authoring/Clock null. Guard on what Refresh
+        // actually dereferences, not just HasScene (which only tracks Graph).
+        if (_ctx.Authoring == null || _ctx.Clock == null) { ShowEmpty(AnimatorSubEmptyState.State.NoSelection); return; }
 
         var selected = _ctx.Selection?.SelectedNodeId;
         var owner    = AnimationAuthoring.OwnerOf(selected);

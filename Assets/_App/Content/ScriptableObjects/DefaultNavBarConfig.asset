@@ -34,7 +34,7 @@ MonoBehaviour:
     ExclusiveGroup: center_top
     IsRegionDefault: 0
   - Id: animator
-    VisibleModes: 0100000002000000
+    VisibleModes: 01000000
     ExclusiveGroup: center_top
     IsRegionDefault: 0
   - Id: gizmo
