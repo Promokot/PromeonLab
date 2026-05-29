@@ -78,7 +78,6 @@ GameObject:
   - component: {fileID: 1443132229552257255}
   - component: {fileID: 6209610178671762348}
   - component: {fileID: 8573857923733603883}
-  - component: {fileID: 6805981937465144605}
   - component: {fileID: 1926228165071303121}
   m_Layer: 0
   m_Name: UserPanel
@@ -180,21 +179,6 @@ MonoBehaviour:
   _maxDistance: 1.25
   _yOffset: -0.21
   _faceBelowOffset: 0.18
---- !u!114 &6805981937465144605
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 276269292298337097}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98e49eb3c68a32745b9d9a776ff43a25, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Subsystems.SpatialUi::UserPanelKeyboardToggle
-  _keyboardButton: {fileID: 1558720005864284642}
-  _defaultContent: {fileID: 2537349046291802713}
-  _keyboardContent: {fileID: 4051305821850677800}
 --- !u!114 &1926228165071303121
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3047,6 +3031,7 @@ GameObject:
   - component: {fileID: 1218035293431431232}
   - component: {fileID: 2591577505777944246}
   - component: {fileID: 1558720005864284642}
+  - component: {fileID: 6341652620288611160}
   m_Layer: 0
   m_Name: KeyboardButton
   m_TagString: Untagged
@@ -3155,6 +3140,23 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6341652620288611160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8132327572969059162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 040957ac4d765d84584e39c1df289f8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: _App.Runtime::RegionNavButton
+  _moduleId: keyboard
+  _button: {fileID: 1558720005864284642}
+  _inactiveHoverBrightness: 1.2
+  _activeBrightness: 0.6
+  _activeHoverBrightness: 0.8
 --- !u!1 &8247343044705438022
 GameObject:
   m_ObjectHideFlags: 0
@@ -6490,13 +6492,29 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6275315161778723152, guid: c05ff9432700e4f379c19941ed39cd21, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7675629543338877431}
   m_SourcePrefab: {fileID: 100100000, guid: c05ff9432700e4f379c19941ed39cd21, type: 3}
 --- !u!1 &4051305821850677800 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6275315161778723152, guid: c05ff9432700e4f379c19941ed39cd21, type: 3}
   m_PrefabInstance: {fileID: 8011697896968694648}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7675629543338877431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4051305821850677800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d70e3e1ff24530840976ce3476eef7fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: _App.Runtime::RegionMember
+  _moduleId: keyboard
 --- !u!224 &4051305821850677801 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6275315161778723153, guid: c05ff9432700e4f379c19941ed39cd21, type: 3}

@@ -34,3 +34,9 @@ MonoBehaviour:
   - Id: animator
     VisibleModes: 0100000002000000
     ExclusiveGroup: center
+  - Id: keyboard
+    VisibleModes: 0100000004000000
+    ExclusiveGroup: center
+  - Id: fileBrowser
+    VisibleModes: 0100000004000000
+    ExclusiveGroup: dialog
