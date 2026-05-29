@@ -4,6 +4,22 @@
 > (see `2026-05-29-spatialui-animation-refactor-design.md` → "Out of scope — deferred to spec B").
 > B1 unifies panel opening; it **changes runtime behavior** (unlike the pure rename of spec A).
 
+> **Planning addendum (2026-05-29, post-review corrections):** Two adjustments made while writing
+> the implementation plan, after re-reading the actual code:
+> 1. **Keyboard is button-toggled, not focus-driven.** `UserPanelKeyboardToggle` swaps
+>    `_defaultContent`↔`_keyboardContent` via a keyboard *button*; `KeyboardFocusEvent`
+>    (`VrInputFieldProxy`) only routes keystrokes to `VrKeyboard`, it does not open anything. So the
+>    keyboard migration is a **behavior-preserving 2-way region swap**: `_defaultContent` and
+>    `_keyboardContent` become two `RegionMember`s in one region (`userPanelShell`); the keyboard
+>    button calls `router.Open("keyboard")` / `router.Open("userPanelDefault")`. The
+>    `KeyboardFocusEvent`→`VrKeyboard` typing path is untouched. (Replaces the spec's incorrect
+>    "open on KeyboardFocusEvent / close on submit/blur".)
+> 2. **No `NavBarConfig`→`PanelRegionConfig` rename in B1.** `NavBarConfig.Entry` already carries
+>    exactly the needed fields (`Id`=moduleId, `ExclusiveGroup`=regionKey, `VisibleModes`). The
+>    router consumes it via a new `IRegionConfig` interface that `NavBarConfig` implements (so the
+>    router is unit-testable with a fake). The cosmetic rename touches runtime + the editor builder's
+>    `t:NavBarConfig` filter for no functional gain — deferred to a trivial follow-up.
+
 **Goal:** Replace the ~3 ad-hoc "open a panel" mechanisms with one registry-driven region model:
 panels register themselves, panels that share a UI *region* are mutually exclusive (opening one
 swaps out the other in the same place), and both nav buttons and code open/close through one API.
