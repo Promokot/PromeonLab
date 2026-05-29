@@ -5,7 +5,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
-using SimpleFileBrowser;
 
 public class AssetBrowserPanel : MonoBehaviour
 {
@@ -28,19 +27,21 @@ public class AssetBrowserPanel : MonoBehaviour
     private ImportedAssetLibrary _importedLibrary;
     private SavedAssetLibrary    _savedLibrary;
     private EventBus             _bus;
+    private PanelRegionRouter   _router;
 
     private IAssetLibrary _activeLibrary;
     private ILabAsset     _selectedAsset;
     private bool          _isEditableMode;
 
     [Inject]
-    public void Construct(ModeOrchestrator orchestrator, BuiltinAssetLibrary builtin, ImportedAssetLibrary imported, SavedAssetLibrary saved, EventBus bus)
+    public void Construct(ModeOrchestrator orchestrator, BuiltinAssetLibrary builtin, ImportedAssetLibrary imported, SavedAssetLibrary saved, EventBus bus, PanelRegionRouter router)
     {
         _orchestrator    = orchestrator;
         _builtinLibrary  = builtin;
         _importedLibrary = imported;
         _savedLibrary    = saved;
         _bus             = bus;
+        _router          = router;
     }
 
     private void Awake()
@@ -55,14 +56,18 @@ public class AssetBrowserPanel : MonoBehaviour
     private void Start()
     {
         _bus?.Subscribe<ModeChangedEvent>(OnModeChanged);
+        _bus?.Subscribe<FilePickedEvent>(OnFilePicked);
         _isEditableMode = _orchestrator?.CurrentMode is AppMode.VrEditing or AppMode.Sandbox;
         RefreshSpawnButton();
         if (_builtinLibrary != null)
             SwitchLibrary(_builtinLibrary);
     }
 
-    private void OnDestroy() =>
+    private void OnDestroy()
+    {
         _bus?.Unsubscribe<ModeChangedEvent>(OnModeChanged);
+        _bus?.Unsubscribe<FilePickedEvent>(OnFilePicked);
+    }
 
     private void OnModeChanged(ModeChangedEvent e)
     {
@@ -152,16 +157,9 @@ public class AssetBrowserPanel : MonoBehaviour
         });
     }
 
-    private void OnAddClicked()
-    {
-        FileBrowser.ShowLoadDialog(
-            onSuccess:      paths => _ = HandleImportAsync(paths[0]),
-            onCancel:       () => { },
-            pickMode:       FileBrowser.PickMode.Files,
-            title:          "Import Asset",
-            loadButtonText: "Import"
-        );
-    }
+    private void OnAddClicked() => _router?.Open("fileBrowser");
+
+    private void OnFilePicked(FilePickedEvent e) => _ = HandleImportAsync(e.Path);
 
     private async System.Threading.Tasks.Task HandleImportAsync(string filePath)
     {

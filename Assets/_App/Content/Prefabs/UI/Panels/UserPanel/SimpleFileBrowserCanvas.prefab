@@ -2725,6 +2725,8 @@ GameObject:
   - component: {fileID: 114000013689746302}
   - component: {fileID: 114889154042981792}
   - component: {fileID: 8536536672748535582}
+  - component: {fileID: 6386683080242643105}
+  - component: {fileID: 28647510689376487}
   m_Layer: 5
   m_Name: SimpleFileBrowserCanvas
   m_TagString: Untagged
@@ -2937,6 +2939,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: Subsystems.SpatialUi::FileBrowserVrAnchor
   _forwardOffset: 0.001
   _scale: 0.001
+--- !u!114 &6386683080242643105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000011817404238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c1eb7a387343f44e8a720dde717736b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: _App.Runtime::FileBrowserSurface
+--- !u!114 &28647510689376487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000011817404238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d70e3e1ff24530840976ce3476eef7fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: _App.Runtime::RegionMember
+  _moduleId: fileBrowser
 --- !u!1 &1000011827953324
 GameObject:
   m_ObjectHideFlags: 0

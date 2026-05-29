@@ -55,7 +55,10 @@ public class VrEditingSceneScope : LifetimeScope
 
         var assetBrowser = Object.FindAnyObjectByType<AssetBrowserPanel>(FindObjectsInactive.Include);
         if (assetBrowser != null)
+        {
+            builder.RegisterInstance(assetBrowser);
             builder.RegisterBuildCallback(c => c.Inject(assetBrowser));
+        }
 
         builder.RegisterEntryPoint<AnimationClock>(Lifetime.Scoped).AsSelf();
         builder.RegisterEntryPoint<AnimationAuthoring>(Lifetime.Scoped).AsSelf();

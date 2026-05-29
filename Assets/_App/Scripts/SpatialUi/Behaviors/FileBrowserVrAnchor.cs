@@ -1,5 +1,6 @@
 using SimpleFileBrowser;
 using UnityEngine;
+using VContainer;
 
 [RequireComponent(typeof(Canvas))]
 public class FileBrowserVrAnchor : MonoBehaviour
@@ -9,10 +10,11 @@ public class FileBrowserVrAnchor : MonoBehaviour
 
     private AssetBrowserPanel _target;
 
+    [Inject]
+    public void Construct(AssetBrowserPanel target) => _target = target;
+
     private void Start()
     {
-        _target = Object.FindAnyObjectByType<AssetBrowserPanel>(FindObjectsInactive.Include);
-
         transform.localScale = Vector3.one * _scale;
 
         var canvas  = GetComponent<Canvas>();
@@ -25,15 +27,11 @@ public class FileBrowserVrAnchor : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (_target == null)
-            return;
+        if (_target == null) return;
 
         if (!_target.gameObject.activeInHierarchy)
         {
-            // HideDialog → SetActive(false) on this same GameObject is safe;
-            // Unity stops LateUpdate for inactive objects after this call returns.
-            if (FileBrowser.IsOpen)
-                FileBrowser.HideDialog();
+            if (FileBrowser.IsOpen) FileBrowser.HideDialog();
             return;
         }
 

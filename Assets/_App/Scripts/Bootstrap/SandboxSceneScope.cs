@@ -53,7 +53,10 @@ public class SandboxSceneScope : LifetimeScope
 
         var assetBrowser = Object.FindAnyObjectByType<AssetBrowserPanel>(FindObjectsInactive.Include);
         if (assetBrowser != null)
+        {
+            builder.RegisterInstance(assetBrowser);
             builder.RegisterBuildCallback(c => c.Inject(assetBrowser));
+        }
 
         var gizmoActivator = Object.FindAnyObjectByType<GizmoActivator>(FindObjectsInactive.Include);
         if (gizmoActivator != null)
