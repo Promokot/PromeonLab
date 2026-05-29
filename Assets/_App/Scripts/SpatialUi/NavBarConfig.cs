@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "PromeonLab/NavBarConfig")]
-public class NavBarConfig : ScriptableObject
+public class NavBarConfig : ScriptableObject, IRegionConfig
 {
     [Serializable]
     public struct Entry
@@ -20,6 +20,13 @@ public class NavBarConfig : ScriptableObject
             foreach (var e in _entries)
                 if (e.Id == id) { entry = e; return true; }
         entry = default;
+        return false;
+    }
+
+    public bool TryGetRegion(string moduleId, out string regionKey)
+    {
+        if (TryGetEntry(moduleId, out var e)) { regionKey = e.ExclusiveGroup; return true; }
+        regionKey = null;
         return false;
     }
 
