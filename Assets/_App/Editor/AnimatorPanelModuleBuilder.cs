@@ -148,7 +148,7 @@ public static class AnimatorPanelModuleBuilder
 
         var root = new GameObject("AnimatorPanelModule",
             typeof(RectTransform), typeof(Canvas), typeof(GraphicRaycaster), typeof(Image),
-            typeof(DetachablePanel), typeof(AnimatorPanelView));
+            typeof(SpatialPanelDetachable), typeof(AnimatorPanelView));
 
         var rt = (RectTransform)root.transform;
         rt.anchorMin = new Vector2(0.5f, 0.5f);

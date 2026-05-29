@@ -7,7 +7,7 @@ public class DetachablePanelDragHandle : MonoBehaviour,
     IPointerEnterHandler, IPointerExitHandler,
     IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    [SerializeField] private DetachablePanel _panel;
+    [SerializeField] private SpatialPanelDetachable _panel;
     [SerializeField] private Color _normalColor = new Color(1f,    1f,    1f,    0.25f);
     [SerializeField] private Color _hoverColor  = new Color(0.80f, 0.80f, 0.85f, 0.45f);
     [SerializeField] private Color _dragColor   = new Color(0.45f, 0.50f, 0.55f, 0.70f);

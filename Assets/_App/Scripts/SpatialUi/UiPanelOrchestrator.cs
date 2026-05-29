@@ -4,7 +4,7 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-public class UiPanelManager : IStartable, IDisposable
+public class UiPanelOrchestrator : IStartable, IDisposable
 {
     private readonly EventBus _bus;
     private readonly PanelRegistry _registry;
@@ -14,7 +14,7 @@ public class UiPanelManager : IStartable, IDisposable
     private readonly Dictionary<PanelId, SpatialPanel> _panels = new();
     private AppMode _currentMode = AppMode.VrEditing;
 
-    public UiPanelManager(EventBus bus, PanelRegistry registry, Camera mainCamera, IObjectResolver resolver)
+    public UiPanelOrchestrator(EventBus bus, PanelRegistry registry, Camera mainCamera, IObjectResolver resolver)
     {
         _bus             = bus;
         _registry        = registry;

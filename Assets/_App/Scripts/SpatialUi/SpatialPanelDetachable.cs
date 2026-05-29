@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
 
-public class DetachablePanel : MonoBehaviour
+public class SpatialPanelDetachable : MonoBehaviour
 {
     [SerializeField] private Button                    _linkButton;
     [SerializeField] private Button                    _lockButton;

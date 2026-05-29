@@ -76,7 +76,7 @@ public class UserPanel : SpatialPanel
         {
             var b = _bindings[i];
 
-            if (b.Panel != null && b.Panel.TryGetComponent<DetachablePanel>(out var dp))
+            if (b.Panel != null && b.Panel.TryGetComponent<SpatialPanelDetachable>(out var dp))
                 dp.EntryId = b.EntryId;
 
             if (b.NavButton != null)

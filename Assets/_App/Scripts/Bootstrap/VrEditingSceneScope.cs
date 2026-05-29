@@ -12,7 +12,7 @@ public class VrEditingSceneScope : LifetimeScope
         builder.RegisterInstance(_panelRegistry);
         if (_gizmoConfig != null) builder.RegisterInstance(_gizmoConfig);
         builder.RegisterInstance(Camera.main);
-        builder.Register<UiPanelManager>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+        builder.Register<UiPanelOrchestrator>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<UnsavedChangesGuard>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SceneGraph>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SceneAutoSaver>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
