@@ -14,6 +14,7 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<PathProvider>(Lifetime.Singleton);
         builder.Register<AppStorage>(Lifetime.Singleton);
         builder.Register<EventBus>(Lifetime.Singleton);
+        builder.Register<SceneContext>(Lifetime.Singleton);
         builder.Register<AnimationClipboard>(Lifetime.Singleton);
         builder.RegisterInstance(_demoAssetCatalog);
         builder.RegisterInstance(_transitionGraph);

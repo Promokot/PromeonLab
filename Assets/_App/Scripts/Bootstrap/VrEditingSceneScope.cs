@@ -10,6 +10,8 @@ public class VrEditingSceneScope : LifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         builder.RegisterInstance(_panelRegistry);
+        // Scene-scoped: fills/clears the root SceneContext for this scene's lifetime.
+        builder.RegisterEntryPoint<SceneContextBinder>();
         if (_gizmoConfig != null) builder.RegisterInstance(_gizmoConfig);
         builder.RegisterInstance(Camera.main);
         builder.Register<UiPanelOrchestrator>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
