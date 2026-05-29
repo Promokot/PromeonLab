@@ -1,30 +1,12 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
 
 public class UserPanel : SpatialPanel
 {
-    [Serializable]
-    public struct NavBarBinding
-    {
-        public string     EntryId;
-        public Button     NavButton;
-        public GameObject Panel;
-    }
-
     [Header("Navigation")]
     [SerializeField] private Button _mainMenuButton;
     [SerializeField] private Button _exitButton;
-
-    [Header("Nav Bar")]
-    [SerializeField] private NavBarConfig    _navBarConfig;
-    [SerializeField] private NavBarBinding[] _bindings;
-
-    [Header("Nav Bar Button Brightness")]
-    [SerializeField] [Range(0f, 2f)] private float _inactiveHoverBrightness = 1.2f;
-    [SerializeField] [Range(0f, 2f)] private float _activeBrightness        = 0.6f;
-    [SerializeField] [Range(0f, 2f)] private float _activeHoverBrightness   = 0.8f;
 
     [Header("Lock")]
     [SerializeField] private Button _lockButton;
@@ -41,10 +23,6 @@ public class UserPanel : SpatialPanel
     [SerializeField] private float _faceBelowOffset   = 0.15f;
 
     private ModeOrchestrator _orchestrator;
-    private EventBus         _bus;
-
-    private ColorBlock[] _inactiveColors;
-    private ColorBlock[] _activeColors;
 
     private bool     _locked;
     private bool     _initialized;
@@ -56,66 +34,13 @@ public class UserPanel : SpatialPanel
     private static readonly Color ColorLocked   = new Color(1.00f, 0.42f, 0.42f, 0.90f);
 
     [Inject]
-    public void Construct(ModeOrchestrator orchestrator, EventBus bus)
-    {
-        _orchestrator = orchestrator;
-        _bus          = bus;
-    }
+    public void Construct(ModeOrchestrator orchestrator) => _orchestrator = orchestrator;
 
     private void Start()
     {
         _mainMenuButton?.onClick.AddListener(OnMainMenu);
         _exitButton?.onClick.AddListener(OnExit);
         _lockButton?.onClick.AddListener(OnLockToggle);
-
-        int count = _bindings?.Length ?? 0;
-        _inactiveColors = new ColorBlock[count];
-        _activeColors   = new ColorBlock[count];
-
-        for (int i = 0; i < count; i++)
-        {
-            var b = _bindings[i];
-
-            if (b.Panel != null && b.Panel.TryGetComponent<SpatialPanelDetachable>(out var dp))
-                dp.EntryId = b.EntryId;
-
-            if (b.NavButton != null)
-            {
-                var baseColor = b.NavButton.colors.normalColor;
-                var block     = b.NavButton.colors;
-
-                var inactive              = block;
-                inactive.normalColor      = baseColor;
-                inactive.highlightedColor = Brighten(baseColor, _inactiveHoverBrightness);
-                inactive.selectedColor    = baseColor;
-                _inactiveColors[i]        = inactive;
-
-                var active              = block;
-                active.normalColor      = Brighten(baseColor, _activeBrightness);
-                active.highlightedColor = Brighten(baseColor, _activeHoverBrightness);
-                active.selectedColor    = Brighten(baseColor, _activeBrightness);
-                _activeColors[i]        = active;
-
-                b.NavButton.colors = inactive;
-
-                var idx = i;
-                b.NavButton.onClick.AddListener(() => OnNavButtonClicked(idx));
-            }
-        }
-
-        _bus?.Subscribe<ModeChangedEvent>(OnModeChanged);
-        _bus?.Subscribe<PanelDetachedEvent>(OnPanelDetached);
-        _bus?.Subscribe<PanelClosedEvent>(OnPanelClosed);
-
-        if (_orchestrator != null)
-            ApplyMode(_orchestrator.CurrentMode);
-    }
-
-    private void OnDestroy()
-    {
-        _bus?.Unsubscribe<ModeChangedEvent>(OnModeChanged);
-        _bus?.Unsubscribe<PanelDetachedEvent>(OnPanelDetached);
-        _bus?.Unsubscribe<PanelClosedEvent>(OnPanelClosed);
     }
 
     protected override void LateUpdate()
@@ -170,9 +95,9 @@ public class UserPanel : SpatialPanel
 
             if (Vector3.Distance(transform.position, _activeTarget.Value) < 0.015f)
             {
-                transform.position  = _activeTarget.Value;
-                _activeTarget       = null;
-                _followVelocity     = Vector3.zero;
+                transform.position = _activeTarget.Value;
+                _activeTarget      = null;
+                _followVelocity    = Vector3.zero;
             }
         }
     }
@@ -225,101 +150,4 @@ public class UserPanel : SpatialPanel
 
     private void OnMainMenu() => _orchestrator?.TransitionTo(AppMode.MainMenu);
     private void OnExit()     => Application.Quit();
-
-    private void OnModeChanged(ModeChangedEvent e) => ApplyMode(e.CurrentMode);
-
-    private void ApplyMode(AppMode mode)
-    {
-        for (int i = 0; i < (_bindings?.Length ?? 0); i++)
-        {
-            var b = _bindings[i];
-            if (b.NavButton == null) continue;
-
-            var visible = _navBarConfig != null && _navBarConfig.IsVisibleInMode(b.EntryId, mode);
-            b.NavButton.gameObject.SetActive(visible);
-
-            if (!visible && b.Panel != null && b.Panel.activeSelf)
-            {
-                b.Panel.SetActive(false);
-                SetActiveState(i, false);
-            }
-        }
-    }
-
-    private void OnNavButtonClicked(int idx)
-    {
-        var b = _bindings[idx];
-        if (b.Panel == null) return;
-
-        var willShow = !b.Panel.activeSelf;
-        if (willShow)
-        {
-            var group = GetGroup(idx);
-            if (!string.IsNullOrEmpty(group))
-                HidePanelsInGroup(group, exceptIdx: idx);
-        }
-        b.Panel.SetActive(willShow);
-        SetActiveState(idx, willShow);
-    }
-
-    private void OnPanelDetached(PanelDetachedEvent e)
-    {
-        var idx = FindBindingIndex(e.EntryId);
-        if (idx >= 0)
-            SetActiveState(idx, false);
-    }
-
-    private void OnPanelClosed(PanelClosedEvent e)
-    {
-        var idx = FindBindingIndex(e.EntryId);
-        if (idx >= 0)
-            SetActiveState(idx, false);
-    }
-
-    private string GetGroup(int idx)
-    {
-        if (_navBarConfig == null) return null;
-        return _navBarConfig.TryGetEntry(_bindings[idx].EntryId, out var e) ? e.ExclusiveGroup : null;
-    }
-
-    private void HidePanelsInGroup(string group, int exceptIdx = -1)
-    {
-        for (int i = 0; i < (_bindings?.Length ?? 0); i++)
-        {
-            if (i == exceptIdx) continue;
-            if (GetGroup(i) != group) continue;
-            var p = _bindings[i].Panel;
-            if (p != null && p.activeSelf)
-            {
-                p.SetActive(false);
-                SetActiveState(i, false);
-            }
-        }
-    }
-
-    private int FindBindingIndex(string entryId)
-    {
-        for (int i = 0; i < (_bindings?.Length ?? 0); i++)
-            if (_bindings[i].EntryId == entryId) return i;
-        return -1;
-    }
-
-    private void SetActiveState(int idx, bool active)
-    {
-        if (_inactiveColors == null || idx >= _inactiveColors.Length) return;
-        var btn = _bindings[idx].NavButton;
-        if (btn == null) return;
-        btn.colors = active ? _activeColors[idx] : _inactiveColors[idx];
-    }
-
-    private static Color Brighten(Color c, float mult)
-    {
-        Color.RGBToHSV(c, out float h, out float s, out float v);
-        var vNew   = mult >= 1f
-            ? Mathf.Clamp01(v + (mult - 1f) * (1f - v + 0.05f))
-            : v * mult;
-        var result = Color.HSVToRGB(h, s, vNew);
-        result.a   = c.a;
-        return result;
-    }
 }
