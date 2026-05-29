@@ -138,8 +138,8 @@ Assets/
     │   │   │   ├── EventSystem.prefab
     │   │   │   └── User XR Origin (XR Rig).prefab   ← custom XR hooks live here
     │   │   └── UI/
-    │   │       ├── KeyframeMarker.prefab
-    │   │       ├── Items/                  (list-item templates)
+    │   │       ├── Elements/                (list-item / widget prefab templates; was Items/)
+    │   │       │   ├── KeyframeMarker.prefab
     │   │       │   ├── LabAssetCard_ItemUI.prefab
     │   │       │   ├── OutlinerObject-Object_ItemUI.prefab
     │   │       │   ├── OutlinerObject-Rig_ItemUI.prefab
