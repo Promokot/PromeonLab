@@ -6,6 +6,7 @@ public class VrEditingSceneScope : LifetimeScope
 {
     [SerializeField] private PanelRegistry _panelRegistry;
     [SerializeField] private GizmoConfig   _gizmoConfig;
+    [SerializeField] private NavBarConfig  _navBarConfig;
 
     protected override void Configure(IContainerBuilder builder)
     {
@@ -70,5 +71,31 @@ public class VrEditingSceneScope : LifetimeScope
         var gizmoToolsPanel = Object.FindAnyObjectByType<GizmoToolsPanel>(FindObjectsInactive.Include);
         if (gizmoToolsPanel != null)
             builder.RegisterBuildCallback(c => c.Inject(gizmoToolsPanel));
+
+        // --- B1 region model ---
+        if (_navBarConfig != null)
+            builder.RegisterInstance(_navBarConfig).As<IRegionConfig>().AsSelf();
+        builder.Register<PanelRegionRouter>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+
+        builder.RegisterBuildCallback(c =>
+        {
+            var router = c.Resolve<PanelRegionRouter>();
+
+            foreach (var nav in Object.FindObjectsByType<RegionNavButton>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                c.Inject(nav);
+            foreach (var fbs in Object.FindObjectsByType<FileBrowserSurface>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                c.Inject(fbs);
+            foreach (var anchor in Object.FindObjectsByType<FileBrowserVrAnchor>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                c.Inject(anchor);
+
+            foreach (var rm in Object.FindObjectsByType<RegionMember>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                c.Inject(rm);
+                router.Register(rm.ModuleId, rm);
+            }
+
+            var modeOrch = c.Resolve<ModeOrchestrator>();
+            router.ApplyMode(modeOrch.CurrentMode);
+        });
     }
 }

@@ -33,10 +33,6 @@ public class RootLifetimeScope : LifetimeScope
             builder.RegisterBuildCallback(c => c.Inject(userPanel));
         }
 
-        var assetBrowser = Object.FindAnyObjectByType<AssetBrowserPanel>(FindObjectsInactive.Include);
-        if (assetBrowser != null)
-            builder.RegisterBuildCallback(c => c.Inject(assetBrowser));
-
         var spawnApplier = Object.FindAnyObjectByType<PlayerSpawnApplier>(FindObjectsInactive.Include);
         if (spawnApplier != null)
             builder.RegisterInstance(spawnApplier);

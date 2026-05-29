@@ -344,6 +344,7 @@ MonoBehaviour:
   autoInjectGameObjects: []
   _panelRegistry: {fileID: 11400000, guid: a887d01d6cbad31468655994aa5adb01, type: 2}
   _gizmoConfig: {fileID: 11400000, guid: ba9f00b526ca5664abcc429525a0ce13, type: 2}
+  _navBarConfig: {fileID: 11400000, guid: 44b184438768cae4e81d3a22c376d5b0, type: 2}
 --- !u!1 &338865400
 GameObject:
   m_ObjectHideFlags: 0
