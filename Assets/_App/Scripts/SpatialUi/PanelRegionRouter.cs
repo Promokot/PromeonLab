@@ -19,6 +19,7 @@ public class PanelRegionRouter : IDisposable
 
     public void Register(string moduleId, IRegionSurface surface)
     {
+        UnityEngine.Debug.Log($"[RegionDBG] Register id={moduleId} surfaceNull={surface == null}");
         if (string.IsNullOrEmpty(moduleId) || surface == null) return;
         _modules[moduleId] = surface;
         if (surface.IsOpen && _config.TryGetRegion(moduleId, out var region) && !string.IsNullOrEmpty(region))
@@ -30,6 +31,7 @@ public class PanelRegionRouter : IDisposable
 
     public void Open(string moduleId)
     {
+        UnityEngine.Debug.Log($"[RegionDBG] Open id={moduleId} known={_modules.ContainsKey(moduleId)}");
         if (!_modules.TryGetValue(moduleId, out var surface)) return;
 
         if (_config.TryGetRegion(moduleId, out var region) && !string.IsNullOrEmpty(region))

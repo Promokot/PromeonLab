@@ -30,6 +30,7 @@ public class RegionNavButton : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log($"[RegionDBG] Start id={_moduleId} buttonNull={_button == null} routerNull={_router == null} go={gameObject.name}");
         if (_button != null)
         {
             var baseColor = _button.colors.normalColor;
@@ -63,7 +64,11 @@ public class RegionNavButton : MonoBehaviour
         _bus?.Unsubscribe<ModeChangedEvent>(OnModeChanged);
     }
 
-    private void OnClick() => _router?.Toggle(_moduleId);
+    private void OnClick()
+    {
+        Debug.Log($"[RegionDBG] OnClick id={_moduleId} routerNull={_router == null}");
+        _router?.Toggle(_moduleId);
+    }
 
     private void OnRegionChanged(RegionChangedEvent e)
     {

@@ -82,9 +82,12 @@ public class VrEditingSceneScope : LifetimeScope
 
         builder.RegisterBuildCallback(c =>
         {
+            UnityEngine.Debug.Log("[RegionDBG] region build-callback START");
             var router = c.Resolve<PanelRegionRouter>();
 
-            foreach (var nav in Object.FindObjectsByType<RegionNavButton>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            var navButtons = Object.FindObjectsByType<RegionNavButton>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            UnityEngine.Debug.Log($"[RegionDBG] navButtons found={navButtons.Length}");
+            foreach (var nav in navButtons)
                 c.Inject(nav);
             foreach (var fbs in Object.FindObjectsByType<FileBrowserSurface>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                 c.Inject(fbs);
