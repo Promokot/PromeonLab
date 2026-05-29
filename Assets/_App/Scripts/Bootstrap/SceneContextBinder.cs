@@ -30,15 +30,12 @@ public class SceneContextBinder : IStartable, IDisposable
             Resolve<AnimationClock>(),
             Resolve<IRigRuntime>());
 
-        // TEMP smoke log (removed in a later task): confirms bind on scene load.
-        UnityEngine.Debug.Log($"[SCTXDBG] SceneContext bound HasScene={_ctx.HasScene}");
         _bus.Publish(new SceneContextChangedEvent { HasScene = _ctx.HasScene });
     }
 
     public void Dispose()
     {
         _ctx.Clear();
-        UnityEngine.Debug.Log("[SCTXDBG] SceneContext cleared");
         _bus.Publish(new SceneContextChangedEvent { HasScene = _ctx.HasScene });
     }
 
