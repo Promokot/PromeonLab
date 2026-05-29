@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Subsystems.SpatialUi::NavBarConfig
   _entries:
   - Id: userPanelDefault
-    VisibleModes: 01000000010000000200000003000000
+    VisibleModes: 00000000010000000200000003000000
     ExclusiveGroup: overlays
     IsRegionDefault: 1
   - Id: keyboard

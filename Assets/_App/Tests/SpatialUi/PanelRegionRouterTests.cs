@@ -167,4 +167,51 @@ public class PanelRegionRouterTests
         _sut.Close("def");
         Assert.IsFalse(def.IsOpen);
     }
+
+    [Test]
+    public void ApplyMode_OpensRegionDefault_WhenRegionEmptyAndDefaultVisible()
+    {
+        _config.Regions["def"] = "overlays";
+        _config.Defaults["overlays"] = "def";
+        _config.Visible["def"] = new[] { AppMode.MainMenu, AppMode.VrEditing };
+        var def = new FakeSurface();
+        _sut.RegisterModule("def", def);
+        Assert.IsFalse(def.IsOpen); // starts closed (member inactive in prefab)
+
+        _sut.ApplyMode(AppMode.MainMenu);
+
+        Assert.IsTrue(def.IsOpen);
+    }
+
+    [Test]
+    public void ApplyMode_DoesNotOpenRegionDefault_WhenDefaultNotVisibleInMode()
+    {
+        _config.Regions["def"] = "overlays";
+        _config.Defaults["overlays"] = "def";
+        _config.Visible["def"] = new[] { AppMode.VrEditing };
+        var def = new FakeSurface();
+        _sut.RegisterModule("def", def);
+
+        _sut.ApplyMode(AppMode.MainMenu);
+
+        Assert.IsFalse(def.IsOpen);
+    }
+
+    [Test]
+    public void ApplyMode_DoesNotForceDefault_WhenNonDefaultModuleAlreadyOpen()
+    {
+        _config.Regions["def"] = "overlays";
+        _config.Regions["kb"] = "overlays";
+        _config.Defaults["overlays"] = "def";
+        _config.Visible["def"] = new[] { AppMode.MainMenu };
+        _config.Visible["kb"]  = new[] { AppMode.MainMenu };
+        var def = new FakeSurface(); var kb = new FakeSurface();
+        _sut.RegisterModule("def", def); _sut.RegisterModule("kb", kb);
+        _sut.Open("kb");
+
+        _sut.ApplyMode(AppMode.MainMenu);
+
+        Assert.IsTrue(kb.IsOpen);
+        Assert.IsFalse(def.IsOpen);
+    }
 }
