@@ -43,7 +43,7 @@ public class PanelRegionRouterTests
     {
         _config.Regions["a"] = "body";
         var a = new FakeSurface();
-        _sut.Register("a", a);
+        _sut.RegisterModule("a", a);
         _sut.Open("a");
         Assert.IsTrue(a.IsOpen);
         Assert.AreEqual(1, a.ShowCalls);
@@ -55,7 +55,7 @@ public class PanelRegionRouterTests
         _config.Regions["a"] = "body";
         _config.Regions["b"] = "body";
         var a = new FakeSurface(); var b = new FakeSurface();
-        _sut.Register("a", a); _sut.Register("b", b);
+        _sut.RegisterModule("a", a); _sut.RegisterModule("b", b);
         _sut.Open("a");
         _sut.Open("b");
         Assert.IsFalse(a.IsOpen);
@@ -68,7 +68,7 @@ public class PanelRegionRouterTests
         _config.Regions["a"] = "body";
         _config.Regions["dialog"] = "dialog";
         var a = new FakeSurface(); var d = new FakeSurface();
-        _sut.Register("a", a); _sut.Register("dialog", d);
+        _sut.RegisterModule("a", a); _sut.RegisterModule("dialog", d);
         _sut.Open("a");
         _sut.Open("dialog");
         Assert.IsTrue(a.IsOpen);
@@ -80,7 +80,7 @@ public class PanelRegionRouterTests
     {
         _config.Regions["a"] = "body";
         var a = new FakeSurface();
-        _sut.Register("a", a);
+        _sut.RegisterModule("a", a);
         _sut.Toggle("a");
         Assert.IsTrue(a.IsOpen);
         _sut.Toggle("a");
@@ -93,7 +93,7 @@ public class PanelRegionRouterTests
         _config.Regions["a"] = "body";
         _config.Regions["b"] = "body";
         var a = new FakeSurface(); var b = new FakeSurface();
-        _sut.Register("a", a); _sut.Register("b", b);
+        _sut.RegisterModule("a", a); _sut.RegisterModule("b", b);
         _sut.Open("a");
         _sut.Close("a");
         _sut.Open("b");
@@ -108,7 +108,7 @@ public class PanelRegionRouterTests
         RegionChangedEvent received = default; bool fired = false;
         _bus.Subscribe<RegionChangedEvent>(e => { received = e; fired = true; });
         var a = new FakeSurface();
-        _sut.Register("a", a);
+        _sut.RegisterModule("a", a);
         _sut.Open("a");
         Assert.IsTrue(fired);
         Assert.AreEqual("body", received.RegionKey);
@@ -121,7 +121,7 @@ public class PanelRegionRouterTests
         _config.Regions["a"] = "body";
         _config.Visible["a"] = new[] { AppMode.VrEditing };
         var a = new FakeSurface();
-        _sut.Register("a", a);
+        _sut.RegisterModule("a", a);
         _sut.Open("a");
         _bus.Publish(new ModeChangedEvent { CurrentMode = AppMode.MainMenu });
         Assert.IsFalse(a.IsOpen);
@@ -133,7 +133,7 @@ public class PanelRegionRouterTests
         _config.Regions["a"] = "body";
         _config.Visible["a"] = new[] { AppMode.VrEditing, AppMode.MainMenu };
         var a = new FakeSurface();
-        _sut.Register("a", a);
+        _sut.RegisterModule("a", a);
         _sut.Open("a");
         _bus.Publish(new ModeChangedEvent { CurrentMode = AppMode.MainMenu });
         Assert.IsTrue(a.IsOpen);
@@ -146,7 +146,7 @@ public class PanelRegionRouterTests
         _config.Regions["kb"] = "overlays";
         _config.Defaults["overlays"] = "def";
         var def = new FakeSurface(); var kb = new FakeSurface();
-        _sut.Register("def", def); _sut.Register("kb", kb);
+        _sut.RegisterModule("def", def); _sut.RegisterModule("kb", kb);
         _sut.Open("def");
         _sut.Open("kb");
         Assert.IsFalse(def.IsOpen);
@@ -162,7 +162,7 @@ public class PanelRegionRouterTests
         _config.Regions["def"] = "overlays";
         _config.Defaults["overlays"] = "def";
         var def = new FakeSurface();
-        _sut.Register("def", def);
+        _sut.RegisterModule("def", def);
         _sut.Open("def");
         _sut.Close("def");
         Assert.IsFalse(def.IsOpen);

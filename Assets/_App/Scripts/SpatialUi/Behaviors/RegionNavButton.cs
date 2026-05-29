@@ -2,6 +2,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
 
+// Thin nav button. It only forwards clicks to the router (Toggle). Visibility per mode
+// and active-highlight are DRIVEN BY PanelRegionRouter via SetVisible / SetActiveHighlight —
+// the button no longer subscribes to mode/region events itself.
+// Setup is lifecycle-safe: the host UserPanel starts inactive, so Construct may run long
+// before Awake/OnEnable. Colors + click listener are wired lazily and idempotently.
 public class RegionNavButton : MonoBehaviour
 {
     [SerializeField] private string _moduleId;
@@ -11,27 +16,44 @@ public class RegionNavButton : MonoBehaviour
     [SerializeField] [Range(0f, 2f)] private float _activeHoverBrightness   = 0.8f;
 
     private PanelRegionRouter _router;
-    private IRegionConfig     _config;
-    private ModeOrchestrator  _orchestrator;
-    private EventBus          _bus;
 
     private ColorBlock _inactiveColors;
     private ColorBlock _activeColors;
-    private string     _region;
+    private bool       _colorsReady;
+    private bool       _listenerAttached;
+    private bool       _highlight;
+
+    public string ModuleId => _moduleId;
 
     [Inject]
-    public void Construct(PanelRegionRouter router, IRegionConfig config, ModeOrchestrator orchestrator, EventBus bus)
+    public void Construct(PanelRegionRouter router) => _router = router;
+
+    private void Awake()    => EnsureSetup();
+    private void OnEnable()  => EnsureSetup();
+
+    private void OnDestroy()
     {
-        _router       = router;
-        _config       = config;
-        _orchestrator = orchestrator;
-        _bus          = bus;
+        if (_button != null && _listenerAttached)
+            _button.onClick.RemoveListener(OnClick);
     }
 
-    private void Start()
+    public void SetVisible(bool visible)
     {
-        Debug.Log($"[RegionDBG] Start id={_moduleId} buttonNull={_button == null} routerNull={_router == null} go={gameObject.name}");
-        if (_button != null)
+        if (gameObject.activeSelf != visible)
+            gameObject.SetActive(visible);
+    }
+
+    public void SetActiveHighlight(bool active)
+    {
+        _highlight = active;
+        ApplyColors();
+    }
+
+    private void EnsureSetup()
+    {
+        if (_button == null) return;
+
+        if (!_colorsReady)
         {
             var baseColor = _button.colors.normalColor;
             var block     = _button.colors;
@@ -46,22 +68,16 @@ public class RegionNavButton : MonoBehaviour
             _activeColors.highlightedColor = Brighten(baseColor, _activeHoverBrightness);
             _activeColors.selectedColor    = Brighten(baseColor, _activeBrightness);
 
-            _button.colors = _inactiveColors;
-            _button.onClick.AddListener(OnClick);
+            _colorsReady = true;
         }
 
-        if (_config != null) _config.TryGetRegion(_moduleId, out _region);
-        _bus?.Subscribe<RegionChangedEvent>(OnRegionChanged);
-        _bus?.Subscribe<ModeChangedEvent>(OnModeChanged);
-        if (_orchestrator != null) ApplyMode(_orchestrator.CurrentMode);
-        SetActiveColors(_router != null && _router.IsOpen(_moduleId));
-    }
+        if (!_listenerAttached)
+        {
+            _button.onClick.AddListener(OnClick);
+            _listenerAttached = true;
+        }
 
-    private void OnDestroy()
-    {
-        if (_button != null) _button.onClick.RemoveListener(OnClick);
-        _bus?.Unsubscribe<RegionChangedEvent>(OnRegionChanged);
-        _bus?.Unsubscribe<ModeChangedEvent>(OnModeChanged);
+        ApplyColors();
     }
 
     private void OnClick()
@@ -70,29 +86,16 @@ public class RegionNavButton : MonoBehaviour
         _router?.Toggle(_moduleId);
     }
 
-    private void OnRegionChanged(RegionChangedEvent e)
+    private void ApplyColors()
     {
-        if (e.RegionKey == _region)
-            SetActiveColors(e.OpenModuleId == _moduleId);
-    }
-
-    private void OnModeChanged(ModeChangedEvent e) => ApplyMode(e.CurrentMode);
-
-    private void ApplyMode(AppMode mode)
-    {
-        var visible = _config != null && _config.IsVisibleInMode(_moduleId, mode);
-        gameObject.SetActive(visible);
-    }
-
-    private void SetActiveColors(bool active)
-    {
-        if (_button != null) _button.colors = active ? _activeColors : _inactiveColors;
+        if (_colorsReady && _button != null)
+            _button.colors = _highlight ? _activeColors : _inactiveColors;
     }
 
     private static Color Brighten(Color c, float mult)
     {
         Color.RGBToHSV(c, out float h, out float s, out float v);
-        var vNew = mult >= 1f ? Mathf.Clamp01(v + (mult - 1f) * (1f - v + 0.05f)) : v * mult;
+        var vNew   = mult >= 1f ? Mathf.Clamp01(v + (mult - 1f) * (1f - v + 0.05f)) : v * mult;
         var result = Color.HSVToRGB(h, s, vNew);
         result.a = c.a;
         return result;
