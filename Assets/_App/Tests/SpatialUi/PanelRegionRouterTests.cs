@@ -1,0 +1,139 @@
+using NUnit.Framework;
+using System.Collections.Generic;
+
+public class PanelRegionRouterTests
+{
+    private class FakeConfig : IRegionConfig
+    {
+        public readonly Dictionary<string, string> Regions = new();
+        public readonly Dictionary<string, AppMode[]> Visible = new();
+        public bool TryGetRegion(string id, out string region) => Regions.TryGetValue(id, out region);
+        public bool IsVisibleInMode(string id, AppMode mode)
+        {
+            if (!Visible.TryGetValue(id, out var modes) || modes == null) return false;
+            foreach (var m in modes) if (m == mode) return true;
+            return false;
+        }
+    }
+
+    private class FakeSurface : IRegionSurface
+    {
+        public int ShowCalls, HideCalls;
+        public bool IsOpen { get; private set; }
+        public void Show() { ShowCalls++; IsOpen = true; }
+        public void Hide() { HideCalls++; IsOpen = false; }
+    }
+
+    private EventBus _bus;
+    private FakeConfig _config;
+    private PanelRegionRouter _sut;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _bus = new EventBus();
+        _config = new FakeConfig();
+        _sut = new PanelRegionRouter(_config, _bus);
+    }
+
+    [Test]
+    public void Open_ShowsModule()
+    {
+        _config.Regions["a"] = "body";
+        var a = new FakeSurface();
+        _sut.Register("a", a);
+        _sut.Open("a");
+        Assert.IsTrue(a.IsOpen);
+        Assert.AreEqual(1, a.ShowCalls);
+    }
+
+    [Test]
+    public void Open_SecondInSameRegion_HidesFirst()
+    {
+        _config.Regions["a"] = "body";
+        _config.Regions["b"] = "body";
+        var a = new FakeSurface(); var b = new FakeSurface();
+        _sut.Register("a", a); _sut.Register("b", b);
+        _sut.Open("a");
+        _sut.Open("b");
+        Assert.IsFalse(a.IsOpen);
+        Assert.IsTrue(b.IsOpen);
+    }
+
+    [Test]
+    public void Open_DifferentRegion_LeavesFirstOpen()
+    {
+        _config.Regions["a"] = "body";
+        _config.Regions["dialog"] = "dialog";
+        var a = new FakeSurface(); var d = new FakeSurface();
+        _sut.Register("a", a); _sut.Register("dialog", d);
+        _sut.Open("a");
+        _sut.Open("dialog");
+        Assert.IsTrue(a.IsOpen);
+        Assert.IsTrue(d.IsOpen);
+    }
+
+    [Test]
+    public void Toggle_OpensThenCloses()
+    {
+        _config.Regions["a"] = "body";
+        var a = new FakeSurface();
+        _sut.Register("a", a);
+        _sut.Toggle("a");
+        Assert.IsTrue(a.IsOpen);
+        _sut.Toggle("a");
+        Assert.IsFalse(a.IsOpen);
+    }
+
+    [Test]
+    public void Open_AfterClose_ReopensInSameRegion()
+    {
+        _config.Regions["a"] = "body";
+        _config.Regions["b"] = "body";
+        var a = new FakeSurface(); var b = new FakeSurface();
+        _sut.Register("a", a); _sut.Register("b", b);
+        _sut.Open("a");
+        _sut.Close("a");
+        _sut.Open("b");
+        Assert.IsTrue(b.IsOpen);
+        Assert.IsFalse(a.IsOpen);
+    }
+
+    [Test]
+    public void Open_PublishesRegionChangedEvent()
+    {
+        _config.Regions["a"] = "body";
+        RegionChangedEvent received = default; bool fired = false;
+        _bus.Subscribe<RegionChangedEvent>(e => { received = e; fired = true; });
+        var a = new FakeSurface();
+        _sut.Register("a", a);
+        _sut.Open("a");
+        Assert.IsTrue(fired);
+        Assert.AreEqual("body", received.RegionKey);
+        Assert.AreEqual("a", received.OpenModuleId);
+    }
+
+    [Test]
+    public void ModeChanged_ClosesModuleNotVisibleInNewMode()
+    {
+        _config.Regions["a"] = "body";
+        _config.Visible["a"] = new[] { AppMode.VrEditing };
+        var a = new FakeSurface();
+        _sut.Register("a", a);
+        _sut.Open("a");
+        _bus.Publish(new ModeChangedEvent { CurrentMode = AppMode.MainMenu });
+        Assert.IsFalse(a.IsOpen);
+    }
+
+    [Test]
+    public void ModeChanged_KeepsModuleVisibleInNewMode()
+    {
+        _config.Regions["a"] = "body";
+        _config.Visible["a"] = new[] { AppMode.VrEditing, AppMode.MainMenu };
+        var a = new FakeSurface();
+        _sut.Register("a", a);
+        _sut.Open("a");
+        _bus.Publish(new ModeChangedEvent { CurrentMode = AppMode.MainMenu });
+        Assert.IsTrue(a.IsOpen);
+    }
+}
