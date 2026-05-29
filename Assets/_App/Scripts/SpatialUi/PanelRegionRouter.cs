@@ -56,6 +56,9 @@ public class PanelRegionRouter : IDisposable
         {
             _openByRegion.Remove(region);
             _bus.Publish(new RegionChangedEvent { RegionKey = region, OpenModuleId = null });
+
+            if (_config.TryGetRegionDefault(region, out var def) && def != moduleId)
+                Open(def);
         }
     }
 

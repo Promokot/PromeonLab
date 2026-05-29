@@ -7,6 +7,7 @@ public class PanelRegionRouterTests
     {
         public readonly Dictionary<string, string> Regions = new();
         public readonly Dictionary<string, AppMode[]> Visible = new();
+        public readonly Dictionary<string, string> Defaults = new();
         public bool TryGetRegion(string id, out string region) => Regions.TryGetValue(id, out region);
         public bool IsVisibleInMode(string id, AppMode mode)
         {
@@ -14,6 +15,7 @@ public class PanelRegionRouterTests
             foreach (var m in modes) if (m == mode) return true;
             return false;
         }
+        public bool TryGetRegionDefault(string regionKey, out string moduleId) => Defaults.TryGetValue(regionKey, out moduleId);
     }
 
     private class FakeSurface : IRegionSurface
@@ -135,5 +137,34 @@ public class PanelRegionRouterTests
         _sut.Open("a");
         _bus.Publish(new ModeChangedEvent { CurrentMode = AppMode.MainMenu });
         Assert.IsTrue(a.IsOpen);
+    }
+
+    [Test]
+    public void Close_ReopensRegionDefault()
+    {
+        _config.Regions["def"] = "overlays";
+        _config.Regions["kb"] = "overlays";
+        _config.Defaults["overlays"] = "def";
+        var def = new FakeSurface(); var kb = new FakeSurface();
+        _sut.Register("def", def); _sut.Register("kb", kb);
+        _sut.Open("def");
+        _sut.Open("kb");
+        Assert.IsFalse(def.IsOpen);
+        Assert.IsTrue(kb.IsOpen);
+        _sut.Close("kb");
+        Assert.IsFalse(kb.IsOpen);
+        Assert.IsTrue(def.IsOpen);
+    }
+
+    [Test]
+    public void Close_Default_DoesNotRecurse()
+    {
+        _config.Regions["def"] = "overlays";
+        _config.Defaults["overlays"] = "def";
+        var def = new FakeSurface();
+        _sut.Register("def", def);
+        _sut.Open("def");
+        _sut.Close("def");
+        Assert.IsFalse(def.IsOpen);
     }
 }

@@ -10,6 +10,7 @@ public class NavBarConfig : ScriptableObject, IRegionConfig
         public string    Id;
         public AppMode[] VisibleModes;
         public string    ExclusiveGroup;
+        public bool      IsRegionDefault;
     }
 
     [SerializeField] private Entry[] _entries;
@@ -27,6 +28,15 @@ public class NavBarConfig : ScriptableObject, IRegionConfig
     {
         if (TryGetEntry(moduleId, out var e)) { regionKey = e.ExclusiveGroup; return true; }
         regionKey = null;
+        return false;
+    }
+
+    public bool TryGetRegionDefault(string regionKey, out string moduleId)
+    {
+        if (_entries != null && !string.IsNullOrEmpty(regionKey))
+            foreach (var e in _entries)
+                if (e.IsRegionDefault && e.ExclusiveGroup == regionKey) { moduleId = e.Id; return true; }
+        moduleId = null;
         return false;
     }
 

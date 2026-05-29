@@ -36,7 +36,12 @@ MonoBehaviour:
     ExclusiveGroup: center
   - Id: keyboard
     VisibleModes: 0100000004000000
-    ExclusiveGroup: center
+    ExclusiveGroup: overlays
+    IsRegionDefault: 0
+  - Id: userPanelDefault
+    VisibleModes: 0100000004000000
+    ExclusiveGroup: overlays
+    IsRegionDefault: 1
   - Id: fileBrowser
     VisibleModes: 0100000004000000
     ExclusiveGroup: dialog
