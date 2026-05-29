@@ -13,35 +13,43 @@ MonoBehaviour:
   m_Name: DefaultNavBarConfig
   m_EditorClassIdentifier: Subsystems.SpatialUi::NavBarConfig
   _entries:
+  - Id: userPanelDefault
+    VisibleModes: 01000000010000000200000003000000
+    ExclusiveGroup: overlays
+    IsRegionDefault: 1
+  - Id: keyboard
+    VisibleModes: 00000000010000000200000003000000
+    ExclusiveGroup: overlays
+    IsRegionDefault: 0
   - Id: settings
-    VisibleModes: 0000000001000000040000000200000003000000
-    ExclusiveGroup: center
+    VisibleModes: 00000000010000000200000003000000
+    ExclusiveGroup: center_top
+    IsRegionDefault: 0
   - Id: assets
-    VisibleModes: 000000000100000004000000
-    ExclusiveGroup: center
+    VisibleModes: 000000000100000002000000
+    ExclusiveGroup: center_top
+    IsRegionDefault: 0
+  - Id: fileBrowser
+    VisibleModes: 000000000100000002000000
+    ExclusiveGroup: center_top
+    IsRegionDefault: 0
+  - Id: animator
+    VisibleModes: 0100000002000000
+    ExclusiveGroup: center_top
+    IsRegionDefault: 0
+  - Id: gizmo
+    VisibleModes: 0100000002000000
+    ExclusiveGroup: center_top
+    IsRegionDefault: 0
   - Id: outliner
-    VisibleModes: 0100000004000000
+    VisibleModes: 0100000002000000
     ExclusiveGroup: left
+    IsRegionDefault: 0
   - Id: inspector
-    VisibleModes: 0100000004000000
+    VisibleModes: 0100000002000000
     ExclusiveGroup: right
+    IsRegionDefault: 0
   - Id: rigging
     VisibleModes: 
     ExclusiveGroup: 
-  - Id: gizmo
-    VisibleModes: 0100000004000000
-    ExclusiveGroup: center
-  - Id: animator
-    VisibleModes: 0100000002000000
-    ExclusiveGroup: center
-  - Id: keyboard
-    VisibleModes: 0100000004000000
-    ExclusiveGroup: overlays
     IsRegionDefault: 0
-  - Id: userPanelDefault
-    VisibleModes: 0100000004000000
-    ExclusiveGroup: overlays
-    IsRegionDefault: 1
-  - Id: fileBrowser
-    VisibleModes: 0100000004000000
-    ExclusiveGroup: dialog
