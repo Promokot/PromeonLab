@@ -368,7 +368,11 @@ Assets/
     │   │   ├── PanelId.cs                  enum
     │   │   ├── PanelType.cs                enum
     │   │   ├── AnimatorPanelConfig.cs      config SO
-    │   │   ├── NavBarConfig.cs             config SO
+    │   │   ├── NavBarConfig.cs             config SO + region registry (IRegionConfig: moduleId→region/visibility/default)
+    │   │   ├── PanelRegionRouter.cs        region open/close authority (one open module per region)
+    │   │   ├── IRegionSurface.cs           interface: Show/Hide/IsOpen
+    │   │   ├── IRegionConfig.cs            interface: region lookup + per-region default
+    │   │   ├── RegionMember.cs             per-module registrar + default SetActive surface
     │   │   ├── VrKeyboard.cs               keyboard widget (root-scoped; reclassify pending — spec B)
     │   │   ├── Panels/                 (root *Panel scripts + AnimatorSub* parts)
     │   │   │   ├── AnimatorPanel.cs
@@ -397,17 +401,20 @@ Assets/
     │   │   │   └── TrackRow.cs
     │   │   ├── Behaviors/              (one interaction/behavior per GameObject)
     │   │   │   ├── DetachablePanelDragHandle.cs
+    │   │   │   ├── FileBrowserSurface.cs       IRegionSurface adapter over SimpleFileBrowser modal
     │   │   │   ├── FileBrowserVrAnchor.cs
     │   │   │   ├── PanelDragHandle.cs
+    │   │   │   ├── RegionNavButton.cs          button → router.Toggle; per-mode visibility; brightness
     │   │   │   ├── TimelineScrollSync.cs
     │   │   │   ├── TimelineScrubInput.cs
-    │   │   │   ├── UserPanelKeyboardToggle.cs
     │   │   │   └── UserPanelOpener.cs
     │   │   └── Events/
+    │   │       ├── FilePickedEvent.cs
     │   │       ├── KeyboardFocusEvent.cs
     │   │       ├── PanelClosedEvent.cs
     │   │       ├── PanelDetachedEvent.cs
-    │   │       └── PanelLinkedEvent.cs
+    │   │       ├── PanelLinkedEvent.cs
+    │   │       └── RegionChangedEvent.cs
     │   │
     │   ├── StorageCore/
     │   │   ├── AppStorage.cs
@@ -491,7 +498,7 @@ Assets/
 
 | Folder | `.cs` | `.prefab` | `.unity` | `.asset` |
 |---|---|---|---|---|
-| `_App/Scripts/` total | **155** | — | — | — |
+| `_App/Scripts/` total | **162** | — | — | — |
 | — `Core/` | 2 | — | — | — |
 | — `Animation/` | 17 | — | — | — |
 | — `AssetBrowser/` | 17 | — | — | — |
@@ -502,11 +509,11 @@ Assets/
 | — `ModeOrchestrator/` | 4 | — | — | — |
 | — `RigBuilder/` | 11 | — | — | — |
 | — `SceneComposition/` | 14 | — | — | — |
-| — `SpatialUi/` | 43 | — | — | — |
+| — `SpatialUi/` | 50 | — | — | — |
 | — `StorageCore/` | 7 | — | — | — |
 | — `VrInteraction/` | 26 | — | — | — |
 | `_App/Editor/` | 4 | — | — | — |
-| `_App/Tests/` | **19** | — | — | — |
+| `_App/Tests/` | **20** | — | — | — |
 | `_App/Content/Prefabs/` | — | **39** | — | — |
 | `_App/Content/ScriptableObjects/` | — | — | — | **8** |
 | `_App/Scenes/` | — | — | **8** | — |

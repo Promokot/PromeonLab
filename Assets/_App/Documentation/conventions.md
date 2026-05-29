@@ -57,6 +57,16 @@ Notes:
 - `Panels/` is **flat** — the `<Panel>` prefix groups a panel with its sub-parts (e.g. `AnimatorPanel`, `AnimatorSubToolbar`, `AnimatorSubRuler`).
 - `Module` / `Overlay` are *placements* of a Panel, not script types — expressed by hierarchy, not the suffix.
 
+### Region model (panel open/close)
+
+All panel opening goes through one mechanism, not per-panel show/hide logic:
+
+- **`PanelRegionRouter`** (Framework, `SceneLifetimeScope`) — `Open`/`Close`/`Toggle(moduleId)`, keeps **at most one open surface per region**, publishes `RegionChangedEvent`.
+- **`IRegionSurface`** (`Show`/`Hide`/`IsOpen`) — the router speaks only this, never raw `SetActive`. **`RegionMember`** carries a module's `moduleId` and is the default surface (SetActive), delegating to a sibling `IRegionSurface` adapter when present (e.g. `FileBrowserSurface` over the SimpleFileBrowser modal).
+- A module's **region** is its `NavBarConfig.ExclusiveGroup`; `NavBarConfig` (`IRegionConfig`) also supplies per-mode visibility and an optional **per-region default** (`IsRegionDefault`) that the router auto-reopens when its region empties (this is how the keyboard's nav-bar overlay restores on close).
+- **Triggers live in `Behaviors/`** and call the router: `RegionNavButton` (button → `Toggle`, plus per-mode button visibility and open/closed brightness from `RegionChangedEvent`) — used by both nav buttons and the keyboard button. Code paths open imperatively too (e.g. `AssetBrowserPanel` → `router.Open("fileBrowser")`).
+- Modules **self-describe** (a `RegionMember` with a `moduleId`); the scene scope discovers all `RegionMember`s (including inactive) in a build callback and registers them — hosts do not hold module lists.
+
 ---
 
 ## Naming — Files & Types

@@ -19,6 +19,14 @@
 >    exclusion — chosen so we write **no keyboard-specific logic**. The `KeyboardFocusEvent`→`VrKeyboard`
 >    typing path is untouched. (Replaces the spec's incorrect "open on KeyboardFocusEvent / close on
 >    submit/blur" and the planning draft's dedicated `KeyboardToggleButton`/`userPanelDefault` pair.)
+>
+> **Implementation correction (during execution):** the keyboard prefab lives at
+> `OverlaysSlot/Keyboard` and the nav-buttons bar at `OverlaysSlot/Default`; the original UX swapped
+> those two. So the keyboard's region is **`overlays`** (shared with `Default`), NOT the nav content
+> region. To restore `Default` when the keyboard closes without writing keyboard-specific logic, the
+> router gained a generic **per-region default member**: `NavBarConfig.Entry.IsRegionDefault` marks
+> `Default` as the default of region `overlays`, and `PanelRegionRouter.Close` auto-reopens a region's
+> default when that region empties. The keyboard button stays a plain `RegionNavButton`.
 > 2. **No `NavBarConfig`→`PanelRegionConfig` rename in B1.** `NavBarConfig.Entry` already carries
 >    exactly the needed fields (`Id`=moduleId, `ExclusiveGroup`=regionKey, `VisibleModes`). The
 >    router consumes it via a new `IRegionConfig` interface that `NavBarConfig` implements (so the
