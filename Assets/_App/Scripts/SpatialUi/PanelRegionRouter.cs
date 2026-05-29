@@ -54,7 +54,9 @@ public class PanelRegionRouter : IDisposable
 
     public void Open(string moduleId)
     {
-        if (!TryGetAlive(moduleId, out var surface)) return;
+        var found = TryGetAlive(moduleId, out var surface);
+        UnityEngine.Debug.Log($"[FBDBG] Router.Open id={moduleId} aliveFound={found} registeredCount={_modules.Count}");
+        if (!found) return;
 
         if (_config.TryGetRegion(moduleId, out var region) && !string.IsNullOrEmpty(region))
         {

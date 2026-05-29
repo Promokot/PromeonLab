@@ -12,12 +12,14 @@ public class FileBrowserSurface : MonoBehaviour, IRegionSurface
     {
         _bus    = bus;
         _router = router;
+        Debug.Log($"[FBDBG] FileBrowserSurface.Construct busNull={bus == null} routerNull={router == null}");
     }
 
     public bool IsOpen => FileBrowser.IsOpen;
 
     public void Show()
     {
+        Debug.Log($"[FBDBG] FileBrowserSurface.Show ENTER activeSelf={gameObject.activeSelf} activeInHierarchy={gameObject.activeInHierarchy} IsOpenBefore={FileBrowser.IsOpen}");
         if (FileBrowser.IsOpen) return;
         // Activate our in-hierarchy canvas BEFORE touching the static FileBrowser API.
         // SetActive(true) runs FileBrowser.Awake synchronously → registers m_instance, so the
@@ -35,6 +37,7 @@ public class FileBrowserSurface : MonoBehaviour, IRegionSurface
             pickMode:       FileBrowser.PickMode.Files,
             title:          "Import Asset",
             loadButtonText: "Import");
+        Debug.Log($"[FBDBG] FileBrowserSurface.Show AFTER ShowLoadDialog IsOpen={FileBrowser.IsOpen}");
     }
 
     public void Hide()

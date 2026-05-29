@@ -157,7 +157,11 @@ public class AssetBrowserPanel : MonoBehaviour
         });
     }
 
-    private void OnAddClicked() => _router?.Open("fileBrowser");
+    private void OnAddClicked()
+    {
+        Debug.Log($"[FBDBG] AssetBrowserPanel.OnAddClicked routerNull={_router == null}");
+        _router?.Open("fileBrowser");
+    }
 
     private void OnFilePicked(FilePickedEvent e) => _ = HandleImportAsync(e.Path);
 

@@ -11,7 +11,11 @@ public class FileBrowserVrAnchor : MonoBehaviour
     private AssetBrowserPanel _target;
 
     [Inject]
-    public void Construct(AssetBrowserPanel target) => _target = target;
+    public void Construct(AssetBrowserPanel target)
+    {
+        _target = target;
+        Debug.Log($"[FBDBG] FileBrowserVrAnchor.Construct targetNull={target == null}");
+    }
 
     private void Start()
     {
@@ -31,7 +35,11 @@ public class FileBrowserVrAnchor : MonoBehaviour
 
         if (!_target.gameObject.activeInHierarchy)
         {
-            if (FileBrowser.IsOpen) FileBrowser.HideDialog();
+            if (FileBrowser.IsOpen)
+            {
+                Debug.Log("[FBDBG] FileBrowserVrAnchor AUTO-HIDE: target inactive while dialog open → HideDialog()");
+                FileBrowser.HideDialog();
+            }
             return;
         }
 
