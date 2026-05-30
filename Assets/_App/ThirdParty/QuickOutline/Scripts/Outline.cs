@@ -48,6 +48,24 @@ public class Outline : MonoBehaviour {
     }
   }
 
+  public OutlineConfig OutlineConfig {
+    get { return outlineConfig; }
+    set {
+      outlineConfig = value;
+      // Runtime-added components miss the OnEnable build (the SO was null then); build now if possible.
+      if (isActiveAndEnabled && outlineMaskMaterial == null && TryBuildMaterials())
+        AppendMaterials();
+    }
+  }
+
+  public int RenderPriority {
+    get { return renderPriority; }
+    set {
+      renderPriority = value;
+      needsUpdate = true;
+    }
+  }
+
   [Serializable]
   private class ListVector3 {
     public List<Vector3> data;
@@ -74,6 +92,21 @@ public class Outline : MonoBehaviour {
   [SerializeField, HideInInspector]
   private List<ListVector3> bakeValues = new List<ListVector3>();
 
+  [SerializeField]
+  private OutlineConfig outlineConfig;
+
+  [SerializeField]
+  private int renderPriority;
+
+  // Per-instance stencil ref so overlapping outlines never clip each other's fill.
+  // The active URP renderers (Assets/Settings/Mobile_Renderer.asset, PC_Renderer.asset) declare
+  // no renderer features and overrideStencilState=0, so the whole 1..250 range is free.
+  private const int STENCIL_MIN = 1;
+  private const int STENCIL_MAX = 250;
+  private const int QUEUE_STEP  = 20; // renderQueue gap between priority levels (mask+fill fit in one step)
+  private static int nextStencilRef = STENCIL_MIN;
+  private int stencilRef;
+
   private Renderer[] renderers;
   private Material outlineMaskMaterial;
   private Material outlineFillMaterial;
@@ -85,13 +118,6 @@ public class Outline : MonoBehaviour {
     // Cache renderers
     renderers = GetComponentsInChildren<Renderer>();
 
-    // Instantiate outline materials
-    outlineMaskMaterial = Instantiate(Resources.Load<Material>(@"Materials/OutlineMask"));
-    outlineFillMaterial = Instantiate(Resources.Load<Material>(@"Materials/OutlineFill"));
-
-    outlineMaskMaterial.name = "OutlineMask (Instance)";
-    outlineFillMaterial.name = "OutlineFill (Instance)";
-
     // Retrieve or generate smooth normals
     LoadSmoothNormals();
 
@@ -100,16 +126,8 @@ public class Outline : MonoBehaviour {
   }
 
   void OnEnable() {
-    foreach (var renderer in renderers) {
-
-      // Append outline shaders
-      var materials = renderer.sharedMaterials.ToList();
-
-      materials.Add(outlineMaskMaterial);
-      materials.Add(outlineFillMaterial);
-
-      renderer.materials = materials.ToArray();
-    }
+    if (!TryBuildMaterials()) return; // SO not assigned yet (runtime-added); the setter will append later
+    AppendMaterials();
   }
 
   void OnValidate() {
@@ -130,7 +148,7 @@ public class Outline : MonoBehaviour {
   }
 
   void Update() {
-    if (needsUpdate) {
+    if (needsUpdate && outlineMaskMaterial != null) {
       needsUpdate = false;
 
       UpdateMaterialProperties();
@@ -138,6 +156,7 @@ public class Outline : MonoBehaviour {
   }
 
   void OnDisable() {
+    if (outlineMaskMaterial == null) return;
     foreach (var renderer in renderers) {
 
       // Remove outline shaders
@@ -153,8 +172,37 @@ public class Outline : MonoBehaviour {
   void OnDestroy() {
 
     // Destroy material instances
-    Destroy(outlineMaskMaterial);
-    Destroy(outlineFillMaterial);
+    if (outlineMaskMaterial != null) Destroy(outlineMaskMaterial);
+    if (outlineFillMaterial != null) Destroy(outlineFillMaterial);
+  }
+
+  private bool TryBuildMaterials() {
+    if (outlineMaskMaterial != null) return true;            // already built
+    if (outlineConfig == null ||
+        outlineConfig.MaskMaterial == null ||
+        outlineConfig.FillMaterial == null) return false;    // no SO yet
+
+    outlineMaskMaterial = Instantiate(outlineConfig.MaskMaterial);
+    outlineFillMaterial = Instantiate(outlineConfig.FillMaterial);
+
+    outlineMaskMaterial.name = "OutlineMask (Instance)";
+    outlineFillMaterial.name = "OutlineFill (Instance)";
+
+    // Unique stencil ref per instance (cycles within the free range)
+    stencilRef = nextStencilRef;
+    nextStencilRef++;
+    if (nextStencilRef > STENCIL_MAX) nextStencilRef = STENCIL_MIN;
+    return true;
+  }
+
+  private void AppendMaterials() {
+    foreach (var renderer in renderers) {
+      var materials = renderer.sharedMaterials.ToList();
+      materials.Add(outlineMaskMaterial);
+      materials.Add(outlineFillMaterial);
+      renderer.materials = materials.ToArray();
+    }
+    needsUpdate = true;
   }
 
   void Bake() {
@@ -335,5 +383,14 @@ public class Outline : MonoBehaviour {
         outlineFillMaterial.SetFloat("_OutlineWidth", 0f);
         break;
     }
+
+    // Per-instance stencil ref: same value on mask (Replace) and fill (NotEqual) so the fill rim
+    // tests against THIS instance's silhouette only — overlapping outlines no longer clip each other.
+    outlineMaskMaterial.SetFloat("_StencilRef", stencilRef);
+    outlineFillMaterial.SetFloat("_StencilRef", stencilRef);
+
+    // Layered priority: higher RenderPriority paints later (on top). Selection=0, bones=1, gizmo=2.
+    outlineMaskMaterial.renderQueue = 3100 + renderPriority * QUEUE_STEP;
+    outlineFillMaterial.renderQueue = 3110 + renderPriority * QUEUE_STEP;
   }
 }

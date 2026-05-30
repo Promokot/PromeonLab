@@ -426,49 +426,68 @@ public class OutlineConfig : ScriptableObject
 
 - [ ] **Step 9: Checkpoint (user commits)** — `feat(outline): SO-fed lazy materials + per-instance stencil ref + RenderPriority`
 
-### Task 3.4: Inject the SO at every Outline creation site
+### Task 3.4: Inject the SO at every Outline creation site (DECIDED: [Inject] into Selectable)
 
-`Outline` is added at runtime in two `_App` places; each must hand it the SO. The gizmo prefab gets
-the SO serialized (Task 4.3).
+**Resolved wiring** (user decision): register `DefaultOutlineConfig` in the scene scope (precedent:
+`VrEditingSceneScope.cs:15` registers `_gizmoConfig` via `RegisterInstance`); `Selectable` receives
+it via a VContainer `[Inject]` method. Bones get the SO from the builder (their `Outline` is created
+at `PromeonProxyRigBuilder:390`, separate from `Selectable`). The gizmo prefab gets the SO serialized
+(Task 4.3).
 
 **Files:**
+- Modify: `Assets/_App/Scripts/Bootstrap/VrEditingSceneScope.cs` (register the SO; add Sandbox scope too if selection happens there)
 - Modify: `Assets/_App/Scripts/VrInteraction/Selectable.cs`
 - Modify: `Assets/_App/Scripts/RigBuilder/PromeonProxyRigBuilder.cs:390` (bone Outline creation)
 
-- [ ] **Step 1 [INVESTIGATE]:** Confirm how each creator can obtain the SO. `PromeonProxyRigBuilder`
-  already carries serialized bone-outline color fields (`_boneOutlineColorSelected` etc.) → add a
-  serialized `[SerializeField] private OutlineConfig _outlineConfig;` and assign it on the rig
-  prefab/bake. `Selectable` is itself `AddComponent`'d at runtime (`PromeonProxyRigBuilder:305` and the
-  asset-spawn path) → it cannot be inspector-wired, so its creator must pass the SO. Identify the
-  asset-spawn factory that adds `Selectable` and give `Selectable` a `public OutlineConfig OutlineConfig`
-  field the creator sets (or inject via the existing DI used in that factory). Record the chosen
-  wiring here before editing.
-- [ ] **Step 2: `PromeonProxyRigBuilder` — assign SO to the bone Outline** (at `:390`, right after
-  `var outline = go.AddComponent<Outline>();`):
-
+- [ ] **Step 1 [VERIFY INJECTION COVERAGE]:** Confirm EVERY `Selectable`-bearing object is DI-injected
+  so its `[Inject]` fires. Bones: `RigRuntime` injects proxies via `IObjectResolver.InjectGameObject`
+  (`RigRuntime.cs:40-42`). Imported assets: find the spawner (e.g. `AssetSpawner`, registered at
+  `VrEditingSceneScope.cs:47`, or `SceneGraph` spawn at `SceneGraph.cs:94`) and confirm it injects the
+  spawned GameObject; if it does NOT, add `resolver.InjectGameObject(go)` at spawn. Record findings.
+- [ ] **Step 2: Register the SO in the scene scope.** Add a serialized field on `VrEditingSceneScope`
+  and register it:
 ```csharp
-        var outline          = go.AddComponent<Outline>();
-        outline.OutlineConfig = _outlineConfig;
+    [SerializeField] private OutlineConfig _outlineConfig;
+    // ...in Configure(), alongside the _gizmoConfig registration (:15):
+    if (_outlineConfig != null) builder.RegisterInstance(_outlineConfig);
 ```
-
-- [ ] **Step 3: `Selectable` — assign SO before the Outline renders** (in `EnsureOutline`, `:32-35`):
-
+  (Repeat for the Sandbox scope if objects are selectable there.)
+- [ ] **Step 3: `Selectable` — receive the SO via `[Inject]` and assign it to the Outline.** Make the
+  ensure path tolerant of a pre-existing Outline (bones add one at `:390`; `Outline` is
+  `[DisallowMultipleComponent]`, so blind `AddComponent` would fail):
 ```csharp
+    private OutlineConfig _outlineConfig;
+
+    [Inject]
+    public void Construct(OutlineConfig outlineConfig)
+    {
+        _outlineConfig = outlineConfig;
+    }
+
     private void EnsureOutline()
     {
         if (_outline == null)
         {
-            _outline = gameObject.AddComponent<Outline>();
-            _outline.OutlineConfig = _outlineConfig; // see Step 1 for how _outlineConfig is supplied
+            _outline = GetComponent<Outline>();
+            if (_outline == null) _outline = gameObject.AddComponent<Outline>();
         }
+        if (_outline.OutlineConfig == null && _outlineConfig != null)
+            _outline.OutlineConfig = _outlineConfig;
     }
 ```
-
-- [ ] **Step 4 (controller): compile.** `read_console` → no `CS` errors.
-- [ ] **Step 5 [MANUAL EDITOR / MCP]:** Assign `DefaultOutlineConfig.asset` to the new
-  `_outlineConfig` serialized slot on the rig builder (prefab) and anywhere `Selectable`'s SO is
-  inspector-wired.
-- [ ] **Step 6: Checkpoint (user commits)** — `feat(outline): wire OutlineConfig SO into all Outline creation sites`
+  (Add `using VContainer;` at the top of `Selectable.cs`.)
+- [ ] **Step 4: `PromeonProxyRigBuilder` — assign SO to the bone Outline** (at `:390`, right after
+  `var outline = go.AddComponent<Outline>();`). The builder gets the SO via a serialized field
+  (`[SerializeField] private OutlineConfig _outlineConfig;`) assigned on the rig builder, or via DI if
+  the builder is already injected:
+```csharp
+        var outline          = go.AddComponent<Outline>();
+        outline.OutlineConfig = _outlineConfig;
+```
+- [ ] **Step 5 (controller): compile.** `read_console` → no `CS` errors.
+- [ ] **Step 6 [MANUAL EDITOR / MCP]:** Assign `DefaultOutlineConfig.asset` to the `_outlineConfig`
+  slot on `VrEditingSceneScope` (and Sandbox scope) and on the rig builder.
+- [ ] **Step 7: Checkpoint (user commits)** — `feat(outline): inject OutlineConfig SO into Selectable + bone builder`
 
 ### Task 3.5: Verify anti-clip in VR (user)
 
