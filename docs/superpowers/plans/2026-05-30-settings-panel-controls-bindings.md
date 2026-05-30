@@ -10,6 +10,22 @@
 
 ---
 
+## ✅ Status: COMPLETED (2026-05-30)
+
+Все 8 задач выполнены и проверены пользователем в гарнитуре. Реализовано subagent-driven (двухстадийное ревью на задачу). Итог по факту:
+
+- **Локомоция (Task 3):** фикс через флаги `ControllerInputActionManager` (а не очистку per-hand input, как предполагала исходная спека) — левый `SmoothMotion=true/SmoothTurn=false`, правый `SmoothMotion=false/SmoothTurn=true` + очищены teleport-рефы. Подтверждено в гарнитуре.
+- **Данные:** `ControlsProfile.asset` заполнен **фактическими** биндами приложения (Movement: Move L / Turn R; Selection: Select/Rotate/Move object/Deselect; System: User panel/Undo) — §7 визуального референса использован только как layout, НЕ как данные.
+- **UI:** карточки-секции (`BindingSection.prefab` + `BindingSectionCard`) + строки с pill и L/R-бейджем (`BindingRow.prefab`), master-detail в `SettingsModule.prefab` (560×300, region-swap в UserPanel/Center_top). Иконок нет (v1). Углы острые (rounded-спрайт через MCP не назначился).
+- **Экспортёр:** `Tools/Promeon/Export Controls Doc` → `docs/controls-bindings.md` (зеркало ассета).
+
+Отклонения/доп-правки по ходу:
+- Прерванный фоновый агент создал дубли (`BindingSectionCard.prefab`, `BindingGroupHeader.prefab`) и мусор (`fix_prefab*.py`) — удалены; `SettingsModule.prefab` пересобран начисто детерминированно.
+- По запросу пользователя: дефолтная вкладка — **General**; заголовки контента и секций — PascalCase.
+- Память: [[project_locomotion_scheme]], [[project_controls_settings_system]].
+
+---
+
 ## Project-specific execution notes (read before starting)
 
 - **Все правки сцен/префабов/ассетов — через Unity MCP** (запрос пользователя). Перед началом: `mcp__unityMCP__set_active_instance` (или передавать `unity_instance` в каждый вызов), затем `mcp__unityMCP__read_console` для базовой проверки.
