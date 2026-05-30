@@ -14,3 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: _App.Runtime::OutlineConfig
   maskMaterial: {fileID: 2100000, guid: 0f2e2a82211d44d4ab746a7afe6a6e7a, type: 2}
   fillMaterial: {fileID: 2100000, guid: c29b2dfcc0a96284181e7fe65e59bfc4, type: 2}
+  axisColorX: {r: 0.93, g: 0.58, b: 0.58, a: 1}
+  axisColorY: {r: 0.6, g: 0.84, b: 0.62, a: 1}
+  axisColorZ: {r: 0.6, g: 0.72, b: 0.93, a: 1}
+  selectColor: {r: 1, g: 0.95, b: 0.15, a: 1}
+  boneColor: {r: 1, g: 1, b: 1, a: 1}
+  boneSelectedColor: {r: 1, g: 0.5, b: 0, a: 1}

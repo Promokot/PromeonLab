@@ -142,35 +142,10 @@ public class PromeonProxyRigBuilder : MonoBehaviour
             }
             var col     = go.GetComponent<Collider>();
             if (col     != null) col.enabled     = enabled;
-
-            // Brute-force renderer invalidation: writing sharedMaterial back to itself kicks the
-            // render pipeline into re-evaluating this renderer. Without this, URP+XR was deferring
-            // newly-enabled mesh renderers until an unrelated event (e.g. click) nudged the pipeline.
-            if (enabled && mr != null && mr.sharedMaterial != null)
-                mr.sharedMaterial = mr.sharedMaterial;
         }
         if (_rootCollider != null) _rootCollider.enabled = !enabled;
 
         if (enabled) ApplyBoneOutlineColors(null);
-
-        // Forced disable→enable cycle after one frame: the first OnEnable on a freshly toggled
-        // Outline did not light up the outline visually until an external event (click) nudged
-        // the XR render pipeline. A second toggle cycle, one frame later, reliably triggers it.
-        if (enabled && isActiveAndEnabled) StartCoroutine(BumpOutlineNextFrame());
-    }
-
-    private IEnumerator BumpOutlineNextFrame()
-    {
-        yield return null; // wait one full frame so the first enable cycle has rendered
-        foreach (var go in _proxyGOs)
-        {
-            if (go == null) continue;
-            var outline = go.GetComponent<Outline>();
-            if (outline == null) continue;
-            outline.enabled = false;
-            outline.enabled = true;
-        }
-        ApplyBoneOutlineColors(null);
     }
 
     /// Walks each proxy GO and re-creates its diamond mesh if the MeshFilter has lost its sharedMesh

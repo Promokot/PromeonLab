@@ -1,8 +1,23 @@
 # Bug: Bone outline requires click to appear (Issue #1)
 
 **Date logged:** 2026-05-21
-**Status:** Open. Workaround in place, root cause unidentified.
+**Status:** RESOLVED 2026-05-31 (verified in VR). Root cause + fix below.
 **Severity:** UX nuisance — does not block workflow. Mesh visibility works.
+
+## Resolution (2026-05-31)
+
+Root cause: `Outline.OnEnable` re-appends the mask/fill materials but never sets `needsUpdate`; only
+`Awake` (runs once) and the property setters do. "Show Bones" re-ENABLES a disabled `Outline`, so
+`Awake` does not run again and `UpdateMaterialProperties` (which applies the `SilhouetteOnly` ZTest)
+stays stale until a property setter is poked — which historically happened on the first click
+(`SelectionChangedEvent` → `ApplyBoneOutlineColors` → `OutlineColor` setter).
+
+Fix: in `PromeonProxyRigBuilder.SetBonesInteractive`, re-assert `outline.OutlineMode =
+Outline.Mode.SilhouetteOnly;` right after `outline.enabled = true`. The mode setter sets
+`needsUpdate`, so `UpdateMaterialProperties` runs the same frame and the see-through rim appears with
+no click. The old `BumpOutlineNextFrame` coroutine and `mr.sharedMaterial = mr.sharedMaterial`
+self-assign hacks were removed (no longer needed). Part of the larger outline rework — see
+`docs/superpowers/plans/2026-05-31-outline-layered-masks-and-bone-toggle.md`.
 
 ## Symptom
 

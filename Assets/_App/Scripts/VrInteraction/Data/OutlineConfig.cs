@@ -11,9 +11,9 @@ public class OutlineConfig : ScriptableObject
     [SerializeField] private Material fillMaterial;
 
     [Header("Gizmo axis colors")]
-    [SerializeField] private Color axisColorX = new Color(0.90f, 0.20f, 0.20f);
-    [SerializeField] private Color axisColorY = new Color(0.30f, 0.80f, 0.30f);
-    [SerializeField] private Color axisColorZ = new Color(0.25f, 0.45f, 0.95f);
+    [SerializeField] private Color axisColorX = new Color(0.93f, 0.58f, 0.58f);
+    [SerializeField] private Color axisColorY = new Color(0.60f, 0.84f, 0.62f);
+    [SerializeField] private Color axisColorZ = new Color(0.60f, 0.72f, 0.93f);
 
     [Header("Selection")]
     [SerializeField] private Color selectColor = new Color(1f, 0.95f, 0.15f);
