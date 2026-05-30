@@ -1,2 +1,1 @@
-// Placeholder for InputBindings subsystem
-public static class InputBindingsPlaceholder { }
+// InputBindings subsystem — data types live in Data/; см. ControlsProfile.cs
