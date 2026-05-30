@@ -12,7 +12,8 @@ public class PromeonProxyRigBuilder : MonoBehaviour
     [SerializeField] private bool     _useConvexCollider        = true;
     [SerializeField] private Color    _boneOutlineColorDefault  = Color.white;
     [SerializeField] private Color    _boneOutlineColorSelected = new Color(1f, 0.5f, 0f);
-    [SerializeField] private Collider _rootCollider;
+    [SerializeField] private Collider      _rootCollider;
+    [SerializeField] private OutlineConfig _outlineConfig;
 
     private Transform[] _transforms;
     private string      _rigNodeId;
@@ -122,7 +123,22 @@ public class PromeonProxyRigBuilder : MonoBehaviour
             }
 
             var outline = go.GetComponent<Outline>();
-            if (outline != null) outline.enabled = enabled;
+            if (outline != null)
+            {
+                // Supply the forked-shader materials before enabling so OnEnable's lazy build has sources.
+                if (enabled && _outlineConfig != null)
+                    outline.SetOutlineMaterials(_outlineConfig.MaskMaterial, _outlineConfig.FillMaterial);
+                outline.enabled = enabled;
+                if (enabled)
+                {
+                    // Re-enabling an Outline does NOT re-run Awake and OnEnable never sets needsUpdate,
+                    // so the SilhouetteOnly ZTest stayed stale until a click poked a setter. Re-asserting
+                    // the mode sets needsUpdate -> UpdateMaterialProperties runs this frame -> the
+                    // see-through rim appears immediately (fixes "bone outline needs a click").
+                    outline.OutlineMode    = Outline.Mode.SilhouetteOnly;
+                    outline.RenderPriority = 1; // above the selected-mesh outline (priority 0)
+                }
+            }
             var col     = go.GetComponent<Collider>();
             if (col     != null) col.enabled     = enabled;
 

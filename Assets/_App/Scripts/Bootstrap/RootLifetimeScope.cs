@@ -8,6 +8,7 @@ public class RootLifetimeScope : LifetimeScope
     [SerializeField] private ModeTransitionGraph _transitionGraph;
     [SerializeField] private BuiltinAssetLibrary _builtinLibrary;
     [SerializeField] private NavBarConfig        _navBarConfig;
+    [SerializeField] private OutlineConfig       _outlineConfig;
 
     protected override void Configure(IContainerBuilder builder)
     {
@@ -22,6 +23,10 @@ public class RootLifetimeScope : LifetimeScope
             builder.RegisterInstance(_builtinLibrary);
         else
             Debug.LogError("RootLifetimeScope: _builtinLibrary not assigned!");
+        if (_outlineConfig != null)
+            builder.RegisterInstance(_outlineConfig);
+        else
+            Debug.LogError("RootLifetimeScope: _outlineConfig not assigned — selection/bone outlines will not render!");
         builder.Register<ImportedAssetLibrary>(Lifetime.Singleton);
         builder.Register<SavedAssetLibrary>(Lifetime.Singleton);
         builder.Register<AssetRegistry>(Lifetime.Singleton).As<IAssetRegistry>();

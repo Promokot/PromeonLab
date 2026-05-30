@@ -48,14 +48,14 @@ public class Outline : MonoBehaviour {
     }
   }
 
-  public OutlineConfig OutlineConfig {
-    get { return outlineConfig; }
-    set {
-      outlineConfig = value;
-      // Runtime-added components miss the OnEnable build (the SO was null then); build now if possible.
-      if (isActiveAndEnabled && outlineMaskMaterial == null && TryBuildMaterials())
-        AppendMaterials();
-    }
+  // Supplies the source materials (forked PromeonLab/Outline* shaders). Called by app code that
+  // owns the OutlineConfig ScriptableObject. Safe to call repeatedly; rebuilds only once.
+  public void SetOutlineMaterials(Material maskSource, Material fillSource) {
+    maskMaterialSource = maskSource;
+    fillMaterialSource = fillSource;
+    // Runtime-added components miss the OnEnable build (sources were null then); build now if possible.
+    if (isActiveAndEnabled && outlineMaskMaterial == null && TryBuildMaterials())
+      AppendMaterials();
   }
 
   public int RenderPriority {
@@ -93,7 +93,10 @@ public class Outline : MonoBehaviour {
   private List<ListVector3> bakeValues = new List<ListVector3>();
 
   [SerializeField]
-  private OutlineConfig outlineConfig;
+  private Material maskMaterialSource;
+
+  [SerializeField]
+  private Material fillMaterialSource;
 
   [SerializeField]
   private int renderPriority;
@@ -177,13 +180,12 @@ public class Outline : MonoBehaviour {
   }
 
   private bool TryBuildMaterials() {
-    if (outlineMaskMaterial != null) return true;            // already built
-    if (outlineConfig == null ||
-        outlineConfig.MaskMaterial == null ||
-        outlineConfig.FillMaterial == null) return false;    // no SO yet
+    if (outlineMaskMaterial != null) return true;                 // already built
+    if (maskMaterialSource == null || fillMaterialSource == null) // no sources yet
+      return false;
 
-    outlineMaskMaterial = Instantiate(outlineConfig.MaskMaterial);
-    outlineFillMaterial = Instantiate(outlineConfig.FillMaterial);
+    outlineMaskMaterial = Instantiate(maskMaterialSource);
+    outlineFillMaterial = Instantiate(fillMaterialSource);
 
     outlineMaskMaterial.name = "OutlineMask (Instance)";
     outlineFillMaterial.name = "OutlineFill (Instance)";

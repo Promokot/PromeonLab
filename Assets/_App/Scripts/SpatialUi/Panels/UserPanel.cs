@@ -14,6 +14,16 @@ public class UserPanel : SpatialPanel
     [SerializeField] private Button _lockButton;
     [SerializeField] private Image  _lockButtonImage;
 
+    [Header("Size")]
+    [SerializeField] private Button _increaseSizeButton;
+    [SerializeField] private Button _decreaseSizeButton;
+    [Tooltip("Additive step applied to the size multiplier per button press.")]
+    [SerializeField] private float  _sizeStep         = 0.1f;
+    [Tooltip("Lower clamp for the size multiplier (1.0 = the panel's authored size).")]
+    [SerializeField] private float  _minSizeMultiplier = 0.6f;
+    [Tooltip("Upper clamp for the size multiplier (1.0 = the panel's authored size).")]
+    [SerializeField] private float  _maxSizeMultiplier = 2f;
+
     [Header("Smart Follow")]
     [SerializeField] private float _recenterAngle     = 45f;
     [SerializeField] private float _smoothTime        = 0.5f;
@@ -32,7 +42,11 @@ public class UserPanel : SpatialPanel
     private Vector3  _followVelocity;
     private Vector3? _activeTarget;
 
+    private Vector3 _baseScale = Vector3.one;
+    private float   _sizeMultiplier = 1f;
+
     public LockMode CurrentLockMode => _lockMode;
+    public float    CurrentSizeMultiplier => _sizeMultiplier;
 
     private static readonly Color ColorFollow       = new Color(0.62f, 1.00f, 0.77f, 0.90f); // green
     private static readonly Color ColorLockPosition = new Color(1.00f, 0.78f, 0.35f, 0.90f); // amber
@@ -46,8 +60,17 @@ public class UserPanel : SpatialPanel
         _mainMenuButton?.onClick.AddListener(OnMainMenu);
         _exitButton?.onClick.AddListener(OnExit);
         _lockButton?.onClick.AddListener(CycleLockMode);
+        _increaseSizeButton?.onClick.AddListener(IncreaseSize);
+        _decreaseSizeButton?.onClick.AddListener(DecreaseSize);
         ApplyLockVisual();
         DetachToWorld();
+
+        // Capture the authored size *after* detaching: SetParent(worldPositionStays:true) bakes the
+        // former parent's scale into localScale, so this snapshot is the panel's true world size and
+        // becomes multiplier 1.0. Re-apply the current multiplier so a size carried over from a
+        // previous open session (the multiplier persists — ResetPosition never touches it) is honored.
+        _baseScale = transform.localScale;
+        ApplyScale();
     }
 
     protected override void LateUpdate()
@@ -167,6 +190,20 @@ public class UserPanel : SpatialPanel
         _followVelocity = Vector3.zero;
         ApplyLockVisual();
     }
+
+    public void IncreaseSize() => AdjustSize(_sizeStep);
+    public void DecreaseSize() => AdjustSize(-_sizeStep);
+
+    // Additive resize (not multiplicative): the multiplier walks by _sizeStep and is clamped into
+    // [_minSizeMultiplier, _maxSizeMultiplier]. The clamp also bounds float drift from repeated
+    // additions, so no extra rounding is needed.
+    private void AdjustSize(float delta)
+    {
+        _sizeMultiplier = Mathf.Clamp(_sizeMultiplier + delta, _minSizeMultiplier, _maxSizeMultiplier);
+        ApplyScale();
+    }
+
+    private void ApplyScale() => transform.localScale = _baseScale * _sizeMultiplier;
 
     private void ApplyLockVisual()
     {

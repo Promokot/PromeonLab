@@ -471,18 +471,19 @@ at `PromeonProxyRigBuilder:390`, separate from `Selectable`). The gizmo prefab g
             _outline = GetComponent<Outline>();
             if (_outline == null) _outline = gameObject.AddComponent<Outline>();
         }
-        if (_outline.OutlineConfig == null && _outlineConfig != null)
-            _outline.OutlineConfig = _outlineConfig;
+        if (_outlineConfig != null)
+            _outline.SetOutlineMaterials(_outlineConfig.MaskMaterial, _outlineConfig.FillMaterial);
     }
 ```
-  (Add `using VContainer;` at the top of `Selectable.cs`.)
-- [ ] **Step 4: `PromeonProxyRigBuilder` — assign SO to the bone Outline** (at `:390`, right after
-  `var outline = go.AddComponent<Outline>();`). The builder gets the SO via a serialized field
+  (Add `using VContainer;` at the top of `Selectable.cs`. `SetOutlineMaterials` is idempotent — it
+  rebuilds the instanced materials only once, so calling it on every `SetVisualState` is safe.)
+- [ ] **Step 4: `PromeonProxyRigBuilder` — supply materials to the bone Outline** (at `:390`, right
+  after `var outline = go.AddComponent<Outline>();`). The builder gets the SO via a serialized field
   (`[SerializeField] private OutlineConfig _outlineConfig;`) assigned on the rig builder, or via DI if
   the builder is already injected:
 ```csharp
-        var outline          = go.AddComponent<Outline>();
-        outline.OutlineConfig = _outlineConfig;
+        var outline = go.AddComponent<Outline>();
+        outline.SetOutlineMaterials(_outlineConfig.MaskMaterial, _outlineConfig.FillMaterial);
 ```
 - [ ] **Step 5 (controller): compile.** `read_console` → no `CS` errors.
 - [ ] **Step 6 [MANUAL EDITOR / MCP]:** Assign `DefaultOutlineConfig.asset` to the `_outlineConfig`
@@ -547,9 +548,12 @@ gizmo above it.
   `find_gameobjects`/Glob — referenced in `docs/superpowers/investigations/2026-05-30-gizmo.md` as
   carrying `QuickOutline::Outline` on each handle).
 
-- [ ] **Step 1 [MANUAL EDITOR / MCP]:** On each gizmo handle's `Outline` component, set the serialized
-  `Render Priority` field to `2`. (The field is serialized as of Task 3.2, so it persists in the
-  prefab — no gizmo code change needed.)
+- [ ] **Step 1 [MANUAL EDITOR / MCP]:** On each gizmo handle's `Outline` component: (a) assign the two
+  serialized source materials — `Mask Material Source` → `Content/Materials/Outline/OutlineMask.mat`,
+  `Fill Material Source` → `OutlineFill.mat` (the gizmo `Outline` is prefab-authored, so it has no app
+  code to call `SetOutlineMaterials`; the serialized fields fill that role); (b) set the serialized
+  `Render Priority` field to `2`. Both fields are serialized as of Task 3.3, so they persist in the
+  prefab — no gizmo code change needed.
 - [ ] **Step 2 [MANUAL EDITOR]:** Confirm the gizmo handle `Outline` mode is `OutlineAll` (ZTest Always)
   so it shows through occluders. If it is `SilhouetteOnly`/another mode and the gizmo must be visible
   on top of solid geometry, set it to `OutlineAll`.
