@@ -35,7 +35,10 @@
       "Bash(find Assets -name \"*.inputactions\")",
       "Bash(grep -rl \"OculusTouchController\\\\|MetaQuestTouch\\\\|XR Controller\\\\|HeldItem\\\\|<XRController>\" Assets --include=*.inputactions)",
       "Bash(grep -rln \"PoseControl\\\\|OpenXR.Input\" Assets/_App --include=*.cs)",
-      "Bash(echo \"EXIT=$?\")"
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(find Assets/Samples -iname \"*XR Origin*.prefab\")",
+      "Bash(grep -rl \"f6336ac4ac8b4d34bc5072418cdc62a0\" Assets/Samples)",
+      "Bash(py --version)"
     ]
   },
   "enabledMcpjsonServers": [

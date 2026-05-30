@@ -162,6 +162,68 @@ pose actions; no project code touches PoseControl. Recommended order: (1) add co
 (2) disable unused MR features, (3) then apply remaining validation fixes — the list shrinks after
 1–2.
 
+## CONTROLLERS STILL DEAD — review round 2 (2026-05-30)
+
+After the user assigned profiles + applied validation fixes, controllers are still invisible /
+untracked in-app (head works). Reviewed prefabs, the rig, and re-read the OpenXR settings.
+
+### Interaction profiles are NOW correct — so profiles are NOT the cause
+Re-read `Assets/XR/Settings/OpenXR Package Settings.asset`, confirmed via three independent parses
+(grep -A, a Python block parser, and a line-paired scan — all agree):
+
+| Profile | Standalone | Android |
+|---|---|---|
+| OculusTouchControllerProfile | **1** (line 490) | **1** (line 422) |
+| MetaQuestTouchPlusControllerProfile | **1** | **1** |
+| MetaQuestTouchProControllerProfile | **1** | **1** |
+| all hand/other profiles | 0 | 0 |
+
+So the controller profiles the user enabled DID apply, on both platforms. The earlier draft of this
+section (claiming Oculus Touch was off) was based on a STALE cached file read and is **retracted**.
+With Oculus Touch + Touch Plus + Touch Pro all enabled, every Quest controller has a matching
+binding profile → the dead controllers are NOT an OpenXR-profile problem.
+
+### Rig / prefab review
+- `Assets/_App/Content/Prefabs/XR/User XR Origin (XR Rig).prefab` is a **variant** of the XRI
+  Starter `XR Origin (XR Rig)` (base guid `f6336ac4ac8b4d34bc5072418cdc62a0`, confirmed via the
+  base prefab `.meta`). The base rig has the standard Left/Right Controller GameObjects with
+  Position/Rotation/Tracking-State input actions, Camera Offset, Main Camera, and Locomotion.
+- The base rig has an `InputActionManager` with an `m_ActionAssets:` list (line ~885) — this is the
+  component that must hold the `XRI Default Input Actions` asset AND have its action maps enabled at
+  runtime. **This is the prime remaining suspect and must be verified live** (see below).
+- Variant override (prefab lines 168-179) zeros a `m_RayInteractorChanged` persistent-call array —
+  UI ray callback wiring, unrelated to pose.
+- Per project memory (`interaction_input_model`), XRI's select flow was deliberately replaced by
+  `XRPromeonInteractable` (tap=select / hold-trigger=rotate / hold-grip=move). That changes *what*
+  interaction does, but still depends on controller devices + enabled input actions.
+
+### Remaining hypotheses (ranked) — needs live verification
+1. **InputActionManager has no action asset / actions never enabled.** If the rig's
+   `InputActionManager.m_ActionAssets` is empty, or some bootstrap disables it, the controller
+   pose/visual actions never fire → controllers invisible & inert while the HMD (driven separately)
+   still tracks. **Most likely.**
+2. **TrackedPoseDriver input refs on Left/Right Controller unassigned** (Position/Rotation actions
+   not bound) → no pose.
+3. **Controller model/visual disabled** but tracking works (would still allow rays) — less likely
+   given "no interaction either."
+4. **A bootstrap/DI step disables interactors** (the variant wires `WorldClickCatcher` to left/right
+   interactors; if those are toggled off in code, rays die).
+
+### Decisive live checks (do these — they pinpoint it)
+1. **Window > Analysis > Input Debugger** in Play mode (Quest Link):
+   - No XR Controller devices → OpenXR binding problem (but profiles look fine, so unlikely).
+   - Devices present → it's a rig/input-actions wiring problem (hypotheses 1-2).
+2. In the **Hierarchy at runtime**, select the rig's `Input Action Manager` and confirm its Action
+   Assets list contains `XRI Default Input Actions` and is enabled.
+3. Select **Left/Right Controller** at runtime → check the `Tracked Pose Driver` Position/Rotation
+   action references are assigned and the GameObject is active.
+4. Watch the console for any input-system / action-asset errors on entering Play.
+
+> Tooling caveat: file-read tools in this session repeatedly returned STALE-cached and at least one
+> CORRUPTED result, so deeper static prefab parsing was abandoned as untrustworthy. The profile
+> table above is trusted (3 agreeing parses). The rig-level hypotheses must be closed with the live
+> checks above rather than by re-reading the prefab YAML.
+
 ## Still open (product / runtime calls)
 - Graphics API (Vulkan vs GLES3) actual state for Android — verify in Player Settings.
 - Whether passthrough (`ARCameraFeature`) is intentional, or leftover from package defaults.
