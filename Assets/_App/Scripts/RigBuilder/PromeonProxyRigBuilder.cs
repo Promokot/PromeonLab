@@ -13,11 +13,11 @@ public class PromeonProxyRigBuilder : MonoBehaviour
     [SerializeField] private Color    _boneOutlineColorDefault  = Color.white;
     [SerializeField] private Color    _boneOutlineColorSelected = new Color(1f, 0.5f, 0f);
     [SerializeField] private Collider      _rootCollider;
-    [SerializeField] private OutlineConfig _outlineConfig;
 
-    private Transform[] _transforms;
-    private string      _rigNodeId;
-    private EventBus    _eventBus;
+    private Transform[]  _transforms;
+    private string       _rigNodeId;
+    private EventBus     _eventBus;
+    private OutlineConfig _outlineConfig;
 
     private readonly List<GameObject>   _proxyGOs    = new();
     private readonly List<BoneFollower> _followers   = new();
@@ -58,8 +58,9 @@ public class PromeonProxyRigBuilder : MonoBehaviour
     }
 
     [Inject]
-    public void Construct(EventBus bus)
+    public void Construct(EventBus bus, OutlineConfig outlineConfig)
     {
+        _outlineConfig = outlineConfig;
         if (_eventBus == bus) return;
         if (_eventBus != null) _eventBus.Unsubscribe<SelectionChangedEvent>(OnSelectionChanged);
         _eventBus = bus;
