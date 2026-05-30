@@ -162,7 +162,27 @@ pose actions; no project code touches PoseControl. Recommended order: (1) add co
 (2) disable unused MR features, (3) then apply remaining validation fixes — the list shrinks after
 1–2.
 
-## CONTROLLERS STILL DEAD — review round 2 (2026-05-30)
+## ✅ RESOLVED (2026-05-30): Oculus XR Plugin conflicted with OpenXR
+
+**Root cause:** the project had BOTH `com.unity.xr.openxr` (OpenXR Plugin) AND
+`com.unity.xr.oculus` (Oculus XR Plugin) installed. Oculus XR Plugin is not an OpenXR module — it's
+a separate, mutually-exclusive backend. It hijacked controller device registration (device showed
+`Type: OculusHMD` in Input Debugger), so controller `devicePosition`/`deviceRotation` stayed at
+zero (buttons/stick/velocity still worked, head still tracked). Controllers sat at scene origin
+with no pose.
+
+**Fix that worked:** removed the `com.unity.xr.oculus` package (Package Manager → Remove) + ensured
+only OpenXR is ticked in XR Plug-in Management (Android + Desktop), rebuilt `Library`. Controllers
+immediately tracked correctly. The correct OpenXR companion for Quest is `com.unity.xr.meta-openxr`,
+which stays.
+
+**Note:** the rounds below (profiles, rig, pose-bindings, usages) were investigative dead-ends —
+all of those were actually fine. The single fact that pointed here was "position/rotation zero at
+the DEVICE level in Input Debugger" + two XR providers in the manifest. Kept for the record.
+
+---
+
+## CONTROLLERS STILL DEAD — review round 2 (2026-05-30) [superseded by RESOLVED above]
 
 After the user assigned profiles + applied validation fixes, controllers are still invisible /
 untracked in-app (head works). Reviewed prefabs, the rig, and re-read the OpenXR settings.
