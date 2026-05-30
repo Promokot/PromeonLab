@@ -119,6 +119,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &645703088 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7789115619286469515, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+  m_PrefabInstance: {fileID: 1968041689}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7348fa7a5601fd045976081b0b3bfda0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: _App.Runtime::HeadFade
 --- !u!1 &867107185
 GameObject:
   m_ObjectHideFlags: 0
@@ -464,7 +475,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30bbef4a27f30dc428d2d9c0f2b35eb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: _App.Runtime::SceneTransitionRunner
-  _fade: {fileID: 0}
+  _fade: {fileID: 645703088}
 --- !u!1001 &1968041689
 PrefabInstance:
   m_ObjectHideFlags: 0
