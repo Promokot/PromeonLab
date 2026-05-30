@@ -159,9 +159,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1968041690}
   - {fileID: 1387337865}
   - {fileID: 1973147092}
-  - {fileID: 1968041690}
   m_Father: {fileID: 1958008880}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &874179558
@@ -532,6 +532,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: User XR Origin (XR Rig)
       objectReference: {fileID: 0}
+    - target: {fileID: 1663998036313740579, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_InteractionManager
+      value: 
+      objectReference: {fileID: 1387337866}
+    - target: {fileID: 5092700974932733985, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      propertyPath: m_InteractionManager
+      value: 
+      objectReference: {fileID: 1387337866}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
