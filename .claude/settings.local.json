@@ -50,7 +50,8 @@
       "PowerShell($path = \"S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\\\\Assets\\\\_App\\\\Content\\\\Prefabs\\\\UI\\\\Panels\\\\UserPanel\\\\SettingsModule.prefab\"; $content = Get-Content -LiteralPath $path; $goLines = $content | Select-String \"^--- !u!1 &\" | ForEach-Object { \"Line $\\($_.LineNumber\\): $\\($_.Line.Trim\\(\\)\\)\" }; $goLines)",
       "PowerShell($path = \"S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\\\\Assets\\\\_App\\\\Content\\\\Prefabs\\\\UI\\\\Panels\\\\UserPanel\\\\SettingsModule.prefab\"; $content = Get-Content -LiteralPath $path; $content | Select-String \"5424719887272383999|3109540044278185505\" | ForEach-Object { \"Line $\\($_.LineNumber\\): $\\($_.Line.Trim\\(\\)\\)\" })",
       "PowerShell($path = \"S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\\\\Assets\\\\_App\\\\Content\\\\Prefabs\\\\UI\\\\Panels\\\\UserPanel\\\\SettingsModule.prefab\"; $content = Get-Content -LiteralPath $path; $content | Select-String \"BindingsTab|Bindings Tab|BindingTab\" | ForEach-Object { \"Line $\\($_.LineNumber\\): $\\($_.Line.Trim\\(\\)\\)\" })",
-      "mcp__unityMCP__set_active_instance"
+      "mcp__unityMCP__set_active_instance",
+      "mcp__unityMCP__manage_material"
     ]
   },
   "enabledMcpjsonServers": [

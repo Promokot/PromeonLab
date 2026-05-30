@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2804a881b2b07d4c84c4d30d5f73127, type: 3}
+  m_Name: DefaultOutlineConfig
+  m_EditorClassIdentifier: _App.Runtime::OutlineConfig
+  maskMaterial: {fileID: 2100000, guid: 0f2e2a82211d44d4ab746a7afe6a6e7a, type: 2}
+  fillMaterial: {fileID: 2100000, guid: c29b2dfcc0a96284181e7fe65e59bfc4, type: 2}

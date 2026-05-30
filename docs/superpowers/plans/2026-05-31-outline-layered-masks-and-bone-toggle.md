@@ -39,6 +39,14 @@ visual priority so bones render over the selection outline and the gizmo renders
    per `Outline` instance**. The active URP renderers (`Assets/Settings/Mobile_Renderer.asset`,
    `PC_Renderer.asset`) have `m_RendererFeatures: []` and `m_DefaultStencilState.overrideStencilState:
    0` — URP does not touch the stencil buffer, so the whole 1..250 range is free.
+   **Material source:** instead of QuickOutline's `Resources.Load`, the forked materials are held by an
+   `OutlineConfig` ScriptableObject (direct references — no Resources folder, no `Shader.Find`,
+   no string lookups). `Outline` is fed the SO via a public `OutlineConfig` setter. Because `Outline`
+   is added at runtime via `AddComponent` in two places (`Selectable.EnsureOutline:34`,
+   `PromeonProxyRigBuilder:390`) and `AddComponent` runs `Awake`/`OnEnable` synchronously *before* the
+   caller can inject the SO, material creation MUST move out of `Awake` into a **lazy build** that
+   runs once the SO is present (on `OnEnable` for prefab-assigned SO, or when the setter assigns it
+   on a runtime-added component). The gizmo's prefab `Outline` carries the SO reference serialized.
 3. **Layered priority (render queue):** stencil stops mutual clipping but does not define who paints
    on top. A per-instance `RenderPriority` offsets the mask/fill `renderQueue` so a higher-priority
    outline draws later (on top). Selection = 0, bones = 1, gizmo = 2. Combined with each category's
@@ -57,10 +65,12 @@ OpenXR single-pass-instanced.
 | `Assets/_App/Scripts/RigBuilder/PromeonProxyRigBuilder.cs` | Bone proxy lifecycle / outline enable | Modify: re-assert mode on enable; set bone RenderPriority; later remove hacks |
 | `Assets/_App/Content/Shaders/PromeonOutlineMask.shader` | Forked mask shader with `_StencilRef` | Create |
 | `Assets/_App/Content/Shaders/PromeonOutlineFill.shader` | Forked fill shader with `_StencilRef` | Create |
-| `Assets/_App/Content/Resources/PromeonOutline/OutlineMask.mat` | Material using forked mask shader | Create (MCP/editor) |
-| `Assets/_App/Content/Resources/PromeonOutline/OutlineFill.mat` | Material using forked fill shader | Create (MCP/editor) |
-| `Assets/_App/ThirdParty/QuickOutline/Scripts/Outline.cs` | Per-instance stencil ref + RenderPriority + load forked materials | Modify (vendored — document) |
-| `Assets/_App/Scripts/VrInteraction/Selectable.cs` | Selection outline | Modify: explicit RenderPriority = 0 |
+| `Assets/_App/Content/Materials/Outline/OutlineMask.mat` | Material using forked mask shader | Create (MCP) |
+| `Assets/_App/Content/Materials/Outline/OutlineFill.mat` | Material using forked fill shader | Create (MCP) |
+| `Assets/_App/Scripts/VrInteraction/Data/OutlineConfig.cs` | SO holding the two outline material refs | Create |
+| `Assets/_App/Content/ScriptableObjects/DefaultOutlineConfig.asset` | SO asset wired to the two materials | Create (MCP) |
+| `Assets/_App/ThirdParty/QuickOutline/Scripts/Outline.cs` | Lazy material build from SO + per-instance stencil ref + RenderPriority | Modify (vendored — document) |
+| `Assets/_App/Scripts/VrInteraction/Selectable.cs` | Selection outline | Modify: inject SO + RenderPriority = 0 |
 | `Assets/_App/Content/Prefabs/...Vr3D_Gizmos.prefab` | Gizmo handle Outline components | Modify (editor): serialized RenderPriority = 2 |
 | `docs/developer-notes/2026-05-21-bone-outline-needs-click.md` | Bug log | Update: mark resolved |
 | QuickOutline patch note | Vendored-edit ledger | Update: record Outline.cs + shader fork |
@@ -249,35 +259,68 @@ Shader "PromeonLab/OutlineFill" {
 
 ---
 
-## Phase 3 — Forked materials + per-instance stencil ref + RenderPriority (Outline.cs)
+## Phase 3 — OutlineConfig SO + forked materials + Outline.cs lazy build (stencil ref + priority)
 
-### Task 3.1: Create forked material assets in a Resources folder
+No Resources folder, no `Shader.Find`. The two forked materials are referenced directly by an
+`OutlineConfig` ScriptableObject; `Outline` is fed that SO and builds its material instances lazily.
 
-QuickOutline builds outline materials via `Resources.Load<Material>("Materials/OutlineMask")`
-(`Outline.cs:89-90`). To use the forked shaders without authoring per-object materials, create two
-material assets that reference the forked shaders, in a Resources path we own. (This is the only
-material asset work — no per-mesh materials are needed; `Outline` instantiates clones at runtime.)
+### Task 3.1: Create the OutlineConfig ScriptableObject class
 
 **Files:**
-- Create: `Assets/_App/Content/Resources/PromeonOutline/OutlineMask.mat` (shader `PromeonLab/OutlineMask`)
-- Create: `Assets/_App/Content/Resources/PromeonOutline/OutlineFill.mat` (shader `PromeonLab/OutlineFill`)
+- Create: `Assets/_App/Scripts/VrInteraction/Data/OutlineConfig.cs`
 
-- [ ] **Step 1 [MANUAL EDITOR / MCP]:** Create the folder `Assets/_App/Content/Resources/PromeonOutline/`.
-- [ ] **Step 2 [MANUAL EDITOR / MCP]:** Create `OutlineMask.mat` using shader `PromeonLab/OutlineMask`
-  and `OutlineFill.mat` using shader `PromeonLab/OutlineFill` (e.g. via `manage_material` create, or
-  duplicate the originals at `QuickOutline/Resources/Materials/` and swap the shader). Leave all other
-  values at defaults; `_StencilRef`/`_ZTest`/queue are driven at runtime by `Outline.cs`.
-- [ ] **Step 3:** Confirm via Glob that both `.mat` files exist at the paths above.
-
-### Task 3.2: Point Outline.cs at the forked materials + add stencil ref and RenderPriority
-
-**Files:**
-- Modify: `Assets/_App/ThirdParty/QuickOutline/Scripts/Outline.cs:35-49, 78-100, 302-338`
-
-- [ ] **Step 1: Add the `RenderPriority` property next to the other public properties** (after
-  `OutlineWidth`, `:49`):
+- [ ] **Step 1: Write the SO class** (one public type per file; SO suffix `Config` per conventions):
 
 ```csharp
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "OutlineConfig", menuName = "PromeonLab/Outline Config")]
+public class OutlineConfig : ScriptableObject
+{
+    [SerializeField] private Material maskMaterial;
+    [SerializeField] private Material fillMaterial;
+
+    public Material MaskMaterial => maskMaterial;
+    public Material FillMaterial => fillMaterial;
+}
+```
+
+- [ ] **Step 2 (controller): compile.** `read_console` → no `CS` errors (the `[CreateAssetMenu]` and
+  the type must exist before the SO asset can be created in Task 3.2).
+
+### Task 3.2: Create forked materials + the SO asset (controller, via MCP)
+
+**Files:**
+- Create: `Assets/_App/Content/Materials/Outline/OutlineMask.mat` (shader `PromeonLab/OutlineMask`)
+- Create: `Assets/_App/Content/Materials/Outline/OutlineFill.mat` (shader `PromeonLab/OutlineFill`)
+- Create: `Assets/_App/Content/ScriptableObjects/DefaultOutlineConfig.asset`
+
+- [ ] **Step 1 [MCP]:** Create both materials via `manage_material`, assigning shader
+  `PromeonLab/OutlineMask` and `PromeonLab/OutlineFill` respectively. Leave property values at
+  defaults — `_StencilRef`/`_ZTest`/`renderQueue` are driven at runtime by `Outline.cs`.
+- [ ] **Step 2 [MCP]:** Create `DefaultOutlineConfig.asset` (type `OutlineConfig`) and wire
+  `maskMaterial` → `OutlineMask.mat`, `fillMaterial` → `OutlineFill.mat`.
+- [ ] **Step 3:** Confirm via Glob that all three assets exist at the paths above.
+
+### Task 3.3: Refactor Outline.cs — lazy material build from SO + stencil ref + RenderPriority
+
+**Files:**
+- Modify: `Assets/_App/ThirdParty/QuickOutline/Scripts/Outline.cs`
+
+- [ ] **Step 1: Add the SO field + setter and the `RenderPriority` property** (next to the other
+  public properties, after `OutlineWidth`, `:49`):
+
+```csharp
+  public OutlineConfig OutlineConfig {
+    get { return outlineConfig; }
+    set {
+      outlineConfig = value;
+      // Runtime-added components miss the OnEnable build (SO was null then); build now if possible.
+      if (isActiveAndEnabled && outlineMaskMaterial == null && TryBuildMaterials())
+        AppendMaterials();
+    }
+  }
+
   public int RenderPriority {
     get { return renderPriority; }
     set {
@@ -287,10 +330,13 @@ material asset work — no per-mesh materials are needed; `Outline` instantiates
   }
 ```
 
-- [ ] **Step 2: Add the serialized backing field + per-instance stencil ref state** (in the fields
-  block near `:77-81`):
+- [ ] **Step 2: Add the serialized fields + per-instance stencil state** (in the fields block near
+  `:77-81`, alongside `outlineMaskMaterial`/`outlineFillMaterial`):
 
 ```csharp
+  [SerializeField]
+  private OutlineConfig outlineConfig;
+
   [SerializeField]
   private int renderPriority;
 
@@ -304,13 +350,21 @@ material asset work — no per-mesh materials are needed; `Outline` instantiates
   private int stencilRef;
 ```
 
-- [ ] **Step 3: Load the forked materials and allocate the stencil ref in `Awake`** (`:89-99`).
-  Replace the two `Resources.Load` lines and add the ref allocation:
+- [ ] **Step 3: Remove material instantiation from `Awake`.** `Awake` keeps only renderer caching,
+  smooth-normal load, and `needsUpdate = true`. Delete the two `Resources.Load`/`Instantiate` lines
+  and the two `.name =` lines (`:88-93`) — material creation moves to the lazy builder.
+
+- [ ] **Step 4: Add the lazy builder + append helper** (new private methods):
 
 ```csharp
-    // Instantiate outline materials (forked shaders with a parameterised _StencilRef)
-    outlineMaskMaterial = Instantiate(Resources.Load<Material>(@"PromeonOutline/OutlineMask"));
-    outlineFillMaterial = Instantiate(Resources.Load<Material>(@"PromeonOutline/OutlineFill"));
+  private bool TryBuildMaterials() {
+    if (outlineMaskMaterial != null) return true;            // already built
+    if (outlineConfig == null ||
+        outlineConfig.MaskMaterial == null ||
+        outlineConfig.FillMaterial == null) return false;    // no SO yet
+
+    outlineMaskMaterial = Instantiate(outlineConfig.MaskMaterial);
+    outlineFillMaterial = Instantiate(outlineConfig.FillMaterial);
 
     outlineMaskMaterial.name = "OutlineMask (Instance)";
     outlineFillMaterial.name = "OutlineFill (Instance)";
@@ -319,13 +373,41 @@ material asset work — no per-mesh materials are needed; `Outline` instantiates
     stencilRef = nextStencilRef;
     nextStencilRef++;
     if (nextStencilRef > STENCIL_MAX) nextStencilRef = STENCIL_MIN;
+    return true;
+  }
+
+  private void AppendMaterials() {
+    foreach (var renderer in renderers) {
+      var materials = renderer.sharedMaterials.ToList();
+      materials.Add(outlineMaskMaterial);
+      materials.Add(outlineFillMaterial);
+      renderer.materials = materials.ToArray();
+    }
+    needsUpdate = true;
+  }
 ```
 
-> Keep the material instance NAMES exactly ("OutlineMask (Instance)" / "OutlineFill (Instance)") —
-> `PromeonProxyRigBuilder.SetBonesInteractive` strips leftover materials by the `OutlineMask`/
-> `OutlineFill` name prefix (`:117-121`); renaming would break that cleanup.
+> Keep the instance NAMES exactly ("OutlineMask (Instance)" / "OutlineFill (Instance)") —
+> `PromeonProxyRigBuilder.SetBonesInteractive` strips leftover materials by that name prefix
+> (`:117-121`); renaming breaks that cleanup.
 
-- [ ] **Step 4: Apply the stencil ref + priority queue at the end of `UpdateMaterialProperties`**
+- [ ] **Step 5: Rewrite `OnEnable` to build-then-append** (`:102-113`):
+
+```csharp
+  void OnEnable() {
+    if (!TryBuildMaterials()) return; // SO not assigned yet (runtime-added); setter will append later
+    AppendMaterials();
+  }
+```
+
+- [ ] **Step 6: Guard `Update`, `OnDisable`, `OnDestroy` against un-built materials.**
+  - `Update` (`:132-138`): wrap with `if (needsUpdate && outlineMaskMaterial != null)`.
+  - `OnDisable` (`:140-151`): early-return `if (outlineMaskMaterial == null) return;` before the
+    remove loop.
+  - `OnDestroy` (`:153-158`): `if (outlineMaskMaterial != null) Destroy(outlineMaskMaterial);` and the
+    same null-guard for the fill material.
+
+- [ ] **Step 7: Apply the stencil ref + priority queue at the end of `UpdateMaterialProperties`**
   (after the `switch`, before the closing brace, `:337`):
 
 ```csharp
@@ -339,12 +421,56 @@ material asset work — no per-mesh materials are needed; `Outline` instantiates
     outlineFillMaterial.renderQueue = 3110 + renderPriority * QUEUE_STEP;
 ```
 
-- [ ] **Step 5 (controller): compile.** `read_console` → no `CS` errors. New `Outline.RenderPriority`
-  member is now usable by callers.
+- [ ] **Step 8 (controller): compile.** `read_console` → no `CS` errors. `Outline.OutlineConfig` and
+  `Outline.RenderPriority` are now usable by callers.
 
-- [ ] **Step 6: Checkpoint (user commits)** — `feat(outline): per-instance stencil ref + RenderPriority (anti-clip + layering)`
+- [ ] **Step 9: Checkpoint (user commits)** — `feat(outline): SO-fed lazy materials + per-instance stencil ref + RenderPriority`
 
-### Task 3.3: Verify anti-clip in VR (user)
+### Task 3.4: Inject the SO at every Outline creation site
+
+`Outline` is added at runtime in two `_App` places; each must hand it the SO. The gizmo prefab gets
+the SO serialized (Task 4.3).
+
+**Files:**
+- Modify: `Assets/_App/Scripts/VrInteraction/Selectable.cs`
+- Modify: `Assets/_App/Scripts/RigBuilder/PromeonProxyRigBuilder.cs:390` (bone Outline creation)
+
+- [ ] **Step 1 [INVESTIGATE]:** Confirm how each creator can obtain the SO. `PromeonProxyRigBuilder`
+  already carries serialized bone-outline color fields (`_boneOutlineColorSelected` etc.) → add a
+  serialized `[SerializeField] private OutlineConfig _outlineConfig;` and assign it on the rig
+  prefab/bake. `Selectable` is itself `AddComponent`'d at runtime (`PromeonProxyRigBuilder:305` and the
+  asset-spawn path) → it cannot be inspector-wired, so its creator must pass the SO. Identify the
+  asset-spawn factory that adds `Selectable` and give `Selectable` a `public OutlineConfig OutlineConfig`
+  field the creator sets (or inject via the existing DI used in that factory). Record the chosen
+  wiring here before editing.
+- [ ] **Step 2: `PromeonProxyRigBuilder` — assign SO to the bone Outline** (at `:390`, right after
+  `var outline = go.AddComponent<Outline>();`):
+
+```csharp
+        var outline          = go.AddComponent<Outline>();
+        outline.OutlineConfig = _outlineConfig;
+```
+
+- [ ] **Step 3: `Selectable` — assign SO before the Outline renders** (in `EnsureOutline`, `:32-35`):
+
+```csharp
+    private void EnsureOutline()
+    {
+        if (_outline == null)
+        {
+            _outline = gameObject.AddComponent<Outline>();
+            _outline.OutlineConfig = _outlineConfig; // see Step 1 for how _outlineConfig is supplied
+        }
+    }
+```
+
+- [ ] **Step 4 (controller): compile.** `read_console` → no `CS` errors.
+- [ ] **Step 5 [MANUAL EDITOR / MCP]:** Assign `DefaultOutlineConfig.asset` to the new
+  `_outlineConfig` serialized slot on the rig builder (prefab) and anywhere `Selectable`'s SO is
+  inspector-wired.
+- [ ] **Step 6: Checkpoint (user commits)** — `feat(outline): wire OutlineConfig SO into all Outline creation sites`
+
+### Task 3.5: Verify anti-clip in VR (user)
 
 - [ ] **Step 1 [MANUAL / VR]:** Select object A (gets outline), then select/show a second outlined
   object B that overlaps A on screen. B's outline must render fully through/over A's silhouette — no
@@ -459,10 +585,12 @@ nudge, SKIP this phase and log a follow-up instead.
 ### Task 6.1: Record the vendored Outline.cs edit in the QuickOutline patch note
 
 - [ ] **Step 1:** In the QuickOutline patch note (the file tracking the `isReadable` guard — see the
-  `project_quickoutline_patched` memory), add an entry: "Outline.cs — loads forked materials from
-  `Resources/PromeonOutline/`, allocates a per-instance `_StencilRef`, adds serialized `RenderPriority`
-  driving `renderQueue`. Re-apply on reimport. Forked shaders/materials live under `Content/` and are
-  reimport-safe." Note that the forked shaders MUST exist or `Resources.Load` returns null.
+  `project_quickoutline_patched` memory), add an entry: "Outline.cs — material creation moved out of
+  Awake into a lazy `TryBuildMaterials()` fed by a serialized `OutlineConfig` SO (replaces
+  `Resources.Load`); allocates a per-instance `_StencilRef`; adds serialized `RenderPriority` driving
+  `renderQueue`; lifecycle guards for un-built materials. Re-apply on reimport. The `OutlineConfig`
+  class, forked shaders, materials, and SO asset live under `_App/Scripts`/`_App/Content` and are
+  reimport-safe." Note the SO must be assigned at every `Outline` creation site or no outline renders.
 
 ### Task 6.2: Mark the bone-outline bug resolved
 
@@ -481,22 +609,31 @@ nudge, SKIP this phase and log a follow-up instead.
 - "Послойность" (bones over selection, gizmo over all) → Phase 4 (`RenderPriority` 0/1/2).
 - URP stencil-budget SPIKE → resolved in Architecture (renderers don't use stencil; verified in
   `Mobile_Renderer.asset`/`PC_Renderer.asset`).
-- Manual-material concern (user's question) → only two material assets (Task 3.1); no per-object
-  material authoring, because `Outline` instantiates clones in code.
+- Material source / "no searching" (user's choice) → `OutlineConfig` SO holds direct material refs
+  (Task 3.1/3.2); no Resources folder, no `Shader.Find`. Only two material assets + one SO asset;
+  no per-object material authoring, because `Outline` instantiates clones in code.
 
-**Type consistency:** `RenderPriority` (public int) ↔ `renderPriority` (serialized field) ↔
-`STENCIL_MIN/MAX`, `QUEUE_STEP`, `nextStencilRef`, `stencilRef` — all defined in Task 3.2 and used
-consistently in Tasks 3.2/4.1/4.2/4.3. Material instance names unchanged ("OutlineMask (Instance)")
-so `PromeonProxyRigBuilder` strip logic (`:117-121`) still matches.
+**Type consistency:** `OutlineConfig` SO (`MaskMaterial`/`FillMaterial`, Task 3.1) ↔ `Outline.OutlineConfig`
+setter + `outlineConfig` field (Task 3.3) ↔ creator assignments (Task 3.4). `RenderPriority` (public int) ↔
+`renderPriority` (serialized field) ↔ `STENCIL_MIN/MAX`, `QUEUE_STEP`, `nextStencilRef`, `stencilRef` —
+all defined in Task 3.3 and used consistently in Tasks 3.3/4.1/4.2/4.3. `TryBuildMaterials`/`AppendMaterials`
+names consistent across `OnEnable`, the setter, and the lifecycle guards. Material instance names
+unchanged ("OutlineMask (Instance)") so `PromeonProxyRigBuilder` strip logic (`:117-121`) still matches.
 
 **Placeholder scan:** no TBD/TODO; every code step shows the actual code; the forked shaders are
-reproduced in full (Tasks 2.1/2.2) since the engineer may run tasks out of order.
+reproduced in full (Tasks 2.1/2.2). The one `[INVESTIGATE]` step (3.4 Step 1) is a deliberate wiring
+discovery — it must resolve how `Selectable` (runtime-added) receives the SO before its edits; not a
+content placeholder.
 
 **Risk / open items:**
 - The Phase-1 fix assumes the deferral is purely `needsUpdate`-driven. If VR shows it is also
   pipeline-deferral, Phase 5 is skipped and the nudge stays (Task 1.2 captures this).
-- `Resources.Load("PromeonOutline/...")` returns null if Task 3.1 materials are missing or the
-  forked shaders failed to compile — Task 2.2 Step 2 and Task 3.1 Step 3 gate against this.
+- Lazy-build timing: a runtime-added `Outline` whose SO is set AFTER `OnEnable` relies on the setter's
+  build+append path (Task 3.3 Step 1). If a creator enables the component without ever setting the SO,
+  no outline appears — Task 3.4 ensures every creator assigns it; the gizmo gets it serialized.
+- `Outline` is `[DisallowMultipleComponent]`; bones add both `Selectable` (`:305`) and a bone `Outline`
+  (`:390`). If `Selectable.EnsureOutline` later runs on a bone it reuses the existing `Outline`
+  (GetComponent-then-Add), so the SO must already be set — confirm in Task 3.4 Step 1.
 - Stencil-ref wrap at 250 simultaneous outlines is not a realistic scene size; if it ever is,
   recycle by screen-space non-overlap (carried from the 2026-05-30 report's open questions).
 ```

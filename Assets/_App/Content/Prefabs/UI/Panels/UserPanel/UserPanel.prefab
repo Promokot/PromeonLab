@@ -108,12 +108,12 @@ MonoBehaviour:
   _lockButton: {fileID: 4913116091489193175}
   _lockButtonImage: {fileID: 1879811403907734707}
   _recenterAngle: 45
-  _smoothTime: 0.5
+  _smoothTime: 0.8
   _minDistance: 0.25
   _preferredDistance: 0.7
   _maxDistance: 1.25
-  _yOffset: -0.21
-  _faceBelowOffset: 0.18
+  _yOffset: -0.5
+  _faceBelowOffset: 0.23
 --- !u!114 &1926228165071303121
 MonoBehaviour:
   m_ObjectHideFlags: 0

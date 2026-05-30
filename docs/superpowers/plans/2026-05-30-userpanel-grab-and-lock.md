@@ -1,5 +1,18 @@
 # UserPanel Grab & Triple-Lock Implementation Plan
 
+## ✅ Status: COMPLETED (2026-05-31) — verified in-headset
+
+All 5 tasks done, two-stage reviewed, EditMode tests green (UserPanelLockModeTests 3/3, PanelGrabHandleTests 2/2), and confirmed working in VR by the user (grab stable, three lock modes + colour cycle correct, detach + scene transitions clean).
+
+**Deviations from the plan as written (all intentional, applied during execution):**
+- **Collider must be NON-trigger.** The plan said `isTrigger = true` — that was wrong. The rig's `NearFarInteractor` far/near casters use `RaycastTriggerInteraction`/`PhysicsTriggerInteraction = Ignore` (value `1`), so a trigger collider is invisible to the ray. Fixed to `m_IsTrigger: 0`. No Rigidbody needed (raycast hits static colliders).
+- **Handle `Image.raycastTarget` set to `0`.** Removes uGUI/3D raycast contention so the ray resolves the handle as a clean 3D hit; the Image stays purely decorative.
+- **Hover/grab tint added to `PanelGrabHandle`.** The plan's component had no visual feedback; added `_handleGraphic` + normal/hover/grab colours via `OnHoverEntered/Exited` and grab state.
+- **`LateUpdate` rotation gate (Task 1 quality fix).** `FaceCameraBelow()` now runs during grab too (except `LockPositionRotation`) so a position-only grab keeps the panel facing the user; only `UpdateSmartFollow()` is suspended while grabbing.
+- **`CycleLockMode` clears `_activeTarget`/`_followVelocity` on every transition** (was Follow-only) — robustness.
+- **`PanelGrabHandle` MonoBehaviour needs the full `XRBaseInteractable` serialized field set** in the prefab YAML (esp. `m_InteractionLayers: m_Bits: 1`). A minimal hand-written block defaulted interaction layers to `Nothing`, silently disabling hover.
+- **`PanelDragHandle.cs`** kept in repo but its one `MoveDelta` call was switched to `MoveTo` (UserPanel dropped `MoveDelta`); it is no longer on the prefab.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Make the main `UserPanel` grabbable with the grip (stable, world-space) and turn its lock into a three-state cycle (Follow / LockPosition / LockPositionRotation) that actually fixes the panel in world space.
