@@ -19,6 +19,7 @@ public class GizmoActivator : MonoBehaviour
     private GameObject     _instance;
     private GizmoHierarchy _hierarchy;
     private Collider       _originalTargetCollider;
+    private GizmoHandle    _grabbedHandle;
 
     private bool                _dragActive;
     private IGizmoDragStrategy  _activeStrategy;
@@ -141,20 +142,27 @@ public class GizmoActivator : MonoBehaviour
         // Spawned instance lives in scene root (not under this transform), so handles can't reach
         // us via GetComponentInParent. Bind the reference explicitly.
         foreach (var handle in _instance.GetComponentsInChildren<GizmoHandle>(includeInactive: true))
-        {
             handle.Bind(this);
 
-            // Outline is installed at runtime (not authored on the prefab). SilhouetteOnly =
-            // see-through silhouette (preserves the gizmo's previous prefab behavior); RenderPriority 2
-            // makes it paint over selection (0) and bone (1) outlines.
-            var outline = handle.GetComponent<Outline>();
-            if (outline == null) outline = handle.gameObject.AddComponent<Outline>();
-            if (_outlineConfig != null)
-                outline.SetOutlineMaterials(_outlineConfig.MaskMaterial, _outlineConfig.FillMaterial);
-            outline.OutlineMode    = Outline.Mode.SilhouetteOnly;
-            outline.OutlineColor   = AxisColor(handle.Axis);
-            outline.RenderPriority = 2;
+        // Outline is installed at runtime (not authored on the prefab), one per mesh part.
+        // Axis handles get their axis color; parts without a GizmoHandle (e.g. the move center) get white.
+        foreach (var mr in _instance.GetComponentsInChildren<MeshRenderer>(includeInactive: true))
+        {
+            var handle = mr.GetComponent<GizmoHandle>();
+            InstallHandleOutline(mr.gameObject, handle != null ? AxisColor(handle.Axis) : Color.white);
         }
+    }
+
+    // SilhouetteOnly = see-through silhouette; RenderPriority 2 paints over selection (0) and bones (1).
+    private void InstallHandleOutline(GameObject go, Color color)
+    {
+        var outline = go.GetComponent<Outline>();
+        if (outline == null) outline = go.AddComponent<Outline>();
+        if (_outlineConfig != null)
+            outline.SetOutlineMaterials(_outlineConfig.MaskMaterial, _outlineConfig.FillMaterial);
+        outline.OutlineMode    = Outline.Mode.SilhouetteOnly;
+        outline.OutlineColor   = color;
+        outline.RenderPriority = 2;
     }
 
     private Color AxisColor(AxisKind axis)
@@ -165,7 +173,7 @@ public class GizmoActivator : MonoBehaviour
             case AxisKind.X: return _outlineConfig.AxisColorX;
             case AxisKind.Y: return _outlineConfig.AxisColorY;
             case AxisKind.Z: return _outlineConfig.AxisColorZ;
-            default:         return _outlineConfig.SelectColor;
+            default:         return Color.white;
         }
     }
 
@@ -191,6 +199,12 @@ public class GizmoActivator : MonoBehaviour
         _targetScaleAtGrab   = _target.localScale;
         _activeStrategy      = ResolveStrategy(handle);
         _hierarchy?.OnHandleGrabbed(handle);
+
+        // Highlight the grabbed handle's own outline yellow; restored in EndDragInternal.
+        _grabbedHandle = handle;
+        var grabOutline = handle.GetComponent<Outline>();
+        if (grabOutline != null)
+            grabOutline.OutlineColor = _outlineConfig != null ? _outlineConfig.SelectColor : Color.yellow;
         // Гизмо — primary: strategy мутирует _instance.transform во всех режимах.
         // Target подтягивается за гизмо в OnHandleDragged в зависимости от типа стратегии.
         _activeStrategy.BeginDrag(_instance.transform, handle.Axis, handPos, handRot);
@@ -275,6 +289,14 @@ public class GizmoActivator : MonoBehaviour
 
     private void EndDragInternal()
     {
+        // Restore the grabbed handle's outline from the yellow grab-highlight back to its base color.
+        if (_grabbedHandle != null)
+        {
+            var o = _grabbedHandle.GetComponent<Outline>();
+            if (o != null) o.OutlineColor = AxisColor(_grabbedHandle.Axis);
+            _grabbedHandle = null;
+        }
+
         var id = _targetNodeId;
         _activeStrategy = null;
         _dragActive     = false;
