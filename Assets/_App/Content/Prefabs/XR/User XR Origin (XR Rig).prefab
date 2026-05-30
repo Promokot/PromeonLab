@@ -104,7 +104,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: _App.Runtime::HeadFade
   _renderer: {fileID: 4030811836427843437}
-  _defaultDuration: 0.3
+  _defaultDuration: 0.42
 --- !u!1001 &1874126579336581534
 PrefabInstance:
   m_ObjectHideFlags: 0
