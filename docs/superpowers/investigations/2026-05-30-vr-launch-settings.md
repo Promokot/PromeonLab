@@ -130,6 +130,38 @@ This is the authoritative check and will confirm/deny Step 2's "no profile" susp
 
 ---
 
+## RUNTIME CONFIRMATION (2026-05-30, Editor play via Quest Link)
+
+User ran from Bootstrap in-editor. Result: **head tracking works, image shows, but controllers
+are fully gone — invisible, no movement, no interaction.** Log shows OpenXR loader initialized,
+plus two harmless feature-disable warnings and one benign audio warning. Crucially, **no
+controller-related error appears.**
+
+→ This CONFIRMS the A2 diagnosis. With every interaction profile disabled (Standalone profiles
+all `m_enabled: 0`, verified), OpenXR starts a session (HMD view pose always available → head
+look + image), but creates **no controller devices** → pose bindings resolve to nothing →
+controller models never instantiate and all input is dead. No error is logged because the runtime
+never even attempts controller init. Step 2 (enable Oculus Touch + Meta Quest Touch Plus profiles)
+is the fix; it must be applied on the **Desktop** tab too (Quest Link uses the Standalone profile).
+
+Supporting fact: the project's own `InputBindings` subsystem is a 2-line placeholder
+(`InputBindings.cs:2` → `InputBindingsPlaceholder {}`); all input rides on the XRI sample
+(`ControllerInputActionManager` + `XRI Default Input Actions`). No `_App` code references
+`PoseControl`/`OpenXR.Input`/`TrackedPoseDriver` (grep = 0), so OpenXR Project Validation fixes
+(incl. "use InputSystem.XR.PoseControl") cannot break project code — safe to apply.
+
+### Log warnings triage
+- `failed to enable XR_META_boundary_visibility` / `XR_META_environment_depth` → Boundary
+  Visibility + Occlusion MR features; the PC OpenXR runtime (Link) lacks these Meta extensions, so
+  they self-disable. Harmless, and exactly why Step 1 (disable the MR suite) is recommended.
+- `Error setting active audio output driver. Falling back to default` → benign Quest Link noise.
+
+### Project Validation — safe to apply?
+Yes. "Switch to InputSystem.XR.PoseControl instead of OpenXR.Input.PoseControl" only rebinds XRI
+pose actions; no project code touches PoseControl. Recommended order: (1) add controller profiles,
+(2) disable unused MR features, (3) then apply remaining validation fixes — the list shrinks after
+1–2.
+
 ## Still open (product / runtime calls)
 - Graphics API (Vulkan vs GLES3) actual state for Android — verify in Player Settings.
 - Whether passthrough (`ARCameraFeature`) is intentional, or leftover from package defaults.

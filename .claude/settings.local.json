@@ -31,7 +31,11 @@
       "PowerShell(git -C $root commit -m \"feat\\(ui\\): add PanelRegionRouter with per-region mutual exclusion + tests\")",
       "Bash(python *)",
       "mcp__unityMCP__manage_scriptable_object",
-      "Bash(grep -h guid: Assets/_App/Scripts/SpatialUi/RegionMember.cs.meta Assets/_App/Scripts/SpatialUi/Behaviors/__TRACKED_VAR__.cs.meta)"
+      "Bash(grep -h guid: Assets/_App/Scripts/SpatialUi/RegionMember.cs.meta Assets/_App/Scripts/SpatialUi/Behaviors/__TRACKED_VAR__.cs.meta)",
+      "Bash(find Assets -name \"*.inputactions\")",
+      "Bash(grep -rl \"OculusTouchController\\\\|MetaQuestTouch\\\\|XR Controller\\\\|HeldItem\\\\|<XRController>\" Assets --include=*.inputactions)",
+      "Bash(grep -rln \"PoseControl\\\\|OpenXR.Input\" Assets/_App --include=*.cs)",
+      "Bash(echo \"EXIT=$?\")"
     ]
   },
   "enabledMcpjsonServers": [
