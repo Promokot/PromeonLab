@@ -31,7 +31,7 @@ public class Selectable : MonoBehaviour
                 break;
             case SelectionVisual.Selected:
                 _outline.enabled        = true;
-                _outline.OutlineColor   = new Color(1f, 0.95f, 0.15f);
+                _outline.OutlineColor   = _outlineConfig != null ? _outlineConfig.SelectColor : new Color(1f, 0.95f, 0.15f);
                 _outline.OutlineWidth   = 6f;
                 _outline.RenderPriority = 0; // base layer; bones (1) and gizmo (2) draw on top
                 break;

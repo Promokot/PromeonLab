@@ -245,8 +245,8 @@ public class PromeonProxyRigBuilder : MonoBehaviour
             var outline = go.GetComponent<Outline>();
             if (sn == null || outline == null) continue;
             outline.OutlineColor = sn.NodeId == selectedId
-                ? _boneOutlineColorSelected
-                : _boneOutlineColorDefault;
+                ? (_outlineConfig != null ? _outlineConfig.BoneSelectedColor : _boneOutlineColorSelected)
+                : (_outlineConfig != null ? _outlineConfig.BoneColor         : _boneOutlineColorDefault);
         }
     }
 

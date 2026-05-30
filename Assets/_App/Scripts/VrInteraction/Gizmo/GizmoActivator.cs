@@ -9,6 +9,7 @@ public class GizmoActivator : MonoBehaviour
     private SceneGraph        _graph;
     private ISelectionManager _selection;
     private GizmoController   _gizmoController;
+    private OutlineConfig     _outlineConfig;
 
     private bool       _panelOpen;
     private GizmoMode  _mode = GizmoMode.Move;
@@ -30,12 +31,13 @@ public class GizmoActivator : MonoBehaviour
     private Vector3             _targetScaleAtGrab;
 
     [Inject]
-    public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection, GizmoController gizmoController)
+    public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection, GizmoController gizmoController, OutlineConfig outlineConfig)
     {
         _bus             = bus;
         _graph           = graph;
         _selection       = selection;
         _gizmoController = gizmoController;
+        _outlineConfig   = outlineConfig;
 
         // Subscribe immediately. Doing this in OnEnable would race with LifetimeScope.Awake's
         // BuildCallback — if Activator's OnEnable ran first, _bus would be null and the bail-out
@@ -139,7 +141,32 @@ public class GizmoActivator : MonoBehaviour
         // Spawned instance lives in scene root (not under this transform), so handles can't reach
         // us via GetComponentInParent. Bind the reference explicitly.
         foreach (var handle in _instance.GetComponentsInChildren<GizmoHandle>(includeInactive: true))
+        {
             handle.Bind(this);
+
+            // Outline is installed at runtime (not authored on the prefab). SilhouetteOnly =
+            // see-through silhouette (preserves the gizmo's previous prefab behavior); RenderPriority 2
+            // makes it paint over selection (0) and bone (1) outlines.
+            var outline = handle.GetComponent<Outline>();
+            if (outline == null) outline = handle.gameObject.AddComponent<Outline>();
+            if (_outlineConfig != null)
+                outline.SetOutlineMaterials(_outlineConfig.MaskMaterial, _outlineConfig.FillMaterial);
+            outline.OutlineMode    = Outline.Mode.SilhouetteOnly;
+            outline.OutlineColor   = AxisColor(handle.Axis);
+            outline.RenderPriority = 2;
+        }
+    }
+
+    private Color AxisColor(AxisKind axis)
+    {
+        if (_outlineConfig == null) return Color.white;
+        switch (axis)
+        {
+            case AxisKind.X: return _outlineConfig.AxisColorX;
+            case AxisKind.Y: return _outlineConfig.AxisColorY;
+            case AxisKind.Z: return _outlineConfig.AxisColorZ;
+            default:         return _outlineConfig.SelectColor;
+        }
     }
 
     private void Despawn()
