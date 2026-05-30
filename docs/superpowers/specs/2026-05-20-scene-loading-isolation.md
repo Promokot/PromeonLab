@@ -1,6 +1,8 @@
 # Scene Loading Isolation Design
 
-> **Status:** Approved — ready for implementation
+> **⚠️ SUPERSEDED** by `docs/superpowers/_archive/plans/2026-05-30-scene-loading-single-ddol.md` (single-scene loading replaces the additive + `SetActiveScene` workaround — with `LoadSceneMode.Single` only one mode scene is ever loaded, so the bootstrap environment can no longer bleed and this isolation workaround is obsolete).
+
+> **Status:** Approved — ready for implementation (HISTORICAL)
 
 **Goal:** Stop the bootstrap scene's lights, skybox, fog, and ambient settings from bleeding into additively-loaded mode scenes. Each mode scene must render with its own environment.
 

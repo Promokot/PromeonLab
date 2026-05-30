@@ -7,18 +7,20 @@
 
 ## 1. Startup Order
 
-Точка входа — сцена `Assets/_App/Scenes/Bootstrap.unity`. На ней лежат два корневых объекта: один с `AppBootstrap` (`Assets/_App/Bootstrap/AppBootstrap.cs`) и один с `RootLifetimeScope` (`Assets/_App/Bootstrap/RootLifetimeScope.cs`). Никаких `FeatureLifetimeScope` в проекте нет.
+Точка входа — сцена `Assets/_App/Scenes/Bootstrap.unity`. Вся инфраструктура (`RootLifetimeScope`, XR-рига, EventSystem, `SceneTransitionRunner` + `HeadFade`) сгруппирована под единым корневым объектом `PersistentRoot`. Отдельно лежит `AppBootstrap` (`Assets/_App/Scripts/Bootstrap/AppBootstrap.cs`) — одноразовый, вне `PersistentRoot`. Никаких `FeatureLifetimeScope` в проекте нет.
+
+Загрузка — **single-scene**: в любой момент загружена ровно одна mode-сцена, инфраструктура переживает переходы через `DontDestroyOnLoad(PersistentRoot)`.
 
 Последовательность:
 
-1. Unity грузит `Bootstrap.unity`. На сцене Awake'ятся два рутовых объекта.
+1. Unity грузит `Bootstrap.unity`. Awake'ятся объекты под `PersistentRoot` + `AppBootstrap`.
 2. `RootLifetimeScope.Awake()` (VContainer) собирает корневой контейнер — см. секцию 2.
-3. `AppBootstrap.Start()` блокирует курсор, подписывается на `SceneManager.sceneLoaded`, и аддитивно грузит сцену `MainMenu`.
-4. По событию `sceneLoaded` `AppBootstrap` делает `SetActiveScene(MainMenu)` и отписывается.
+3. `AppBootstrap.Start()` блокирует курсор, делает `DontDestroyOnLoad(PersistentRoot)` и зовёт `SceneTransitionRunner.LoadInitial("MainMenu", …)` — стартует из полного чёрного и грузит `MainMenu` через `LoadSceneMode.Single`.
+4. Single-загрузка автоматически делает `MainMenu` активной сценой и выгружает `Bootstrap` — остаётся только `PersistentRoot`. Затем `HeadFade` плавно открывает обзор.
 5. `MainMenu.unity` несёт `MainMenuSceneScope` (наследуется от `RootLifetimeScope` через родительско-дочернюю связь сцен VContainer). Регистрирует `UnsavedChangesGuard`, `ScenePickerPanel`, `MainMenuPanel`.
 6. Пользователь выбирает сцену в `ScenePickerPanel`/`MainMenuPanel` — публикуется `SceneSelectedEvent`, дальше `SceneOpenedEvent`.
-7. `MainMenuPanel` (либо «Sandbox»-кнопка) дёргает `ModeOrchestrator.TransitionTo(VrEditing|Sandbox)`. Тот выгружает `MainMenu` и аддитивно грузит `VrEditing.unity` или `Sandbox.unity`.
-8. В новой сцене Awake'ится `VrEditingSceneScope` / `SandboxSceneScope` — Scoped-регистрации становятся доступны.
+7. `MainMenuPanel` (либо «Sandbox»-кнопка) дёргает `ModeOrchestrator.TransitionTo(VrEditing|Sandbox)`. Тот валидирует переход и делегирует `ISceneTransition` (`SceneTransitionRunner`): fade в чёрный → `LoadSceneAsync(target, Single)` → колбэк публикует `ModeChangedEvent` → fade из чёрного.
+8. В новой сцене Awake'ится `VrEditingSceneScope` / `SandboxSceneScope` — Scoped-регистрации становятся доступны; `SceneContextBinder.Start()` биндит сценические сервисы в root-`SceneContext` и публикует `SceneContextChangedEvent`.
 9. `SceneGraph.Start()` подписывается на `SceneOpenedEvent` и, если уже есть активный `AppStorage.ActiveSceneId`, асинхронно стартует загрузку графа.
 10. `PlayerSpawnApplier` на XR Rig слушает `SceneManager.sceneLoaded` и телепортирует риг в `(0, 0, 0)`. `FallGuard` рестартит респаун, если `transform.y < -20`.
 
@@ -33,17 +35,16 @@ sequenceDiagram
     participant SceneGraph
 
     Unity->>RootScope: Awake (Configure container)
-    Unity->>AppBootstrap: Start
-    AppBootstrap->>Unity: LoadSceneAsync(MainMenu, Additive)
-    Unity->>MainMenu: sceneLoaded
-    AppBootstrap->>Unity: SetActiveScene(MainMenu)
+    Unity->>AppBootstrap: Start (DontDestroyOnLoad PersistentRoot)
+    AppBootstrap->>Unity: SceneTransitionRunner.LoadInitial → LoadSceneAsync(MainMenu, Single)
+    Unity->>MainMenu: scene loaded + activated (Bootstrap unloaded)
     MainMenu->>MainMenu: MainMenuSceneScope.Configure
     Note over MainMenu: user picks scene
     MainMenu->>Orchestrator: TransitionTo(VrEditing)
-    Orchestrator->>Unity: UnloadSceneAsync(MainMenu)
-    Orchestrator->>Unity: LoadSceneAsync(VrEditing, Additive)
-    Unity->>VrEditing: sceneLoaded → SetActiveScene
-    VrEditing->>VrEditing: VrEditingSceneScope.Configure
+    Orchestrator->>Unity: ISceneTransition.Load → fade out → LoadSceneAsync(VrEditing, Single)
+    Unity->>VrEditing: scene loaded + activated (MainMenu unloaded)
+    Orchestrator->>Orchestrator: onLoaded → publish ModeChangedEvent → fade in
+    VrEditing->>VrEditing: VrEditingSceneScope.Configure (SceneContextBinder binds SceneContext)
     VrEditing->>SceneGraph: Start → subscribe SceneOpenedEvent
     Note over SceneGraph: загружается AppStorage.ActiveSceneId
 ```
@@ -119,7 +120,7 @@ sequenceDiagram
 
 ### 2.5 Жизненный цикл
 
-`ModeOrchestrator.TransitionTo` — это `SceneManager.UnloadSceneAsync(старая сцена)` + `LoadSceneAsync(новая, Additive)`. Сценические scope'ы диспозятся вместе со своими сценами; root живёт всё приложение.
+`ModeOrchestrator.TransitionTo` делегирует загрузку `ISceneTransition` — это `LoadSceneAsync(новая сцена, Single)` за fade'ом. Старая сцена выгружается автоматически (single load). Сценические scope'ы диспозятся вместе со своими сценами; `RootLifetimeScope` (под `PersistentRoot`, `DontDestroyOnLoad`) живёт всё приложение.
 
 ---
 
@@ -162,18 +163,17 @@ sequenceDiagram
 
 ## 4. Mode Orchestration
 
-`ModeOrchestrator` (`Assets/_App/Subsystems/ModeOrchestrator/ModeOrchestrator.cs`) — Plain C# класс, без MonoBehaviour. Регистрируется Singleton в root.
+`ModeOrchestrator` (`Assets/_App/Scripts/ModeOrchestrator/ModeOrchestrator.cs`) — Plain C# класс, без MonoBehaviour. Регистрируется Singleton в root. Чистая политика: не трогает `SceneManager` напрямую, механику загрузки держит `ISceneTransition` (`SceneTransitionRunner`).
 
 Состояние одно — `AppMode _current` (по умолчанию `MainMenu`). Запрос `TransitionTo(target)`:
 
 1. Если `target == _current` — no-op.
-2. Спрашивает `ModeTransitionGraph.IsAllowed(_current, target)`. Если запрещено — `Debug.LogWarning` и выход.
-3. Сохраняет prev, переписывает `_current = target`.
-4. Подписывается на `SceneManager.sceneLoaded` (один раз) для `SetActiveScene` новой сцены.
-5. `UnloadSceneAsync(prevSceneName)`, потом `LoadSceneAsync(targetSceneName, Additive)`.
-6. Публикует `ModeChangedEvent`.
+2. Если `_transition.IsTransitioning` — no-op (re-entrancy-гард).
+3. Спрашивает `ModeTransitionGraph.IsAllowed(_current, target)`. Если запрещено — `Debug.LogWarning` и выход.
+4. Сохраняет prev, переписывает `_current = target`.
+5. Зовёт `_transition.Load(SceneNameFor(target), onLoaded)`. Runner: fade в чёрный → `LoadSceneAsync(target, Single)` → `onLoaded` публикует `ModeChangedEvent` → fade из чёрного.
 
-Маппинг режим → имя сцены захардкожен в `switch` на `LoadScene` и `UnloadCurrentScene`: `MainMenu`, `VrEditing`, `Sandbox`. `AppMode.Debug` (объявленный в `AppMode.cs`) сюда не попадает — то есть **режим `Debug` определён как enum, но не запускается оркестратором**.
+Маппинг режим → имя сцены захардкожен в `SceneNameFor`: `MainMenu`, `VrEditing`, `Sandbox`. `AppMode.Debug` (объявленный в `AppMode.cs`) даёт `null` — то есть **режим `Debug` определён как enum, но не запускается оркестратором**.
 
 ### `ModeTransitionGraph`
 

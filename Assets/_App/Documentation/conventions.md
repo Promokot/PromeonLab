@@ -61,7 +61,7 @@ Notes:
 
 All panel opening goes through one mechanism, not per-panel show/hide logic:
 
-- **`PanelRegionRouter`** (Framework, `SceneLifetimeScope`) — `Open`/`Close`/`Toggle(moduleId)`, keeps **at most one open surface per region**, publishes `RegionChangedEvent`.
+- **`PanelRegionRouter`** (Framework, `RootLifetimeScope` — app-lifetime, since the UserPanel + nav buttons live on the persistent XR rig) — `Open`/`Close`/`Toggle(moduleId)`, keeps **at most one open surface per region**, publishes `RegionChangedEvent`.
 - **`IRegionSurface`** (`Show`/`Hide`/`IsOpen`) — the router speaks only this, never raw `SetActive`. **`RegionMember`** carries a module's `moduleId` and is the default surface (SetActive), delegating to a sibling `IRegionSurface` adapter when present (e.g. `FileBrowserSurface` over the SimpleFileBrowser modal).
 - A module's **region** is its `NavBarConfig.ExclusiveGroup`; `NavBarConfig` (`IRegionConfig`) also supplies per-mode visibility and an optional **per-region default** (`IsRegionDefault`) that the router auto-reopens when its region empties (this is how the keyboard's nav-bar overlay restores on close).
 - **Triggers live in `Behaviors/`** and call the router: `RegionNavButton` (button → `Toggle`, plus per-mode button visibility and open/closed brightness from `RegionChangedEvent`) — used by both nav buttons and the keyboard button. Code paths open imperatively too (e.g. `AssetBrowserPanel` → `router.Open("fileBrowser")`).
@@ -177,7 +177,7 @@ All panel opening goes through one mechanism, not per-panel show/hide logic:
 - **`PathProvider` as the single path-building authority** — no manual string concatenation for asset/scene paths
 - **Interface-first for platform-dependent code** — wrappers behind interfaces in the owning subsystem's folder, not concrete platform classes at call sites
 - **Per-scope `EventBus`** — Root-scope events never carry scene-specific data
-- **Feature code in `FeatureLifetimeScope`** — nothing mode-specific in `SceneLifetimeScope` or above
+- **Mode-specific services live in the mode scene's own scope** (e.g. VrEditing registers `AnimationAuthoring`/`AnimationClock`; Sandbox does not) — consumers read them through the root `SceneContext` façade and must guard on the specific service, not just `HasScene`
 - **Subsystem-specific code stays in its subsystem folder** under `Scripts/`
 - **All serialized data versioned** with a `schemaVersion` field — migrations handled exclusively in `StorageMigrator`
 
@@ -187,12 +187,11 @@ All panel opening goes through one mechanism, not per-panel show/hide logic:
 
 | Scope | Contents |
 |---|---|
-| `RootLifetimeScope` | App-lifetime singletons: `AppStorage`, `AssetImporter`, `PathProvider`, `AnimationClock` |
-| `SceneLifetimeScope` | Scene-lifetime services: `ModeOrchestrator`, `SceneGraph`, `SelectionManager`, `UiPanelOrchestrator`, `CommandStack` |
-| `FeatureLifetimeScope` | Mode-specific: `PlaybackController`, `RigRuntime`, `TrackRecorder` |
+| `RootLifetimeScope` | App-lifetime singletons (`DontDestroyOnLoad` under `PersistentRoot`): `AppStorage`, `PathProvider`, `AnimationClock`, `EventBus`, `SceneContext`, `ModeOrchestrator`, `ISceneTransition`/`SceneTransitionRunner`, `PanelRegionRouter` |
+| Mode scene scope | The loaded scene's own `LifetimeScope` (`MainMenu`/`VrEditing`/`Sandbox`): `SceneGraph`, `SelectionManager`, `CommandStack`, `GizmoController`, scene `AssetImporter`; binds `SceneContext` via `SceneContextBinder` |
 
 - Child scopes may depend on parent scope registrations; parent scopes must never depend on child scopes
-- `FeatureLifetimeScope` is created and disposed by `ModeOrchestrator` on mode transitions
+- Exactly one mode scene is loaded at a time (`LoadSceneMode.Single`); its scope parents to the persistent root and is disposed with the scene. Scene services are surfaced app-wide via the root `SceneContext` (bound/cleared by `SceneContextBinder`, signalled by `SceneContextChangedEvent`)
 
 ---
 

@@ -82,7 +82,6 @@ public class RegionNavButton : MonoBehaviour
 
     private void OnClick()
     {
-        Debug.Log($"[RegionDBG] OnClick id={_moduleId} routerNull={_router == null}");
         _router?.Toggle(_moduleId);
     }
 

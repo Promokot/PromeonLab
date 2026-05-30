@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Engine:** Unity 6000.3.7f1
 - **Language:** C# (no namespaces for runtime gameplay code; `VrAnimApp.Editor` for editor code; `VrAnimApp.Adapters` for platform wrappers)
 - **VR Runtime:** OpenXR (cross-platform, not locked to Meta SDK)
-- **DI:** VContainer (Root → Scene → Feature scope hierarchy)
+- **DI:** VContainer (Root → Scene scope hierarchy; `RootLifetimeScope` is `DontDestroyOnLoad`)
 - **Events:** Custom `EventBus` (`Publish<T>`/`Subscribe<T>`, per-scope)
 - **Graphics:** URP 17.3.0
 - **Serialization:** Unity JsonUtility (all data versioned with `schemaVersion`)
@@ -35,15 +35,14 @@ This is a Unity project — there is no CLI build script. All compilation, build
 
 | Scope | Lifetime | Key Registrations |
 |---|---|---|
-| `RootLifetimeScope` | App lifetime | `AppStorage`, `AssetImporter`, `PathProvider`, `AnimationClock` |
-| `SceneLifetimeScope` | Unity scene loaded | `ModeOrchestrator`, `SceneGraph`, `SelectionManager`, `UiPanelOrchestrator`, `CommandStack` |
-| `FeatureLifetimeScope` | Active app mode | `PlaybackController`, `RigRuntime`, `TrackRecorder` |
+| `RootLifetimeScope` | App lifetime (`DontDestroyOnLoad` under `PersistentRoot`) | `AppStorage`, `PathProvider`, `AnimationClock`, `EventBus`, `SceneContext`, `ModeOrchestrator`, `ISceneTransition`/`SceneTransitionRunner`, `PanelRegionRouter` |
+| Scene scope | The loaded mode scene's own `LifetimeScope` (`MainMenu`/`VrEditing`/`Sandbox`) | `SceneGraph`, `SelectionManager`, `CommandStack`, `GizmoController`, scene `AssetImporter`; binds `SceneContext` via `SceneContextBinder` |
 
-Child scopes may depend on parent registrations; **never the reverse**. `FeatureLifetimeScope` is created/disposed by `ModeOrchestrator` on mode transitions.
+Child scopes may depend on parent registrations; **never the reverse**. Exactly one mode scene is loaded at a time (`LoadSceneMode.Single`); its scope parents to the persistent `RootLifetimeScope`. Scene-scoped services are exposed app-wide through the root `SceneContext` façade, populated on scene-scope start and cleared on dispose by `SceneContextBinder` (which publishes `SceneContextChangedEvent`). **`HasScene` (Graph bound) does not imply other services are non-null** — Sandbox does not register `AnimationAuthoring`/`AnimationClock`/`RigRuntime`, so guard on the specific service a consumer uses.
 
-### App Modes (`ModeOrchestrator` + `AppStateMachine`)
+### App Modes (`ModeOrchestrator` + `ModeTransitionGraph`)
 
-`MainMenu` ↔ `VrEditing`; `MainMenu` ↔ `Sandbox`; `Debug` overlays any mode.
+`MainMenu` ↔ `VrEditing`; `MainMenu` ↔ `Sandbox`. `ModeOrchestrator` is pure policy: it validates the transition against `ModeTransitionGraph`, then delegates the scene swap to `ISceneTransition` (`SceneTransitionRunner`), which fades the VR view to black (`HeadFade`), loads the target scene `Single`, and only then invokes the callback that publishes `ModeChangedEvent` — so the event always fires *after* the new scene and its scope exist. A re-entrancy guard drops overlapping transition requests.
 
 ### Subsystems
 
@@ -58,7 +57,7 @@ Located in `Assets/_App/Scripts/<Subsystem>/`. Interfaces and contracts for each
 | `Animation` | `ActionData`, keyframe recording/authoring, NLA composition, and playback transport (scrub/loop/speed). Key types: `AnimationAuthoring`, `AnimationPlayback`, `AnimationClock` |
 | `ExportPipeline` | FBX + custom JSON export; no reverse import |
 | `InputBindings` | OpenXR controller mapping; context-switched (`Navigation`, `Ui`, `GizmoManipulation`, …) |
-| `ModeOrchestrator` | `AppStateMachine`, `ModeTransitionGraph` SO, `FeatureLifetimeScope` lifecycle |
+| `ModeOrchestrator` | Mode policy: validates `ModeTransitionGraph`, delegates to `ISceneTransition`/`SceneTransitionRunner` (single-scene load behind `HeadFade`); publishes `ModeChangedEvent` after the load |
 | `VrInteraction` | `RayInteractor`, `NearInteractor`, `GizmoController`, multi-select |
 | `SpatialUi` | VR panels (`BodyLocked` / `WorldFixed` / `Free`), `ToolbarPanel`, billboard mode |
 | `ErrorHandling` | `ErrorDispatcher`, three levels (`Warning`/`Error`/`Critical`), async error wrapping |
@@ -71,7 +70,8 @@ All cross-subsystem messages are `struct` types suffixed `Event` (e.g., `SceneOp
 `SceneModified` → UnsavedChangesGuard  
 `SelectionChanged` → PropertyPanel, GizmoController  
 `FrameChanged` → AnimationEvaluator, TrackRecorder  
-`ModeChanged` → UiPanelOrchestrator, FeatureLifetimeScope  
+`ModeChanged` → SpatialUi region router / nav-bar visibility (fired *after* the new scene has loaded)  
+`SceneContextChanged` → OutlinerPanel, InspectorPanel, PropertyPanel, AnimatorPanel (scene services bound/unbound)  
 
 ### Data Storage Layout
 
