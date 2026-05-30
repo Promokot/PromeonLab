@@ -4,6 +4,8 @@ using VContainer;
 
 public class UserPanel : SpatialPanel
 {
+    public enum LockMode { Follow, LockPosition, LockPositionRotation }
+
     [Header("Navigation")]
     [SerializeField] private Button _mainMenuButton;
     [SerializeField] private Button _exitButton;
@@ -24,14 +26,17 @@ public class UserPanel : SpatialPanel
 
     private ModeOrchestrator _orchestrator;
 
-    private bool     _locked;
+    private LockMode _lockMode = LockMode.Follow;
     private bool     _initialized;
     private bool     _isDragging;
     private Vector3  _followVelocity;
     private Vector3? _activeTarget;
 
-    private static readonly Color ColorUnlocked = new Color(0.62f, 1.00f, 0.77f, 0.90f);
-    private static readonly Color ColorLocked   = new Color(1.00f, 0.42f, 0.42f, 0.90f);
+    public LockMode CurrentLockMode => _lockMode;
+
+    private static readonly Color ColorFollow       = new Color(0.62f, 1.00f, 0.77f, 0.90f); // green
+    private static readonly Color ColorLockPosition = new Color(1.00f, 0.78f, 0.35f, 0.90f); // amber
+    private static readonly Color ColorLockPosRot   = new Color(1.00f, 0.42f, 0.42f, 0.90f); // red
 
     [Inject]
     public void Construct(ModeOrchestrator orchestrator) => _orchestrator = orchestrator;
@@ -40,15 +45,24 @@ public class UserPanel : SpatialPanel
     {
         _mainMenuButton?.onClick.AddListener(OnMainMenu);
         _exitButton?.onClick.AddListener(OnExit);
-        _lockButton?.onClick.AddListener(OnLockToggle);
+        _lockButton?.onClick.AddListener(CycleLockMode);
+        ApplyLockVisual();
+        DetachToWorld();
     }
 
     protected override void LateUpdate()
     {
         if (_cameraTransform == null) return;
-        if (!_isDragging && !_locked)
+
+        // Position: smart-follow only in Follow mode, and never while being grabbed
+        // (the grab drives position directly — position-only).
+        if (!_isDragging && _lockMode == LockMode.Follow)
             UpdateSmartFollow();
-        FaceCameraBelow();
+
+        // Rotation: auto-face the user in every mode except full lock. This also runs while
+        // grabbing, so a position-only grab keeps the panel readable as it is repositioned.
+        if (_lockMode != LockMode.LockPositionRotation)
+            FaceCameraBelow();
     }
 
     private void UpdateSmartFollow()
@@ -120,9 +134,10 @@ public class UserPanel : SpatialPanel
     public void ResetPosition()
     {
         _initialized = false;
-        _locked      = false;
-        if (_lockButtonImage != null)
-            _lockButtonImage.color = ColorUnlocked;
+        _lockMode    = LockMode.Follow;
+        _activeTarget   = null;
+        _followVelocity = Vector3.zero;
+        ApplyLockVisual();
     }
 
     public void SetDragging(bool active)
@@ -135,17 +150,46 @@ public class UserPanel : SpatialPanel
         }
     }
 
-    public void MoveDelta(Vector3 delta)
+    // Absolute world-space move used by the grip grab (position only).
+    public void MoveTo(Vector3 worldPosition)
     {
         if (_isDragging)
-            transform.position += delta;
+            transform.position = worldPosition;
     }
 
-    private void OnLockToggle()
+    public void CycleLockMode()
     {
-        _locked = !_locked;
-        if (_lockButtonImage != null)
-            _lockButtonImage.color = _locked ? ColorLocked : ColorUnlocked;
+        _lockMode = (LockMode)(((int)_lockMode + 1) % 3);
+        // Clear any in-flight follow target on every transition. It is only consumed in Follow
+        // mode, so clearing unconditionally is a no-op for the lock modes and keeps the state
+        // robust against future LateUpdate changes.
+        _activeTarget   = null;
+        _followVelocity = Vector3.zero;
+        ApplyLockVisual();
+    }
+
+    private void ApplyLockVisual()
+    {
+        if (_lockButtonImage == null) return;
+        _lockButtonImage.color = _lockMode switch
+        {
+            LockMode.Follow       => ColorFollow,
+            LockMode.LockPosition => ColorLockPosition,
+            _                     => ColorLockPosRot,
+        };
+    }
+
+    private void DetachToWorld()
+    {
+        // The panel ships parented under the persistent XR Rig. Locking only the follow script
+        // cannot stop the rig's transform from carrying the panel when the player locomotes, so
+        // detach to a top-level persistent object. Smart-follow is script-driven against the
+        // world-space camera, so it keeps working with no parent; both lock modes then hold
+        // world position. Start runs on the panel's first activation (it ships inactive), which
+        // is after UserPanelOpener.Awake has cached its reference and after RootLifetimeScope
+        // registered the instance — so detaching here breaks no existing reference holder.
+        transform.SetParent(null, worldPositionStays: true);
+        DontDestroyOnLoad(gameObject);
     }
 
     private void OnMainMenu() => _orchestrator?.TransitionTo(AppMode.MainMenu);

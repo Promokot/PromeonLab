@@ -65,7 +65,7 @@ public class PanelDragHandle : MonoBehaviour,
         var delta = worldCurr - worldPrev;
         if (delta.magnitude > MaxFrameDelta) return;
 
-        _panel.MoveDelta(delta);
+        _panel.MoveTo(_panel.transform.position + delta);
     }
 
     public void OnEndDrag(PointerEventData eventData)

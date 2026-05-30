@@ -845,7 +845,8 @@ GameObject:
   - component: {fileID: 5658050947546298298}
   - component: {fileID: 8580430220249529581}
   - component: {fileID: 7270415353658703359}
-  - component: {fileID: 385984591946434082}
+  - component: {fileID: 2847193650428871942}
+  - component: {fileID: 2847193650428871943}
   m_Layer: 0
   m_Name: DragHandle
   m_TagString: Untagged
@@ -895,7 +896,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0.7058824}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: -8, y: -8, z: -8, w: -5}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -911,7 +912,28 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &385984591946434082
+--- !u!65 &2847193650428871942
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6664021387027771371}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 190, y: 32, z: 20}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2847193650428871943
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -920,13 +942,74 @@ MonoBehaviour:
   m_GameObject: {fileID: 6664021387027771371}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5609cfa59c196c468325078a9d4fec7, type: 3}
+  m_Script: {fileID: 11500000, guid: cb4464afb32d2384ab33b13f374d27bd, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Subsystems.SpatialUi::PanelDragHandle
+  m_EditorClassIdentifier: 
+  m_InteractionManager: {fileID: 0}
+  m_Colliders: []
+  m_InteractionLayers:
+    m_Bits: 1
+  m_DistanceCalculationMode: 1
+  m_SelectMode: 0
+  m_FocusMode: 1
+  m_CustomReticle: {fileID: 0}
+  m_AllowGazeInteraction: 0
+  m_AllowGazeSelect: 0
+  m_OverrideGazeTimeToSelect: 0
+  m_GazeTimeToSelect: 0.5
+  m_OverrideTimeToAutoDeselectGaze: 0
+  m_TimeToAutoDeselectGaze: 3
+  m_AllowGazeAssistance: 0
+  m_FirstHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_HoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_HoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FirstSelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastSelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_SelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_SelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FirstFocusEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastFocusExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FocusEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FocusExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Activated:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Deactivated:
+    m_PersistentCalls:
+      m_Calls: []
+  m_StartingHoverFilters: []
+  m_StartingSelectFilters: []
+  m_StartingInteractionStrengthFilters: []
   _panel: {fileID: 8573857923733603883}
-  _normalColor: {r: 0, g: 0, b: 0, a: 0.7254902}
-  _hoverColor: {r: 0.7935208, g: 0.7935208, b: 0.7935208, a: 0.6745098}
-  _dragColor: {r: 0.17630093, g: 0.34619796, b: 0.503026, a: 0.7}
+  _handleGraphic: {fileID: 7270415353658703359}
+  _normalColor: {r: 0, g: 0, b: 0, a: 0.7058824}
+  _hoverColor: {r: 0.8, g: 0.8, b: 0.85, a: 0.45}
+  _grabColor: {r: 0.45, g: 0.5, b: 0.55, a: 0.7}
 --- !u!1 &7950040351803068179
 GameObject:
   m_ObjectHideFlags: 0
