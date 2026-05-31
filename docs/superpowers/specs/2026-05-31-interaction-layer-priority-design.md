@@ -120,6 +120,41 @@ Drop: `RayInteractionResolver` (+ its scene-scope registrations), the `IsPrimary
 
 ---
 
+## Gizmo visual polish & bone scaling (implemented 2026-05-31, VR-verified)
+
+Polish work that rode on top of the context-mask redesign. All changes are in `GizmoActivator`,
+`GizmoHandle`, `GizmoToolsPanel`, `GizmoConfig`, `OutlineConfig`, `BoneFollower`, `OutlinerPanel`.
+
+**Handle highlight (matches the rig bones).** Gizmo handles keep their authored per-axis materials
+(the emissive `Gizmo_Emissive*` set, remapped on the `Gizmo_*.fbx` importers) plus a `SilhouetteOnly`
+outline — solid mesh in front (depth-tested, no overlap flicker), see-through silhouette behind
+occluders. `GizmoActivator.BuildParts` instances each renderer's materials and captures BOTH `_BaseColor`
+and `_EmissionColor` per submesh (emissive materials show their colour via emission — touching only base
+left the highlight broken).
+- **Hover** darkens the handle ×0.75 (mesh + outline). `GizmoHandle` fires `OnHandleHoverChanged` on its
+  primary-hover transition.
+- **Grab** recolours the handle to the look of `GizmoConfig.ActiveMaterial` (`Gizmo_EmissiveSelected`);
+  the grab outline uses `OutlineConfig.GizmoActiveColor`. Restored on release.
+- Handles are indexed by owning handle via `GetComponentInParent<GizmoHandle>(includeInactive: true)` —
+  `includeInactive` is REQUIRED because only the active-mode group is enabled at spawn; without it the
+  hidden Rotate/Scale groups resolved a null handle (white outlines, no highlight).
+
+**Tool buttons.** `GizmoToolsPanel` buttons (Move/Rotate/Scale) use sticky `ColorBlock` highlighting like
+the panel nav buttons — the picked tool holds its colour. Default tool is Move.
+
+**Size.** Per-object bounds-fit is frozen; gizmo spawns at `GizmoConfig.FixedSize`. Halved when the target
+is a bone proxy (`BoneSceneNodeMarker`).
+
+**Bone scaling.** `BoneFollower` now also propagates scale: it captures the bone's rest `localScale` at
+`Awake` and sets `localScale = Scale(rest, proxy.localScale)` each tick — the proxy's gizmo-driven scale is
+a MULTIPLIER on the rest scale (preserves non-identity rest, won't break the rig). Child bones stretch with
+a scaled parent through the localScale hierarchy. Undo rides on the proxy's committed transform.
+
+**Outliner in bone mode.** `OutlinerPanel` blocks scene-object selection via outliner rows while any rig is
+in isolated bone mode (`AnyBonesModeActive`); bones are picked in-scene, exit is the inspector toggle.
+
+---
+
 ## (Archived) v1 design — RayInteractionResolver
 
 The original priority-resolver design is superseded; see the "Why v1 was wrong" section. Kept only as a
