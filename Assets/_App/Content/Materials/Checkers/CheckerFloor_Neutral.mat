@@ -121,7 +121,7 @@ Material:
     - _Metallic_Strength: 0
     - _Normal_Map_Strength: 0
     - _OcclusionStrength: 1
-    - _Occlusion_Strength: 0.85
+    - _Occlusion_Strength: 1.56
     - _PROJECTION_METHOD: 1
     - _Parallax: 0.005
     - _QueueControl: 0
@@ -129,7 +129,7 @@ Material:
     - _ReceiveShadows: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
-    - _Smoothness_Strength: 0.5
+    - _Smoothness_Strength: 0.2
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
