@@ -39,3 +39,15 @@ to both materials in `UpdateMaterialProperties`. Range is safe because the URP r
 New `public int RenderPriority` (+ serialized `renderPriority`). In `UpdateMaterialProperties` it offsets
 the mask/fill `renderQueue` (`3100/3110 + renderPriority * 20`) so higher-priority outlines paint on
 top. Consumers: selection = 0, bones = 1, gizmo = 2.
+
+## 5. Whole-mesh outline on multi-submesh meshes (2026-05-31)
+New `EnsureMaterialPerSubmesh()` called in `Awake` BEFORE `LoadSmoothNormals()`. It pads each renderer's
+`sharedMaterials` (repeating the last) up to `mesh.subMeshCount`. Reason: on assets whose mesh has more
+submeshes than materials (e.g. a toilet with 1 material, 2-3 submeshes), Unity maps the appended
+mask/fill material slots to the last submesh only, so the outline covered just one piece. Padding makes
+`materials.Length == subMeshCount`, so `CombineSubmeshes`' guard `subMeshCount > materials.Length` no
+longer bails — the all-triangles combined submesh is added and the mask/fill align to it → whole-mesh
+outline. No-op when `materials.Length >= subMeshCount` (single-submesh objects unaffected); repeating an
+already-clamped material is visually identical. Known limit: a NON-readable multi-submesh mesh still
+can't get a combined submesh (CombineSubmeshes needs `mesh.triangles`), so it would remain partial —
+such a mesh needs Read/Write enabled in its import settings.

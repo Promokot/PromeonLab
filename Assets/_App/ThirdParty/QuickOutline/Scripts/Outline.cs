@@ -121,11 +121,40 @@ public class Outline : MonoBehaviour {
     // Cache renderers
     renderers = GetComponentsInChildren<Renderer>();
 
+    // Ensure each renderer has at least one material per submesh, so QuickOutline's CombineSubmeshes
+    // runs and the appended mask/fill cover the WHOLE mesh (not just the last submesh) on assets
+    // whose mesh has more submeshes than materials.
+    EnsureMaterialPerSubmesh();
+
     // Retrieve or generate smooth normals
     LoadSmoothNormals();
 
     // Apply material properties immediately
     needsUpdate = true;
+  }
+
+  void EnsureMaterialPerSubmesh() {
+    foreach (var renderer in renderers) {
+      if (renderer == null) continue;
+
+      Mesh mesh = null;
+      if (renderer is SkinnedMeshRenderer smr) {
+        mesh = smr.sharedMesh;
+      } else {
+        var meshFilter = renderer.GetComponent<MeshFilter>();
+        if (meshFilter != null) mesh = meshFilter.sharedMesh;
+      }
+      if (mesh == null) continue;
+
+      var materials = renderer.sharedMaterials;
+      if (materials.Length >= mesh.subMeshCount) continue; // already enough — no-op
+
+      var padded = new Material[mesh.subMeshCount];
+      for (int i = 0; i < padded.Length; i++) {
+        padded[i] = materials[Mathf.Min(i, materials.Length - 1)];
+      }
+      renderer.sharedMaterials = padded;
+    }
   }
 
   void OnEnable() {
