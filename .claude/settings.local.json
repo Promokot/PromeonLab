@@ -53,7 +53,8 @@
       "mcp__unityMCP__set_active_instance",
       "mcp__unityMCP__manage_material",
       "Bash(jq *)",
-      "Bash(awk 'NR>=720 && NR<=860' 'S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\\\\Assets\\\\_App\\\\Content\\\\Prefabs\\\\UI\\\\Panels\\\\UserPanel\\\\UserPanel.prefab')"
+      "Bash(awk 'NR>=720 && NR<=860' 'S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\\\\Assets\\\\_App\\\\Content\\\\Prefabs\\\\UI\\\\Panels\\\\UserPanel\\\\UserPanel.prefab')",
+      "WebSearch"
     ]
   },
   "enabledMcpjsonServers": [
