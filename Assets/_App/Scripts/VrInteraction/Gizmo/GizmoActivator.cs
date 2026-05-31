@@ -1,8 +1,26 @@
+using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
 public class GizmoActivator : MonoBehaviour
 {
+    // One per gizmo mesh renderer: its instanced solid material + SilhouetteOnly outline + base color.
+    // Indexed by owning handle so hover/grab recolor reaches the renderer whether it sits on the
+    // handle GO or a child of it.
+    private class GizmoPart
+    {
+        public Renderer    Renderer;
+        public Material     Material;   // instanced (null only if the renderer had no material at all)
+        public Outline      Outline;
+        public Color        BaseColor;
+        public GizmoHandle  Handle;     // null for centers (move-center / uniform-scale handled separately)
+    }
+
+    private static readonly int BaseColorId     = Shader.PropertyToID("_BaseColor");
+    private static readonly int ColorId         = Shader.PropertyToID("_Color");
+    private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
+    private const float HOVER_DARKEN = 0.75f;
+
     [SerializeField] private GizmoConfig _config;
 
     private EventBus          _bus;
@@ -19,6 +37,9 @@ public class GizmoActivator : MonoBehaviour
     private GameObject     _instance;
     private GizmoHierarchy _hierarchy;
     private GizmoHandle    _grabbedHandle;
+
+    private readonly List<GizmoPart>                          _parts         = new();
+    private readonly Dictionary<GizmoHandle, List<GizmoPart>> _partsByHandle = new();
 
     private bool                _dragActive;
     private IGizmoDragStrategy  _activeStrategy;
@@ -140,26 +161,76 @@ public class GizmoActivator : MonoBehaviour
         foreach (var handle in _instance.GetComponentsInChildren<GizmoHandle>(includeInactive: true))
             handle.Bind(this);
 
-        // Outline is installed at runtime (not authored on the prefab), one per mesh part.
-        // Axis handles get their axis color; parts without a GizmoHandle (e.g. the move center) get white.
+        BuildParts();
+    }
+
+    // One GizmoPart per mesh renderer: an instanced solid material (the bone material, tinted to the
+    // part's axis color) plus a SilhouetteOnly outline in the same color. This mirrors the rig bones —
+    // solid tinted mesh in front (depth-tested, so handles never overlap-flicker) and a see-through
+    // silhouette behind occluders. Parts are indexed by their owning handle so hover/grab can recolor
+    // them whether the renderer sits on the handle GO or a child of it (fixes the scaler highlight).
+    private void BuildParts()
+    {
+        _parts.Clear();
+        _partsByHandle.Clear();
+
         foreach (var mr in _instance.GetComponentsInChildren<MeshRenderer>(includeInactive: true))
         {
-            var handle = mr.GetComponent<GizmoHandle>();
-            InstallHandleOutline(mr.gameObject, handle != null ? AxisColor(handle.Axis) : Color.white);
+            var handle = mr.GetComponentInParent<GizmoHandle>();
+            var color  = PartColor(handle);
+
+            // Instanced solid material so tinting never mutates the shared asset. Assign BEFORE the
+            // Outline appends its mask/fill passes so it sits as the renderer's base material.
+            Material mat = null;
+            var source = _config.HandleMaterial != null ? _config.HandleMaterial : mr.sharedMaterial;
+            if (source != null)
+            {
+                mat = Instantiate(source);
+                TintMaterial(mat, color);
+                mr.material = mat;
+            }
+
+            var outline = InstallHandleOutline(mr.gameObject, color);
+
+            var part = new GizmoPart
+            {
+                Renderer  = mr,
+                Material  = mat,
+                Outline   = outline,
+                BaseColor = color,
+                Handle    = handle,
+            };
+            _parts.Add(part);
+            if (handle != null)
+            {
+                if (!_partsByHandle.TryGetValue(handle, out var list))
+                    _partsByHandle[handle] = list = new List<GizmoPart>();
+                list.Add(part);
+            }
         }
     }
 
-    // OutlineAll = always-visible outline (ZTest Always), so the gizmo stays highlighted whether or not
-    // it's occluded. RenderPriority 2 paints it over selection (0) and bones (1).
-    private void InstallHandleOutline(GameObject go, Color color)
+    private Color PartColor(GizmoHandle handle)
+    {
+        if (handle == null) return Color.white;                          // move/scale center mesh
+        if (handle.Kind == HandleKind.ScaleUniform) return Color.white;  // uniform-scale center cube
+        return AxisColor(handle.Axis);
+    }
+
+    // SilhouetteOnly = see-through silhouette behind occluders only, like the rig bones. The solid
+    // tinted mesh is the always-visible front highlight; depth-tested, so overlapping handles arbitrate
+    // by depth (the OutlineAll ZTest-Always mode lost that and the parts flickered over each other).
+    private Outline InstallHandleOutline(GameObject go, Color color)
     {
         var outline = go.GetComponent<Outline>();
         if (outline == null) outline = go.AddComponent<Outline>();
         if (_outlineConfig != null)
             outline.SetOutlineMaterials(_outlineConfig.MaskMaterial, _outlineConfig.FillMaterial);
-        outline.OutlineMode    = Outline.Mode.OutlineAll;
+        outline.OutlineMode    = Outline.Mode.SilhouetteOnly;
         outline.OutlineColor   = color;
-        outline.RenderPriority = 2;
+        outline.OutlineWidth   = 3f;
+        outline.RenderPriority = 2; // over selection (0) and bones (1)
+        return outline;
     }
 
     private Color AxisColor(AxisKind axis)
@@ -174,12 +245,65 @@ public class GizmoActivator : MonoBehaviour
         }
     }
 
+    private static void TintMaterial(Material m, Color c)
+    {
+        if (m == null) return;
+        if (m.HasProperty(BaseColorId))     m.SetColor(BaseColorId, c);
+        if (m.HasProperty(ColorId))         m.SetColor(ColorId, c);
+        if (m.HasProperty(EmissionColorId)) { m.EnableKeyword("_EMISSION"); m.SetColor(EmissionColorId, c); }
+    }
+
+    // Recolor every part of a handle (mesh material + outline) to a single color (used for grab).
+    private void RecolorHandle(GizmoHandle handle, Color color)
+    {
+        if (handle == null || !_partsByHandle.TryGetValue(handle, out var list)) return;
+        foreach (var part in list)
+        {
+            TintMaterial(part.Material, color);
+            if (part.Outline != null) part.Outline.OutlineColor = color;
+        }
+    }
+
+    // Darken each part toward its own base color (handles multi-color handles correctly) — hover feedback.
+    private void DarkenHandle(GizmoHandle handle)
+    {
+        if (handle == null || !_partsByHandle.TryGetValue(handle, out var list)) return;
+        foreach (var part in list)
+        {
+            var b = part.BaseColor;
+            var d = new Color(b.r * HOVER_DARKEN, b.g * HOVER_DARKEN, b.b * HOVER_DARKEN, b.a);
+            TintMaterial(part.Material, d);
+            if (part.Outline != null) part.Outline.OutlineColor = d;
+        }
+    }
+
+    private void RestoreHandle(GizmoHandle handle)
+    {
+        if (handle == null || !_partsByHandle.TryGetValue(handle, out var list)) return;
+        foreach (var part in list)
+        {
+            TintMaterial(part.Material, part.BaseColor);
+            if (part.Outline != null) part.Outline.OutlineColor = part.BaseColor;
+        }
+    }
+
+    // Fired by GizmoHandle when its primary-hover state flips (skipped while that handle is grabbed).
+    public void OnHandleHoverChanged(GizmoHandle handle, bool hovering)
+    {
+        if (handle == null) return;
+        if (_dragActive && _grabbedHandle == handle) return; // grab color wins
+        if (hovering) DarkenHandle(handle);
+        else          RestoreHandle(handle);
+    }
+
     private void Despawn()
     {
         if (_dragActive) AbortDrag();
         if (_instance != null) Destroy(_instance);
         _instance  = null;
         _hierarchy = null;
+        _parts.Clear();
+        _partsByHandle.Clear();
     }
 
     public void OnHandleGrabbed(GizmoHandle handle, Vector3 handPos, Quaternion handRot)
@@ -195,11 +319,11 @@ public class GizmoActivator : MonoBehaviour
         _activeStrategy      = ResolveStrategy(handle);
         _hierarchy?.OnHandleGrabbed(handle);
 
-        // Highlight the grabbed handle's own outline yellow; restored in EndDragInternal.
+        // Highlight the grabbed handle (mesh material + outline) in the distinct active color;
+        // restored in EndDragInternal. Uses the handle→parts map, so it lands on the renderer even
+        // when it sits on a child of the handle GO (the scaler).
         _grabbedHandle = handle;
-        var grabOutline = handle.GetComponent<Outline>();
-        if (grabOutline != null)
-            grabOutline.OutlineColor = _outlineConfig != null ? _outlineConfig.SelectColor : Color.yellow;
+        RecolorHandle(handle, _outlineConfig != null ? _outlineConfig.GizmoActiveColor : Color.cyan);
         // Гизмо — primary: strategy мутирует _instance.transform во всех режимах.
         // Target подтягивается за гизмо в OnHandleDragged в зависимости от типа стратегии.
         _activeStrategy.BeginDrag(_instance.transform, handle.Axis, handPos, handRot);
@@ -284,11 +408,10 @@ public class GizmoActivator : MonoBehaviour
 
     private void EndDragInternal()
     {
-        // Restore the grabbed handle's outline from the yellow grab-highlight back to its base color.
+        // Restore the grabbed handle (mesh material + outline) from the active color to its base.
         if (_grabbedHandle != null)
         {
-            var o = _grabbedHandle.GetComponent<Outline>();
-            if (o != null) o.OutlineColor = AxisColor(_grabbedHandle.Axis);
+            RestoreHandle(_grabbedHandle);
             _grabbedHandle = null;
         }
 

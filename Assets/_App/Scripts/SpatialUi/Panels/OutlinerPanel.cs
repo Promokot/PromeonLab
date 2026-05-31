@@ -46,6 +46,13 @@ public class OutlinerPanel : MonoBehaviour
     private void OnModified(SceneModifiedEvent _)            => Rebuild();
     private void OnSelectionChanged(SelectionChangedEvent _) => ApplyHighlight();
 
+    private bool AnyBonesModeActive()
+    {
+        foreach (var on in _bonesActiveByRig.Values)
+            if (on) return true;
+        return false;
+    }
+
     private void OnNodeRenamed(NodeRenamedEvent e)
     {
         if (_rowsRoot == null) return;
@@ -101,7 +108,14 @@ public class OutlinerPanel : MonoBehaviour
                 ? Instantiate(_rigRowPrefab, _rowsRoot)
                 : Instantiate(_objectRowPrefab, _rowsRoot);
 
-            row.Bind(node, depth * _indentPx, () => _ctx.Selection?.Select(node.NodeId));
+            row.Bind(node, depth * _indentPx, () =>
+            {
+                // Isolated bone mode: scene-object selection via the outliner is disabled so the user
+                // can't break out of bone editing by clicking a row. Bones are picked in-scene; exit
+                // is the inspector's Show Bones toggle (which selects programmatically, not via here).
+                if (AnyBonesModeActive()) return;
+                _ctx.Selection?.Select(node.NodeId);
+            });
 
             if (row is RigOutlinerItem rigRow
                 && _bonesActiveByRig.TryGetValue(node.NodeId, out var bonesOn))

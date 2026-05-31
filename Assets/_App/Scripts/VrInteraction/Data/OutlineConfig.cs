@@ -18,6 +18,11 @@ public class OutlineConfig : ScriptableObject
     [Header("Selection")]
     [SerializeField] private Color selectColor = new Color(1f, 0.95f, 0.15f);
 
+    [Header("Gizmo active handle")]
+    [Tooltip("Color of the grabbed gizmo handle (mesh + outline). Deliberately distinct from the " +
+             "yellow selection color so an active handle never reads like a selected object.")]
+    [SerializeField] private Color gizmoActiveColor = new Color(0.20f, 0.90f, 1f);
+
     [Header("Bones")]
     [SerializeField] private Color boneColor         = Color.white;
     [SerializeField] private Color boneSelectedColor = new Color(1f, 0.5f, 0f);
@@ -29,6 +34,7 @@ public class OutlineConfig : ScriptableObject
     public Color AxisColorY => axisColorY;
     public Color AxisColorZ => axisColorZ;
     public Color SelectColor => selectColor;
+    public Color GizmoActiveColor => gizmoActiveColor;
     public Color BoneColor => boneColor;
     public Color BoneSelectedColor => boneSelectedColor;
 }

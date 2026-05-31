@@ -54,7 +54,10 @@
       "mcp__unityMCP__manage_material",
       "Bash(jq *)",
       "Bash(awk 'NR>=720 && NR<=860' 'S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\\\\Assets\\\\_App\\\\Content\\\\Prefabs\\\\UI\\\\Panels\\\\UserPanel\\\\UserPanel.prefab')",
-      "WebSearch"
+      "WebSearch",
+      "Bash(xargs grep -l \"GizmoConfig\")",
+      "Bash(xargs grep -l \"ad2591d1028f32d4a8bae13135f480f7\")",
+      "mcp__unityMCP__manage_packages"
     ]
   },
   "enabledMcpjsonServers": [

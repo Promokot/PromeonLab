@@ -33,7 +33,7 @@ public class GizmoHandle : XRBaseInteractable
     }
 
     private int _hoverFrames;
-    private bool _hoverLoggedThisSession;
+    private bool _hoverActive;
     private bool _gripWasDownLastFrame;
     // Расстояние controller→handle в момент grip-down. Используется чтобы вычислять виртуальную
     // hand-позицию как точку перед контроллером (controllerPos + forward*dist). Так поворот
@@ -61,17 +61,9 @@ public class GizmoHandle : XRBaseInteractable
             case HandleState.Idle:
                 UpdateLastHovering();
                 var ni = CurrentHoverer();
-                if (ni == null)
-                {
-                    if (_hoverLoggedThisSession) { Debug.Log($"[GizmoHandle:{name}] hover ENDED"); _hoverLoggedThisSession = false; }
-                    break;
-                }
-                if (!_hoverLoggedThisSession)
-                {
-                    Debug.Log($"[GizmoHandle:{name}] hover BEGAN. activator={(_activator != null ? "OK" : "NULL")}, primary={IsPrimaryFor(ni)}");
-                    _hoverLoggedThisSession = true;
-                }
-                if (!IsPrimaryFor(ni)) break;
+                bool primaryHover = ni != null && IsPrimaryFor(ni);
+                SetHover(primaryHover);
+                if (!primaryHover) break;
                 bool gripDownNow = ni.selectInput.ReadValue() > 0.5f;
                 // DIAGNOSTIC (закомментировано — спам подтвердил что hold-input работает корректно):
                 // Debug.Log($"[GizmoHandle:{name}] f={Time.frameCount} HOVER ReadValue={ni.selectInput.ReadValue():F2} IsPerformed={ni.selectInput.ReadIsPerformed()} WasPerformed={ni.selectInput.ReadWasPerformedThisFrame()} WasCompleted={ni.selectInput.ReadWasCompletedThisFrame()}");
@@ -80,6 +72,8 @@ public class GizmoHandle : XRBaseInteractable
                     Debug.Log($"[GizmoHandle:{name}] GRIP DOWN — entering Dragging");
                     _locked = ni;
                     _state  = HandleState.Dragging;
+                    // Drop hover state so the grab color owns the handle; re-evaluated on release.
+                    SetHover(false);
                     var ctrl = ni.transform;
                     // Виртуальная hand-точка = controllerPos + forward*dist. dist — расстояние
                     // от контроллера до этой ручки в момент grip. Так поворот контроллера
@@ -110,6 +104,13 @@ public class GizmoHandle : XRBaseInteractable
                 _activator?.OnHandleDragged(virtualPosNow, ctrlNow.rotation);
                 break;
         }
+    }
+
+    private void SetHover(bool on)
+    {
+        if (on == _hoverActive) return;
+        _hoverActive = on;
+        _activator?.OnHandleHoverChanged(this, on);
     }
 
     private void UpdateLastHovering()
