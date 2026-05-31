@@ -204,7 +204,11 @@ public class GizmoActivator : MonoBehaviour
 
         foreach (var mr in _instance.GetComponentsInChildren<MeshRenderer>(includeInactive: true))
         {
-            var handle = mr.GetComponentInParent<GizmoHandle>();
+            // includeInactive is REQUIRED: at spawn only the active-mode group is enabled (the others are
+            // hidden by ShowMode). Without it, GetComponentInParent skips inactive GOs → handle resolves
+            // null for the hidden Rotate/Scale groups → their outlines go white and never map into
+            // _partsByHandle (so hover/grab never reaches them). Move worked only because it's active.
+            var handle = mr.GetComponentInParent<GizmoHandle>(includeInactive: true);
 
             // Accessing .materials instantiates per-renderer copies of the native gizmo materials and
             // assigns them back — capture BEFORE installing the Outline (which appends mask/fill passes).
