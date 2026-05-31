@@ -7,7 +7,7 @@ public class PathProviderSourceTests
     public void SourcePath_CombinesAssetLibrarySourcesIdAndExt()
     {
         var p = new PathProvider("/root");
-        var expected = Path.Combine("/root", "asset-library", "sources", "abc123.glb");
+        var expected = Path.Combine("/root", "asset-libraries", "sources", "abc123.glb");
         Assert.AreEqual(expected, p.SourcePath("abc123", ".glb"));
     }
 

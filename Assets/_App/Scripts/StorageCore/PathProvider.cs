@@ -32,13 +32,13 @@ public class PathProvider
         Path.Combine(_root, "scenes");
 
     public string ImportedLibraryPath =>
-        Path.Combine(_root, "asset-library", "imported.json");
+        Path.Combine(_root, "asset-libraries", "imported-lib.json");
 
     public string SavedLibraryPath =>
-        Path.Combine(_root, "asset-library", "saved.json");
+        Path.Combine(_root, "asset-libraries", "saved-lib.json");
 
     public string SourcesDir =>
-        System.IO.Path.Combine(_root, "asset-library", "sources");
+        System.IO.Path.Combine(_root, "asset-libraries", "sources");
 
     public string SourcePath(string assetId, string ext)
     {
