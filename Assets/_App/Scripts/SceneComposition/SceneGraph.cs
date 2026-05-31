@@ -8,10 +8,11 @@ using VContainer.Unity;
 
 public class SceneGraph : ISceneGraph, IStartable, IDisposable
 {
-    private readonly EventBus        _bus;
-    private readonly IAssetRegistry  _registry;
-    private readonly IObjectResolver _resolver;
-    private readonly AppStorage      _storage;
+    private readonly EventBus             _bus;
+    private readonly IAssetRegistry       _registry;
+    private readonly IObjectResolver      _resolver;
+    private readonly AppStorage           _storage;
+    private readonly AssetSpawnerRegistry _spawners;
     private readonly Dictionary<string, SceneNode> _nodes          = new();
     private readonly Dictionary<string, SceneNode> _transientNodes = new();
 
@@ -19,12 +20,13 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
 
     public IReadOnlyDictionary<string, SceneNode> Nodes => _nodes;
 
-    public SceneGraph(EventBus bus, IAssetRegistry registry, IObjectResolver resolver, AppStorage storage)
+    public SceneGraph(EventBus bus, IAssetRegistry registry, IObjectResolver resolver, AppStorage storage, AssetSpawnerRegistry spawners)
     {
         _bus      = bus;
         _registry = registry;
         _resolver = resolver;
         _storage  = storage;
+        _spawners = spawners;
     }
 
     public void Start()
@@ -143,16 +145,17 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
                 GameObject go;
                 try
                 {
-                    go = await asset.SpawnAsync(nd.Position, nd.Rotation, CancellationToken.None);
+                    go = await _spawners.SpawnAsync(asset, nd.Position, nd.Rotation, CancellationToken.None);
                 }
-                catch (NotImplementedException)
+                catch (Exception ex)
                 {
-                    Debug.LogWarning($"SceneGraph: SpawnAsync not implemented for {nd.AssetRef} (likely Imported/Saved before Spec B)");
+                    Debug.LogWarning($"SceneGraph: spawn failed for {nd.AssetRef} — skipping node. {ex.Message}");
                     continue;
                 }
                 go.transform.localScale = nd.Scale;
                 AddNodeInternal(go, nd.NodeId, nd.AssetRef, nd.DisplayName, nd.ParentNodeId, isLoad: true);
                 _resolver.InjectGameObject(go);
+                go.SetInteractionLayerOnColliders(InteractionLayer.SceneObjects);
             }
 
             foreach (var nd in data.Nodes)

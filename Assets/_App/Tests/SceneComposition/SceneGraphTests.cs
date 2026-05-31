@@ -7,7 +7,7 @@ public class SceneGraphTests
     public void CaptureSnapshot_EmptyGraph_ReturnsV2WithEmptyNodes()
     {
         var bus = new EventBus();
-        var sut = new SceneGraph(bus, null, null, null);
+        var sut = new SceneGraph(bus, null, null, null, null);
 
         var snap = sut.CaptureSnapshot("scene-1", "Scene", "2026-05-17");
 
@@ -22,7 +22,7 @@ public class SceneGraphTests
     public void AddTransientNode_DoesNotPublishSceneModified()
     {
         var bus = new EventBus();
-        var sut = new SceneGraph(bus, null, null, null);
+        var sut = new SceneGraph(bus, null, null, null, null);
         var sn = MakeSceneNode("bone:rig:pelvis");
 
         int events = 0;
@@ -37,7 +37,7 @@ public class SceneGraphTests
     [Test]
     public void GetNode_FindsTransientNode()
     {
-        var sut = new SceneGraph(new EventBus(), null, null, null);
+        var sut = new SceneGraph(new EventBus(), null, null, null, null);
         var sn = MakeSceneNode("bone:rig:pelvis");
         sut.AddTransientNode(sn);
 
@@ -52,14 +52,14 @@ public class SceneGraphTests
     [Test]
     public void GetNode_NotInEitherDictionary_ReturnsNull()
     {
-        var sut = new SceneGraph(new EventBus(), null, null, null);
+        var sut = new SceneGraph(new EventBus(), null, null, null, null);
         Assert.IsNull(sut.GetNode("missing"));
     }
 
     [Test]
     public void Nodes_DoesNotIncludeTransientNodes()
     {
-        var sut = new SceneGraph(new EventBus(), null, null, null);
+        var sut = new SceneGraph(new EventBus(), null, null, null, null);
         var sn = MakeSceneNode("bone:rig:pelvis");
         sut.AddTransientNode(sn);
 
@@ -72,7 +72,7 @@ public class SceneGraphTests
     [Test]
     public void GetNode_DestroyedTransient_ReturnsNullAndPrunes()
     {
-        var sut = new SceneGraph(new EventBus(), null, null, null);
+        var sut = new SceneGraph(new EventBus(), null, null, null, null);
         var sn = MakeSceneNode("bone:rig:pelvis");
         sut.AddTransientNode(sn);
 

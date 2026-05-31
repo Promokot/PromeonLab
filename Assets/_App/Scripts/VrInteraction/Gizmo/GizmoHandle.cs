@@ -12,13 +12,18 @@ public class GizmoHandle : XRBaseInteractable
     public AxisKind   Axis => _axis;
 
     private GizmoActivator    _activator;
+    private RayInteractionResolver _rayResolver;
     private NearFarInteractor _locked;
     private NearFarInteractor _lastHovering;
 
     private enum HandleState { Idle, Dragging }
     private HandleState _state;
 
-    public void Bind(GizmoActivator activator) => _activator = activator;
+    public void Bind(GizmoActivator activator, RayInteractionResolver rayResolver)
+    {
+        _activator   = activator;
+        _rayResolver = rayResolver;
+    }
 
     protected override void Awake()
     {
@@ -134,6 +139,15 @@ public class GizmoHandle : XRBaseInteractable
         var ray = ni.GetComponentInChildren<XRRayInteractor>(includeInactive: true);
         if (ray != null)
         {
+            if (_rayResolver != null)
+            {
+                var origin = ray.rayOriginTransform != null ? ray.rayOriginTransform : ray.transform;
+                var winner = _rayResolver.ResolvePrimary(
+                    new Ray(origin.position, origin.forward), ray.maxRaycastDistance);
+                return winner != null && colliders.Contains(winner);
+            }
+
+            // Fallback (resolver unavailable): pre-resolver nearest-hit behavior.
             if (ray.TryGetCurrent3DRaycastHit(out var hit) && hit.collider != null)
                 return colliders.Contains(hit.collider);
             return false;

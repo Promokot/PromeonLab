@@ -10,6 +10,7 @@ public class GizmoActivator : MonoBehaviour
     private ISelectionManager _selection;
     private GizmoController   _gizmoController;
     private OutlineConfig     _outlineConfig;
+    private RayInteractionResolver _rayResolver;
 
     private bool       _panelOpen;
     private GizmoMode  _mode = GizmoMode.Move;
@@ -18,7 +19,6 @@ public class GizmoActivator : MonoBehaviour
 
     private GameObject     _instance;
     private GizmoHierarchy _hierarchy;
-    private Collider       _originalTargetCollider;
     private GizmoHandle    _grabbedHandle;
 
     private bool                _dragActive;
@@ -32,13 +32,14 @@ public class GizmoActivator : MonoBehaviour
     private Vector3             _targetScaleAtGrab;
 
     [Inject]
-    public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection, GizmoController gizmoController, OutlineConfig outlineConfig)
+    public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection, GizmoController gizmoController, OutlineConfig outlineConfig, RayInteractionResolver rayResolver)
     {
         _bus             = bus;
         _graph           = graph;
         _selection       = selection;
         _gizmoController = gizmoController;
         _outlineConfig   = outlineConfig;
+        _rayResolver     = rayResolver;
 
         // Subscribe immediately. Doing this in OnEnable would race with LifetimeScope.Awake's
         // BuildCallback — if Activator's OnEnable ran first, _bus would be null and the bail-out
@@ -130,9 +131,6 @@ public class GizmoActivator : MonoBehaviour
         _instance.transform.position = _target.position;
         _instance.transform.rotation = _target.rotation;
 
-        _originalTargetCollider = _target.GetComponent<Collider>();
-        if (_originalTargetCollider != null) _originalTargetCollider.enabled = false;
-
         var size = BoundsFitter.ComputeSize(_target, _config.BoundsCoefficient, _config.MinSize, _config.MaxSize);
         _instance.transform.localScale = Vector3.one * size;
 
@@ -142,7 +140,7 @@ public class GizmoActivator : MonoBehaviour
         // Spawned instance lives in scene root (not under this transform), so handles can't reach
         // us via GetComponentInParent. Bind the reference explicitly.
         foreach (var handle in _instance.GetComponentsInChildren<GizmoHandle>(includeInactive: true))
-            handle.Bind(this);
+            handle.Bind(this, _rayResolver);
 
         // Outline is installed at runtime (not authored on the prefab), one per mesh part.
         // Axis handles get their axis color; parts without a GizmoHandle (e.g. the move center) get white.
@@ -151,6 +149,11 @@ public class GizmoActivator : MonoBehaviour
             var handle = mr.GetComponent<GizmoHandle>();
             InstallHandleOutline(mr.gameObject, handle != null ? AxisColor(handle.Axis) : Color.white);
         }
+
+        // GizmoHandles layer: handle colliders sit on the GizmoHandle's own GameObject (GizmoHandle.Awake
+        // keeps only the same-GO collider). Tag those so the resolver ranks the gizmo above everything.
+        foreach (var handle in _instance.GetComponentsInChildren<GizmoHandle>(includeInactive: true))
+            handle.gameObject.SetInteractionLayer(InteractionLayer.GizmoHandles);
     }
 
     // SilhouetteOnly = see-through silhouette; RenderPriority 2 paints over selection (0) and bones (1).
@@ -180,8 +183,6 @@ public class GizmoActivator : MonoBehaviour
     private void Despawn()
     {
         if (_dragActive) AbortDrag();
-        if (_originalTargetCollider != null) _originalTargetCollider.enabled = true;
-        _originalTargetCollider = null;
         if (_instance != null) Destroy(_instance);
         _instance  = null;
         _hierarchy = null;

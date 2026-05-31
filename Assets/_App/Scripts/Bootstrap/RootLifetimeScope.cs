@@ -31,6 +31,11 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<SavedAssetLibrary>(Lifetime.Singleton);
         builder.Register<AssetRegistry>(Lifetime.Singleton).As<IAssetRegistry>();
 
+        // Per-type spawners + dispatcher. Imported/Reference spawners are added in Slice 1B.
+        builder.Register<ObjectSpawner>(Lifetime.Singleton).As<IAssetSpawner>();
+        builder.Register<RigSpawner>(Lifetime.Singleton).As<IAssetSpawner>();
+        builder.Register<AssetSpawnerRegistry>(Lifetime.Singleton);
+
         var transition = Object.FindAnyObjectByType<SceneTransitionRunner>(FindObjectsInactive.Include);
         if (transition != null)
             builder.RegisterInstance(transition).As<ISceneTransition>();

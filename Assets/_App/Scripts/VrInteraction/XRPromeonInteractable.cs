@@ -16,6 +16,7 @@ public class XRPromeonInteractable : XRBaseInteractable
 
     private ISelectionManager _selectionManager;
     private GizmoController   _gizmoController;
+    private RayInteractionResolver _rayResolver;
     private IDragStrategy     _dragStrategy = new SingleDragStrategy();
     private SceneNode         _node;
 
@@ -54,10 +55,11 @@ public class XRPromeonInteractable : XRBaseInteractable
     }
 
     [Inject]
-    public void Construct(ISelectionManager selectionManager, GizmoController gizmoController)
+    public void Construct(ISelectionManager selectionManager, GizmoController gizmoController, RayInteractionResolver rayResolver)
     {
         _selectionManager = selectionManager;
         _gizmoController  = gizmoController;
+        _rayResolver      = rayResolver;
     }
 
     // Disable XRI standard select-flow. We read inputs directly. Hover still works
@@ -165,10 +167,21 @@ public class XRPromeonInteractable : XRBaseInteractable
 
     private bool IsPrimaryFor(NearFarInteractor ni)
     {
-        // Ray (Far) path: primary = whoever owns the current ray hit collider.
+        // Ray (Far) path: primary = owner of the prioritized hit (GizmoHandles > BoneProxies >
+        // SceneObjects), not merely the nearest collider — lets a bone behind the body mesh still
+        // win over it.
         var ray = ni.GetComponentInChildren<XRRayInteractor>(includeInactive: true);
         if (ray != null)
         {
+            if (_rayResolver != null)
+            {
+                var origin = ray.rayOriginTransform != null ? ray.rayOriginTransform : ray.transform;
+                var winner = _rayResolver.ResolvePrimary(
+                    new Ray(origin.position, origin.forward), ray.maxRaycastDistance);
+                return winner != null && colliders.Contains(winner);
+            }
+
+            // Fallback (resolver unavailable): pre-resolver nearest-hit behavior.
             if (ray.TryGetCurrent3DRaycastHit(out var hit) && hit.collider != null)
                 return colliders.Contains(hit.collider);
             return false; // ray exists but hits nothing — not primary

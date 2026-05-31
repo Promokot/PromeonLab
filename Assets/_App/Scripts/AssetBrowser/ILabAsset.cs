@@ -1,13 +1,11 @@
-using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public interface ILabAsset
 {
-    string    Id          { get; }
-    string    DisplayName { get; }
-    AssetType Type        { get; }
-    Sprite    Icon        { get; }
-
-    Task<GameObject> SpawnAsync(Vector3 position, Quaternion rotation, CancellationToken ct);
+    string      Id          { get; }
+    string      DisplayName { get; }
+    AssetType   Type        { get; }
+    AssetSource Source      { get; }   // which library this record lives in
+    string      SourceRef   { get; }   // relative path under asset-library/sources; null for Builtin
+    Sprite      Icon        { get; }
 }

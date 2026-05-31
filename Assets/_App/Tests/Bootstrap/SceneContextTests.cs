@@ -4,7 +4,7 @@ public class SceneContextTests
 {
     // SceneGraph's constructor only stores its dependencies, so nulls are safe for a
     // reference-only test double. (We never call any SceneGraph method here.)
-    private static SceneGraph MakeGraph() => new SceneGraph(new EventBus(), null, null, null);
+    private static SceneGraph MakeGraph() => new SceneGraph(new EventBus(), null, null, null, null);
 
     [Test]
     public void New_HasNoScene()

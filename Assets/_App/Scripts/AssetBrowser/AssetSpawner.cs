@@ -7,15 +7,17 @@ using VContainer.Unity;
 
 public class AssetSpawner : IStartable, IDisposable
 {
-    private readonly EventBus        _bus;
-    private readonly SceneGraph      _graph;
-    private readonly IObjectResolver _resolver;
+    private readonly EventBus              _bus;
+    private readonly SceneGraph            _graph;
+    private readonly IObjectResolver       _resolver;
+    private readonly AssetSpawnerRegistry  _spawners;
 
-    public AssetSpawner(EventBus bus, SceneGraph graph, IObjectResolver resolver)
+    public AssetSpawner(EventBus bus, SceneGraph graph, IObjectResolver resolver, AssetSpawnerRegistry spawners)
     {
         _bus      = bus;
         _graph    = graph;
         _resolver = resolver;
+        _spawners = spawners;
     }
 
     public void Start()   => _bus.Subscribe<AssetSpawnRequestedEvent>(OnSpawnRequested);
@@ -28,19 +30,14 @@ public class AssetSpawner : IStartable, IDisposable
     {
         try
         {
-            var go = await e.Asset.SpawnAsync(e.Position, e.Rotation, CancellationToken.None);
-            var assetRef = new AssetRef
-            {
-                Source  = e.Asset is BuiltinLabAsset  ? AssetSource.Builtin
-                        : e.Asset is ImportedLabAsset ? AssetSource.Imported
-                        : AssetSource.Saved,
-                AssetId = e.Asset.Id,
-            };
+            var go = await _spawners.SpawnAsync(e.Asset, e.Position, e.Rotation, CancellationToken.None);
+            var assetRef = new AssetRef { Source = e.Asset.Source, AssetId = e.Asset.Id };
             // SceneGraph.AddNode handles RewriteBoneNodeIds + AddTransientNode for bone proxies.
             _graph.AddNode(go, assetRef, e.Asset.DisplayName);
             // Resolve DI on every MonoBehaviour in the spawned hierarchy (XRPromeonInteractable.Construct,
             // PromeonProxyRigBuilder.Construct, etc.).
             _resolver.InjectGameObject(go);
+            go.SetInteractionLayerOnColliders(InteractionLayer.SceneObjects);
         }
         catch (Exception ex)
         {

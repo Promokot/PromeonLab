@@ -13,7 +13,7 @@
 ## File Structure
 
 **Create (all in `Assets/_App/Scripts/VrInteraction/`):**
-- `Data/InteractionLayer.cs` — `enum InteractionLayer { Gizmo, Bone, Selectable }`. Declaration order = priority (index 0 = highest). Single source of truth.
+- `Data/InteractionLayer.cs` — `enum InteractionLayer { GizmoHandles, BoneProxies, SceneObjects }` (names match existing Unity layers). Declaration order = priority (index 0 = highest). Single source of truth.
 - `InteractionLayers.cs` — static class. Maps the enum to Unity layer indices (cached), builds the combined raycast `Mask`, exposes `Priority`, `TryGetPriority`, and the pure `PickWinnerIndex` selection function.
 - `GameObjectInteractionLayerExtensions.cs` — `SetInteractionLayer(this GameObject, InteractionLayer)` extension; the one funnel every script site uses to assign a layer.
 - `InteractionLayerTag.cs` — `MonoBehaviour` for prefab-authored objects; applies its serialized layer on `Awake` and `OnValidate`.
@@ -32,54 +32,33 @@
 - `Assets/_App/Scripts/Bootstrap/VrEditingSceneScope.cs` + `SandboxSceneScope.cs` — register `RayInteractionResolver`.
 
 **Editor/MCP (no code file):**
-- `ProjectSettings/TagManager.asset` — create three Unity layers: `Gizmo`, `Bone`, `Selectable`.
-- Editor-authored interactable prefabs — add `InteractionLayerTag` set to `Selectable`.
+- `ProjectSettings/TagManager.asset` — three Unity layers already exist (`GizmoHandles`=14, `BoneProxies`=15, `SceneObjects`=13); no creation needed (see Task 1).
+- Editor-authored interactable prefabs — add `InteractionLayerTag` set to `SceneObjects`.
 
 ---
 
-## Task 1: Create the three Unity layers
+## Task 1: Confirm the interaction layers exist (DONE — no creation needed)
 
-These layers must exist before any test that references them by name. Created via Unity MCP against the live editor.
+**Decision (2026-05-31):** the project already defines the three intended layers (they were
+pre-declared in `Documentation/architecture_context.md` but never wired). The user reshuffled
+their slots. Live layout (read from `mcpforunity://project/layers`):
 
-**Files:**
-- Modify: `ProjectSettings/TagManager.asset` (via MCP `manage_editor`)
+| Index | Layer |
+|---|---|
+| 7 | UiPanels (UI — out of scope) |
+| 13 | SceneObjects |
+| 14 | GizmoHandles |
+| 15 | BoneProxies |
 
-- [ ] **Step 1: Read the current layer list**
+We **reuse** these layers rather than create `Gizmo`/`Bone`/`Selectable`. The `InteractionLayer`
+enum (Task 2) is named to match the Unity layer names exactly, so `layer.ToString()` yields the
+layer name directly — no mapping table, no new layers.
 
-Use MCP to read existing layers so you pick free user-layer slots (8–31) and don't clobber any already defined:
+Audit result (controller-verified): no object in `Assets/_App/Content/**` or `Assets/_App/Scenes/**`
+sits on any non-zero interaction layer, so the slot reshuffle broke no serialized assignments.
+`UiPanels` (now index 7) is referenced only in a doc, never by code or a serialized mask — harmless.
 
-```
-mcp__unityMCP__manage_editor  (action: "get_state")   // inspect, or read resource mcpforunity://project_tags
-```
-
-Expected: a list of layer names; confirm `Gizmo`, `Bone`, `Selectable` are NOT already present and note which user slots are empty.
-
-- [ ] **Step 2: Add the three layers**
-
-Add each layer into the first free user slots via MCP:
-
-```
-mcp__unityMCP__manage_editor  (action: "add_layer", layer_name: "Gizmo")
-mcp__unityMCP__manage_editor  (action: "add_layer", layer_name: "Bone")
-mcp__unityMCP__manage_editor  (action: "add_layer", layer_name: "Selectable")
-```
-
-(If the `manage_editor` action names differ in this MCP build, use the editor's Tags & Layers UI equivalent or edit `ProjectSettings/TagManager.asset` directly, adding the three names to empty `m_Layers` entries at index ≥ 8.)
-
-- [ ] **Step 3: Verify the layers resolve**
-
-```
-mcp__unityMCP__manage_editor  (action: "get_state")   // or re-read mcpforunity://project_tags
-```
-
-Expected: `Gizmo`, `Bone`, `Selectable` now appear in the layer list, each at a user slot ≥ 8. Record their indices (informational; code looks them up by name, not by hardcoded index).
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add ProjectSettings/TagManager.asset
-git commit -m "feat: add Gizmo/Bone/Selectable interaction layers"
-```
+Nothing to create. Code looks layers up by name, never by hardcoded index, so future slot moves stay safe.
 
 ---
 
@@ -98,13 +77,13 @@ The pure `PickWinnerIndex` is the real risk-bearing logic and is fully unit-test
 
 ```csharp
 /// Interaction layers in priority order. Declaration order IS the priority:
-/// index 0 (Gizmo) is highest. The names here must match the Unity layers
-/// "Gizmo"/"Bone"/"Selectable" created in ProjectSettings.
+/// index 0 (GizmoHandles) is highest. Each name MUST match an existing Unity layer
+/// ("GizmoHandles"/"BoneProxies"/"SceneObjects") so layer.ToString() resolves directly.
 public enum InteractionLayer
 {
-    Gizmo,
-    Bone,
-    Selectable,
+    GizmoHandles,
+    BoneProxies,
+    SceneObjects,
 }
 ```
 
@@ -169,26 +148,26 @@ public class InteractionPriorityTests
     [Test]
     public void UnityLayer_ResolvesAllThree()
     {
-        Assert.GreaterOrEqual(InteractionLayers.UnityLayer(InteractionLayer.Gizmo), 0);
-        Assert.GreaterOrEqual(InteractionLayers.UnityLayer(InteractionLayer.Bone), 0);
-        Assert.GreaterOrEqual(InteractionLayers.UnityLayer(InteractionLayer.Selectable), 0);
+        Assert.GreaterOrEqual(InteractionLayers.UnityLayer(InteractionLayer.GizmoHandles), 0);
+        Assert.GreaterOrEqual(InteractionLayers.UnityLayer(InteractionLayer.BoneProxies), 0);
+        Assert.GreaterOrEqual(InteractionLayers.UnityLayer(InteractionLayer.SceneObjects), 0);
     }
 
     [Test]
     public void Mask_IncludesAllThreeLayers()
     {
         int mask = InteractionLayers.Mask;
-        Assert.AreNotEqual(0, mask & (1 << InteractionLayers.UnityLayer(InteractionLayer.Gizmo)));
-        Assert.AreNotEqual(0, mask & (1 << InteractionLayers.UnityLayer(InteractionLayer.Bone)));
-        Assert.AreNotEqual(0, mask & (1 << InteractionLayers.UnityLayer(InteractionLayer.Selectable)));
+        Assert.AreNotEqual(0, mask & (1 << InteractionLayers.UnityLayer(InteractionLayer.GizmoHandles)));
+        Assert.AreNotEqual(0, mask & (1 << InteractionLayers.UnityLayer(InteractionLayer.BoneProxies)));
+        Assert.AreNotEqual(0, mask & (1 << InteractionLayers.UnityLayer(InteractionLayer.SceneObjects)));
     }
 
     [Test]
     public void TryGetPriority_MapsUnityLayerBackToEnumPriority()
     {
         Assert.IsTrue(InteractionLayers.TryGetPriority(
-            InteractionLayers.UnityLayer(InteractionLayer.Bone), out var p));
-        Assert.AreEqual((int)InteractionLayer.Bone, p);
+            InteractionLayers.UnityLayer(InteractionLayer.BoneProxies), out var p));
+        Assert.AreEqual((int)InteractionLayer.BoneProxies, p);
 
         // A layer that is not one of the three returns false (0 = Default layer).
         Assert.IsFalse(InteractionLayers.TryGetPriority(0, out _));
@@ -316,8 +295,8 @@ Append these tests to `InteractionPriorityTests.cs` (inside the class):
         var go = new GameObject("layered");
         try
         {
-            go.SetInteractionLayer(InteractionLayer.Gizmo);
-            Assert.AreEqual(LayerMask.NameToLayer("Gizmo"), go.layer);
+            go.SetInteractionLayer(InteractionLayer.GizmoHandles);
+            Assert.AreEqual(LayerMask.NameToLayer("GizmoHandles"), go.layer);
         }
         finally { Object.DestroyImmediate(go); }
     }
@@ -328,8 +307,8 @@ Append these tests to `InteractionPriorityTests.cs` (inside the class):
         var go = new GameObject("layered2");
         try
         {
-            go.SetInteractionLayer(InteractionLayer.Selectable);
-            Assert.AreEqual(LayerMask.NameToLayer("Selectable"), go.layer);
+            go.SetInteractionLayer(InteractionLayer.SceneObjects);
+            Assert.AreEqual(LayerMask.NameToLayer("SceneObjects"), go.layer);
         }
         finally { Object.DestroyImmediate(go); }
     }
@@ -358,7 +337,7 @@ public static class GameObjectInteractionLayerExtensions
         if (unity < 0)
         {
             Debug.LogError($"SetInteractionLayer: Unity layer '{layer}' is missing — create it in " +
-                           "ProjectSettings > Tags and Layers. Leaving '{go.name}' on its current layer.");
+                           $"ProjectSettings > Tags and Layers. Leaving '{go.name}' on its current layer.");
             return;
         }
         go.layer = unity;
@@ -399,7 +378,7 @@ using UnityEngine;
 [AddComponentMenu("PromeonLab/Interaction Layer Tag")]
 public class InteractionLayerTag : MonoBehaviour
 {
-    [SerializeField] private InteractionLayer _layer = InteractionLayer.Selectable;
+    [SerializeField] private InteractionLayer _layer = InteractionLayer.SceneObjects;
 
     private void Awake() => gameObject.SetInteractionLayer(_layer);
 
@@ -449,8 +428,8 @@ Append to `InteractionPriorityTests.cs` (inside the class). This builds real col
         {
             near.transform.position = new Vector3(0, 0, 2);
             far.transform.position  = new Vector3(0, 0, 5);
-            near.SetInteractionLayer(InteractionLayer.Selectable);
-            far.SetInteractionLayer(InteractionLayer.Gizmo);
+            near.SetInteractionLayer(InteractionLayer.SceneObjects);
+            far.SetInteractionLayer(InteractionLayer.GizmoHandles);
             Physics.SyncTransforms();
 
             var resolver = new RayInteractionResolver();
@@ -762,7 +741,7 @@ In `GizmoActivator.Spawn`, the loop over `MeshRenderer`s (lines 149–153) insta
         // Gizmo layer: handle colliders sit on the GizmoHandle's own GameObject (GizmoHandle.Awake
         // keeps only the same-GO collider). Tag those so the resolver ranks the gizmo above everything.
         foreach (var handle in _instance.GetComponentsInChildren<GizmoHandle>(includeInactive: true))
-            handle.gameObject.SetInteractionLayer(InteractionLayer.Gizmo);
+            handle.gameObject.SetInteractionLayer(InteractionLayer.GizmoHandles);
 ```
 
 - [ ] **Step 2: Verify compilation**
@@ -796,7 +775,7 @@ In `PromeonProxyRigBuilder.BuildProxyNode`, the proxy carries its collider on `p
 
         // Bone interaction layer: the resolver ranks bones above plain Selectables, so a bone
         // behind the body mesh is still reachable by the ray.
-        proxyGo.SetInteractionLayer(InteractionLayer.Bone);
+        proxyGo.SetInteractionLayer(InteractionLayer.BoneProxies);
 ```
 
 - [ ] **Step 2: Verify compilation**
@@ -815,7 +794,14 @@ git commit -m "feat: tag bone proxies with the Bone interaction layer"
 
 ## Task 10: Assign the `Selectable` layer to spawned assets
 
-Spawned import assets carry their collider on the spawned root (the GameObject `XRPromeonInteractable` lives on). Both spawn paths call `InjectGameObject(go)` — set the layer at the same place. The root's own collider is what `XRPromeonInteractable` registers (default `_includeChildColliders = false`), so tagging the root GameObject is correct.
+Spawned import assets do NOT always carry their collider on the spawned root. Verified during
+implementation: `(Prb)Toilet` has `XRPromeonInteractable` (`_includeChildColliders = 1`) on the root
+but its `BoxCollider`s on the child `toilet` mesh. Since the resolver only raycasts the interaction-
+layer mask, a collider left on `Default` is invisible to it — tagging only the root would make such
+assets unselectable. Fix: tag **every collider's GameObject** in the spawned hierarchy via
+`go.SetInteractionLayerOnColliders(InteractionLayer.SceneObjects)` (added to
+`GameObjectInteractionLayerExtensions`). Both spawn paths call `InjectGameObject(go)` — tag at the same
+place. (Camera culling mask is Everything, so tagging a mesh child to `SceneObjects` does not hide it.)
 
 **Files:**
 - Modify: `Assets/_App/Scripts/SceneComposition/SceneGraph.cs:154-155`
@@ -826,7 +812,7 @@ Spawned import assets carry their collider on the spawned root (the GameObject `
 In `SceneGraph.OnSceneOpenedAsync`, after `_resolver.InjectGameObject(go);` (line 155), add:
 
 ```csharp
-                go.SetInteractionLayer(InteractionLayer.Selectable);
+                go.SetInteractionLayer(InteractionLayer.SceneObjects);
 ```
 
 So the block reads:
@@ -835,7 +821,7 @@ So the block reads:
                 go.transform.localScale = nd.Scale;
                 AddNodeInternal(go, nd.NodeId, nd.AssetRef, nd.DisplayName, nd.ParentNodeId, isLoad: true);
                 _resolver.InjectGameObject(go);
-                go.SetInteractionLayer(InteractionLayer.Selectable);
+                go.SetInteractionLayerOnColliders(InteractionLayer.SceneObjects);
 ```
 
 - [ ] **Step 2: Tag user-spawned objects in `AssetSpawner`**
@@ -843,7 +829,7 @@ So the block reads:
 In `AssetSpawner.SpawnCoreAsync`, after `_resolver.InjectGameObject(go);` (line 43), add:
 
 ```csharp
-            go.SetInteractionLayer(InteractionLayer.Selectable);
+            go.SetInteractionLayer(InteractionLayer.SceneObjects);
 ```
 
 So the block reads:
@@ -853,7 +839,7 @@ So the block reads:
             // Resolve DI on every MonoBehaviour in the spawned hierarchy (XRPromeonInteractable.Construct,
             // PromeonProxyRigBuilder.Construct, etc.).
             _resolver.InjectGameObject(go);
-            go.SetInteractionLayer(InteractionLayer.Selectable);
+            go.SetInteractionLayerOnColliders(InteractionLayer.SceneObjects);
 ```
 
 > Note: bone proxies are children created later by the rig builder and get the `Bone` layer in Task 9; tagging the spawned root `Selectable` here does not affect them (they live on separate child GameObjects with their own layer).
@@ -921,31 +907,18 @@ git commit -m "refactor: drop redundant gizmo target-collider disable (layer pri
 
 ## Task 12: Tag editor-authored interactable prefabs + VR verification
 
-Runtime-spawned objects, bone proxies, and gizmo handles are now tagged by code. Prefab-authored interactables that are placed directly in a scene (not spawned through `AssetSpawner`) need the `InteractionLayerTag` component so they join the `Selectable` layer.
+Runtime-spawned objects, bone proxies, and gizmo handles are now tagged by code. Prefab-authored interactables placed directly in a scene (not spawned) would need an `InteractionLayerTag`.
 
-**Files:**
-- Modify (via MCP): interactable prefabs/scene objects carrying `XRPromeonInteractable` that are NOT spawned through `AssetSpawner`/`SceneGraph` (e.g. `(Prb)Toilet.prefab` if placed directly).
+**Finding (controller-verified):** all 11 prefabs carrying `XRPromeonInteractable` live in
+`Content/Prefabs/Assets/` (`(Prb)Toilet`, `Crush Dummy`, `Street Tree 1-3`, `Potted Plant 1-3`,
+`(Prb)Storage2`, `(Prb)Drawer1`, `(Prb)CoffeTable`). All reach a scene through
+`AssetSpawner.SpawnCoreAsync` or `SceneGraph.OnSceneOpenedAsync` — both now tag every collider via
+`SetInteractionLayerOnColliders` (Task 10). A grep of `Assets/_App/Scenes/**/*.unity` found **zero**
+`XRPromeonInteractable` instances placed directly. **⇒ No `InteractionLayerTag` needs to be added
+anywhere; the prefab-tagging step is a no-op.** `InteractionLayerTag` remains available for any future
+directly-placed interactable.
 
-- [ ] **Step 1: Find candidate prefabs**
-
-Search for prefabs that carry `XRPromeonInteractable` but are placed in-scene rather than spawned at runtime:
-
-```
-Grep pattern "XRPromeonInteractable" across Assets/_App/Content/Prefabs and the VR editing scene.
-```
-
-Cross-check against the spawn paths: anything that reaches the scene via `AssetSpawner.SpawnCoreAsync` or `SceneGraph.OnSceneOpenedAsync` is already tagged in code (Task 10) and must NOT also get a tag. Only directly-placed authored interactables need the component.
-
-- [ ] **Step 2: Add `InteractionLayerTag` to each candidate**
-
-For each directly-placed interactable, add the component via MCP and set `_layer = Selectable`:
-
-```
-mcp__unityMCP__manage_components  (action: "add", target: "<prefab/GO>", component: "InteractionLayerTag")
-mcp__unityMCP__manage_components  (action: "set", target: "<prefab/GO>", component: "InteractionLayerTag", properties: { "_layer": 2 })   // 2 = Selectable
-```
-
-Verify via Glob/Read of the prefab `.prefab` after edit (MCP component writes can report false-but-succeed — confirm the component is present).
+- [x] **Step 1–2: Prefab tagging — N/A** (no directly-placed interactables; see finding above).
 
 - [ ] **Step 3: Verify in VR (the real acceptance test)**
 

@@ -184,11 +184,13 @@ public class AssetBrowserPanel : MonoBehaviour
 
     private async System.Threading.Tasks.Task HandleImportAsync(string filePath)
     {
+        // SLICE 1A: temporary — produces a record only; real copy-into-storage + typed import
+        // is Slice 1B (ImportPipeline). Imported assets do not spawn until 1B.
         var asset = new ImportedLabAsset(
             id:          Guid.NewGuid().ToString("N")[..8],
             displayName: Path.GetFileNameWithoutExtension(filePath),
-            type:        AssetType.Model,
-            filePath:    filePath
+            type:        AssetType.Object,
+            sourceRef:   filePath
         );
 
         _importedLibrary.Add(asset);

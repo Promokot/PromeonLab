@@ -19,6 +19,7 @@ public class SandboxSceneScope : LifetimeScope
         builder.Register<SelectionManager>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<CommandStack>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<GizmoController>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+        builder.Register<RayInteractionResolver>(Lifetime.Scoped).AsSelf();
         builder.Register<SelectionVisualSync>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<AssetImporter>(Lifetime.Scoped);
 
