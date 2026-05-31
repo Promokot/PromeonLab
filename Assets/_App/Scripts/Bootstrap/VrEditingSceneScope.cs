@@ -60,9 +60,8 @@ public class VrEditingSceneScope : LifetimeScope
         builder.RegisterEntryPoint<AnimationClock>(Lifetime.Scoped).AsSelf();
         builder.RegisterEntryPoint<AnimationAuthoring>(Lifetime.Scoped).AsSelf();
 
-        var animPanel = Object.FindAnyObjectByType<AnimatorPanel>(FindObjectsInactive.Include);
-        if (animPanel != null)
-            builder.RegisterBuildCallback(c => c.Inject(animPanel));
+        // AnimatorPanel is persistent (XR rig / UserPanel) with root-only deps → injected in
+        // RootLifetimeScope so its buttons work in every mode, not just VrEditing.
 
         var gizmoActivator = Object.FindAnyObjectByType<GizmoActivator>(FindObjectsInactive.Include);
         if (gizmoActivator != null)

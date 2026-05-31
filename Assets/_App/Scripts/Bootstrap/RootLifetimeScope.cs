@@ -117,6 +117,15 @@ public class RootLifetimeScope : LifetimeScope
                 foreach (var iw in Object.FindObjectsByType<ImportWizardSurface>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                     c.Inject(iw);
 
+                // AnimatorPanel is also persistent (nested in UserPanel on the XR rig) and its
+                // Construct deps (EventBus, AnimationClipboard, SceneContext) are all root-scoped,
+                // so inject here too — otherwise its button listeners never wire in modes that
+                // don't run VrEditingSceneScope (or when it enables before scene-scope injection),
+                // leaving every animator button inert. Scene services it touches (Authoring/Clock)
+                // are reached through the root SceneContext façade, which is null-guarded at use.
+                foreach (var ap in Object.FindObjectsByType<AnimatorPanel>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                    c.Inject(ap);
+
                 foreach (var rm in Object.FindObjectsByType<RegionMember>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                 {
                     c.Inject(rm);
