@@ -4,24 +4,32 @@ using VContainer;
 
 public class GizmoActivator : MonoBehaviour
 {
-    // One per gizmo mesh renderer. The gizmo ships its own per-axis materials (Gizmo_Red/Green/Blue/
-    // Default) — including the scale center, whose single mesh carries 4 submeshes (body + 3 axis legs).
-    // We keep those native materials and only instance + tint them for hover/grab, recording each
-    // submesh's base color so we can restore it. Indexed by owning handle so recolor reaches the
-    // renderer whether it sits on the handle GO or a child of it.
+    // One per gizmo mesh renderer. The gizmo ships its own per-axis materials (now the emissive
+    // Gizmo_Emissive* set) — including the scale center, whose single mesh carries 4 submeshes
+    // (body + 3 axis legs). We keep those native materials (instanced so tinting never touches the
+    // shared assets) and capture BOTH the base AND emission color of every submesh so hover/grab can
+    // recolor and exactly restore them. The visible color of an emissive material is its emission, so
+    // touching only _BaseColor (the old bug) left the highlight broken — we now handle both.
     private class GizmoPart
     {
-        public Material[]   Materials;   // instanced native materials (one per submesh)
-        public Color[]      BaseColors;  // base color per material, captured at build
+        public Material[]   Materials;    // instanced native materials (one per submesh)
+        public bool[]       HasBase;      // submesh has a _BaseColor/_Color slot
+        public Color[]      BaseColor;    // captured base color per submesh
+        public bool[]       HasEmis;      // submesh has an _EmissionColor slot
+        public Color[]      EmisColor;    // captured emission color per submesh
         public Outline      Outline;
         public Color        OutlineBase;
-        public GizmoHandle  Handle;      // null for centers (move-center has no handle)
+        public GizmoHandle  Handle;       // null for centers (move-center has no handle)
     }
 
     private static readonly int BaseColorId     = Shader.PropertyToID("_BaseColor");
     private static readonly int ColorId         = Shader.PropertyToID("_Color");
     private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
     private const float HOVER_DARKEN = 0.75f;
+
+    // The grabbed-handle look, read once from GizmoConfig.ActiveMaterial (Gizmo_EmissiveSelected) at spawn.
+    private bool  _hasActiveBase, _hasActiveEmis;
+    private Color _activeBase, _activeEmis;
 
     [SerializeField] private GizmoConfig _config;
 
@@ -152,8 +160,9 @@ public class GizmoActivator : MonoBehaviour
         _instance.transform.position = _target.position;
         _instance.transform.rotation = _target.rotation;
 
-        var size = BoundsFitter.ComputeSize(_target, _config.BoundsCoefficient, _config.MinSize, _config.MaxSize);
-        _instance.transform.localScale = Vector3.one * size;
+        // Bounds-fit frozen: spawn at one stable size from config (see _fixedSize).
+        // var size = BoundsFitter.ComputeSize(_target, _config.BoundsCoefficient, _config.MinSize, _config.MaxSize);
+        _instance.transform.localScale = Vector3.one * _config.FixedSize;
 
         _hierarchy = _instance.GetComponent<GizmoHierarchy>();
         if (_hierarchy != null) _hierarchy.ShowMode(_mode);
@@ -163,7 +172,24 @@ public class GizmoActivator : MonoBehaviour
         foreach (var handle in _instance.GetComponentsInChildren<GizmoHandle>(includeInactive: true))
             handle.Bind(this);
 
+        CacheActiveColors();
         BuildParts();
+    }
+
+    // Read the grabbed-handle look once from the configured active material (Gizmo_EmissiveSelected).
+    private void CacheActiveColors()
+    {
+        _hasActiveBase = _hasActiveEmis = false;
+        var fallback = _outlineConfig != null ? _outlineConfig.GizmoActiveColor : Color.cyan;
+        var m = _config != null ? _config.ActiveMaterial : null;
+        if (m != null)
+        {
+            if (m.HasProperty(BaseColorId))     { _hasActiveBase = true; _activeBase = m.GetColor(BaseColorId); }
+            else if (m.HasProperty(ColorId))    { _hasActiveBase = true; _activeBase = m.GetColor(ColorId); }
+            if (m.HasProperty(EmissionColorId)) { _hasActiveEmis = true; _activeEmis = m.GetColor(EmissionColorId); }
+        }
+        if (!_hasActiveBase) { _hasActiveBase = true; _activeBase = fallback; }
+        if (!_hasActiveEmis) { _hasActiveEmis = true; _activeEmis = fallback; }
     }
 
     // One GizmoPart per mesh renderer. We keep the gizmo's native per-axis materials (instanced so
@@ -182,9 +208,19 @@ public class GizmoActivator : MonoBehaviour
 
             // Accessing .materials instantiates per-renderer copies of the native gizmo materials and
             // assigns them back — capture BEFORE installing the Outline (which appends mask/fill passes).
-            var mats  = mr.materials;
-            var bases = new Color[mats.Length];
-            for (int i = 0; i < mats.Length; i++) bases[i] = ReadColor(mats[i]);
+            var mats    = mr.materials;
+            var hasBase = new bool[mats.Length];
+            var baseCol = new Color[mats.Length];
+            var hasEmis = new bool[mats.Length];
+            var emisCol = new Color[mats.Length];
+            for (int i = 0; i < mats.Length; i++)
+            {
+                var m = mats[i];
+                if (m == null) continue;
+                if (m.HasProperty(BaseColorId))     { hasBase[i] = true; baseCol[i] = m.GetColor(BaseColorId); }
+                else if (m.HasProperty(ColorId))    { hasBase[i] = true; baseCol[i] = m.GetColor(ColorId); }
+                if (m.HasProperty(EmissionColorId)) { hasEmis[i] = true; emisCol[i] = m.GetColor(EmissionColorId); }
+            }
 
             var outlineColor = PartColor(handle);
             var outline      = InstallHandleOutline(mr.gameObject, outlineColor);
@@ -192,7 +228,10 @@ public class GizmoActivator : MonoBehaviour
             var part = new GizmoPart
             {
                 Materials   = mats,
-                BaseColors  = bases,
+                HasBase     = hasBase,
+                BaseColor   = baseCol,
+                HasEmis     = hasEmis,
+                EmisColor   = emisCol,
                 Outline     = outline,
                 OutlineBase = outlineColor,
                 Handle      = handle,
@@ -242,35 +281,38 @@ public class GizmoActivator : MonoBehaviour
         }
     }
 
-    private static Color ReadColor(Material m)
+    private static void SetBase(Material m, Color c)
     {
-        if (m == null) return Color.white;
-        if (m.HasProperty(BaseColorId))     return m.GetColor(BaseColorId);
-        if (m.HasProperty(ColorId))         return m.GetColor(ColorId);
-        if (m.HasProperty(EmissionColorId)) return m.GetColor(EmissionColorId);
-        return Color.white;
+        if (m.HasProperty(BaseColorId)) m.SetColor(BaseColorId, c);
+        if (m.HasProperty(ColorId))     m.SetColor(ColorId, c);
     }
 
-    private static void SetMaterialColor(Material m, Color c)
+    private static void SetEmis(Material m, Color c)
     {
-        if (m == null) return;
-        if (m.HasProperty(BaseColorId))     m.SetColor(BaseColorId, c);
-        if (m.HasProperty(ColorId))         m.SetColor(ColorId, c);
-        if (m.HasProperty(EmissionColorId)) { m.EnableKeyword("_EMISSION"); m.SetColor(EmissionColorId, c); }
+        m.EnableKeyword("_EMISSION");
+        m.SetColor(EmissionColorId, c);
     }
 
-    // Grab: recolor every submesh of the handle (and its outline) to one flat color.
-    private void RecolorHandle(GizmoHandle handle, Color color)
+    private static Color Scale(Color c, float f) => new Color(c.r * f, c.g * f, c.b * f, c.a);
+
+    // Grab: every submesh of the handle adopts the active material's look (base + emission); outline too.
+    private void RecolorHandle(GizmoHandle handle, Color outlineColor)
     {
         if (handle == null || !_partsByHandle.TryGetValue(handle, out var list)) return;
         foreach (var part in list)
         {
-            foreach (var m in part.Materials) SetMaterialColor(m, color);
-            if (part.Outline != null) part.Outline.OutlineColor = color;
+            for (int i = 0; i < part.Materials.Length; i++)
+            {
+                var m = part.Materials[i];
+                if (m == null) continue;
+                if (part.HasBase[i] && _hasActiveBase) SetBase(m, _activeBase);
+                if (part.HasEmis[i] && _hasActiveEmis) SetEmis(m, _activeEmis);
+            }
+            if (part.Outline != null) part.Outline.OutlineColor = outlineColor;
         }
     }
 
-    // Hover: darken each submesh toward its own base color (keeps per-axis distinction on the center).
+    // Hover: darken each submesh toward its own captured base + emission (keeps per-axis distinction).
     private void DarkenHandle(GizmoHandle handle)
     {
         if (handle == null || !_partsByHandle.TryGetValue(handle, out var list)) return;
@@ -278,14 +320,12 @@ public class GizmoActivator : MonoBehaviour
         {
             for (int i = 0; i < part.Materials.Length; i++)
             {
-                var b = part.BaseColors[i];
-                SetMaterialColor(part.Materials[i], new Color(b.r * HOVER_DARKEN, b.g * HOVER_DARKEN, b.b * HOVER_DARKEN, b.a));
+                var m = part.Materials[i];
+                if (m == null) continue;
+                if (part.HasBase[i]) SetBase(m, Scale(part.BaseColor[i], HOVER_DARKEN));
+                if (part.HasEmis[i]) SetEmis(m, Scale(part.EmisColor[i], HOVER_DARKEN));
             }
-            if (part.Outline != null)
-            {
-                var ob = part.OutlineBase;
-                part.Outline.OutlineColor = new Color(ob.r * HOVER_DARKEN, ob.g * HOVER_DARKEN, ob.b * HOVER_DARKEN, ob.a);
-            }
+            if (part.Outline != null) part.Outline.OutlineColor = Scale(part.OutlineBase, HOVER_DARKEN);
         }
     }
 
@@ -295,7 +335,12 @@ public class GizmoActivator : MonoBehaviour
         foreach (var part in list)
         {
             for (int i = 0; i < part.Materials.Length; i++)
-                SetMaterialColor(part.Materials[i], part.BaseColors[i]);
+            {
+                var m = part.Materials[i];
+                if (m == null) continue;
+                if (part.HasBase[i]) SetBase(m, part.BaseColor[i]);
+                if (part.HasEmis[i]) SetEmis(m, part.EmisColor[i]);
+            }
             if (part.Outline != null) part.Outline.OutlineColor = part.OutlineBase;
         }
     }
@@ -390,12 +435,9 @@ public class GizmoActivator : MonoBehaviour
         _target.rotation   = _originalRot;
         _target.localScale = _originalScale;
         _gizmoController?.CommitTransform(_target, finalPos, finalRot, finalScale);
-        // Refit after scale commits — bounds may have changed.
+        // Bounds-fit frozen: a scale drag mutated the instance scale, so reset it back to the fixed size.
         if (_instance != null && _config != null)
-        {
-            var size = BoundsFitter.ComputeSize(_target, _config.BoundsCoefficient, _config.MinSize, _config.MaxSize);
-            _instance.transform.localScale = Vector3.one * size;
-        }
+            _instance.transform.localScale = Vector3.one * _config.FixedSize;
         EndDragInternal();
     }
 

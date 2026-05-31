@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -57,7 +54,7 @@ public class AssetBrowserPanel : MonoBehaviour
     private void Start()
     {
         _bus?.Subscribe<ModeChangedEvent>(OnModeChanged);
-        _bus?.Subscribe<FilePickedEvent>(OnFilePicked);
+        _bus?.Subscribe<AssetImportedEvent>(OnAssetImported);
         _bus?.Subscribe<RegionChangedEvent>(OnRegionChanged);
         _isEditableMode = _orchestrator?.CurrentMode is AppMode.VrEditing or AppMode.Sandbox;
         RefreshSpawnButton();
@@ -68,7 +65,7 @@ public class AssetBrowserPanel : MonoBehaviour
     private void OnDestroy()
     {
         _bus?.Unsubscribe<ModeChangedEvent>(OnModeChanged);
-        _bus?.Unsubscribe<FilePickedEvent>(OnFilePicked);
+        _bus?.Unsubscribe<AssetImportedEvent>(OnAssetImported);
         _bus?.Unsubscribe<RegionChangedEvent>(OnRegionChanged);
     }
 
@@ -180,22 +177,8 @@ public class AssetBrowserPanel : MonoBehaviour
         }
     }
 
-    private void OnFilePicked(FilePickedEvent e) => _ = HandleImportAsync(e.Path);
-
-    private async System.Threading.Tasks.Task HandleImportAsync(string filePath)
+    private void OnAssetImported(AssetImportedEvent e)
     {
-        // SLICE 1A: temporary — produces a record only; real copy-into-storage + typed import
-        // is Slice 1B (ImportPipeline). Imported assets do not spawn until 1B.
-        var asset = new ImportedLabAsset(
-            id:          Guid.NewGuid().ToString("N")[..8],
-            displayName: Path.GetFileNameWithoutExtension(filePath),
-            type:        AssetType.Object,
-            sourceRef:   filePath
-        );
-
-        _importedLibrary.Add(asset);
-        await _importedLibrary.SaveAsync(CancellationToken.None);
-
         if (_activeLibrary == _importedLibrary)
             RefreshGrid();
     }

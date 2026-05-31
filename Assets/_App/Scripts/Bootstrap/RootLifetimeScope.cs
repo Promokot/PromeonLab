@@ -31,10 +31,19 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<SavedAssetLibrary>(Lifetime.Singleton);
         builder.Register<AssetRegistry>(Lifetime.Singleton).As<IAssetRegistry>();
 
-        // Per-type spawners + dispatcher. Imported/Reference spawners are added in Slice 1B.
+        // Runtime loaders + per-type spawners.
+        builder.Register<AssetSourceStore>(Lifetime.Singleton);
+        builder.Register<GltfModelLoader>(Lifetime.Singleton);
+        builder.Register<ReferenceQuadFactory>(Lifetime.Singleton);
         builder.Register<ObjectSpawner>(Lifetime.Singleton).As<IAssetSpawner>();
         builder.Register<RigSpawner>(Lifetime.Singleton).As<IAssetSpawner>();
+        builder.Register<ReferenceSpawner>(Lifetime.Singleton).As<IAssetSpawner>();
         builder.Register<AssetSpawnerRegistry>(Lifetime.Singleton);
+
+        // Import handlers + pipeline.
+        builder.Register<GltfImportHandler>(Lifetime.Singleton).As<IAssetImportHandler>();
+        builder.Register<ImageImportHandler>(Lifetime.Singleton).As<IAssetImportHandler>();
+        builder.RegisterEntryPoint<ImportPipeline>(Lifetime.Singleton).AsSelf();
 
         var transition = Object.FindAnyObjectByType<SceneTransitionRunner>(FindObjectsInactive.Include);
         if (transition != null)
@@ -94,6 +103,8 @@ public class RootLifetimeScope : LifetimeScope
                     c.Inject(ab);
                 foreach (var fbs in Object.FindObjectsByType<FileBrowserSurface>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                     c.Inject(fbs);
+                foreach (var iw in Object.FindObjectsByType<ImportWizardSurface>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                    c.Inject(iw);
 
                 foreach (var rm in Object.FindObjectsByType<RegionMember>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                 {

@@ -16,3 +16,5 @@ MonoBehaviour:
   _boundsCoefficient: 1.5
   _minSize: 0.1
   _maxSize: 5
+  _fixedSize: 1
+  _activeMaterial: {fileID: 2100000, guid: f39b257baf7caa041a753f1bce87a484, type: 2}
