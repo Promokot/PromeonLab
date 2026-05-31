@@ -16,4 +16,3 @@ MonoBehaviour:
   _boundsCoefficient: 1.5
   _minSize: 0.1
   _maxSize: 5
-  _handleMaterial: {fileID: 2100000, guid: ad2591d1028f32d4a8bae13135f480f7, type: 2}

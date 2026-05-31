@@ -57,7 +57,10 @@
       "WebSearch",
       "Bash(xargs grep -l \"GizmoConfig\")",
       "Bash(xargs grep -l \"ad2591d1028f32d4a8bae13135f480f7\")",
-      "mcp__unityMCP__manage_packages"
+      "mcp__unityMCP__manage_packages",
+      "Bash(grep -iE \"\\\\.mat$|\\\\.mat \")",
+      "Bash(grep -m1 guid: Assets/_App/Content/Materials/Gizmo/__TRACKED_VAR__.mat.meta)",
+      "Bash(find Assets -name \"Gizmo_Red.mat\" -o -name \"Gizmo_Default.mat\" -o -name \"Gizmo_Green.mat\" -o -name \"Gizmo_Blue.mat\")"
     ]
   },
   "enabledMcpjsonServers": [
