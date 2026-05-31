@@ -3,7 +3,23 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - x
+  - n
+  - v
+  - b
+  - z
+  - c
+  - m
+  - g
+  - l
+  - d
+  - h
+  - s
+  - j
+  - f
+  - a
+  - k
   layers:
   - Default
   - TransparentFX
@@ -12,15 +28,15 @@ TagManager:
   - Water
   - UI
   - 
+  - UiPanels
+  - 
+  - 
+  - 
+  - 
   - 
   - SceneObjects
-  - UiPanels
   - GizmoHandles
   - BoneProxies
-  - 
-  - 
-  - 
-  - 
   - 
   - 
   - 

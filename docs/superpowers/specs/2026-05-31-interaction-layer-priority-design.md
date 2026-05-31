@@ -1,99 +1,127 @@
-# Interaction Layer Priority — Design
+# Interaction Layer Priority — Design (v2: XRI-native context masks)
 
 **Date:** 2026-05-31
-**Status:** Approved (brainstorm). Next: implementation plan.
+**Status:** Approved (brainstorm v2). Supersedes the v1 resolver design below.
 
 ## Problem
 
-The XR ray picks the **nearest collider** (`XRRayInteractor.TryGetCurrent3DRaycastHit`, used by
-`XRPromeonInteractable.IsPrimaryFor:171-173` and `GizmoHandle.IsPrimaryFor:134-138`). So a gizmo handle
-behind the floor, or a bone behind the body mesh, cannot be reached — an occluding collider wins. We
-want a **layer-priority** rule: among everything the ray passes through, the highest-priority
-interaction layer wins, with distance breaking ties only within the same layer.
+The XR ray can't reach an interactive thing that sits behind a collider: a gizmo handle behind
+the floor, a bone behind the body mesh. We want occluders to not block interaction, and we want the
+right thing selected when interactive things overlap.
 
-Related logged bug: `docs/developer-notes/2026-05-31-gizmo-occluded-not-selectable.md`.
+## Why v1 (RayInteractionResolver) was wrong — recorded so we don't repeat it
 
-## Priority order
+v1 added a `RayInteractionResolver` doing its own `Physics.RaycastAll` + layer-priority, called from
+`XRPromeonInteractable.IsPrimaryFor` / `GizmoHandle.IsPrimaryFor` via `ni.GetComponentInChildren<XRRayInteractor>()`.
 
-```
-Gizmo  >  Bone  >  Selectable        (UI handled separately — see Out of scope)
-```
+Hard evidence from the live rig (`User XR Origin (XR Rig)`, both hands):
+- The interactor is **`NearFarInteractor`** — there is **no `XRRayInteractor`** component. So
+  `GetComponentInChildren<XRRayInteractor>()` returns null → the resolver branch never executed.
+  Selection always went through the existing Near path (`interactablesHovered[0] == this`), i.e. XRI's
+  own hover. **The resolver was dead code on this rig.**
+- Selection is gated by what the interactor's casters HOVER. The casters:
+  - `SphereInteractionCaster.physicsLayerMask = 1` (Default only)
+  - `CurveInteractionCaster.raycastMask = -2147483615` = `0x80000021` (Default + UI + layer 31)
+  Neither includes the new interaction layers (13/14/15).
+- So when v1 moved objects onto `SceneObjects`(13), the casters could no longer see them → no hover →
+  clicking did nothing (outliner still worked — it bypasses XRI via `SelectionManager`).
 
-Environment (floor, scenery) is **not** an interaction layer — it is "everything else." The resolver
-raycasts only against the three interaction layers, so environment never occludes interactive things
-and never needs a layer assigned. A ray that hits none of the three layers = empty (deselect), same as
-today.
+**Lesson:** on this project the *interactor's physics cast mask* is the real gate. Don't build a parallel
+raycast; configure the casters.
 
-## Components
+## Approach (v2): context-driven cast masks
 
-### 1. `InteractionLayer` (enum) + unified assignment
-- `enum InteractionLayer { Gizmo, Bone, Selectable }` — single source of truth; declaration order = priority (Gizmo highest).
-- Extension `GameObject.SetInteractionLayer(InteractionLayer)` — maps the enum to the Unity layer
-  index via `LayerMask.NameToLayer("Gizmo"/"Bone"/"Selectable")` and assigns it to the target
-  GameObject (the one carrying the collider). One funnel used by every script site.
-- Component `InteractionLayerTag` (`[SerializeField] private InteractionLayer _layer;`) — for
-  **prefab-authored** objects: applies the layer to its GameObject on `Awake` (and in `OnValidate` for
-  editor visibility). Drop it on a prefab, pick the layer.
+Disambiguation is done by **what layer the casters are allowed to see in the current context**, not by a
+priority comparison. In each context the interactor's mask contains a single interactive layer, so there
+is no overlap contest and no priority logic is needed. Occluders live on a layer outside the interactor
+mask, so the ray passes through them.
 
-Three Unity layers must be created once: `Gizmo`, `Bone`, `Selectable`.
+### Layers (reuse existing + one new)
 
-### 2. `RayInteractionResolver` (scene-scope DI)
-Given an interactor ray, returns the prioritized hit:
-```
-ResolvePrimary(Ray ray, float maxDistance) -> (Collider winner or none)
-```
-- `Physics.RaycastAll(ray.origin, ray.direction, maxDistance, interactionMask, QueryTriggerInteraction.Ignore)`
-  where `interactionMask = Gizmo | Bone | Selectable`.
-- Group hits by layer priority; pick the highest-priority layer present; within it pick the nearest
-  (smallest `hit.distance`). Return that collider (or none if no hits).
-- `interactionMask` is built once from the three layer names.
-
-### 3. Consumers
-`XRPromeonInteractable.IsPrimaryFor` and `GizmoHandle.IsPrimaryFor` replace their nearest-hit check
-with: build the ray from the interactor's `XRRayInteractor` (origin/direction/maxRaycastDistance), call
-`resolver.ResolvePrimary(...)`, and return `true` iff the winning collider is one of the interactable's
-own colliders. The resolver is injected (scene scope); `GizmoHandle` receives it from `GizmoActivator`
-(which is DI-injected) via the existing `Bind` path, or via DI.
-
-## Layer assignment sites
-
-| Object | Where layer is set | Layer |
+| Unity layer | Role | In interactor mask? |
 |---|---|---|
-| Gizmo handles | `GizmoActivator.Spawn` (where outlines are installed) | `Gizmo` |
-| Bone proxies | `PromeonProxyRigBuilder` where the proxy collider is created/enabled | `Bone` |
-| Spawned assets | `SceneGraph` / `AssetSpawner` spawn path (where `InjectGameObject` is called) | `Selectable` |
-| Editor-authored interactables | `InteractionLayerTag` on the prefab (assigned by user or via MCP) | per tag |
+| `GizmoHandles` (14) | gizmo handles | only in Gizmo context |
+| `BoneProxies` (15) | bone proxies | only in Bone context |
+| `SceneObjects` (13) | spawned/selectable assets | only in Object context |
+| `Environment` (**new**) | floor / scenery / occluders | **never** — ray passes through; reserved for a future floor-placement raycast |
+| `UiPanels` (7), `UI` (5) | UI | handled by XRI's UI channel, not the physics mask |
 
-Runtime sites use `go.SetInteractionLayer(...)` on the GameObject(s) carrying the collider(s).
+### Object → layer assignment (variant C: the interactable owns it)
 
-## Simplifications (folded in)
+Each interactable tags its own colliders in `Awake`, from a serialized `InteractionLayer _layer`:
+- `XRPromeonInteractable` (spawned assets, bone proxies) — tags every registered collider's GameObject
+  (handles multi-part prefabs whose colliders sit on children, e.g. the toilet).
+- `GizmoHandle` — tags itself `GizmoHandles`.
+- The bone builder sets `_layer = BoneProxies` on proxy interactables it creates.
+- Default `_layer = SceneObjects`.
+No tagging in spawn paths (`AssetSpawner`/`SceneGraph`) or `GizmoActivator` — removes the smearing.
+The floor/scenery objects are authored onto `Environment` (manual, once).
 
-- **Remove the gizmo target-collider disable.** `GizmoActivator.Spawn` currently disables the selected
-  object's `Collider` (`:130-131`) and re-enables on `Despawn` (`:148`). With `Gizmo > Selectable` the
-  gizmo wins over its own target regardless, so this is redundant — remove it (and the
-  `_originalTargetCollider` bookkeeping).
+### Context state machine — `InteractionMaskBinder`
+
+A persistent component (lives with the XR rig; subscribes to the single root `EventBus`). Holds
+references to both hands' `SphereInteractionCaster` + `CurveInteractionCaster`. On each relevant event it
+recomputes the active mask and writes it to all four casters.
+
+State inputs:
+- `BonesVisibilityChangedEvent.Visible` → `_bonesMode`
+- `GizmoToolsPanelOpenedEvent` / `GizmoToolsPanelClosedEvent` → `_panelOpen`
+- `SelectionChangedEvent.SelectedNodeId != null` → `_hasSelection`
+
+Active context → mask:
+```
+if (_panelOpen && _hasSelection)  mask = GizmoHandles      // gizmo modal
+else if (_bonesMode)              mask = BoneProxies
+else                              mask = SceneObjects
+```
+
+Behaviour this yields:
+- **Gizmo modal:** while a gizmo is up the ray sees only handles — the target behind can't be mis-hit,
+  and there's no gizmo-vs-object contest.
+- **Empty click dismisses gizmo:** clicking empty space deselects → `SelectionChanged(null)` →
+  `_hasSelection=false` → mask falls back to the base context (`Bone` or `Object`), so you can
+  immediately re-select an object or a bone depending on the previous state.
+- **Bone vs object are explicit, separate contexts** (no simultaneous mix → fewer mis-clicks): in Bone
+  context the body (`SceneObjects`) is outside the mask, so the ray passes through the body and hits the
+  bone behind it — this is what solves "bone behind body".
+- **Through-floor:** the floor is on `Environment`, never in the mask, so the ray reaches whatever is
+  behind it in the current context.
+
+`IsPrimaryFor` stays as the original `interactablesHovered[0] == this` (the mask guarantees only relevant
+things are hovered) — the v1 resolver rewrite is reverted.
+
+### What we keep / drop from v1 work
+
+Keep: `InteractionLayer` enum, `InteractionLayers` (used by the binder to build masks by layer name),
+`SetInteractionLayer` / `SetInteractionLayerOnColliders`, `InteractionLayerTag`.
+Drop: `RayInteractionResolver` (+ its scene-scope registrations), the `IsPrimaryFor` resolver rewrites
+(revert to original), and `InteractionLayers.PickWinnerIndex` + its tests (no priority comparison needed).
+
+## Components summary
+
+1. `Environment` Unity layer (new); floor/scenery authored onto it.
+2. Self-tagging: `XRPromeonInteractable.Awake` (+ serialized `_layer`), `GizmoHandle.Awake`, bone builder sets proxy `_layer`.
+3. `InteractionMaskBinder` (persistent, EventBus-driven) — sets both casters' masks on both hands per context.
+4. Caster masks are dynamic (binder-owned); startup default = Object (`SceneObjects`).
 
 ## Out of scope
+- UI (separate XRI UI channel).
+- Future floor-placement spawn (will raycast `Environment` only).
+- Colinear multi-interactive priority beyond context masking (not needed once contexts are single-layer).
 
-- **UI.** UI is its own raycast channel (`NearFarInteractor.TryGetCurrentUIRaycastResult`,
-  `WorldClickCatcher.IsOverUI`). It already takes precedence for world clicks; not changed here.
-- **Ray visual.** The `XRRayInteractor` line still terminates at its own nearest hit (e.g. the floor)
-  even when selection resolves to something behind it. Accepted as-is; extending the visual to the
-  prioritized target is a possible later polish.
-- **Explicit `Environment` layer.** Not created — environment = absence of an interaction layer.
+## Verification (VR)
+1. Object context: point at a spawned object → highlights → tap selects.
+2. Open gizmo → only handles interactable; target behind not mis-hit; grab/move/rotate works.
+3. Click empty while gizmo up → gizmo dismissed, selection cleared, can re-select object/bone.
+4. Bone context (Show Bones): bone behind body is selectable (body excluded from mask).
+5. Gizmo/handle behind the floor → grabbable (floor on Environment, out of mask).
+6. In-progress drag is not aborted by a mask change (locked state held independently).
+7. Empty-space tap still triggers deselect under the narrow mask.
 
-## Testing / verification (in VR)
+---
 
-1. Gizmo behind the floor / behind the target object → grabbable (Gizmo layer wins).
-2. Bone behind the body mesh → selectable (Bone > Selectable).
-3. Two selectable objects in line → nearest one selected (distance tie-break within Selectable).
-4. Pointing at empty floor (nothing interactive behind) → deselect (no hit in mask).
-5. Selecting an object then manipulating its gizmo still works after removing the target-collider disable.
+## (Archived) v1 design — RayInteractionResolver
 
-## Open questions
-
-- **Resolver call frequency.** `IsPrimaryFor` may be queried multiple times per frame per interactor.
-  `RaycastAll` is cheap for the few interactors in play; a per-frame/per-interactor cache is a possible
-  optimization but is deferred (YAGNI) until profiling shows a need.
-- **maxDistance source.** Use the interactor's `XRRayInteractor` max raycast distance; confirm the
-  exact field at implementation time.
+The original priority-resolver design is superseded; see the "Why v1 was wrong" section. Kept only as a
+pointer: it assumed an `XRRayInteractor` and a parallel `Physics.RaycastAll`, neither of which fit the
+`NearFarInteractor` rig.
