@@ -36,4 +36,15 @@ public class PathProvider
 
     public string SavedLibraryPath =>
         Path.Combine(_root, "asset-library", "saved.json");
+
+    public string SourcesDir =>
+        System.IO.Path.Combine(_root, "asset-library", "sources");
+
+    public string SourcePath(string assetId, string ext)
+    {
+        var clean = string.IsNullOrEmpty(ext) ? "" : (ext[0] == '.' ? ext : "." + ext);
+        return System.IO.Path.Combine(SourcesDir, assetId + clean);
+    }
+
+    public string RootForSources => _root;
 }
