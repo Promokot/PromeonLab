@@ -160,9 +160,9 @@ public class GizmoActivator : MonoBehaviour
         _instance.transform.position = _target.position;
         _instance.transform.rotation = _target.rotation;
 
-        // Bounds-fit frozen: spawn at one stable size from config (see _fixedSize).
+        // Bounds-fit frozen: spawn at one stable size from config (see _fixedSize), halved on bones.
         // var size = BoundsFitter.ComputeSize(_target, _config.BoundsCoefficient, _config.MinSize, _config.MaxSize);
-        _instance.transform.localScale = Vector3.one * _config.FixedSize;
+        _instance.transform.localScale = Vector3.one * CurrentSize();
 
         _hierarchy = _instance.GetComponent<GizmoHierarchy>();
         if (_hierarchy != null) _hierarchy.ShowMode(_mode);
@@ -190,6 +190,15 @@ public class GizmoActivator : MonoBehaviour
         }
         if (!_hasActiveBase) { _hasActiveBase = true; _activeBase = fallback; }
         if (!_hasActiveEmis) { _hasActiveEmis = true; _activeEmis = fallback; }
+    }
+
+    // Stable gizmo size; halved when the target is a bone proxy (BoneSceneNodeMarker) so it doesn't
+    // swamp the smaller bone geometry.
+    private float CurrentSize()
+    {
+        float size = _config != null ? _config.FixedSize : 1f;
+        if (_target != null && _target.GetComponent<BoneSceneNodeMarker>() != null) size *= 0.5f;
+        return size;
     }
 
     // One GizmoPart per mesh renderer. We keep the gizmo's native per-axis materials (instanced so
@@ -441,7 +450,7 @@ public class GizmoActivator : MonoBehaviour
         _gizmoController?.CommitTransform(_target, finalPos, finalRot, finalScale);
         // Bounds-fit frozen: a scale drag mutated the instance scale, so reset it back to the fixed size.
         if (_instance != null && _config != null)
-            _instance.transform.localScale = Vector3.one * _config.FixedSize;
+            _instance.transform.localScale = Vector3.one * CurrentSize();
         EndDragInternal();
     }
 
