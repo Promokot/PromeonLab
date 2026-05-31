@@ -256,6 +256,9 @@ MonoBehaviour:
   _moveActiveIndicator: {fileID: 0}
   _rotateActiveIndicator: {fileID: 0}
   _scaleActiveIndicator: {fileID: 0}
+  _inactiveHoverBrightness: 1.2
+  _activeBrightness: 0.6
+  _activeHoverBrightness: 0.8
 --- !u!114 &8650879956648924703
 MonoBehaviour:
   m_ObjectHideFlags: 0

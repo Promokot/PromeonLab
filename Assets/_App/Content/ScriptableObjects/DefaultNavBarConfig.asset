@@ -21,6 +21,10 @@ MonoBehaviour:
     VisibleModes: 00000000010000000200000003000000
     ExclusiveGroup: overlays
     IsRegionDefault: 0
+  - Id: ---
+    VisibleModes: 
+    ExclusiveGroup: 
+    IsRegionDefault: 0
   - Id: settings
     VisibleModes: 00000000010000000200000003000000
     ExclusiveGroup: center_top
@@ -40,6 +44,14 @@ MonoBehaviour:
   - Id: gizmo
     VisibleModes: 0100000002000000
     ExclusiveGroup: center_top
+    IsRegionDefault: 0
+  - Id: importWizard
+    VisibleModes: 000000000100000002000000
+    ExclusiveGroup: center_top
+    IsRegionDefault: 0
+  - Id: ---
+    VisibleModes: 
+    ExclusiveGroup: 
     IsRegionDefault: 0
   - Id: outliner
     VisibleModes: 0100000002000000
