@@ -6,9 +6,6 @@
 > implementation cycle. **Slice 1 is the implementation target driven from this design.**
 >
 > **Git note:** user commits manually — this doc is written, not committed.
-> **Coordination note:** Slice 2 touches `PromeonProxyRigBuilder.cs`, which another agent is
-> actively editing (outline work). Slice 2 is BLOCKED until that work lands. Slices 1 and 3 do not
-> touch it.
 
 ## Problem
 
