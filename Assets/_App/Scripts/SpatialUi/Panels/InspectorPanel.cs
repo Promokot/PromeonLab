@@ -42,6 +42,8 @@ public class InspectorPanel : MonoBehaviour
     private SceneNode _bound;          // currently selected rig/object
     private Transform _boneTransform;  // currently selected bone proxy transform
     private string    _boneRigId;      // parent rig node id (when bone selected)
+    private string    _activeBoneRigId; // rig whose bone mode is ON; persists across selection so the
+                                        // Show Bones toggle stays reachable even with no/bone selection
 
     [Inject]
     public void Construct(EventBus bus, SceneContext ctx, IAssetRegistry registry)
@@ -136,11 +138,21 @@ public class InspectorPanel : MonoBehaviour
         // Delete: only when a normal (non-bone) node is selected.
         if (_deleteButton != null) _deleteButton.gameObject.SetActive(state == InspectorState.Single && _bound != null);
 
-        // ShowBones: visible when we can resolve a rig (Single rig OR Bone with known parent rig).
+        // ShowBones toggle: stays reachable while a rig's bone mode is active, regardless of the current
+        // selection (we deselect the rig on entering bone mode, and a bone/empty selection must still be
+        // able to turn it off). Prefer the active bone-mode rig; otherwise the rig from selection.
+        var toggleRig = rig;
+        if (_activeBoneRigId != null)
+        {
+            var activeNode = _ctx.Graph.GetNode(_activeBoneRigId);
+            var activeRig  = activeNode != null ? activeNode.GetComponentInChildren<PromeonProxyRigBuilder>(true) : null;
+            if (activeRig != null) toggleRig = activeRig;
+            else _activeBoneRigId = null; // active rig vanished (scene change) — drop bone mode
+        }
         if (_showBonesToggle != null)
         {
-            _showBonesToggle.gameObject.SetActive(rig != null);
-            if (rig != null) _showBonesToggle.SetIsOnWithoutNotify(AreBonesInteractive(rig));
+            _showBonesToggle.gameObject.SetActive(toggleRig != null);
+            if (toggleRig != null) _showBonesToggle.SetIsOnWithoutNotify(_activeBoneRigId != null);
         }
     }
 
@@ -207,17 +219,6 @@ public class InspectorPanel : MonoBehaviour
         if (_boneScaleZ != null) _boneScaleZ.text = scale.z.ToString("F2");
     }
 
-    private static bool AreBonesInteractive(PromeonProxyRigBuilder rig)
-    {
-        foreach (var go in rig.ProxyGOs)
-        {
-            if (go == null) continue;
-            var mr = go.GetComponent<MeshRenderer>();
-            if (mr != null && mr.enabled) return true;
-        }
-        return false;
-    }
-
     private void OnNameLiveEdit(string newName)
     {
         if (_bound == null) return;
@@ -257,8 +258,10 @@ public class InspectorPanel : MonoBehaviour
 
     private void OnShowBonesToggleChanged(bool value)
     {
+        // Resolve the target rig. When turning OFF we may have no selection (entering bone mode
+        // deselected the rig), so fall back to the remembered active bone-mode rig.
         PromeonProxyRigBuilder rig = null;
-        string                        rigNodeId = null;
+        string                 rigNodeId = null;
 
         if (_bound != null)
         {
@@ -268,26 +271,31 @@ public class InspectorPanel : MonoBehaviour
         else if (!string.IsNullOrEmpty(_boneRigId))
         {
             var rigNode = _ctx.Graph.GetNode(_boneRigId);
-            if (rigNode != null)
-            {
-                rig       = rigNode.GetComponentInChildren<PromeonProxyRigBuilder>(true);
-                rigNodeId = rigNode.NodeId;
-            }
+            if (rigNode != null) { rig = rigNode.GetComponentInChildren<PromeonProxyRigBuilder>(true); rigNodeId = rigNode.NodeId; }
+        }
+        else if (!string.IsNullOrEmpty(_activeBoneRigId))
+        {
+            var rigNode = _ctx.Graph.GetNode(_activeBoneRigId);
+            if (rigNode != null) { rig = rigNode.GetComponentInChildren<PromeonProxyRigBuilder>(true); rigNodeId = rigNode.NodeId; }
         }
 
         if (rig == null) return;
 
         rig.SetBonesInteractive(value);
+        _bus?.Publish(new BonesVisibilityChangedEvent { RigNodeId = rigNodeId, Visible = value });
 
-        _bus?.Publish(new BonesVisibilityChangedEvent
+        if (value)
         {
-            RigNodeId = rigNodeId,
-            Visible   = value
-        });
-
-        // If bones get hidden while a bone is the active selection, jump the selection up to the rig
-        // so the user keeps an inspector context and the toggle reflects the now-false state.
-        if (!value && _boneTransform != null && !string.IsNullOrEmpty(rigNodeId))
+            // Enter bone mode: remember the rig and drop the rig-object selection immediately, so we
+            // start clean inside the rig. InteractionMaskBinder flips the cast mask to BoneProxies.
+            _activeBoneRigId = rigNodeId;
+            _ctx.Selection?.Select(null);
+        }
+        else
+        {
+            // Exit bone mode: forget it and re-select the rig object (mask returns to SceneObjects).
+            _activeBoneRigId = null;
             _ctx.Selection?.Select(rigNodeId);
+        }
     }
 }

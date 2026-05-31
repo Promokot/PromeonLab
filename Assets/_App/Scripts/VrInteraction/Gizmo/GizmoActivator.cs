@@ -149,14 +149,15 @@ public class GizmoActivator : MonoBehaviour
         }
     }
 
-    // SilhouetteOnly = see-through silhouette; RenderPriority 2 paints over selection (0) and bones (1).
+    // OutlineAll = always-visible outline (ZTest Always), so the gizmo stays highlighted whether or not
+    // it's occluded. RenderPriority 2 paints it over selection (0) and bones (1).
     private void InstallHandleOutline(GameObject go, Color color)
     {
         var outline = go.GetComponent<Outline>();
         if (outline == null) outline = go.AddComponent<Outline>();
         if (_outlineConfig != null)
             outline.SetOutlineMaterials(_outlineConfig.MaskMaterial, _outlineConfig.FillMaterial);
-        outline.OutlineMode    = Outline.Mode.SilhouetteOnly;
+        outline.OutlineMode    = Outline.Mode.OutlineAll;
         outline.OutlineColor   = color;
         outline.RenderPriority = 2;
     }

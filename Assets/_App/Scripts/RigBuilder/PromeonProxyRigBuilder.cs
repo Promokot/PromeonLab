@@ -142,6 +142,11 @@ public class PromeonProxyRigBuilder : MonoBehaviour
             }
             var col     = go.GetComponent<Collider>();
             if (col     != null) col.enabled     = enabled;
+
+            // Baked proxies self-tag SceneObjects in their interactable's Awake (the default). Re-tag
+            // to BoneProxies at interaction time so the Bone-context cast mask can actually hover them.
+            if (enabled)
+                go.GetComponent<XRPromeonInteractable>()?.SetInteractionLayer(InteractionLayer.BoneProxies);
         }
         if (_rootCollider != null) _rootCollider.enabled = !enabled;
 
