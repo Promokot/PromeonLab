@@ -19,8 +19,9 @@ public class ReferenceEntityBuilderTests
 
         Assert.AreEqual(AssetType.Reference, recipe.type);
         Assert.That(recipe.referenceAspect, Is.EqualTo(2f).Within(0.01f));
-        Assert.That(recipe.colliderCenter.y, Is.EqualTo(1f).Within(0.01f));
-        Assert.That(recipe.colliderSize.x, Is.EqualTo(2f).Within(0.01f));
+        Assert.That(recipe.colliderCenter.y, Is.EqualTo(0f).Within(0.01f)); // centered pivot
+        Assert.That(recipe.colliderSize.x, Is.EqualTo(1f).Within(0.01f));   // unit local; localScale stretches by aspect
+        Assert.That(recipe.spawnOffset.y, Is.EqualTo(1f).Within(0.01f));    // lift = gap .5 + half-height .5
         Assert.IsTrue(recipe.selectable);
     }
 }

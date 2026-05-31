@@ -35,8 +35,12 @@ public class ReferenceEntityBuilder : IAssetEntityBuilder
             selectable         = true,
             interactionLayer   = InteractionLayer.SceneObjects,
             colliderKind       = ColliderKind.Box,
-            colliderCenter     = new Vector3(0f, gap + h * 0.5f, 0f),
-            colliderSize       = new Vector3(aspect, h, 0.02f),
+            // Quad pivot is its geometry center; the node's localScale (aspect,1,1) stretches both the
+            // mesh and the box, so the box is unit-sized in local space and thin on Z.
+            colliderCenter     = Vector3.zero,
+            colliderSize       = new Vector3(1f, h, 0.02f),
+            // Lift once at spawn so the image's bottom clears the floor by gap, with a centered pivot.
+            spawnOffset        = new Vector3(0f, gap + h * 0.5f, 0f),
             referenceAspect    = aspect,
             referenceBottomGap = gap,
             referenceTwoSided  = true,
@@ -52,8 +56,7 @@ public class ReferenceEntityBuilder : IAssetEntityBuilder
         var abs = _store.AbsolutePath(asset.SourceRef);
         var r   = recipe ?? await BuildAsync(abs, AssetType.Reference, ct); // legacy fallback
 
-        var go = await _quads.CreateAsync(abs, position, rotation,
-            r.referenceAspect, r.referenceBottomGap, r.referenceTwoSided, ct);
+        var go = await _quads.CreateAsync(abs, position, rotation, r.referenceAspect, r.referenceTwoSided, ct);
         if (go == null) return null;
 
         InteractionCapability.Apply(go, r.interactionLayer, r.colliderKind, r.colliderCenter, r.colliderSize, r.selectable);

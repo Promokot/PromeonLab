@@ -18,6 +18,9 @@ public class AssetEntityRecipe
     public Vector3          colliderCenter;
     public Vector3          colliderSize = Vector3.one;
 
+    // Initial placement: world-space offset applied ONCE at fresh spawn (reload uses the saved pos).
+    public Vector3          spawnOffset;
+
     // Reference-specific.
     public float            referenceAspect = 1f;
     public float            referenceBottomGap = 0.5f;

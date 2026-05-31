@@ -1,5 +1,5 @@
 {
   "name": "_App.Runtime",
-  "references": ["VContainer", "Unity.TextMeshPro", "Unity.XR.Interaction.Toolkit", "Unity.InputSystem", "SimpleFileBrowser.Runtime", "QuickOutline", "Unity.Animation.Rigging", "glTFast"],
+  "references": ["VContainer", "Unity.TextMeshPro", "Unity.XR.Interaction.Toolkit", "Unity.InputSystem", "SimpleFileBrowser.Runtime", "QuickOutline", "Unity.Animation.Rigging", "glTFast", "Unity.XR.CoreUtils"],
   "autoReferenced": false
 }

@@ -1,20 +1,22 @@
+using System.Collections;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.XR.Interaction.Toolkit.Locomotion;
 using Scene = UnityEngine.SceneManagement.Scene;
 
-// Teleports the XR Rig to world origin on every scene load (single-mode transitions).
-// Uses XRBodyTransformer.QueueTransformation so the locomotion system applies the move correctly —
-// direct transform.SetPositionAndRotation is overridden by XRBodyTransformer.
+// Places the player at world origin (0,0,0) facing +Z on every scene load and on Respawn.
+// Uses XROrigin.MatchOriginUpCameraForward + MoveCameraToWorldLocation (camera-relative recenter)
+// deferred one frame so the tracked HMD pose from the new scene is applied first.
 public class PlayerSpawnApplier : MonoBehaviour
 {
-    private XRBodyTransformer _bodyTransformer;
+    private XROrigin _xrOrigin;
+    private Coroutine _recenterCo;
 
     private void Awake()
     {
-        _bodyTransformer = GetComponentInChildren<XRBodyTransformer>(true);
-        if (_bodyTransformer == null)
-            Debug.LogWarning("PlayerSpawnApplier: no XRBodyTransformer found on rig — teleport will be a no-op.");
+        _xrOrigin = GetComponentInChildren<XROrigin>(true);
+        if (_xrOrigin == null)
+            Debug.LogWarning("PlayerSpawnApplier: no XROrigin found on rig — recenter will be a no-op.");
     }
 
     private void OnEnable()  => SceneManager.sceneLoaded += OnSceneLoaded;
@@ -26,20 +28,34 @@ public class PlayerSpawnApplier : MonoBehaviour
 
     private void TeleportToOrigin()
     {
-        if (_bodyTransformer == null) return;
-        _bodyTransformer.QueueTransformation(
-            new TeleportToAnchor(Vector3.zero, Quaternion.identity),
-            priority: int.MaxValue);
+        if (_recenterCo != null)
+            StopCoroutine(_recenterCo);
+        _recenterCo = StartCoroutine(RecenterRoutine());
     }
 
-    private readonly struct TeleportToAnchor : IXRBodyTransformation
+    private IEnumerator RecenterRoutine()
     {
-        private readonly Vector3 _pos;
-        private readonly Quaternion _rot;
+        // Wait one full frame so the new scene's tracked HMD pose is applied,
+        // then wait until end-of-frame for extra safety.
+        yield return null;
+        yield return new WaitForEndOfFrame();
 
-        public TeleportToAnchor(Vector3 pos, Quaternion rot) { _pos = pos; _rot = rot; }
+        if (_xrOrigin == null || _xrOrigin.Camera == null)
+        {
+            Debug.LogWarning("PlayerSpawnApplier: XROrigin or Camera is null — recenter skipped.");
+            yield break;
+        }
 
-        public void Apply(XRMovableBody body) =>
-            body.originTransform.SetPositionAndRotation(_pos, _rot);
+        // Preserve the camera's current world Y so the rig stays floor-grounded
+        // (head is ~1.36 m above the floor; landing at y=0 would sink the rig).
+        float camY = _xrOrigin.Camera.transform.position.y;
+
+        // 1. Rotate the rig about the camera so the camera's flattened forward becomes world +Z.
+        _xrOrigin.MatchOriginUpCameraForward(Vector3.up, Vector3.forward);
+
+        // 2. Move the camera's XZ to world origin, keeping its world Y.
+        _xrOrigin.MoveCameraToWorldLocation(new Vector3(0f, camY, 0f));
+
+        _recenterCo = null;
     }
 }
