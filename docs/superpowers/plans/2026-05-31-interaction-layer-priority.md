@@ -1,3 +1,8 @@
+> **SUPERSEDED (2026-05-31):** this plan describes the v1 RayInteractionResolver approach, which was
+> found dead on the `NearFarInteractor` rig (no `XRRayInteractor`). The implemented design is v2 —
+> context-driven cast masks (`InteractionMaskBinder`). See the design doc
+> `docs/superpowers/specs/2026-05-31-interaction-layer-priority-design.md` (v2) for the authoritative spec.
+
 # Interaction Layer Priority Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

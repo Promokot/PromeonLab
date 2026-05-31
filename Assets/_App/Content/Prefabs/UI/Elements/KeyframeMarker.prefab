@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4903258437710568610}
   - component: {fileID: 8170580785699828707}
   - component: {fileID: 5091460898678770957}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: KeyframeMarker
   m_TagString: Untagged
   m_Icon: {fileID: 0}

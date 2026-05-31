@@ -60,6 +60,12 @@ public class RootLifetimeScope : LifetimeScope
         if (keyboard != null)
             builder.RegisterBuildCallback(c => c.Inject(keyboard));
 
+        // Persistent interaction-mask switch on the XR rig; inject the root EventBus so it can react
+        // to selection/gizmo/bone-mode events and re-mask the interactor casters per context.
+        var maskBinder = Object.FindAnyObjectByType<InteractionMaskBinder>(FindObjectsInactive.Include);
+        if (maskBinder != null)
+            builder.RegisterBuildCallback(c => c.Inject(maskBinder));
+
         // --- Region model (app-lifetime) ---
         // The UserPanel + its nav buttons live on the persistent XR rig, so the router that
         // drives them must share that lifetime. Scene-bound module CONTENT controllers

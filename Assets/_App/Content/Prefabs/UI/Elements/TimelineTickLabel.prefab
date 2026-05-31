@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2644230395677159863}
   - component: {fileID: 7157477520437254864}
   - component: {fileID: 3497842917125191478}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TimelineTickLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}

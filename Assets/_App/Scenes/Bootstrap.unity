@@ -5252,13 +5252,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 996802551602020275, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1968041692}
   m_SourcePrefab: {fileID: 100100000, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
 --- !u!4 &1968041690 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 996802551602020272, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
   m_PrefabInstance: {fileID: 1968041689}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1968041691 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 996802551602020275, guid: 8f514251caced8e4c81aa66f85ab0430, type: 3}
+  m_PrefabInstance: {fileID: 1968041689}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1968041692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1968041691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bb4f4ba68cfc934fb42e3237107b6ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: _App.Runtime::InteractionMaskBinder
 --- !u!4 &1973147092 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6598815579406187027, guid: 18ddb545287c546e19cc77dc9fbb2189, type: 3}

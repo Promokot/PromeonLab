@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4757807531005021137}
   - component: {fileID: 4828070387779639219}
   - component: {fileID: 417077745942766699}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -170,7 +170,7 @@ GameObject:
   - component: {fileID: 8555726050368070116}
   - component: {fileID: 686949652048483088}
   - component: {fileID: 3610607196257407547}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -264,7 +264,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4060632808546875917}
   - component: {fileID: 8775874278103446538}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: IndentSpacer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -325,7 +325,7 @@ GameObject:
   - component: {fileID: 5813037574364995483}
   - component: {fileID: 4882023487551364926}
   - component: {fileID: 4645204372546597265}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TrackRow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -512,7 +512,7 @@ GameObject:
   - component: {fileID: 4105848600704749005}
   - component: {fileID: 784721468427893874}
   - component: {fileID: 5899039694362618014}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: HasKeyDot
   m_TagString: Untagged
   m_Icon: {fileID: 0}

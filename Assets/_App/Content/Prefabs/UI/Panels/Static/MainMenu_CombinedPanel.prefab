@@ -1090,7 +1090,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3263178497521716941}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: MainMenu_CombinedPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1203,7 +1203,7 @@ GameObject:
   - component: {fileID: 6738594632115056622}
   - component: {fileID: 6791494396233945770}
   - component: {fileID: 6525652781174701825}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Quad2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1453,7 +1453,7 @@ GameObject:
   - component: {fileID: 1570714306771527334}
   - component: {fileID: 998807762569602808}
   - component: {fileID: 5261466057287888016}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}

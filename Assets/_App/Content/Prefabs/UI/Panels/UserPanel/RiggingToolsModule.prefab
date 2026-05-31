@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7685016759075450873}
   - component: {fileID: 8927101714504648294}
   - component: {fileID: 5835033914967568377}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -148,7 +148,7 @@ GameObject:
   - component: {fileID: 2658938425737304417}
   - component: {fileID: 6816463192391978268}
   - component: {fileID: 4172876288432743675}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -286,7 +286,7 @@ GameObject:
   - component: {fileID: 2289823937348577735}
   - component: {fileID: 7417577898399069294}
   - component: {fileID: 7029889873539866985}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Button 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -407,7 +407,7 @@ GameObject:
   - component: {fileID: 5717826724311992962}
   - component: {fileID: 7662348680058224814}
   - component: {fileID: 4375814731683496777}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ImageIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -484,7 +484,7 @@ GameObject:
   - component: {fileID: 8860914257019869685}
   - component: {fileID: 7949900719216766929}
   - component: {fileID: 7804953222593480715}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: RiggingToolsModule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -597,7 +597,7 @@ GameObject:
   - component: {fileID: 4829850632016060460}
   - component: {fileID: 663297683798809378}
   - component: {fileID: 8452664334579428862}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Button 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -855,7 +855,7 @@ GameObject:
   - component: {fileID: 8774113964411414151}
   - component: {fileID: 5870788163915759115}
   - component: {fileID: 4231072984017218287}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ImageIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -929,7 +929,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2336229756152223735}
   - component: {fileID: 8494652062716478789}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Buttons Raw
   m_TagString: Untagged
   m_Icon: {fileID: 0}

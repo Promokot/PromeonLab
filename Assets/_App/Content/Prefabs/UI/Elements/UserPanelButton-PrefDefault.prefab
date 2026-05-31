@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1093701089435904482}
   - component: {fileID: 4889880152914985300}
   - component: {fileID: 529195826597744483}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UserPanelButton-PrefDefault
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 6049077987424703977}
   - component: {fileID: 3581042938416758161}
   - component: {fileID: 837877236493807607}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -270,7 +270,7 @@ GameObject:
   - component: {fileID: 328622961014399789}
   - component: {fileID: 4980431486706886532}
   - component: {fileID: 4707304280964843422}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ActiveIndicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}

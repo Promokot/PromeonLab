@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4849642703926155388}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48,7 +48,7 @@ GameObject:
   - component: {fileID: 8212216965408662285}
   - component: {fileID: 800049401154533381}
   - component: {fileID: 5373249733085350589}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TimelineLane
   m_TagString: Untagged
   m_Icon: {fileID: 0}

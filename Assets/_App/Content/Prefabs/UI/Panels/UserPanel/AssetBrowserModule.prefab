@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3658941136283872739}
   - component: {fileID: 7243856905318165065}
   - component: {fileID: 805026287008265927}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ImportedBtn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -366,7 +366,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.02829561, y: 0.0013788802}
+  m_AnchoredPosition: {x: -0.02829561, y: -0.006606489}
   m_SizeDelta: {x: 0, y: 270}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &3392323327422969711
@@ -513,8 +513,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2571182382496931844}
   m_HandleRect: {fileID: 6511223361585423259}
   m_Direction: 0
-  m_Value: 21.380953
-  m_Size: 0.999998
+  m_Value: 1
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -530,7 +530,7 @@ GameObject:
   - component: {fileID: 3472540004729935889}
   - component: {fileID: 5013789511395737662}
   - component: {fileID: 8672292182977378471}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Column_3_AssetProperties
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -645,7 +645,7 @@ GameObject:
   - component: {fileID: 8333474154680175621}
   - component: {fileID: 1155980929675606804}
   - component: {fileID: 1206944948098634023}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BuiltInBtn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -765,7 +765,7 @@ GameObject:
   - component: {fileID: 5437147415199040051}
   - component: {fileID: 6829489889189870841}
   - component: {fileID: 1826074539739327245}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1223,8 +1223,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7969215755634102562}
   m_HandleRect: {fileID: 6158268841276177347}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.99998844
+  m_Value: 0
+  m_Size: 0.9999472
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1386,7 +1386,7 @@ GameObject:
   - component: {fileID: 2346929539274717415}
   - component: {fileID: 5838085320570373153}
   - component: {fileID: 542619707483520120}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: SavedBtn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1642,7 +1642,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6580427869058129799}
   - component: {fileID: 7307260892383693540}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: NavBar_Libs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1708,7 +1708,7 @@ GameObject:
   - component: {fileID: 2086709157406000729}
   - component: {fileID: 6844748945659846474}
   - component: {fileID: 5176885673569384733}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Column_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1784,7 +1784,7 @@ GameObject:
   - component: {fileID: 956970812737360422}
   - component: {fileID: 637604527783641872}
   - component: {fileID: 8104407784187211868}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Column_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1862,7 +1862,7 @@ GameObject:
   - component: {fileID: 4122990596930053370}
   - component: {fileID: 4056240797186376394}
   - component: {fileID: 1764716408386851512}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ImportBtn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1982,7 +1982,7 @@ GameObject:
   - component: {fileID: 6551226396875530717}
   - component: {fileID: 3173962676795347038}
   - component: {fileID: 8598737050942729652}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2122,7 +2122,7 @@ GameObject:
   - component: {fileID: 1610261298830367548}
   - component: {fileID: 634399217008230390}
   - component: {fileID: 2848088514434696351}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: AssetBrowserModule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2247,7 +2247,7 @@ GameObject:
   - component: {fileID: 6001725960658585461}
   - component: {fileID: 7175224122621655222}
   - component: {fileID: 6064305859091033043}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2384,7 +2384,7 @@ GameObject:
   - component: {fileID: 8697203613135714779}
   - component: {fileID: 3582086709853647003}
   - component: {fileID: 1368930275234058344}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2522,7 +2522,7 @@ GameObject:
   - component: {fileID: 6948480556517506809}
   - component: {fileID: 3313953695664546963}
   - component: {fileID: 1152232248624243408}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: SpawnAssetBtn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2732,7 +2732,7 @@ GameObject:
   - component: {fileID: 1065347851553028596}
   - component: {fileID: 2471955724280043477}
   - component: {fileID: 6500842605984206355}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2869,7 +2869,7 @@ GameObject:
   - component: {fileID: 4998804228982662538}
   - component: {fileID: 8927797558995390354}
   - component: {fileID: 6983359259916040013}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PropertiesList (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

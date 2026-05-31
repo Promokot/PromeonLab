@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8715011938966366723}
   - component: {fileID: 2272159673740107692}
   - component: {fileID: 2679892797937689114}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TimelineKeyDiamond
   m_TagString: Untagged
   m_Icon: {fileID: 0}

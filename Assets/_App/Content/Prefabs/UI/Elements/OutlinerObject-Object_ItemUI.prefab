@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 650390938811789961}
   - component: {fileID: 2310492538239252272}
   - component: {fileID: 7634327961224488280}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 2419233241440489704}
   - component: {fileID: 8759861625031153498}
   - component: {fileID: 2249611634811506646}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: RawBtn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -209,7 +209,7 @@ GameObject:
   - component: {fileID: 8743598852107487938}
   - component: {fileID: 2471715719821926925}
   - component: {fileID: 7891950311889417219}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -345,7 +345,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8594631197704364864}
   - component: {fileID: 1648571246966754811}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: OutlinerObject-Object_ItemUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -399,7 +399,7 @@ GameObject:
   - component: {fileID: 6377062272764289709}
   - component: {fileID: 2108490880883870110}
   - component: {fileID: 5215591715217501923}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ImageHighlight
   m_TagString: Untagged
   m_Icon: {fileID: 0}

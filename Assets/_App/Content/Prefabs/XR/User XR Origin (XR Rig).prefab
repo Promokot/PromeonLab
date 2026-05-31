@@ -219,6 +219,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1717954561962503725, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8036883698774973750}
+    - targetCorrespondingSourceObject: {fileID: 1717954561962503725, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -310391687376261261}
     - targetCorrespondingSourceObject: {fileID: 1767192433, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3012768431909173047}
@@ -294,6 +297,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ba698ec7bba2244d8db895175e1e943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-310391687376261261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 996802551602020275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bb4f4ba68cfc934fb42e3237107b6ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: _App.Runtime::InteractionMaskBinder
 --- !u!4 &1874126578912110316 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1767192434, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}

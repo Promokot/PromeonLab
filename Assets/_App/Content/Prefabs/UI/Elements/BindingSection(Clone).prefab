@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2172333339758666417}
   - component: {fileID: 6948734230553462046}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: RowList
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73,7 +73,7 @@ GameObject:
   - component: {fileID: 7042009409103920074}
   - component: {fileID: 4603467575038565560}
   - component: {fileID: 5512425351247034314}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: SectionHeader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -157,7 +157,7 @@ GameObject:
   - component: {fileID: 3456160069509402187}
   - component: {fileID: 848545936789470865}
   - component: {fileID: 5670349414774055081}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -298,7 +298,7 @@ GameObject:
   - component: {fileID: 7815632007250881561}
   - component: {fileID: 1228841300579485744}
   - component: {fileID: 6532098936067910891}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BindingSection(Clone)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
