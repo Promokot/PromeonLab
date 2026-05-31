@@ -12,12 +12,17 @@ public class ImportPipeline : IStartable, IDisposable
     private readonly EventBus                  _bus;
     private readonly ImportedAssetLibrary      _library;
     private readonly IReadOnlyList<IAssetImportHandler> _handlers;
+    private readonly AssetEntityBuilderRegistry _builders;
+    private readonly AssetSourceStore           _store;
 
-    public ImportPipeline(EventBus bus, ImportedAssetLibrary library, IReadOnlyList<IAssetImportHandler> handlers)
+    public ImportPipeline(EventBus bus, ImportedAssetLibrary library, IReadOnlyList<IAssetImportHandler> handlers,
+                          AssetEntityBuilderRegistry builders, AssetSourceStore store)
     {
         _bus      = bus;
         _library  = library;
         _handlers = handlers;
+        _builders = builders;
+        _store    = store;
     }
 
     public void Start()
@@ -61,6 +66,11 @@ public class ImportPipeline : IStartable, IDisposable
             var handler = HandlerFor(e.FilePath);
             if (handler == null) return;
             var record = await handler.ImportAsync(e.FilePath, e.ChosenType, e.DisplayName, CancellationToken.None);
+
+            // Build once: bake the entity recipe now so spawn/scene-load can restore deterministically.
+            var recipe = await _builders.BuildAsync(record.Type, _store.AbsolutePath(record.SourceRef), CancellationToken.None);
+            record.SetRecipe(recipe);
+
             _library.Add(record);
             await _library.SaveAsync(CancellationToken.None);
             _bus.Publish(new AssetImportedEvent { AssetId = record.Id });

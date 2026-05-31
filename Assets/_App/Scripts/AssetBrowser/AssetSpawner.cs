@@ -10,14 +10,14 @@ public class AssetSpawner : IStartable, IDisposable
     private readonly EventBus              _bus;
     private readonly SceneGraph            _graph;
     private readonly IObjectResolver       _resolver;
-    private readonly AssetSpawnerRegistry  _spawners;
+    private readonly AssetEntityBuilderRegistry  _builders;
 
-    public AssetSpawner(EventBus bus, SceneGraph graph, IObjectResolver resolver, AssetSpawnerRegistry spawners)
+    public AssetSpawner(EventBus bus, SceneGraph graph, IObjectResolver resolver, AssetEntityBuilderRegistry builders)
     {
         _bus      = bus;
         _graph    = graph;
         _resolver = resolver;
-        _spawners = spawners;
+        _builders = builders;
     }
 
     public void Start()   => _bus.Subscribe<AssetSpawnRequestedEvent>(OnSpawnRequested);
@@ -30,7 +30,7 @@ public class AssetSpawner : IStartable, IDisposable
     {
         try
         {
-            var go = await _spawners.SpawnAsync(e.Asset, e.Position, e.Rotation, CancellationToken.None);
+            var go = await _builders.RestoreAsync(e.Asset, e.Position, e.Rotation, CancellationToken.None);
             var assetRef = new AssetRef { Source = e.Asset.Source, AssetId = e.Asset.Id };
             // SceneGraph.AddNode handles RewriteBoneNodeIds + AddTransientNode for bone proxies.
             _graph.AddNode(go, assetRef, e.Asset.DisplayName);

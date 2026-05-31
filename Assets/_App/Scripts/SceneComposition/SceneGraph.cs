@@ -12,7 +12,7 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
     private readonly IAssetRegistry       _registry;
     private readonly IObjectResolver      _resolver;
     private readonly AppStorage           _storage;
-    private readonly AssetSpawnerRegistry _spawners;
+    private readonly AssetEntityBuilderRegistry _spawners;
     private readonly Dictionary<string, SceneNode> _nodes          = new();
     private readonly Dictionary<string, SceneNode> _transientNodes = new();
 
@@ -20,7 +20,7 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
 
     public IReadOnlyDictionary<string, SceneNode> Nodes => _nodes;
 
-    public SceneGraph(EventBus bus, IAssetRegistry registry, IObjectResolver resolver, AppStorage storage, AssetSpawnerRegistry spawners)
+    public SceneGraph(EventBus bus, IAssetRegistry registry, IObjectResolver resolver, AppStorage storage, AssetEntityBuilderRegistry spawners)
     {
         _bus      = bus;
         _registry = registry;
@@ -145,7 +145,7 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
                 GameObject go;
                 try
                 {
-                    go = await _spawners.SpawnAsync(asset, nd.Position, nd.Rotation, CancellationToken.None);
+                    go = await _spawners.RestoreAsync(asset, nd.Position, nd.Rotation, CancellationToken.None);
                 }
                 catch (Exception ex)
                 {

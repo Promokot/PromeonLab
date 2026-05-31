@@ -47,7 +47,7 @@ public class ImportedAssetLibrary : IAssetLibrary, IStartable
     {
         var path = _paths.ImportedLibraryPath;
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        var data = new LibraryJson { entries = _entries };
+        var data = new LibraryJson { schemaVersion = 2, entries = _entries };
         var json = JsonUtility.ToJson(data, prettyPrint: true);
         await File.WriteAllTextAsync(path, json, ct);
     }
@@ -68,6 +68,7 @@ public class ImportedAssetLibrary : IAssetLibrary, IStartable
     [Serializable]
     private class LibraryJson
     {
+        public int schemaVersion = 2; // v2 adds per-entry AssetEntityRecipe
         public List<ImportedLabAsset> entries = new();
     }
 }

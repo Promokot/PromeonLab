@@ -46,10 +46,11 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<AssetSourceStore>(Lifetime.Singleton);
         builder.Register<GltfModelLoader>(Lifetime.Singleton);
         builder.Register<ReferenceQuadFactory>(Lifetime.Singleton);
-        builder.Register<ObjectSpawner>(Lifetime.Singleton).As<IAssetSpawner>();
-        builder.Register<RigSpawner>(Lifetime.Singleton).As<IAssetSpawner>();
-        builder.Register<ReferenceSpawner>(Lifetime.Singleton).As<IAssetSpawner>();
-        builder.Register<AssetSpawnerRegistry>(Lifetime.Singleton);
+        builder.Register<BoundsBoxColliderStrategy>(Lifetime.Singleton).As<IColliderStrategy>();
+        builder.Register<ObjectEntityBuilder>(Lifetime.Singleton).As<IAssetEntityBuilder>();
+        builder.Register<RigEntityBuilder>(Lifetime.Singleton).As<IAssetEntityBuilder>();
+        builder.Register<ReferenceEntityBuilder>(Lifetime.Singleton).As<IAssetEntityBuilder>();
+        builder.Register<AssetEntityBuilderRegistry>(Lifetime.Singleton);
 
         // Import handlers + pipeline.
         builder.Register<GltfImportHandler>(Lifetime.Singleton).As<IAssetImportHandler>();
