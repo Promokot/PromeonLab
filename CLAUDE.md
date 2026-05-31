@@ -13,6 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Events:** Custom `EventBus` (`Publish<T>`/`Subscribe<T>`, per-scope)
 - **Graphics:** URP 17.3.0
 - **Serialization:** Unity JsonUtility (all data versioned with `schemaVersion`)
+- **Runtime model import:** glTF/GLB via glTFast (`com.unity.cloud.gltfast`) + images (PNG/JPG); **FBX import is not supported at runtime** (export-side FBX is unchanged)
 
 ## Build & Development
 
@@ -42,7 +43,7 @@ Child scopes may depend on parent registrations; **never the reverse**. Exactly 
 
 ### App Modes (`ModeOrchestrator` + `ModeTransitionGraph`)
 
-`MainMenu` ↔ `VrEditing`; `MainMenu` ↔ `Sandbox`. `ModeOrchestrator` is pure policy: it validates the transition against `ModeTransitionGraph`, then delegates the scene swap to `ISceneTransition` (`SceneTransitionRunner`), which fades the VR view to black (`HeadFade`), loads the target scene `Single`, and only then invokes the callback that publishes `ModeChangedEvent` — so the event always fires *after* the new scene and its scope exist. A re-entrancy guard drops overlapping transition requests.
+`MainMenu` ↔ `VrEditing`; `MainMenu` ↔ `Sandbox`. `ModeOrchestrator` is pure policy: it validates the transition against `ModeTransitionGraph`, then delegates the scene swap to `ISceneTransition` (`SceneTransitionRunner`), which fades the VR view to black (`HeadFade`), loads the target scene `Single`, and only then invokes the callback that publishes `ModeChangedEvent` — so the event always fires *after* the new scene and its scope exist. Before delegating the load, the orchestrator publishes `ModeExitingEvent` **synchronously while the outgoing scene and its scope are still alive** — this is the hook for save-on-exit work (`SceneAutoSaver`), since scene-scoped services are disposed during the Single load, *before* `ModeChangedEvent` fires. A re-entrancy guard drops overlapping transition requests.
 
 ### Subsystems
 
@@ -51,13 +52,13 @@ Located in `Assets/_App/Scripts/<Subsystem>/`. Interfaces and contracts for each
 | Subsystem | Core Responsibility |
 |---|---|
 | `StorageCore` | File I/O, JSON serialization, `PathProvider`, schema migration via `StorageMigrator` |
-| `AssetBrowser` | VR gallery UI over `StorageCore`; drag-and-drop to scene; no direct file access |
+| `AssetBrowser` | VR gallery UI over three asset libraries keyed by `AssetSource` (`Builtin`/`Imported`/`Saved`); runtime import pipeline (`ImportPipeline` + `ImportWizardSurface`) for glTF/GLB (via glTFast) and images; per-`AssetType` spawning via `IAssetSpawner`/`AssetSpawnerRegistry`; no direct file access (delegates to `StorageCore`/`AssetSourceStore`) |
 | `SceneComposition` | Scene node hierarchy, `CommandStack` (undo/redo), `SelectionManager` |
 | `RigBuilder` | Skeletal rigging from imported mesh; IK/FK via Unity Animation Rigging |
 | `Animation` | `ActionData`, keyframe recording/authoring, NLA composition, and playback transport (scrub/loop/speed). Key types: `AnimationAuthoring`, `AnimationPlayback`, `AnimationClock` |
 | `ExportPipeline` | FBX + custom JSON export; no reverse import |
 | `InputBindings` | OpenXR controller mapping; context-switched (`Navigation`, `Ui`, `GizmoManipulation`, …) |
-| `ModeOrchestrator` | Mode policy: validates `ModeTransitionGraph`, delegates to `ISceneTransition`/`SceneTransitionRunner` (single-scene load behind `HeadFade`); publishes `ModeChangedEvent` after the load |
+| `ModeOrchestrator` | Mode policy: validates `ModeTransitionGraph`, delegates to `ISceneTransition`/`SceneTransitionRunner` (single-scene load behind `HeadFade`); publishes `ModeExitingEvent` before the load (outgoing scope still alive) and `ModeChangedEvent` after the load |
 | `VrInteraction` | `RayInteractor`, `NearInteractor`, `GizmoController`, multi-select |
 | `SpatialUi` | VR panels (`BodyLocked` / `WorldFixed` / `Free`), `ToolbarPanel`, billboard mode |
 | `ErrorHandling` | `ErrorDispatcher`, three levels (`Warning`/`Error`/`Critical`), async error wrapping |
@@ -70,22 +71,35 @@ All cross-subsystem messages are `struct` types suffixed `Event` (e.g., `SceneOp
 `SceneModified` → UnsavedChangesGuard  
 `SelectionChanged` → PropertyPanel, GizmoController  
 `FrameChanged` → AnimationEvaluator, TrackRecorder  
+`ModeExiting` → SceneAutoSaver (fired *before* the Single load, while the outgoing scene/scope are still alive)  
 `ModeChanged` → SpatialUi region router / nav-bar visibility (fired *after* the new scene has loaded)  
 `SceneContextChanged` → OutlinerPanel, InspectorPanel, PropertyPanel, AnimatorPanel (scene services bound/unbound)  
+`FilePicked` → ImportPipeline (picks an `IAssetImportHandler` by extension, opens the import wizard)  
+`ImportRequested` → ImportWizardSurface (show wizard: file name, suggested type/name)  
+`ImportConfirmed` → ImportPipeline (handler copies source + writes the library record)  
+`AssetImported` → AssetBrowser grid refresh  
+`AssetSpawnRequested` → AssetSpawner (spawns through `AssetSpawnerRegistry`)  
 
 ### Data Storage Layout
 
 All paths are built exclusively through `PathProvider` — no manual string concatenation.
 
 ```
-Application.persistentDataPath/scenes/{SceneId}/
-├── scene.json            (scene graph + animation data)
-├── asset-catalog.json    (asset registry)
-├── assets/Models|Textures|Materials|Media/
-├── Rigs/                 rig-{assetId}.json
-├── Poses/                pose-{assetId}.json
-└── export/               *.fbx / *.json
+Application.persistentDataPath/
+├── asset-library/                    (global, reusable across scenes)
+│   ├── imported.json                 (Imported-library records)
+│   ├── saved.json                    (Saved-library records; Slice 3, not yet implemented)
+│   └── sources/{assetId}.{ext}       (copied raw import files — .glb/.gltf/.png/.jpg)
+└── scenes/{SceneId}/
+    ├── scene.json            (scene graph + animation data)
+    ├── asset-catalog.json    (asset registry)
+    ├── assets/Models|Textures|Materials|Media/
+    ├── Rigs/                 rig-{assetId}.json
+    ├── Poses/                pose-{assetId}.json
+    └── export/               *.fbx / *.json
 ```
+
+Imported assets are global: a node in `scene.json` stores `AssetRef{Source, AssetId}`, and the spawner loads geometry from `asset-library/sources/` by the record's `SourceRef` (stored **relative** to `persistentDataPath`). `Saved` is a distinct, scene-origin flow (manual save-out), not yet implemented.
 
 ## Folder Structure
 

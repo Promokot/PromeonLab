@@ -275,27 +275,42 @@ Assets/
     │   │       ├── FrameChangedEvent.cs
     │   │       └── PlaybackStateChangedEvent.cs
     │   │
-    │   ├── AssetBrowser/
+    │   ├── AssetBrowser/                  (3 libraries by AssetSource; pure-data records + per-type spawners + runtime import pipeline)
     │   │   ├── AssetEntry.cs
     │   │   ├── AssetImporter.cs
     │   │   ├── AssetRef.cs
     │   │   ├── AssetRegistry.cs
-    │   │   ├── AssetSource.cs
-    │   │   ├── AssetSpawner.cs
-    │   │   ├── AssetType.cs
+    │   │   ├── AssetSource.cs               enum: Builtin | Imported | Saved
+    │   │   ├── AssetSourceStore.cs          copies raw import file → asset-library/sources/{id}{ext}
+    │   │   ├── AssetSpawner.cs              browser-placement trigger → AssetSpawnerRegistry
+    │   │   ├── AssetSpawnerRegistry.cs      dispatch IAssetSpawner by AssetType
+    │   │   ├── AssetType.cs                 enum: Object | Rig | Reference
     │   │   ├── BuiltinAssetLibrary.cs
     │   │   ├── BuiltinLabAsset.cs
     │   │   ├── DemoAssetCatalog.cs
+    │   │   ├── GltfImportHandler.cs         IAssetImportHandler for .glb/.gltf
+    │   │   ├── GltfModelLoader.cs           runtime glTF/GLB load via glTFast
+    │   │   ├── IAssetImportHandler.cs       raw file → ImportedLabAsset record
     │   │   ├── IAssetLibrary.cs
     │   │   ├── IAssetRegistry.cs
-    │   │   ├── ILabAsset.cs
+    │   │   ├── IAssetSpawner.cs             record → GameObject (one per AssetType)
+    │   │   ├── ILabAsset.cs                 pure data {Id,DisplayName,Type,Source,SourceRef,Icon}
+    │   │   ├── ImageImportHandler.cs        IAssetImportHandler for .png/.jpg/.jpeg
+    │   │   ├── ImportPipeline.cs            FilePicked → wizard → handler → library
     │   │   ├── ImportedAssetLibrary.cs
     │   │   ├── ImportedLabAsset.cs
+    │   │   ├── ModelSpawnCore.cs            shared glTF/Builtin geometry spawn
+    │   │   ├── ObjectSpawner.cs             IAssetSpawner — Object
+    │   │   ├── ReferenceQuadFactory.cs      textured quad from image
+    │   │   ├── ReferenceSpawner.cs          IAssetSpawner — Reference
+    │   │   ├── RigSpawner.cs                IAssetSpawner — Rig (Slice 1: static skinned mesh)
     │   │   ├── SavedAssetLibrary.cs
     │   │   ├── SavedLabAsset.cs
     │   │   └── Events/
     │   │       ├── AssetImportedEvent.cs
-    │   │       └── AssetSpawnRequestedEvent.cs
+    │   │       ├── AssetSpawnRequestedEvent.cs
+    │   │       ├── ImportConfirmedEvent.cs
+    │   │       └── ImportRequestedEvent.cs
     │   │
     │   ├── Bootstrap/
     │   │   ├── AppBootstrap.cs
@@ -325,7 +340,8 @@ Assets/
     │   │   ├── ModeOrchestrator.cs
     │   │   ├── ModeTransitionGraph.cs
     │   │   └── Events/
-    │   │       └── ModeChangedEvent.cs
+    │   │       ├── ModeChangedEvent.cs         published after the Single load
+    │   │       └── ModeExitingEvent.cs         published before the load (outgoing scope still alive)
     │   │
     │   ├── RigBuilder/
     │   │   ├── BoneFollower.cs
@@ -403,6 +419,7 @@ Assets/
     │   │   │   ├── DetachablePanelDragHandle.cs
     │   │   │   ├── FileBrowserSurface.cs       IRegionSurface adapter over SimpleFileBrowser modal
     │   │   │   ├── FileBrowserVrAnchor.cs
+    │   │   │   ├── ImportWizardSurface.cs       IRegionSurface — import wizard (type + name choice)
     │   │   │   ├── PanelDragHandle.cs
     │   │   │   ├── RegionNavButton.cs          button → router.Toggle; per-mode visibility; brightness
     │   │   │   ├── TimelineScrollSync.cs
@@ -498,18 +515,18 @@ Assets/
 
 | Folder | `.cs` | `.prefab` | `.unity` | `.asset` |
 |---|---|---|---|---|
-| `_App/Scripts/` total | **162** | — | — | — |
+| `_App/Scripts/` total | **200** | — | — | — |
 | — `Core/` | 2 | — | — | — |
 | — `Animation/` | 17 | — | — | — |
-| — `AssetBrowser/` | 17 | — | — | — |
+| — `AssetBrowser/` | 34 | — | — | — |
 | — `Bootstrap/` | 9 | — | — | — |
 | — `ErrorHandling/` | 3 | — | — | — |
 | — `ExportPipeline/` | 1 | — | — | — |
 | — `InputBindings/` | 1 | — | — | — |
-| — `ModeOrchestrator/` | 4 | — | — | — |
+| — `ModeOrchestrator/` | 7 | — | — | — |
 | — `RigBuilder/` | 11 | — | — | — |
 | — `SceneComposition/` | 14 | — | — | — |
-| — `SpatialUi/` | 50 | — | — | — |
+| — `SpatialUi/` | 54 | — | — | — |
 | — `StorageCore/` | 7 | — | — | — |
 | — `VrInteraction/` | 26 | — | — | — |
 | `_App/Editor/` | 4 | — | — | — |
