@@ -26,6 +26,11 @@ public class ImportWizardSurface : MonoBehaviour, IRegionSurface
     {
         _bus    = bus;
         _router = router;
+        // Subscribe at DI time, NOT in OnEnable: this panel stays hidden (GameObject
+        // inactive) until an import is requested, so OnEnable never runs to wire the
+        // subscription. EventBus invokes the delegate regardless of active state, so the
+        // request still reaches us and we can self-activate via Open → Show.
+        _bus?.Subscribe<ImportRequestedEvent>(OnImportRequested);
     }
 
     private void Awake()
@@ -34,8 +39,7 @@ public class ImportWizardSurface : MonoBehaviour, IRegionSurface
         _cancelButton?.onClick.AddListener(OnCancel);
     }
 
-    private void OnEnable()  => _bus?.Subscribe<ImportRequestedEvent>(OnImportRequested);
-    private void OnDisable() => _bus?.Unsubscribe<ImportRequestedEvent>(OnImportRequested);
+    private void OnDestroy() => _bus?.Unsubscribe<ImportRequestedEvent>(OnImportRequested);
 
     private void OnImportRequested(ImportRequestedEvent e)
     {
@@ -46,8 +50,20 @@ public class ImportWizardSurface : MonoBehaviour, IRegionSurface
         _router?.Open("importWizard");
     }
 
-    public void Show() => _open = true;   // region router calls this when the region opens
-    public void Hide() => _open = false;
+    // Region router calls these when the region opens/closes. RegionMember delegates here
+    // for custom surfaces and never touches SetActive itself, so we must toggle our own
+    // GameObject — otherwise the wizard would stay invisible even when "open".
+    public void Show()
+    {
+        if (!gameObject.activeSelf) gameObject.SetActive(true);
+        _open = true;
+    }
+
+    public void Hide()
+    {
+        _open = false;
+        if (gameObject.activeSelf) gameObject.SetActive(false);
+    }
 
     private void OnImport()
     {

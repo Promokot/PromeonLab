@@ -154,7 +154,9 @@ public class AssetBrowserPanel : MonoBehaviour
         {
             Asset    = _selectedAsset,
             Position = pos,
-            Rotation = Quaternion.identity,
+            // Aim the spawned object's +Z back toward the player so we face its front, not its
+            // back. (-fwd points from the spawn point back to the camera; up stays world-up.)
+            Rotation = Quaternion.LookRotation(-fwd, Vector3.up),
         });
     }
 
@@ -168,9 +170,13 @@ public class AssetBrowserPanel : MonoBehaviour
 
     private void OnRegionChanged(RegionChangedEvent e)
     {
-        // Re-open the asset browser after the file browser we launched closes. Guard on the
-        // router's live state so unrelated region changes (or our own re-open) don't retrigger.
-        if (_reopenAfterFileBrowser && _router != null && !_router.IsOpen("fileBrowser"))
+        // Re-open the asset browser once the shared center_top region empties after the file
+        // browser flow — but ONLY when nothing else claimed the region. A successful pick hands
+        // the region to the import wizard (OpenModuleId == "importWizard"); reopening here would
+        // stomp it. We wait until the region actually empties (OpenModuleId == null), which is
+        // when the file browser is cancelled or the wizard finishes — then the browser returns.
+        if (_reopenAfterFileBrowser && _router != null
+            && string.IsNullOrEmpty(e.OpenModuleId) && !_router.IsOpen("fileBrowser"))
         {
             _reopenAfterFileBrowser = false;
             _router.Open("assets");

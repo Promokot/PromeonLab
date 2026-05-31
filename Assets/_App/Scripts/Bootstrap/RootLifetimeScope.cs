@@ -9,6 +9,7 @@ public class RootLifetimeScope : LifetimeScope
     [SerializeField] private BuiltinAssetLibrary _builtinLibrary;
     [SerializeField] private NavBarConfig        _navBarConfig;
     [SerializeField] private OutlineConfig       _outlineConfig;
+    [SerializeField] private ImportRenderProfile _importRenderProfile;
 
     protected override void Configure(IContainerBuilder builder)
     {
@@ -30,6 +31,16 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<ImportedAssetLibrary>(Lifetime.Singleton);
         builder.Register<SavedAssetLibrary>(Lifetime.Singleton);
         builder.Register<AssetRegistry>(Lifetime.Singleton).As<IAssetRegistry>();
+
+        // Render presets for runtime-imported assets (shader + two-sided per AssetType).
+        // Always register a non-null instance so ReferenceQuadFactory resolves; an empty
+        // runtime profile just means every type falls back to built-in defaults.
+        var renderProfile = _importRenderProfile != null
+            ? _importRenderProfile
+            : ScriptableObject.CreateInstance<ImportRenderProfile>();
+        if (_importRenderProfile == null)
+            Debug.LogWarning("RootLifetimeScope: _importRenderProfile not assigned — imported images fall back to built-in URP/Unlit (two-sided).");
+        builder.RegisterInstance(renderProfile);
 
         // Runtime loaders + per-type spawners.
         builder.Register<AssetSourceStore>(Lifetime.Singleton);

@@ -1477,7 +1477,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8942940051646476212}
   toggleTransition: 1
   graphic: {fileID: 5277175788325810162}
-  m_Group: {fileID: 0}
+  m_Group: {fileID: 7087265488318358395}
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2257,9 +2257,8 @@ GameObject:
   - component: {fileID: 1404188440355921587}
   - component: {fileID: 1817760716757371450}
   - component: {fileID: 977854759579892766}
-  - component: {fileID: 4345046538523304893}
-  - component: {fileID: 1123853404863711627}
   - component: {fileID: 443983580806297133}
+  - component: {fileID: 1123853404863711627}
   m_Layer: 5
   m_Name: ImportWizard
   m_TagString: Untagged
@@ -2343,7 +2342,7 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &4345046538523304893
+--- !u!114 &443983580806297133
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2355,7 +2354,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d70e3e1ff24530840976ce3476eef7fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: _App.Runtime::RegionMember
-  _moduleId: assets
+  _moduleId: importWizard
 --- !u!114 &1123853404863711627
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2375,19 +2374,6 @@ MonoBehaviour:
   _referenceToggle: {fileID: 1705111538285517809}
   _importButton: {fileID: 2764463832410050761}
   _cancelButton: {fileID: 8535077336072878342}
---- !u!114 &443983580806297133
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5623020962675867902}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d70e3e1ff24530840976ce3476eef7fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: _App.Runtime::RegionMember
-  _moduleId: importWizard
 --- !u!1 &5658355232075832016
 GameObject:
   m_ObjectHideFlags: 0
@@ -3230,7 +3216,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5667037555994749898}
   toggleTransition: 1
   graphic: {fileID: 5014544236926254859}
-  m_Group: {fileID: 0}
+  m_Group: {fileID: 7087265488318358395}
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -4234,7 +4220,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3216828622463036547}
   toggleTransition: 1
   graphic: {fileID: 6987791067099175884}
-  m_Group: {fileID: 0}
+  m_Group: {fileID: 7087265488318358395}
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
