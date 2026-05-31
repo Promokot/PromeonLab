@@ -53,7 +53,7 @@ MonoBehaviour:
   _moveY: {fileID: 2822247712424509592}
   _moveZ: {fileID: 9058876765022189542}
   _rotateRoot: {fileID: 7442348361811193305}
-  _rotateX: {fileID: 7442348361811193305}
+  _rotateX: {fileID: 1042216553094265851}
   _rotateY: {fileID: 7798170444477516345}
   _rotateZ: {fileID: 1262451141236174952}
   _scaleRoot: {fileID: 4620070568671597680}
@@ -1090,6 +1090,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 371547919982594820}
   m_SourcePrefab: {fileID: 100100000, guid: 5a933a6e121e6c44ebf4764ebff5e40c, type: 3}
+--- !u!4 &1042216553094265851 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -1246226658390887991, guid: 5a933a6e121e6c44ebf4764ebff5e40c, type: 3}
+  m_PrefabInstance: {fileID: 6972189161378417202}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1262451141236174952 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8162512116140554842, guid: 5a933a6e121e6c44ebf4764ebff5e40c, type: 3}
