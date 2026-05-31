@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 228156013b2bfb74bb163596e0aed50d, type: 3}
-  m_Name: ControlsProfile
+  m_Name: DefaultControlsProfile
   m_EditorClassIdentifier: _App.Runtime::ControlsProfile
   _schemaVersion: 1
   _bindings:
@@ -26,7 +26,7 @@ MonoBehaviour:
     Description: "\u041F\u043B\u0430\u0432\u043D\u044B\u0439 \u043F\u043E\u0432\u043E\u0440\u043E\u0442
       \u0432\u0438\u0434\u0430"
     Hand: 2
-    InputLabel: "stick \u27F7"
+    InputLabel: stick
     IconId: 
   - Category: 1
     Action: Select

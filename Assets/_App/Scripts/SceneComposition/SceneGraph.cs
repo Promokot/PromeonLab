@@ -155,7 +155,6 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
                 go.transform.localScale = nd.Scale;
                 AddNodeInternal(go, nd.NodeId, nd.AssetRef, nd.DisplayName, nd.ParentNodeId, isLoad: true);
                 _resolver.InjectGameObject(go);
-                go.SetInteractionLayerOnColliders(InteractionLayer.SceneObjects);
             }
 
             foreach (var nd in data.Nodes)

@@ -295,11 +295,8 @@ public class PromeonProxyRigBuilder : MonoBehaviour
         // Interaction components — DI wired by IObjectResolver.InjectGameObject at spawn time.
         // Colliders auto-discover in XRPromeonInteractable.Awake (own GO only by default).
         proxyGo.AddComponent<Selectable>();
-        proxyGo.AddComponent<XRPromeonInteractable>();
-
-        // BoneProxies interaction layer: the resolver ranks bones above plain SceneObjects, so a
-        // bone behind the body mesh is still reachable by the ray.
-        proxyGo.SetInteractionLayer(InteractionLayer.BoneProxies);
+        // Bone proxies live on the BoneProxies layer (the interactable self-tags its collider).
+        proxyGo.AddComponent<XRPromeonInteractable>().SetInteractionLayer(InteractionLayer.BoneProxies);
 
         _proxyGOs.Add(proxyGo);
 

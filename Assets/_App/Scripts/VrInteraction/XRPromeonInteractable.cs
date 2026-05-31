@@ -14,9 +14,13 @@ public class XRPromeonInteractable : XRBaseInteractable
              "rig proxies and most prefabs where the collider sits on the root).")]
     [SerializeField] private bool _includeChildColliders = false;
 
+    [Tooltip("Interaction layer this object's colliders sit on. The XR caster mask must include it " +
+             "for the ray to hover this object. SceneObjects for spawned assets; bone proxies are set " +
+             "to BoneProxies by the rig builder.")]
+    [SerializeField] private InteractionLayer _interactionLayer = InteractionLayer.SceneObjects;
+
     private ISelectionManager _selectionManager;
     private GizmoController   _gizmoController;
-    private RayInteractionResolver _rayResolver;
     private IDragStrategy     _dragStrategy = new SingleDragStrategy();
     private SceneNode         _node;
 
@@ -52,14 +56,32 @@ public class XRPromeonInteractable : XRBaseInteractable
         foreach (var c in found)
             if (c != null && !colliders.Contains(c))
                 colliders.Add(c);
+
+        // Self-tag: put every registered collider's GameObject on the interaction layer so the XR
+        // caster mask (set per context by InteractionMaskBinder) can hover this object. Handles
+        // multi-part prefabs whose colliders sit on child meshes.
+        ApplyInteractionLayer();
+    }
+
+    /// Sets which interaction layer this interactable's colliders live on, and re-applies it.
+    /// Used by runtime builders that create the interactable themselves (bone proxies → BoneProxies).
+    public void SetInteractionLayer(InteractionLayer layer)
+    {
+        _interactionLayer = layer;
+        ApplyInteractionLayer();
+    }
+
+    private void ApplyInteractionLayer()
+    {
+        foreach (var c in colliders)
+            if (c != null) c.gameObject.SetInteractionLayer(_interactionLayer);
     }
 
     [Inject]
-    public void Construct(ISelectionManager selectionManager, GizmoController gizmoController, RayInteractionResolver rayResolver)
+    public void Construct(ISelectionManager selectionManager, GizmoController gizmoController)
     {
         _selectionManager = selectionManager;
         _gizmoController  = gizmoController;
-        _rayResolver      = rayResolver;
     }
 
     // Disable XRI standard select-flow. We read inputs directly. Hover still works
@@ -167,21 +189,10 @@ public class XRPromeonInteractable : XRBaseInteractable
 
     private bool IsPrimaryFor(NearFarInteractor ni)
     {
-        // Ray (Far) path: primary = owner of the prioritized hit (GizmoHandles > BoneProxies >
-        // SceneObjects), not merely the nearest collider — lets a bone behind the body mesh still
-        // win over it.
+        // Ray (Far) path: primary = whoever owns the current ray hit collider.
         var ray = ni.GetComponentInChildren<XRRayInteractor>(includeInactive: true);
         if (ray != null)
         {
-            if (_rayResolver != null)
-            {
-                var origin = ray.rayOriginTransform != null ? ray.rayOriginTransform : ray.transform;
-                var winner = _rayResolver.ResolvePrimary(
-                    new Ray(origin.position, origin.forward), ray.maxRaycastDistance);
-                return winner != null && colliders.Contains(winner);
-            }
-
-            // Fallback (resolver unavailable): pre-resolver nearest-hit behavior.
             if (ray.TryGetCurrent3DRaycastHit(out var hit) && hit.collider != null)
                 return colliders.Contains(hit.collider);
             return false; // ray exists but hits nothing — not primary

@@ -37,7 +37,6 @@ public class AssetSpawner : IStartable, IDisposable
             // Resolve DI on every MonoBehaviour in the spawned hierarchy (XRPromeonInteractable.Construct,
             // PromeonProxyRigBuilder.Construct, etc.).
             _resolver.InjectGameObject(go);
-            go.SetInteractionLayerOnColliders(InteractionLayer.SceneObjects);
         }
         catch (Exception ex)
         {
