@@ -28,8 +28,12 @@ public class RootLifetimeScope : LifetimeScope
             builder.RegisterInstance(_outlineConfig);
         else
             Debug.LogError("RootLifetimeScope: _outlineConfig not assigned — selection/bone outlines will not render!");
-        builder.Register<ImportedAssetLibrary>(Lifetime.Singleton);
-        builder.Register<SavedAssetLibrary>(Lifetime.Singleton);
+        // RegisterEntryPoint exposes IStartable so VContainer calls Start() → LoadAsync on app start;
+        // .AsSelf() keeps the concrete type resolvable (AssetRegistry/ImportPipeline/AssetBrowserPanel
+        // inject ImportedAssetLibrary directly). Plain Register<T> would NOT collect the entry point,
+        // so the library never loads from disk after a restart (only mid-session Add() populates it).
+        builder.RegisterEntryPoint<ImportedAssetLibrary>(Lifetime.Singleton).AsSelf();
+        builder.RegisterEntryPoint<SavedAssetLibrary>(Lifetime.Singleton).AsSelf();
         builder.Register<AssetRegistry>(Lifetime.Singleton).As<IAssetRegistry>();
 
         // Render presets for runtime-imported assets (shader + two-sided per AssetType).
