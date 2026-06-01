@@ -131,4 +131,20 @@ public class AnimationDataTests
         Assert.AreEqual(1,   data.Containers.Count);
         Assert.AreEqual("b", data.Containers[0].OwnerNodeId);
     }
+
+    [Test]
+    public void SceneAnimationData_DefaultFps_Is24()
+    {
+        Assert.AreEqual(24, new SceneAnimationData().Fps);
+    }
+
+    [Test]
+    public void SceneAnimationData_Fps_RoundTrips_AndKeepsSchemaV2()
+    {
+        var data = new SceneAnimationData { Fps = 48 };
+        var json   = UnityEngine.JsonUtility.ToJson(data);
+        var loaded = UnityEngine.JsonUtility.FromJson<SceneAnimationData>(json);
+        Assert.AreEqual(48, loaded.Fps);
+        Assert.AreEqual(2,  loaded.schemaVersion);
+    }
 }

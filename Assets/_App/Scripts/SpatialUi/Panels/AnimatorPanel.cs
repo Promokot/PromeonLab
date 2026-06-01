@@ -40,6 +40,7 @@ public class AnimatorPanel : MonoBehaviour
         _bus.Subscribe<PlaybackStateChangedEvent>(OnPlaybackStateChanged);
         _bus.Subscribe<AnimationContainerChangedEvent>(OnContainerChanged);
         _bus.Subscribe<AnimationKeyframeChangedEvent>(OnKeyframeChanged);
+        _bus.Subscribe<NodeRenamedEvent>(OnNodeRenamed);
 
         WireToolbar();
         WireTransport();
@@ -58,6 +59,7 @@ public class AnimatorPanel : MonoBehaviour
         _bus.Unsubscribe<PlaybackStateChangedEvent>(OnPlaybackStateChanged);
         _bus.Unsubscribe<AnimationContainerChangedEvent>(OnContainerChanged);
         _bus.Unsubscribe<AnimationKeyframeChangedEvent>(OnKeyframeChanged);
+        _bus.Unsubscribe<NodeRenamedEvent>(OnNodeRenamed);
     }
 
     private void WireToolbar()
@@ -65,7 +67,7 @@ public class AnimatorPanel : MonoBehaviour
         if (_toolbar == null) return;
         _toolbar.OnCurrentFrameSubmitted = f => _ctx.Clock?.Seek(Mathf.Clamp(f, 0, CurrentTotal()));
         _toolbar.OnTotalFramesSubmitted  = f => { if (_activeOwner != null) _ctx.Authoring.SetTotalFrames(_activeOwner, f); };
-        _toolbar.OnFpsSubmitted          = f => { if (_activeOwner != null) _ctx.Authoring.SetFps(_activeOwner, f); };
+        _toolbar.OnFpsSubmitted          = f => _ctx.Authoring?.SetSceneFps(f);
         _toolbar.OnSetKey                = OnSetKeyClicked;
         _toolbar.OnDeleteKey             = OnDeleteKeyClicked;
         _toolbar.OnCopy                  = OnCopyClicked;
@@ -83,6 +85,8 @@ public class AnimatorPanel : MonoBehaviour
         _transport.OnPlayPause  = OnPlayPauseClicked;
         _transport.OnPrevKey    = OnPrevKeyClicked;
         _transport.OnNextKey    = OnNextKeyClicked;
+        _transport.OnToggleMode = OnToggleModeClicked;
+        _transport.SetMode(_ctx.Clock != null && _ctx.Clock.PlayMode == AnimationPlayMode.Loop);
     }
 
     private void WireEmptyState()
@@ -100,6 +104,11 @@ public class AnimatorPanel : MonoBehaviour
     private void OnSceneContextChanged(SceneContextChangedEvent e) => Refresh();
 
     private void OnSelectionChanged(SelectionChangedEvent _) => Refresh();
+
+    private void OnNodeRenamed(NodeRenamedEvent _)
+    {
+        if (!string.IsNullOrEmpty(_activeOwner)) RebuildTimeline();
+    }
 
     private void OnFrameChanged(FrameChangedEvent e)
     {
@@ -220,6 +229,16 @@ public class AnimatorPanel : MonoBehaviour
         else                      _ctx.Clock.Play();
     }
 
+    private void OnToggleModeClicked()
+    {
+        if (_ctx.Clock == null) return;
+        var next = _ctx.Clock.PlayMode == AnimationPlayMode.Loop
+            ? AnimationPlayMode.Once
+            : AnimationPlayMode.Loop;
+        _ctx.Clock.SetPlayMode(next);
+        _transport?.SetMode(next == AnimationPlayMode.Loop);
+    }
+
     private void Refresh()
     {
         // The animation services are absent in scenes without an animation system (e.g. Sandbox),
@@ -236,7 +255,7 @@ public class AnimatorPanel : MonoBehaviour
             _activeOwner = null;
             ShowEmpty(AnimatorSubEmptyState.State.NoSelection);
             _ctx.Authoring.SetActiveContainerOwner(null);
-            _ctx.Clock.Configure(_config.DefaultTotalFrames, _config.DefaultFps);
+            _ctx.Clock.Configure(_config.DefaultTotalFrames, _ctx.Authoring.GetSceneFps());
             return;
         }
 
@@ -245,7 +264,7 @@ public class AnimatorPanel : MonoBehaviour
             _activeOwner = null;
             ShowEmpty(AnimatorSubEmptyState.State.NoContainer);
             _ctx.Authoring.SetActiveContainerOwner(null);
-            _ctx.Clock.Configure(_config.DefaultTotalFrames, _config.DefaultFps);
+            _ctx.Clock.Configure(_config.DefaultTotalFrames, _ctx.Authoring.GetSceneFps());
             return;
         }
 
@@ -273,11 +292,12 @@ public class AnimatorPanel : MonoBehaviour
     {
         var c = _ctx.Authoring.GetContainer(_activeOwner);
         if (c == null) return;
-        _ctx.Clock.Configure(c.TotalFrames, c.Fps);
+        int sceneFps = _ctx.Authoring.GetSceneFps();
+        _ctx.Clock.Configure(c.TotalFrames, sceneFps);
         if (_toolbar != null)
         {
             _toolbar.SetTotalFrames(c.TotalFrames);
-            _toolbar.SetFps(c.Fps);
+            _toolbar.SetFps(sceneFps);
             _toolbar.SetCurrentFrame(_ctx.Clock.CurrentFrame);
         }
     }

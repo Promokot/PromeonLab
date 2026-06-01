@@ -23,4 +23,15 @@ public class AnimatorPanelConfig : ScriptableObject
     [Header("Rig outliner row")]
     public Color RigRow_BonesOn    = new(0.31f, 0.51f, 0.94f, 1f);
     public Color RigRow_BonesOff   = Color.white;
+
+    [Header("Key marker sizes")]
+    public float KeySize         = 22f;
+    public float KeySizeSelected = 26f;
+
+    [Header("Ruler tick sizes")]
+    public float MajorTickHeight = 24f;
+    public float MinorTickHeight = 16f;
+
+    [Header("Track row height")]
+    public float RowHeight = 52f;
 }

@@ -112,7 +112,7 @@ public class AnimationAuthoring : IStartable, IDisposable
         if (string.IsNullOrEmpty(_activeContainerOwner)) return;
         var c = _data?.FindByOwner(_activeContainerOwner);
         if (c == null) return;
-        foreach (var t in c.Tracks) RebuildClip(t, c.Fps);
+        foreach (var t in c.Tracks) RebuildClip(t, GetSceneFps());
     }
 
     public void SetTotalFrames(string ownerNodeId, int frames)
@@ -144,7 +144,27 @@ public class AnimationAuthoring : IStartable, IDisposable
         RebuildActiveClips();
     }
 
-    internal void InitForTest() => _data = new SceneAnimationData();
+    public int GetSceneFps() => _data?.Fps ?? 24;
+
+    public void SetSceneFps(int fps)
+    {
+        EnsureData();
+        _data.Fps = Mathf.Max(1, fps);
+        if (!string.IsNullOrEmpty(_activeContainerOwner))
+            _bus.Publish(new AnimationContainerChangedEvent
+            {
+                OwnerNodeId = _activeContainerOwner,
+                Change      = ContainerChange.FpsChanged
+            });
+        RequestSave();
+        RebuildActiveClips();
+    }
+
+    internal void InitForTest()
+    {
+        _data = new SceneAnimationData();
+        _bus.Subscribe<PlaybackStateChangedEvent>(OnPlaybackState);
+    }
 
     private void RequestSave()
     {
@@ -168,6 +188,7 @@ public class AnimationAuthoring : IStartable, IDisposable
     {
         _bus.Subscribe<SceneOpenedEvent>(OnSceneOpened);
         _bus.Subscribe<FrameChangedEvent>(OnFrameChanged);
+        _bus.Subscribe<PlaybackStateChangedEvent>(OnPlaybackState);
 
         var activeId = _storage.ActiveSceneId;
         if (!string.IsNullOrEmpty(activeId))
@@ -178,6 +199,7 @@ public class AnimationAuthoring : IStartable, IDisposable
     {
         _bus.Unsubscribe<SceneOpenedEvent>(OnSceneOpened);
         _bus.Unsubscribe<FrameChangedEvent>(OnFrameChanged);
+        _bus.Unsubscribe<PlaybackStateChangedEvent>(OnPlaybackState);
         _saveCts?.Cancel();
         _saveCts?.Dispose();
     }
@@ -197,9 +219,17 @@ public class AnimationAuthoring : IStartable, IDisposable
         var c = _data.FindByOwner(owner);
         if (c == null) return;
 
-        var track    = c.GetOrCreateTrack(nodeId);
-        bool existed = track.HasKey(frame);
+        bool trackIsNew = c.FindTrack(nodeId) == null;
+        var track       = c.GetOrCreateTrack(nodeId);
+        bool existed    = track.HasKey(frame);
         track.UpsertKey(frame, pos, rot, scale);
+
+        if (trackIsNew)
+            _bus.Publish(new AnimationContainerChangedEvent
+            {
+                OwnerNodeId = owner,
+                Change      = ContainerChange.TracksChanged
+            });
 
         _bus.Publish(new AnimationKeyframeChangedEvent
         {
@@ -338,9 +368,13 @@ public class AnimationAuthoring : IStartable, IDisposable
 
         foreach (var e in clip.Entries)
         {
-            var track    = c.GetOrCreateTrack(e.TrackNodeId);
-            bool existed = track.HasKey(frame);
+            bool trackIsNew = c.FindTrack(e.TrackNodeId) == null;
+            var track       = c.GetOrCreateTrack(e.TrackNodeId);
+            bool existed    = track.HasKey(frame);
             track.UpsertKey(frame, e.Position, e.Rotation, e.Scale);
+            if (trackIsNew)
+                _bus.Publish(new AnimationContainerChangedEvent
+                    { OwnerNodeId = ownerNodeId, Change = ContainerChange.TracksChanged });
             _bus.Publish(new AnimationKeyframeChangedEvent
             {
                 NodeId      = e.TrackNodeId,
@@ -388,13 +422,20 @@ public class AnimationAuthoring : IStartable, IDisposable
         ApplyFrame(e.Frame);
     }
 
+    private void OnPlaybackState(PlaybackStateChangedEvent e)
+    {
+        if (e.Completed) ApplyFrame(0);
+    }
+
     private void ApplyFrame(int frame)
     {
         if (string.IsNullOrEmpty(_activeContainerOwner)) return;
         var c = _data?.FindByOwner(_activeContainerOwner);
-        if (c == null || c.Fps <= 0) return;
+        if (c == null) return;
+        int fps = GetSceneFps();
+        if (fps <= 0) return;
 
-        float t = (float)frame / c.Fps;
+        float t = (float)frame / fps;
         foreach (var track in c.Tracks)
         {
             if (!_clips.TryGetValue(track.NodeId, out var clip)) continue;
@@ -440,6 +481,9 @@ public class AnimationAuthoring : IStartable, IDisposable
                 _data = new SceneAnimationData();
                 return;
             }
+
+            if (loaded.Fps <= 0)
+                loaded.Fps = loaded.Containers.Count > 0 ? Mathf.Max(1, loaded.Containers[0].Fps) : 24;
 
             _data = loaded;
         }

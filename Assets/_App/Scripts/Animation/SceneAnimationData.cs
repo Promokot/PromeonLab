@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class SceneAnimationData
 {
     public int                   schemaVersion = 2;
+    public int                   Fps           = 24;
     public List<ActionContainer> Containers    = new();
 
     public ActionContainer FindByOwner(string ownerNodeId)

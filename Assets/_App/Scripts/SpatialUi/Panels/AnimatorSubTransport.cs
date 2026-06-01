@@ -14,11 +14,16 @@ public class AnimatorSubTransport : MonoBehaviour
     [SerializeField] private Image  _playPauseIcon;
     [SerializeField] private Sprite _playSprite;
     [SerializeField] private Sprite _pauseSprite;
+    [SerializeField] private Button _modeButton;
+    [SerializeField] private Image  _modeIcon;
+    [SerializeField] private Sprite _onceSprite;
+    [SerializeField] private Sprite _loopSprite;
 
     public Action OnPrevKey;
     public Action OnPrevFrame;
     public Action OnStart;
     public Action OnPlayPause;
+    public Action OnToggleMode;
     public Action OnEnd;
     public Action OnNextFrame;
     public Action OnNextKey;
@@ -29,6 +34,7 @@ public class AnimatorSubTransport : MonoBehaviour
         _prevFrameButton?.onClick.AddListener(() => OnPrevFrame?.Invoke());
         _startButton    ?.onClick.AddListener(() => OnStart?.Invoke());
         _playPauseButton?.onClick.AddListener(() => OnPlayPause?.Invoke());
+        _modeButton     ?.onClick.AddListener(() => OnToggleMode?.Invoke());
         _endButton      ?.onClick.AddListener(() => OnEnd?.Invoke());
         _nextFrameButton?.onClick.AddListener(() => OnNextFrame?.Invoke());
         _nextKeyButton  ?.onClick.AddListener(() => OnNextKey?.Invoke());
@@ -38,5 +44,11 @@ public class AnimatorSubTransport : MonoBehaviour
     {
         if (_playPauseIcon == null) return;
         _playPauseIcon.sprite = playing ? _pauseSprite : _playSprite;
+    }
+
+    public void SetMode(bool loop)
+    {
+        if (_modeIcon == null) return;
+        _modeIcon.sprite = loop ? _loopSprite : _onceSprite;
     }
 }

@@ -26,7 +26,7 @@ public class AnimatorSubRuler : MonoBehaviour
             tick.anchoredPosition = new Vector2(f * _config.FramePx, 0f);
             bool major = f % _config.MajorTickInterval == 0;
             var sz = tick.sizeDelta;
-            sz.y = major ? 24f : 16f;
+            sz.y = major ? _config.MajorTickHeight : _config.MinorTickHeight;
             tick.sizeDelta = sz;
             tick.gameObject.SetActive(true);
 

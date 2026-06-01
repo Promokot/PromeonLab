@@ -104,4 +104,41 @@ public class AnimationClockTests
         Assert.AreEqual(1, _sut.TotalFrames);
         Assert.AreEqual(1, _sut.Fps);
     }
+
+    [Test]
+    public void DefaultPlayMode_IsOnce()
+    {
+        Assert.AreEqual(AnimationPlayMode.Once, _sut.PlayMode);
+    }
+
+    [Test]
+    public void AdvanceFrame_Once_AtEnd_StopsAndRewindsToZero_AndFlagsCompleted()
+    {
+        bool completed = false;
+        _bus.Subscribe<PlaybackStateChangedEvent>(e => { if (e.Completed) completed = true; });
+        _sut.Play();
+        _sut.AdvanceFrame(_sut.TotalFrames);
+        Assert.IsFalse(_sut.IsPlaying, "Once mode stops at the end");
+        Assert.AreEqual(0, _sut.CurrentFrame, "playhead rewinds to 0");
+        Assert.IsTrue(completed, "a Completed event is published");
+    }
+
+    [Test]
+    public void AdvanceFrame_Loop_AtEnd_WrapsToZero_AndKeepsPlaying()
+    {
+        _sut.SetPlayMode(AnimationPlayMode.Loop);
+        _sut.Play();
+        _sut.AdvanceFrame(_sut.TotalFrames);
+        Assert.IsTrue(_sut.IsPlaying, "Loop keeps playing");
+        Assert.AreEqual(0, _sut.CurrentFrame, "wraps to 0");
+    }
+
+    [Test]
+    public void AdvanceFrame_MidRange_SetsCurrentFrame()
+    {
+        _sut.Play();
+        _sut.AdvanceFrame(7);
+        Assert.AreEqual(7, _sut.CurrentFrame);
+        Assert.IsTrue(_sut.IsPlaying);
+    }
 }

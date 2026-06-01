@@ -40,6 +40,8 @@ public class TimelineRow : MonoBehaviour
             {
                 var om = _keyStrip.offsetMin; om.x = _config.TrackNameWidth; _keyStrip.offsetMin = om;
             }
+            var le = GetComponent<LayoutElement>();
+            if (le != null) { le.minHeight = _config.RowHeight; le.preferredHeight = _config.RowHeight; }
         }
 
         var btn = GetComponentInChildren<Button>(true);
@@ -74,7 +76,7 @@ public class TimelineRow : MonoBehaviour
                     ? _config.KeyColor_Selected
                     : (_isBone ? _config.KeyColor_Bone : _config.KeyColor_Object);
 
-            float size = isSel ? 26f : 22f;
+            float size = isSel ? _config.KeySizeSelected : _config.KeySize;
             key.sizeDelta = new Vector2(size, size);
             key.gameObject.SetActive(true);
         }

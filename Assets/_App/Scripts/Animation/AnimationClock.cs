@@ -7,11 +7,14 @@ public class AnimationClock : ITickable
     public int  TotalFrames  { get; private set; } = 60;
     public int  Fps          { get; private set; } = 24;
     public bool IsPlaying    { get; private set; }
+    public AnimationPlayMode PlayMode { get; private set; } = AnimationPlayMode.Once;
 
     private float            _accumulated;
     private readonly EventBus _bus;
 
     public AnimationClock(EventBus bus) => _bus = bus;
+
+    public void SetPlayMode(AnimationPlayMode mode) => PlayMode = mode;
 
     public void Tick()
     {
@@ -19,17 +22,30 @@ public class AnimationClock : ITickable
         _accumulated += Time.deltaTime * Fps;
         var next = Mathf.FloorToInt(_accumulated);
         if (next == CurrentFrame) return;
+        AdvanceFrame(next);
+    }
 
+    internal void AdvanceFrame(int next)
+    {
         if (next >= TotalFrames)
         {
-            CurrentFrame = TotalFrames;
+            if (PlayMode == AnimationPlayMode.Loop)
+            {
+                CurrentFrame = 0;
+                _accumulated = 0f;
+                _bus.Publish(new FrameChangedEvent { Frame = 0 });
+                return;
+            }
+
             IsPlaying    = false;
-            _accumulated = TotalFrames;
+            CurrentFrame = 0;
+            _accumulated = 0f;
+            _bus.Publish(new FrameChangedEvent         { Frame = 0 });
+            _bus.Publish(new PlaybackStateChangedEvent { IsPlaying = false, Frame = 0, Completed = true });
+            return;
         }
-        else
-        {
-            CurrentFrame = next;
-        }
+
+        CurrentFrame = next;
         _bus.Publish(new FrameChangedEvent         { Frame     = CurrentFrame });
         _bus.Publish(new PlaybackStateChangedEvent { IsPlaying = IsPlaying, Frame = CurrentFrame });
     }
