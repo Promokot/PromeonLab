@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 // Object = static mesh. Build loads the glTF once to measure its collider; Restore reloads the mesh
-// (imported) or instantiates the prefab (builtin) and applies the baked recipe.
+// (imported) or instantiates the prefab (builtin) and applies the baked recipe. The measurement core
+// (RecipeFromInstance) is shared with the editor builtin bake so the recipe never diverges by call site.
 public class ObjectEntityBuilder : IAssetEntityBuilder
 {
     protected readonly AssetSourceStore    _store;
@@ -20,7 +21,9 @@ public class ObjectEntityBuilder : IAssetEntityBuilder
 
     public virtual AssetType HandledType => AssetType.Object;
 
-    public virtual async Task<AssetEntityRecipe> BuildAsync(string sourceAbsolutePath, AssetType chosenType, CancellationToken ct)
+    // Shared, synchronous, DI-light: inspect a live GameObject and produce the recipe. Reused by
+    // runtime BuildAsync (after glTF load) and the editor builtin bake (on the prefab instance).
+    public static AssetEntityRecipe RecipeFromInstance(GameObject instance, IColliderStrategy collider, AssetType chosenType)
     {
         var recipe = new AssetEntityRecipe
         {
@@ -28,20 +31,20 @@ public class ObjectEntityBuilder : IAssetEntityBuilder
             selectable       = true,
             interactionLayer = InteractionLayer.SceneObjects,
         };
+        collider.Measure(instance, out var kind, out var center, out var size);
+        recipe.colliderKind   = kind;
+        recipe.colliderCenter = center;
+        recipe.colliderSize   = size;
+        return recipe;
+    }
 
+    public virtual async Task<AssetEntityRecipe> BuildAsync(string sourceAbsolutePath, AssetType chosenType, CancellationToken ct)
+    {
         var temp = await _factory.CreateAsync(sourceAbsolutePath, Vector3.zero, Quaternion.identity, ct);
         if (temp == null)
             throw new NotSupportedException($"ObjectEntityBuilder: cannot load '{sourceAbsolutePath}'");
-        try
-        {
-            _collider.Measure(temp, out var kind, out var center, out var size);
-            recipe.colliderKind   = kind;
-            recipe.colliderCenter = center;
-            recipe.colliderSize   = size;
-        }
+        try { return RecipeFromInstance(temp, _collider, chosenType); }
         finally { UnityEngine.Object.Destroy(temp); }
-
-        return recipe;
     }
 
     public virtual Task<GameObject> RestoreAsync(ILabAsset asset, AssetEntityRecipe recipe, Vector3 position, Quaternion rotation, CancellationToken ct)

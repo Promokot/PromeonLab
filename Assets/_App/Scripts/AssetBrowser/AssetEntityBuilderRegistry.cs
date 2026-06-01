@@ -4,8 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-// Type-keyed dispatch for both Build (import) and Restore (spawn / scene-load). Extracts the baked
-// recipe from the asset record so callers never deal with recipes directly.
+// Type-keyed dispatch for both Build (import) and Restore (spawn / scene-load). Reads the baked recipe
+// straight off the record (ILabAsset.Recipe) so callers never deal with recipes directly.
 public class AssetEntityBuilderRegistry
 {
     private readonly Dictionary<AssetType, IAssetEntityBuilder> _byType = new();
@@ -20,11 +20,18 @@ public class AssetEntityBuilderRegistry
 
     public async Task<GameObject> RestoreAsync(ILabAsset asset, Vector3 position, Quaternion rotation, CancellationToken ct)
     {
-        var recipe = (asset as ImportedLabAsset)?.Recipe; // null for builtin (prefab already baked)
+        var recipe = asset.Recipe; // null for un-baked Builtin (throws below) or Saved (not yet implemented)
+
+        // Builtin must be baked: a bare prefab with no recipe would spawn uninteractive, so refuse it.
+        // The existing catches in AssetSpawner / SceneGraph.OnSceneOpenedAsync log this without crashing.
+        if (recipe == null && asset.Source == AssetSource.Builtin)
+            throw new NotSupportedException(
+                $"Builtin asset '{asset.Id}' has no baked recipe — bake it in the BuiltinAssetLibrary inspector.");
+
         var go = await Resolve(asset.Type).RestoreAsync(asset, recipe, position, rotation, ct);
 
         // Single finalization point: builders produce only geometry; selectability/collider/identity
-        // are applied here from the recipe. Builtin (recipe == null) is pre-baked, so skip.
+        // are applied here from the recipe. Idempotent (skips if XRPromeonInteractable already present).
         if (go != null && recipe != null)
             InteractionCapability.Apply(go, recipe.interactionLayer, recipe.colliderKind,
                 recipe.colliderCenter, recipe.colliderSize, recipe.selectable);

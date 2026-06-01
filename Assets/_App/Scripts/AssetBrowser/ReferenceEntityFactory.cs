@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 // Per-type runtime construction helper for Reference: builds a centered textured quad from the
-// recipe's baked aspect/two-sided. The quad IS the node (pivot at geometry center, so the gizmo
-// rotates around the middle); the vertical lift comes from the recipe's spawnOffset, applied once at
-// spawn, so it survives reload without drifting.
+// recipe's baked aspect/two-sided. The quad IS the node (pivot at geometry center). BuildCenteredQuad
+// and BuildMaterial are public statics so the editor builtin-image generator builds asset-backed
+// equivalents from the SAME geometry/material logic.
 public class ReferenceEntityFactory
 {
     private readonly ImportRenderProfile _renderProfile;
@@ -33,11 +33,11 @@ public class ReferenceEntityFactory
         go.transform.localScale = new Vector3(aspect, 1f, 1f);
 
         go.AddComponent<MeshFilter>().sharedMesh       = BuildCenteredQuad();
-        go.AddComponent<MeshRenderer>().sharedMaterial = BuildMaterial(tex, twoSided);
+        go.AddComponent<MeshRenderer>().sharedMaterial = BuildMaterial(tex, twoSided, _renderProfile);
         return Task.FromResult(go);
     }
 
-    private static Mesh BuildCenteredQuad()
+    public static Mesh BuildCenteredQuad()
     {
         var mesh = new Mesh { name = "ReferenceQuad" };
         mesh.vertices  = new[]
@@ -54,10 +54,10 @@ public class ReferenceEntityFactory
         return mesh;
     }
 
-    private Material BuildMaterial(Texture2D tex, bool twoSided)
+    public static Material BuildMaterial(Texture2D tex, bool twoSided, ImportRenderProfile profile)
     {
         Shader shader = null;
-        if (_renderProfile != null && _renderProfile.TryGet(AssetType.Reference, out var entry))
+        if (profile != null && profile.TryGet(AssetType.Reference, out var entry))
         {
             shader   = entry.Shader;
             twoSided = entry.TwoSided || twoSided;

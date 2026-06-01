@@ -32,7 +32,7 @@ public class AssetSpawner : IStartable, IDisposable
         {
             // A recipe may request a one-time spawn lift (e.g. reference images stand above the floor).
             // Applied only here on fresh spawn; scene-load restores the already-offset saved position.
-            var recipe = (e.Asset as ImportedLabAsset)?.Recipe;
+            var recipe = e.Asset.Recipe;   // builtin (baked) + imported both carry spawnOffset now
             var pos    = recipe != null ? e.Position + recipe.spawnOffset : e.Position;
             var go = await _builders.RestoreAsync(e.Asset, pos, e.Rotation, CancellationToken.None);
             var assetRef = new AssetRef { Source = e.Asset.Source, AssetId = e.Asset.Id };

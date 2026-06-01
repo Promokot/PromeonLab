@@ -8,4 +8,5 @@ public interface ILabAsset
     AssetSource Source      { get; }   // which library this record lives in
     string      SourceRef   { get; }   // relative path under asset-libraries/sources; null for Builtin
     Sprite      Icon        { get; }
+    AssetEntityRecipe Recipe { get; }  // baked Build→Restore contract; null until baked (Builtin) / imported (Imported); always null for Saved (Slice 3)
 }

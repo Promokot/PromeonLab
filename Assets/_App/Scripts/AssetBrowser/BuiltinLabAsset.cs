@@ -8,9 +8,11 @@ public struct BuiltinLabAsset : ILabAsset
     [SerializeField] private string     _displayName;
     [SerializeField] private AssetType  _type;
     [SerializeField] private Sprite     _icon;
-    [SerializeField] private GameObject      _prefab;
+    [SerializeField] private GameObject _prefab;
+    [SerializeField] private Texture2D  _image;                // Reference-only generation input; ignored otherwise
     [SerializeField] private TerminalBoneAxis _terminalBonesAxis;       // leaf-bone axis for Rig entries; ignored otherwise
     [SerializeField] private bool             _invertTerminalBonesAxis; // flip the chosen X/Y/Z axis
+    [SerializeField] private AssetEntityRecipe _recipe;        // baked at edit time (see BuiltinRecipeBaker)
 
     public string      Id          => _id;
     public string      DisplayName => _displayName;
@@ -19,6 +21,8 @@ public struct BuiltinLabAsset : ILabAsset
     public string      SourceRef   => null;
     public Sprite      Icon        => _icon;
     public GameObject       Prefab        => _prefab;
+    public Texture2D        Image         => _image;
     public TerminalBoneAxis TerminalBonesAxis       => _terminalBonesAxis;
     public bool             InvertTerminalBonesAxis => _invertTerminalBonesAxis;
+    public AssetEntityRecipe Recipe       => _recipe;
 }

@@ -50,6 +50,15 @@ public class ReferenceEntityBuilder : IAssetEntityBuilder
 
     public Task<GameObject> RestoreAsync(ILabAsset asset, AssetEntityRecipe recipe, Vector3 position, Quaternion rotation, CancellationToken ct)
     {
+        // Builtin Reference is a generated prefab (see ReferenceImagePrefabGenerator): instantiate it
+        // like Object/Rig; capability is applied by AssetEntityBuilderRegistry from the baked recipe.
+        if (asset.Source == AssetSource.Builtin)
+        {
+            if (asset is not BuiltinLabAsset b)
+                throw new NotSupportedException($"Builtin asset '{asset.Id}' is not a BuiltinLabAsset");
+            return Task.FromResult(UnityEngine.Object.Instantiate(b.Prefab, position, rotation));
+        }
+
         if (string.IsNullOrEmpty(asset.SourceRef))
             throw new NotSupportedException($"Reference asset '{asset.Id}' has no SourceRef");
         if (recipe == null)

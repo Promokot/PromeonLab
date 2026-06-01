@@ -15,6 +15,7 @@ public class SavedLabAsset : ILabAsset
     public AssetSource Source      => AssetSource.Saved;
     public string      SourceRef   => null;
     public Sprite      Icon        => null;
+    public AssetEntityRecipe Recipe => null;   // Saved-library spawn flow is Slice 3 (not implemented)
     public string      AssetId     => _assetId;
 
     public SavedLabAsset() { }

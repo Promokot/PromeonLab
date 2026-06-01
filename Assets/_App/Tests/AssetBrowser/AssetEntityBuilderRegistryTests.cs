@@ -25,7 +25,8 @@ public class AssetEntityBuilderRegistryTests
         var recipe = new AssetEntityRecipe { type = AssetType.Reference, referenceAspect = 3f };
         var asset  = new ImportedLabAsset("id1", "name", AssetType.Reference, "asset-library/sources/id1.png", recipe);
 
-        reg.RestoreAsync(asset, Vector3.zero, Quaternion.identity, CancellationToken.None);
+        reg.RestoreAsync(asset, Vector3.zero, Quaternion.identity, CancellationToken.None)
+           .GetAwaiter().GetResult();
 
         Assert.IsNotNull(refBuilder.LastRecipe);
         Assert.That(refBuilder.LastRecipe.referenceAspect, Is.EqualTo(3f));
@@ -69,5 +70,16 @@ public class AssetEntityBuilderRegistryTests
 
         Assert.IsNull(result.GetComponent<BoxCollider>(), "No recipe → no capability applied by the registry");
         Object.DestroyImmediate(go);
+    }
+
+    [Test]
+    public void RestoreAsync_Throws_ForBuiltinWithoutRecipe()
+    {
+        var reg = new AssetEntityBuilderRegistry(new IAssetEntityBuilder[0]);
+        var builtin = default(BuiltinLabAsset); // Source => Builtin, Recipe => null, Type => Object
+
+        Assert.Throws<System.NotSupportedException>(() =>
+            reg.RestoreAsync(builtin, Vector3.zero, Quaternion.identity, CancellationToken.None)
+               .GetAwaiter().GetResult());
     }
 }
