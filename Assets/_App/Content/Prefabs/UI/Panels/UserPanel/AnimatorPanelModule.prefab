@@ -3140,8 +3140,8 @@ MonoBehaviour:
   _nextFrameButton: {fileID: 1102142703865895864}
   _nextKeyButton: {fileID: 8589872400763156106}
   _playPauseIcon: {fileID: 3252797826492699077}
-  _playSprite: {fileID: 0}
-  _pauseSprite: {fileID: 0}
+  _playSprite: {fileID: 21300000, guid: d52fb310a75cd96458fdd6e736c58f20, type: 3}
+  _pauseSprite: {fileID: 21300000, guid: a45cdb2cff007f14a926f7b302baa52f, type: 3}
 --- !u!1 &2249940990040355326
 GameObject:
   m_ObjectHideFlags: 0
