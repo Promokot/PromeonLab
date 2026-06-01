@@ -13,6 +13,8 @@ public class AnimatorSubToolbar : MonoBehaviour
     [SerializeField] private Button         _copyButton;
     [SerializeField] private Button         _pasteButton;
     [SerializeField] private Button         _removeAnimationButton;
+    [SerializeField] private Button         _interpolationButton;
+    [SerializeField] private TMP_Text       _interpolationLabel;
 
     public Action<int> OnCurrentFrameSubmitted;
     public Action<int> OnTotalFramesSubmitted;
@@ -22,6 +24,7 @@ public class AnimatorSubToolbar : MonoBehaviour
     public Action      OnCopy;
     public Action      OnPaste;
     public Action      OnRemoveAnimation;
+    public Action      OnToggleInterpolation;
 
     private void Awake()
     {
@@ -33,6 +36,7 @@ public class AnimatorSubToolbar : MonoBehaviour
         _copyButton           ?.onClick.AddListener(() => OnCopy?.Invoke());
         _pasteButton          ?.onClick.AddListener(() => OnPaste?.Invoke());
         _removeAnimationButton?.onClick.AddListener(() => OnRemoveAnimation?.Invoke());
+        _interpolationButton  ?.onClick.AddListener(() => OnToggleInterpolation?.Invoke());
     }
 
     public void SetCurrentFrame(int frame)
@@ -53,6 +57,11 @@ public class AnimatorSubToolbar : MonoBehaviour
     public void SetSetKeyInteractable   (bool v) { if (_setKeyButton    != null) _setKeyButton   .interactable = v; }
     public void SetDeleteKeyInteractable(bool v) { if (_deleteKeyButton != null) _deleteKeyButton.interactable = v; }
     public void SetPasteInteractable    (bool v) { if (_pasteButton     != null) _pasteButton    .interactable = v; }
+
+    public void SetInterpolationLabel(string text)
+    {
+        if (_interpolationLabel != null) _interpolationLabel.text = text;
+    }
 
     private void OnCurrentFrameEdit(string txt)
     {

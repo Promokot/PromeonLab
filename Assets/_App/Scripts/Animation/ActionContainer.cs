@@ -5,9 +5,11 @@ using System.Collections.Generic;
 public class ActionContainer
 {
     public string             OwnerNodeId;
-    public int                Fps         = 24;
-    public int                TotalFrames = 60;
-    public List<AnimTrackData> Tracks     = new();
+    public int                Fps          = 24;
+    public int                TotalFrames  = 60;
+    public InterpolationMode  Interpolation = InterpolationMode.Linear;
+    public bool               Loop         = false;
+    public List<AnimTrackData> Tracks      = new();
 
     public AnimTrackData FindTrack(string nodeId)
     {

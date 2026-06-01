@@ -73,6 +73,7 @@ public class AnimatorPanel : MonoBehaviour
         _toolbar.OnCopy                  = OnCopyClicked;
         _toolbar.OnPaste                 = OnPasteClicked;
         _toolbar.OnRemoveAnimation       = OnRemoveAnimationClicked;
+        _toolbar.OnToggleInterpolation   = OnToggleInterpolationClicked;
     }
 
     private void WireTransport()
@@ -86,7 +87,7 @@ public class AnimatorPanel : MonoBehaviour
         _transport.OnPrevKey    = OnPrevKeyClicked;
         _transport.OnNextKey    = OnNextKeyClicked;
         _transport.OnToggleMode = OnToggleModeClicked;
-        _transport.SetMode(_ctx.Clock != null && _ctx.Clock.PlayMode == AnimationPlayMode.Loop);
+        _transport.SetMode(!string.IsNullOrEmpty(_activeOwner) && _ctx.Authoring != null && _ctx.Authoring.IsLooping(_activeOwner));
     }
 
     private void WireEmptyState()
@@ -171,10 +172,8 @@ public class AnimatorPanel : MonoBehaviour
         _ctx.Authoring.CreateContainer(owner, _config.DefaultTotalFrames, _config.DefaultFps);
 
         bool isBone = selected != null && selected.StartsWith("bone:");
-        var ownerGo = _ctx.Graph?.GetNode(owner);
-        bool isRig  = ownerGo != null && ownerGo.GetComponentInChildren<ProxyRigRuntime>() != null;
-        if (!isBone && !isRig && owner == selected)
-            _ctx.Authoring.EnsureTrack(owner, owner);
+        if (!isBone && owner == selected)
+            _ctx.Authoring.EnsureTrack(owner, owner); // owner track for ANY non-bone type, incl. rigs
     }
 
     private void OnRemoveAnimationClicked()
@@ -183,17 +182,29 @@ public class AnimatorPanel : MonoBehaviour
         _ctx.Authoring.RemoveContainer(_activeOwner);
     }
 
+    private void OnToggleInterpolationClicked()
+    {
+        if (string.IsNullOrEmpty(_activeOwner)) return;
+        var cur  = _ctx.Authoring.GetInterpolation(_activeOwner);
+        var next = cur == InterpolationMode.Stepped ? InterpolationMode.Linear : InterpolationMode.Stepped;
+        _ctx.Authoring.SetInterpolation(_activeOwner, next);
+        _toolbar.SetInterpolationLabel(next.ToString());
+        _ctx.Clock.Seek(_ctx.Clock.CurrentFrame); // re-fire FrameChanged → re-sample with new tangents
+    }
+
     private void OnSetKeyClicked()
     {
         if (string.IsNullOrEmpty(_activeOwner)) return;
-        var active = _ctx.Selection?.SelectedNodeId ?? _activeOwner;
-        _ctx.Authoring.SetKeyForFrame(_activeOwner, active, _ctx.Clock.CurrentFrame);
+        var target = _ctx.Selection?.SelectedNodeId ?? _activeOwner;
+        _ctx.Authoring.SetKey(target, _ctx.Clock.CurrentFrame); // keys only the selected track
+        RefreshKeyButtonStates();
     }
 
     private void OnDeleteKeyClicked()
     {
         if (string.IsNullOrEmpty(_activeOwner)) return;
-        _ctx.Authoring.DeleteAllKeysAtFrame(_activeOwner, _ctx.Clock.CurrentFrame);
+        var target = _ctx.Selection?.SelectedNodeId ?? _activeOwner;
+        _ctx.Authoring.DeleteKey(target, _ctx.Clock.CurrentFrame); // removes only the selected track's key
     }
 
     private void OnCopyClicked()
@@ -225,18 +236,22 @@ public class AnimatorPanel : MonoBehaviour
     private void OnPlayPauseClicked()
     {
         if (_ctx.Clock == null) return;
-        if (_ctx.Clock.IsPlaying) _ctx.Clock.Pause();
-        else                      _ctx.Clock.Play();
+        if (!string.IsNullOrEmpty(_activeOwner) && _ctx.Authoring != null && _ctx.Authoring.IsLooping(_activeOwner))
+        {
+            if (_ctx.Authoring.IsLoopPlaying(_activeOwner)) _ctx.Authoring.StopLoopPlayback(_activeOwner);
+            else                                            _ctx.Authoring.StartLoopPlayback(_activeOwner, _ctx.Clock.CurrentFrame);
+            _transport?.SetPlaying(_ctx.Authoring.IsLoopPlaying(_activeOwner));
+            return;
+        }
+        if (_ctx.Clock.IsPlaying) _ctx.Clock.Pause(); else _ctx.Clock.Play();
     }
 
     private void OnToggleModeClicked()
     {
-        if (_ctx.Clock == null) return;
-        var next = _ctx.Clock.PlayMode == AnimationPlayMode.Loop
-            ? AnimationPlayMode.Once
-            : AnimationPlayMode.Loop;
-        _ctx.Clock.SetPlayMode(next);
-        _transport?.SetMode(next == AnimationPlayMode.Loop);
+        if (string.IsNullOrEmpty(_activeOwner) || _ctx.Authoring == null) return;
+        bool next = !_ctx.Authoring.IsLooping(_activeOwner);
+        _ctx.Authoring.SetLoop(_activeOwner, next);
+        _transport?.SetMode(next);
     }
 
     private void Refresh()
@@ -299,7 +314,10 @@ public class AnimatorPanel : MonoBehaviour
             _toolbar.SetTotalFrames(c.TotalFrames);
             _toolbar.SetFps(sceneFps);
             _toolbar.SetCurrentFrame(_ctx.Clock.CurrentFrame);
+            _toolbar.SetInterpolationLabel(_ctx.Authoring.GetInterpolation(_activeOwner).ToString());
         }
+        _transport?.SetMode(_ctx.Authoring.IsLooping(_activeOwner));
+        _transport?.SetPlaying(_ctx.Authoring.IsLoopPlaying(_activeOwner) || _ctx.Clock.IsPlaying);
     }
 
     private void RebuildTimeline()

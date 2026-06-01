@@ -147,4 +147,26 @@ public class AnimationDataTests
         Assert.AreEqual(48, loaded.Fps);
         Assert.AreEqual(2,  loaded.schemaVersion);
     }
+
+    [Test]
+    public void ActionContainer_Defaults_LinearAndNotLooping()
+    {
+        var c = new ActionContainer();
+        Assert.AreEqual(InterpolationMode.Linear, c.Interpolation);
+        Assert.IsFalse(c.Loop);
+    }
+
+    [Test]
+    public void ActionContainer_InterpolationAndLoop_RoundTrip_SchemaV2()
+    {
+        var data = new SceneAnimationData();
+        var c    = data.CreateContainer("obj", 60, 24);
+        c.Interpolation = InterpolationMode.Stepped;
+        c.Loop          = true;
+
+        var loaded = UnityEngine.JsonUtility.FromJson<SceneAnimationData>(UnityEngine.JsonUtility.ToJson(data));
+        Assert.AreEqual(InterpolationMode.Stepped, loaded.Containers[0].Interpolation);
+        Assert.IsTrue(loaded.Containers[0].Loop);
+        Assert.AreEqual(2, loaded.schemaVersion);
+    }
 }

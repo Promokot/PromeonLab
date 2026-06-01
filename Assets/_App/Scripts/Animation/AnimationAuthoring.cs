@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using VContainer.Unity;
 
-public class AnimationAuthoring : IStartable, IDisposable
+public class AnimationAuthoring : IStartable, ITickable, IDisposable
 {
     private readonly AnimationClock _clock;
     private readonly ISceneGraph    _sceneGraph;
@@ -16,6 +16,8 @@ public class AnimationAuthoring : IStartable, IDisposable
 
     private SceneAnimationData                     _data;
     private readonly Dictionary<string, AnimationClip> _clips = new();
+    private readonly Dictionary<string, float> _loopCursors = new();
+    private readonly Dictionary<string, Dictionary<string, AnimationClip>> _loopClips = new();
     private string _sceneId;
     private string _activeContainerOwner;
 
@@ -112,7 +114,7 @@ public class AnimationAuthoring : IStartable, IDisposable
         if (string.IsNullOrEmpty(_activeContainerOwner)) return;
         var c = _data?.FindByOwner(_activeContainerOwner);
         if (c == null) return;
-        foreach (var t in c.Tracks) RebuildClip(t, GetSceneFps());
+        foreach (var t in c.Tracks) _clips[t.NodeId] = BuildClip(t, GetSceneFps(), c.Interpolation);
     }
 
     public void SetTotalFrames(string ownerNodeId, int frames)
@@ -145,6 +147,66 @@ public class AnimationAuthoring : IStartable, IDisposable
     }
 
     public int GetSceneFps() => _data?.Fps ?? 24;
+
+    public InterpolationMode GetInterpolation(string ownerNodeId) =>
+        _data?.FindByOwner(ownerNodeId)?.Interpolation ?? InterpolationMode.Linear;
+
+    public bool IsLooping(string ownerNodeId) => _data?.FindByOwner(ownerNodeId)?.Loop ?? false;
+
+    public bool IsLoopPlaying(string ownerNodeId) => _loopCursors.ContainsKey(ownerNodeId);
+
+    public void SetLoop(string ownerNodeId, bool loop)
+    {
+        var c = _data?.FindByOwner(ownerNodeId);
+        if (c == null) return;
+        c.Loop = loop;
+        if (!loop) StopLoopPlayback(ownerNodeId);
+        _bus.Publish(new AnimationContainerChangedEvent
+        {
+            OwnerNodeId = ownerNodeId,
+            Change      = ContainerChange.LoopChanged
+        });
+        RequestSave();
+    }
+
+    public void StartLoopPlayback(string ownerNodeId, int startFrame)
+    {
+        var c = _data?.FindByOwner(ownerNodeId);
+        if (c == null || !c.Loop) return;
+        var clips = new Dictionary<string, AnimationClip>();
+        foreach (var t in c.Tracks) clips[t.NodeId] = BuildClip(t, GetSceneFps(), c.Interpolation);
+        _loopClips[ownerNodeId]   = clips;
+        _loopCursors[ownerNodeId] = Mathf.Clamp(startFrame, 0, c.TotalFrames);
+    }
+
+    public void StopLoopPlayback(string ownerNodeId)
+    {
+        _loopCursors.Remove(ownerNodeId);
+        _loopClips.Remove(ownerNodeId);
+    }
+
+    internal static float AdvanceLoopCursor(float cursor, float deltaFrames, int total)
+    {
+        if (total <= 0) return 0f;
+        float c = cursor + deltaFrames;
+        while (c >= total) c -= total;
+        if (c < 0f) c = 0f;
+        return c;
+    }
+
+    public void SetInterpolation(string ownerNodeId, InterpolationMode mode)
+    {
+        var c = _data?.FindByOwner(ownerNodeId);
+        if (c == null) return;
+        c.Interpolation = mode;
+        _bus.Publish(new AnimationContainerChangedEvent
+        {
+            OwnerNodeId = ownerNodeId,
+            Change      = ContainerChange.InterpolationChanged
+        });
+        RequestSave();
+        RebuildActiveClips();
+    }
 
     public void SetSceneFps(int fps)
     {
@@ -200,6 +262,8 @@ public class AnimationAuthoring : IStartable, IDisposable
         _bus.Unsubscribe<SceneOpenedEvent>(OnSceneOpened);
         _bus.Unsubscribe<FrameChangedEvent>(OnFrameChanged);
         _bus.Unsubscribe<PlaybackStateChangedEvent>(OnPlaybackState);
+        _loopCursors.Clear();
+        _loopClips.Clear();
         _saveCts?.Cancel();
         _saveCts?.Dispose();
     }
@@ -251,7 +315,8 @@ public class AnimationAuthoring : IStartable, IDisposable
 
         if (!track.HasKey(frame)) return;
         track.RemoveKey(frame);
-        if (track.Keys.Count == 0) c.Tracks.Remove(track);
+        bool trackRemoved = false;
+        if (track.Keys.Count == 0) { c.Tracks.Remove(track); trackRemoved = true; }
 
         _bus.Publish(new AnimationKeyframeChangedEvent
         {
@@ -260,6 +325,9 @@ public class AnimationAuthoring : IStartable, IDisposable
             Frame       = frame,
             Change      = KeyframeChange.Removed
         });
+        if (trackRemoved)
+            _bus.Publish(new AnimationContainerChangedEvent
+                { OwnerNodeId = owner, Change = ContainerChange.TracksChanged });
         RequestSave();
         RebuildActiveClips();
     }
@@ -418,7 +486,7 @@ public class AnimationAuthoring : IStartable, IDisposable
 
     private void OnFrameChanged(FrameChangedEvent e)
     {
-        if (_data == null || _clock == null || !_clock.IsPlaying) return;
+        if (_data == null) return;
         ApplyFrame(e.Frame);
     }
 
@@ -427,9 +495,36 @@ public class AnimationAuthoring : IStartable, IDisposable
         if (e.Completed) ApplyFrame(0);
     }
 
+    public void Tick()
+    {
+        if (_data == null || _loopCursors.Count == 0) return;
+        float fps = GetSceneFps();
+        foreach (var owner in new List<string>(_loopCursors.Keys)) // snapshot: StopLoopPlayback mutates
+        {
+            var c = _data.FindByOwner(owner);
+            if (c == null || !c.Loop) { StopLoopPlayback(owner); continue; }
+            float cursor = AdvanceLoopCursor(_loopCursors[owner], Time.deltaTime * fps, c.TotalFrames);
+            _loopCursors[owner] = cursor;
+            if (_loopClips.TryGetValue(owner, out var clips))
+                SampleContainerAt(c, clips, cursor / Mathf.Max(1f, fps));
+        }
+    }
+
+    private void SampleContainerAt(ActionContainer c, Dictionary<string, AnimationClip> clips, float t)
+    {
+        foreach (var track in c.Tracks)
+        {
+            if (!clips.TryGetValue(track.NodeId, out var clip)) continue;
+            var go = _sceneGraph?.GetNode(track.NodeId);
+            if (go == null) continue;
+            clip.SampleAnimation(go, t);
+        }
+    }
+
     private void ApplyFrame(int frame)
     {
         if (string.IsNullOrEmpty(_activeContainerOwner)) return;
+        if (_loopCursors.ContainsKey(_activeContainerOwner)) return; // background loop owns sampling
         var c = _data?.FindByOwner(_activeContainerOwner);
         if (c == null) return;
         int fps = GetSceneFps();
@@ -511,7 +606,7 @@ public class AnimationAuthoring : IStartable, IDisposable
 
     private void EnsureData() => _data ??= new SceneAnimationData();
 
-    private void RebuildClip(AnimTrackData track, int fps)
+    private AnimationClip BuildClip(AnimTrackData track, int fps, InterpolationMode mode)
     {
         var clip = new AnimationClip { legacy = true };
         var px = new AnimationCurve(); var py = new AnimationCurve(); var pz = new AnimationCurve();
@@ -528,6 +623,9 @@ public class AnimationAuthoring : IStartable, IDisposable
             sx.AddKey(t, k.Scale.x);    sy.AddKey(t, k.Scale.y);    sz.AddKey(t, k.Scale.z);
         }
 
+        foreach (var curve in new[] { px, py, pz, rx, ry, rz, rw, sx, sy, sz })
+            ApplyInterpolation(curve, mode);
+
         clip.SetCurve("", typeof(Transform), "localPosition.x",   px);
         clip.SetCurve("", typeof(Transform), "localPosition.y",   py);
         clip.SetCurve("", typeof(Transform), "localPosition.z",   pz);
@@ -538,7 +636,33 @@ public class AnimationAuthoring : IStartable, IDisposable
         clip.SetCurve("", typeof(Transform), "localScale.x",      sx);
         clip.SetCurve("", typeof(Transform), "localScale.y",      sy);
         clip.SetCurve("", typeof(Transform), "localScale.z",      sz);
+        return clip;
+    }
 
-        _clips[track.NodeId] = clip;
+    internal static void ApplyInterpolation(AnimationCurve curve, InterpolationMode mode)
+    {
+        var keys = curve.keys;
+        for (int i = 0; i < keys.Length; i++)
+        {
+            if (mode == InterpolationMode.Stepped)
+            {
+                keys[i].inTangent  = float.PositiveInfinity;
+                keys[i].outTangent = float.PositiveInfinity;
+            }
+            else
+            {
+                if (i < keys.Length - 1)
+                {
+                    float dt = keys[i + 1].time - keys[i].time;
+                    keys[i].outTangent = dt > 0f ? (keys[i + 1].value - keys[i].value) / dt : 0f;
+                }
+                if (i > 0)
+                {
+                    float dt = keys[i].time - keys[i - 1].time;
+                    keys[i].inTangent = dt > 0f ? (keys[i].value - keys[i - 1].value) / dt : 0f;
+                }
+            }
+        }
+        curve.keys = keys;
     }
 }

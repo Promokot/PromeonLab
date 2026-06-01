@@ -4,5 +4,7 @@ public enum ContainerChange
     Removed,
     LengthChanged,
     FpsChanged,
-    TracksChanged
+    TracksChanged,
+    InterpolationChanged,
+    LoopChanged
 }
