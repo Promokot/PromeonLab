@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Reflection;
 using UnityEditor;
@@ -5,17 +6,28 @@ using UnityEngine;
 
 // Editor-only: bakes the AssetEntityRecipe (and, for References, generates the prefab) into each
 // BuiltinLabAsset entry of a BuiltinAssetLibrary. Built-in source is a prefab (already a GameObject),
-// so the bake instantiates it and reuses the same synchronous measurement core as runtime import.
-// Writes the struct's private serialized fields via reflection so the runtime types stay editor-clean.
+// so the bake loads the prefab in an isolated preview scene and reuses the same synchronous
+// measurement core as runtime import. Writes the struct's private serialized fields via reflection so
+// the runtime types stay editor-clean; FieldInfos are cached and fail loudly if a field is renamed.
 public static class BuiltinRecipeBaker
 {
     private const BindingFlags Priv = BindingFlags.NonPublic | BindingFlags.Instance;
+
+    private static readonly FieldInfo EntriesField =
+        typeof(BuiltinAssetLibrary).GetField("_entries", Priv)
+        ?? throw new MissingFieldException(nameof(BuiltinAssetLibrary), "_entries");
+    private static readonly FieldInfo RecipeField =
+        typeof(BuiltinLabAsset).GetField("_recipe", Priv)
+        ?? throw new MissingFieldException(nameof(BuiltinLabAsset), "_recipe");
+    private static readonly FieldInfo PrefabField =
+        typeof(BuiltinLabAsset).GetField("_prefab", Priv)
+        ?? throw new MissingFieldException(nameof(BuiltinLabAsset), "_prefab");
 
     public static void BakeAll(BuiltinAssetLibrary lib)
     {
         var list = Entries(lib);
         if (list == null) return;
-        for (int i = 0; i < list.Count; i++) BakeIndex(lib, list, i);
+        for (int i = 0; i < list.Count; i++) BakeIndex(list, i);
         Persist(lib);
     }
 
@@ -23,14 +35,13 @@ public static class BuiltinRecipeBaker
     {
         var list = Entries(lib);
         if (list == null || index < 0 || index >= list.Count) return;
-        BakeIndex(lib, list, index);
+        BakeIndex(list, index);
         Persist(lib);
     }
 
-    public static IList Entries(BuiltinAssetLibrary lib)
-        => typeof(BuiltinAssetLibrary).GetField("_entries", Priv)?.GetValue(lib) as IList;
+    public static IList Entries(BuiltinAssetLibrary lib) => EntriesField.GetValue(lib) as IList;
 
-    private static void BakeIndex(BuiltinAssetLibrary lib, IList list, int i)
+    private static void BakeIndex(IList list, int i)
     {
         var entry = (BuiltinLabAsset)list[i];
         var collider = new BoundsBoxColliderStrategy();
@@ -41,21 +52,14 @@ public static class BuiltinRecipeBaker
         switch (entry.Type)
         {
             case AssetType.Object:
-                if (entry.Prefab == null) { Debug.LogWarning($"Bake: '{entry.Id}' Object has no prefab — skipped."); return; }
-                {
-                    var temp = Object.Instantiate(entry.Prefab);
-                    try { recipe = ObjectEntityBuilder.RecipeFromInstance(temp, collider, AssetType.Object); }
-                    finally { Object.DestroyImmediate(temp); }
-                }
+                if (!TryGetPrefabPath(entry, "Object", out var objPath)) return;
+                recipe = MeasurePrefab(objPath, go => ObjectEntityBuilder.RecipeFromInstance(go, collider, AssetType.Object));
                 break;
 
             case AssetType.Rig:
-                if (entry.Prefab == null) { Debug.LogWarning($"Bake: '{entry.Id}' Rig has no prefab — skipped."); return; }
-                {
-                    var temp = Object.Instantiate(entry.Prefab);
-                    try { recipe = RigEntityBuilder.RecipeFromInstance(temp, collider, entry.TerminalBonesAxis, entry.InvertTerminalBonesAxis); }
-                    finally { Object.DestroyImmediate(temp); }
-                }
+                if (!TryGetPrefabPath(entry, "Rig", out var rigPath)) return;
+                recipe = MeasurePrefab(rigPath, go => RigEntityBuilder.RecipeFromInstance(
+                    go, collider, entry.TerminalBonesAxis, entry.InvertTerminalBonesAxis));
                 break;
 
             case AssetType.Reference:
@@ -64,14 +68,35 @@ public static class BuiltinRecipeBaker
                 break;
 
             default:
+                Debug.LogWarning($"Bake: '{entry.Id}' unsupported AssetType {entry.Type} — skipped.");
                 return;
         }
 
         object boxed = entry; // box the struct so reflected SetValue sticks
-        typeof(BuiltinLabAsset).GetField("_recipe", Priv).SetValue(boxed, recipe);
+        RecipeField.SetValue(boxed, recipe);
         if (generatedPrefab != null)
-            typeof(BuiltinLabAsset).GetField("_prefab", Priv).SetValue(boxed, generatedPrefab);
+            PrefabField.SetValue(boxed, generatedPrefab);
         list[i] = (BuiltinLabAsset)boxed;
+    }
+
+    // Loads the prefab into an isolated preview scene (NOT the user's open scene), measures it, and
+    // unloads — so baking never dirties the active scene or fires Awake/OnEnable there.
+    private static AssetEntityRecipe MeasurePrefab(string assetPath, Func<GameObject, AssetEntityRecipe> measure)
+    {
+        var root = PrefabUtility.LoadPrefabContents(assetPath);
+        try { return measure(root); }
+        finally { PrefabUtility.UnloadPrefabContents(root); }
+    }
+
+    private static bool TryGetPrefabPath(BuiltinLabAsset entry, string kind, out string path)
+    {
+        path = entry.Prefab != null ? AssetDatabase.GetAssetPath(entry.Prefab) : null;
+        if (string.IsNullOrEmpty(path))
+        {
+            Debug.LogWarning($"Bake: '{entry.Id}' {kind} has no prefab asset — skipped.");
+            return false;
+        }
+        return true;
     }
 
     private static void Persist(BuiltinAssetLibrary lib)
