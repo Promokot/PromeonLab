@@ -174,6 +174,7 @@ public class UserPanel : SpatialPanel
     {
         _initialized = false;
         _lockMode    = LockMode.Follow;
+        _lockDir     = 1;
         _activeTarget   = null;
         _followVelocity = Vector3.zero;
         ApplyLockVisual();

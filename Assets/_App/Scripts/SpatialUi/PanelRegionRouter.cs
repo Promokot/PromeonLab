@@ -48,6 +48,11 @@ public class PanelRegionRouter : IDisposable
     public bool IsOpen(string moduleId) =>
         TryGetAlive(moduleId, out var s) && s.IsOpen;
 
+    // Region a module is assigned to (passthrough to config). Lets a surface ignore RegionChanged
+    // events for regions other than its own.
+    public bool TryGetModuleRegion(string moduleId, out string region) =>
+        _config.TryGetRegion(moduleId, out region);
+
     // --- open / close / toggle -------------------------------------------
 
     public void Open(string moduleId)

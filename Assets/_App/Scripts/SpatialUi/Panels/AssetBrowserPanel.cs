@@ -224,12 +224,18 @@ public class AssetBrowserPanel : MonoBehaviour
 
     private void OnRegionChanged(RegionChangedEvent e)
     {
-        // Re-open the asset browser once the shared center_top region empties after the file
-        // browser flow — but ONLY when nothing else claimed the region. A successful pick hands
-        // the region to the import wizard (OpenModuleId == "importWizard"); reopening here would
-        // stomp it. We wait until the region actually empties (OpenModuleId == null), which is
-        // when the file browser is cancelled or the wizard finishes — then the browser returns.
-        if (_reopenAfterFileBrowser && _router != null
+        // React ONLY to OUR region (the one "assets"/"importWizard" live in). Without this guard an
+        // unrelated region emptying — e.g. the VR keyboard (region "overlays") closing — also fires
+        // with OpenModuleId == null and would wrongly reopen "assets", stomping an open import wizard.
+        if (_router == null || !_router.TryGetModuleRegion("assets", out var myRegion) || e.RegionKey != myRegion)
+            return;
+
+        // Re-open the asset browser once the shared region empties after the file browser flow — but
+        // ONLY when nothing else claimed the region. A successful pick hands the region to the import
+        // wizard (OpenModuleId == "importWizard"); reopening here would stomp it. We wait until the
+        // region actually empties (OpenModuleId == null), which is when the file browser is cancelled
+        // or the wizard finishes — then the browser returns.
+        if (_reopenAfterFileBrowser
             && string.IsNullOrEmpty(e.OpenModuleId) && !_router.IsOpen("fileBrowser"))
         {
             _reopenAfterFileBrowser = false;
