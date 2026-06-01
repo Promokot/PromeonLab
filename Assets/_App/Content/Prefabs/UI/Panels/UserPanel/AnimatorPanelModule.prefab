@@ -202,7 +202,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "12\u200B"
+  m_text: "0\u200B"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -640,7 +640,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: frame
+  m_text: 'Frame:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2751,7 +2751,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: fps
+  m_text: 'FPS:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3291,8 +3291,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4285230079
-  m_fontColor: {r: 1, g: 0.41960785, b: 0.41960785, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5151,6 +5151,7 @@ GameObject:
   - component: {fileID: 5020931298041405755}
   - component: {fileID: 3155742260494124463}
   - component: {fileID: 5725063253657047484}
+  - component: {fileID: 5119673565667601153}
   m_Layer: 5
   m_Name: TotalFramesInput
   m_TagString: Untagged
@@ -5341,6 +5342,18 @@ MonoBehaviour:
   m_FlexibleWidth: 0
   m_FlexibleHeight: 0
   m_LayoutPriority: 1
+--- !u!114 &5119673565667601153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3746357040961116216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 390a98ae4b96d104d9c0643d6b775315, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: _App.Runtime::VrInputFieldProxy
 --- !u!1 &3787651630401633469
 GameObject:
   m_ObjectHideFlags: 0
@@ -5861,8 +5874,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 440, y: -162.5}
-  m_SizeDelta: {x: 440, y: 325}
+  m_AnchoredPosition: {x: 330, y: -162.5}
+  m_SizeDelta: {x: 660, y: 325}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &6216141378746961562
 MonoBehaviour:
@@ -6009,7 +6022,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -36}
-  m_SizeDelta: {x: 0, y: 484}
+  m_SizeDelta: {x: 0, y: 21}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &6480858154427394673
 MonoBehaviour:
@@ -7097,7 +7110,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.16470589, g: 0.09411765, b: 0.09411765, a: 1}
+  m_Color: {r: 0.654902, g: 0.22840053, b: 0.17647056, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -7702,6 +7715,7 @@ GameObject:
   - component: {fileID: 4329182762973614055}
   - component: {fileID: 2370882463236068967}
   - component: {fileID: 4420392636070259127}
+  - component: {fileID: 4575472404420207969}
   m_Layer: 5
   m_Name: CurrentFrameInput
   m_TagString: Untagged
@@ -7857,7 +7871,7 @@ MonoBehaviour:
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
-  m_Text: 12
+  m_Text: 0
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
@@ -7892,6 +7906,18 @@ MonoBehaviour:
   m_FlexibleWidth: 0
   m_FlexibleHeight: 0
   m_LayoutPriority: 1
+--- !u!114 &4575472404420207969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5210555467052406668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 390a98ae4b96d104d9c0643d6b775315, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: _App.Runtime::VrInputFieldProxy
 --- !u!1 &5214198081519901388
 GameObject:
   m_ObjectHideFlags: 0
@@ -9834,6 +9860,7 @@ GameObject:
   - component: {fileID: 989920945248069413}
   - component: {fileID: 8550201331303658574}
   - component: {fileID: 7994630763986399044}
+  - component: {fileID: 5921920403676464147}
   m_Layer: 5
   m_Name: FpsInput
   m_TagString: Untagged
@@ -10024,6 +10051,18 @@ MonoBehaviour:
   m_FlexibleWidth: 0
   m_FlexibleHeight: 0
   m_LayoutPriority: 1
+--- !u!114 &5921920403676464147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6515435304397702071}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 390a98ae4b96d104d9c0643d6b775315, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: _App.Runtime::VrInputFieldProxy
 --- !u!1 &6809716585140747264
 GameObject:
   m_ObjectHideFlags: 0
