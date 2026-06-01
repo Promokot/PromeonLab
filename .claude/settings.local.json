@@ -65,7 +65,8 @@
       "PowerShell($f = @\\(\"S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\\\\Assets\\\\_App\\\\Scripts\\\\AssetBrowser\\\\ReferenceQuadFactory.cs\",\"S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\\\\Assets\\\\_App\\\\Scripts\\\\AssetBrowser\\\\ReferenceQuadFactory.cs.meta\"\\); foreach \\($p in $f\\) { if \\(Test-Path -LiteralPath $p\\) { Remove-Item -LiteralPath $p -Force } }; \"QuadStillExists: $\\(Test-Path -LiteralPath $f[0]\\)\")",
       "Bash(xargs grep -l \"f6336ac4ac8b4d34bc5072418cdc62a0\")",
       "Bash(Get-ChildItem -Path \"S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\" -Directory)",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "Bash(test -f 'S:/[02] Projects/[02] Study/[00] Repositories/PromeonLab/Assets/_App/Content/Prefabs/BuiltInAssets/Crush Dummy.prefab')"
     ]
   },
   "enabledMcpjsonServers": [

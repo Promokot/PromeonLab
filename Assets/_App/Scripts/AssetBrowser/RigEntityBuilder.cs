@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -51,20 +53,32 @@ public class RigEntityBuilder : IAssetEntityBuilder
         return recipe;
     }
 
-    public Task<GameObject> RestoreAsync(ILabAsset asset, AssetEntityRecipe recipe, Vector3 position, Quaternion rotation, CancellationToken ct)
+    public async Task<GameObject> RestoreAsync(ILabAsset asset, AssetEntityRecipe recipe, Vector3 position, Quaternion rotation, CancellationToken ct)
     {
+        GameObject go;
         if (asset.Source == AssetSource.Builtin)
         {
             if (asset is not BuiltinLabAsset b)
                 throw new NotSupportedException($"Builtin asset '{asset.Id}' is not a BuiltinLabAsset");
-            return Task.FromResult(UnityEngine.Object.Instantiate(b.Prefab, position, rotation));
+            go = UnityEngine.Object.Instantiate(b.Prefab, position, rotation);
+        }
+        else
+        {
+            if (string.IsNullOrEmpty(asset.SourceRef))
+                throw new NotSupportedException($"Imported asset '{asset.Id}' has no SourceRef");
+            go = await _factory.CreateAsync(_store.AbsolutePath(asset.SourceRef), position, rotation, ct);
         }
 
-        if (string.IsNullOrEmpty(asset.SourceRef))
-            throw new NotSupportedException($"Imported asset '{asset.Id}' has no SourceRef");
+        if (go == null) return null;
 
-        // Slice A: static mesh; whole-rig selectability is applied by the registry from the recipe.
-        // Slice B: branch on recipe.HasRig here to build the proxy hierarchy via the factory.
-        return _factory.CreateAsync(_store.AbsolutePath(asset.SourceRef), position, rotation, ct);
+        // Slice B: build the proxy-bone hierarchy after load (both branches). Imported → bone names from
+        // the recipe; builtin → null (all live bones). No-op when there is no skeleton (graceful static
+        // fallback). Whole-rig selectability + ProxyRigRuntime wiring are applied by the registry.
+        var boneNames = recipe != null && recipe.HasRig
+            ? recipe.rig.Bones.Select(bn => bn.BoneName).ToList()
+            : null;
+        _factory.BuildProxyRig(go, boneNames);
+
+        return go;
     }
 }

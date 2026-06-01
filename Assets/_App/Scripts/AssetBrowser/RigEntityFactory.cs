@@ -143,7 +143,7 @@ public class RigEntityFactory
             BuildProxyNode(child, proxyGo.transform, set, proxyGOs);
     }
 
-    // ---- Static mesh builders (moved verbatim from PromeonProxyRigBuilder) ----
+    // ---- Static mesh builders (moved verbatim from the original proxy-rig builder) ----
 
     private static float EffectiveWidth(float boneWidth, float length) =>
         Mathf.Min(boneWidth, length * 0.2f);

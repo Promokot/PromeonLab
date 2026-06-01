@@ -39,7 +39,7 @@ public class AssetSpawner : IStartable, IDisposable
             // SceneGraph.AddNode handles RewriteBoneNodeIds + AddTransientNode for bone proxies.
             _graph.AddNode(go, assetRef, e.Asset.DisplayName);
             // Resolve DI on every MonoBehaviour in the spawned hierarchy (XRPromeonInteractable.Construct,
-            // PromeonProxyRigBuilder.Construct, etc.).
+            // ProxyRigRuntime.Construct, etc.).
             _resolver.InjectGameObject(go);
         }
         catch (Exception ex)

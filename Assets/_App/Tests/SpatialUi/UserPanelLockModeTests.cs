@@ -4,8 +4,10 @@ using UnityEngine;
 public class UserPanelLockModeTests
 {
     [Test]
-    public void CycleLockMode_WrapsThroughThreeModes()
+    public void CycleLockMode_PingPongsThroughThreeModes()
     {
+        // The lock toggle ping-pongs (1-2-3-2-1), it does NOT wrap:
+        // Follow → LockPosition → LockPositionRotation → LockPosition → Follow → …
         var go = new GameObject("UserPanel");          // inactive-safe: Awake/Start not called in EditMode
         var panel = go.AddComponent<UserPanel>();
 
@@ -14,6 +16,8 @@ public class UserPanelLockModeTests
         Assert.AreEqual(UserPanel.LockMode.LockPosition, panel.CurrentLockMode);
         panel.CycleLockMode();
         Assert.AreEqual(UserPanel.LockMode.LockPositionRotation, panel.CurrentLockMode);
+        panel.CycleLockMode();
+        Assert.AreEqual(UserPanel.LockMode.LockPosition, panel.CurrentLockMode, "after the top, the toggle reverses");
         panel.CycleLockMode();
         Assert.AreEqual(UserPanel.LockMode.Follow, panel.CurrentLockMode);
 

@@ -114,7 +114,7 @@ public class InspectorPanel : MonoBehaviour
         _boneTransform = null;
         _boneRigId     = null;
 
-        PromeonProxyRigBuilder rig = null;
+        ProxyRigRuntime rig = null;
 
         if (state == InspectorState.Single)
         {
@@ -122,7 +122,7 @@ public class InspectorPanel : MonoBehaviour
             if (_bound != null)
             {
                 BindSingle(_bound);
-                rig = _bound.GetComponentInChildren<PromeonProxyRigBuilder>(true);
+                rig = _bound.GetComponentInChildren<ProxyRigRuntime>(true);
             }
         }
         else if (state == InspectorState.Bone)
@@ -131,7 +131,7 @@ public class InspectorPanel : MonoBehaviour
             if (!string.IsNullOrEmpty(_boneRigId))
             {
                 var rigNode = _ctx.Graph.GetNode(_boneRigId);
-                if (rigNode != null) rig = rigNode.GetComponentInChildren<PromeonProxyRigBuilder>(true);
+                if (rigNode != null) rig = rigNode.GetComponentInChildren<ProxyRigRuntime>(true);
             }
         }
 
@@ -145,7 +145,7 @@ public class InspectorPanel : MonoBehaviour
         if (_activeBoneRigId != null)
         {
             var activeNode = _ctx.Graph.GetNode(_activeBoneRigId);
-            var activeRig  = activeNode != null ? activeNode.GetComponentInChildren<PromeonProxyRigBuilder>(true) : null;
+            var activeRig  = activeNode != null ? activeNode.GetComponentInChildren<ProxyRigRuntime>(true) : null;
             if (activeRig != null) toggleRig = activeRig;
             else _activeBoneRigId = null; // active rig vanished (scene change) — drop bone mode
         }
@@ -260,23 +260,23 @@ public class InspectorPanel : MonoBehaviour
     {
         // Resolve the target rig. When turning OFF we may have no selection (entering bone mode
         // deselected the rig), so fall back to the remembered active bone-mode rig.
-        PromeonProxyRigBuilder rig = null;
+        ProxyRigRuntime rig = null;
         string                 rigNodeId = null;
 
         if (_bound != null)
         {
-            rig       = _bound.GetComponentInChildren<PromeonProxyRigBuilder>(true);
+            rig       = _bound.GetComponentInChildren<ProxyRigRuntime>(true);
             rigNodeId = _bound.NodeId;
         }
         else if (!string.IsNullOrEmpty(_boneRigId))
         {
             var rigNode = _ctx.Graph.GetNode(_boneRigId);
-            if (rigNode != null) { rig = rigNode.GetComponentInChildren<PromeonProxyRigBuilder>(true); rigNodeId = rigNode.NodeId; }
+            if (rigNode != null) { rig = rigNode.GetComponentInChildren<ProxyRigRuntime>(true); rigNodeId = rigNode.NodeId; }
         }
         else if (!string.IsNullOrEmpty(_activeBoneRigId))
         {
             var rigNode = _ctx.Graph.GetNode(_activeBoneRigId);
-            if (rigNode != null) { rig = rigNode.GetComponentInChildren<PromeonProxyRigBuilder>(true); rigNodeId = rigNode.NodeId; }
+            if (rigNode != null) { rig = rigNode.GetComponentInChildren<ProxyRigRuntime>(true); rigNodeId = rigNode.NodeId; }
         }
 
         if (rig == null) return;

@@ -103,7 +103,7 @@ public class OutlinerPanel : MonoBehaviour
         if (!byParent.TryGetValue(parentId ?? "", out var children)) return;
         foreach (var node in children)
         {
-            var isRig = node.GetComponentInChildren<PromeonProxyRigBuilder>(includeInactive: true) != null;
+            var isRig = node.GetComponentInChildren<ProxyRigRuntime>(includeInactive: true) != null;
             OutlinerItem row = isRig
                 ? Instantiate(_rigRowPrefab, _rowsRoot)
                 : Instantiate(_objectRowPrefab, _rowsRoot);
