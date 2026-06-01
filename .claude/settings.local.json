@@ -67,7 +67,15 @@
       "Bash(Get-ChildItem -Path \"S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\" -Directory)",
       "Bash(Select-Object Name)",
       "Bash(test -f 'S:/[02] Projects/[02] Study/[00] Repositories/PromeonLab/Assets/_App/Content/Prefabs/BuiltInAssets/Crush Dummy.prefab')",
-      "mcp__unityMCP__create_script"
+      "mcp__unityMCP__create_script",
+      "Bash(cd \"/s/[02] Projects/[02] Study/[00] Repositories/PromeonLab/Assets/_App/Scenes\")",
+      "Bash(awk 'NR>=120 && NR<=470' Bootstrap.unity)",
+      "Bash(cd \"/s/[02] Projects/[02] Study/[00] Repositories/PromeonLab\")",
+      "Bash(grep -l '' Assets/_App/Scripts/SpatialUi/Panels/__TRACKED_VAR__.cs.meta)",
+      "Bash(grep guid: Assets/_App/Scripts/SpatialUi/Panels/__TRACKED_VAR__.cs.meta)",
+      "Bash(grep -rl \"10f9c3b833735084fa42f947b0cd842c\" Assets --include=*.prefab --include=*.unity --include=*.asset)",
+      "Bash(grep -rl \"a5b5ff4e63bf30248884449bbb45c36e\" Assets --include=*.prefab --include=*.unity --include=*.asset)",
+      "Bash(grep -rl \"c80757e098dae5048a35a538cf3b7e97\" Assets --include=*.prefab --include=*.unity --include=*.asset)"
     ]
   },
   "enabledMcpjsonServers": [

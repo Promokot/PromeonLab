@@ -39,6 +39,7 @@ public class InteractionMaskBinder : MonoBehaviour
         _bus.Subscribe<GizmoToolsPanelOpenedEvent>(OnGizmoPanelOpened);
         _bus.Subscribe<GizmoToolsPanelClosedEvent>(OnGizmoPanelClosed);
         _bus.Subscribe<SelectionChangedEvent>(OnSelectionChanged);
+        _bus.Subscribe<ModeChangedEvent>(OnModeChanged);
     }
 
     private void Awake()
@@ -68,12 +69,26 @@ public class InteractionMaskBinder : MonoBehaviour
         _bus.Unsubscribe<GizmoToolsPanelOpenedEvent>(OnGizmoPanelOpened);
         _bus.Unsubscribe<GizmoToolsPanelClosedEvent>(OnGizmoPanelClosed);
         _bus.Unsubscribe<SelectionChangedEvent>(OnSelectionChanged);
+        _bus.Unsubscribe<ModeChangedEvent>(OnModeChanged);
     }
 
     private void OnBonesVisibility(BonesVisibilityChangedEvent e) { _bonesMode    = e.Visible;               Apply(); }
     private void OnGizmoPanelOpened(GizmoToolsPanelOpenedEvent _) { _panelOpen    = true;                   Apply(); }
     private void OnGizmoPanelClosed(GizmoToolsPanelClosedEvent _) { _panelOpen    = false;                  Apply(); }
     private void OnSelectionChanged(SelectionChangedEvent e)      { _hasSelection = e.SelectedNodeId != null; Apply(); }
+
+    // A scene/mode transition reuses this persistent binder. Scene-scoped publishers (selection,
+    // gizmo panel, bones toggle) do NOT re-emit their "off" state for the new scene, so without an
+    // explicit reset the caster mask can stay stuck on GizmoHandles/BoneProxies from the previous
+    // session — the ray then can't hit SceneObjects and nothing is clickable. Reset to the default
+    // object-selection context. ModeChangedEvent fires after the new scene/scope are live.
+    private void OnModeChanged(ModeChangedEvent _)
+    {
+        _bonesMode    = false;
+        _panelOpen    = false;
+        _hasSelection = false;
+        Apply();
+    }
 
     private void Apply()
     {

@@ -31,15 +31,6 @@ public class VrEditingSceneScope : LifetimeScope
         if (undo != null)
             builder.RegisterBuildCallback(c => c.Inject(undo));
 
-        var rigRuntime = Object.FindAnyObjectByType<RigRuntime>(FindObjectsInactive.Include);
-        if (rigRuntime != null) builder.RegisterInstance(rigRuntime).AsImplementedInterfaces().AsSelf();
-
-        var ikWizard = Object.FindAnyObjectByType<IkWizardPanel>(FindObjectsInactive.Include);
-        if (ikWizard != null) builder.RegisterInstance(ikWizard);
-
-        var bonePanel = Object.FindAnyObjectByType<BoneInspectorPanel>(FindObjectsInactive.Include);
-        if (bonePanel != null) builder.RegisterInstance(bonePanel);
-
         var propPanel = Object.FindAnyObjectByType<PropertyPanel>(FindObjectsInactive.Include);
         if (propPanel != null) builder.RegisterInstance(propPanel).AsImplementedInterfaces().AsSelf();
 

@@ -4,7 +4,7 @@ using VContainer.Unity;
 
 // Scene-scoped entry point: the SINGLE place that fills SceneContext from the live scene scope
 // and clears it when the scope is torn down (scene unload). Service sets differ per scope
-// (Sandbox registers no AnimationAuthoring/AnimationClock/RigRuntime), so each is resolved
+// (Sandbox registers no AnimationAuthoring/AnimationClock), so each is resolved
 // defensively — an unregistered service resolves to null, which SceneContext exposes as null.
 public class SceneContextBinder : IStartable, IDisposable
 {
@@ -27,8 +27,7 @@ public class SceneContextBinder : IStartable, IDisposable
             Resolve<CommandStack>(),
             Resolve<GizmoController>(),
             Resolve<AnimationAuthoring>(),
-            Resolve<AnimationClock>(),
-            Resolve<IRigRuntime>());
+            Resolve<AnimationClock>());
 
         _bus.Publish(new SceneContextChangedEvent { HasScene = _ctx.HasScene });
     }

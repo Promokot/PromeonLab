@@ -10,21 +10,19 @@ public class SceneContext
     public GizmoController    Gizmo     { get; private set; }
     public AnimationAuthoring Authoring { get; private set; }
     public AnimationClock     Clock     { get; private set; }
-    public IRigRuntime       Rig       { get; private set; }
 
     public bool HasScene => Graph != null;
 
     public void Bind(SceneGraph graph, ISelectionManager selection, CommandStack commands,
-                     GizmoController gizmo, AnimationAuthoring authoring, AnimationClock clock,
-                     IRigRuntime rig)
+                     GizmoController gizmo, AnimationAuthoring authoring, AnimationClock clock)
     {
         Graph = graph; Selection = selection; Commands = commands;
-        Gizmo = gizmo; Authoring = authoring; Clock = clock; Rig = rig;
+        Gizmo = gizmo; Authoring = authoring; Clock = clock;
     }
 
     public void Clear()
     {
         Graph = null; Selection = null; Commands = null;
-        Gizmo = null; Authoring = null; Clock = null; Rig = null;
+        Gizmo = null; Authoring = null; Clock = null;
     }
 }

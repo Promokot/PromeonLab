@@ -22,7 +22,7 @@ public class SceneContextTests
         var ctx   = new SceneContext();
         var graph = MakeGraph();
 
-        ctx.Bind(graph, null, null, null, null, null, null);
+        ctx.Bind(graph, null, null, null, null, null);
 
         Assert.IsTrue(ctx.HasScene);
         Assert.AreSame(graph, ctx.Graph);
@@ -33,7 +33,7 @@ public class SceneContextTests
     public void Clear_NullsEverythingAndHasNoScene()
     {
         var ctx = new SceneContext();
-        ctx.Bind(MakeGraph(), null, null, null, null, null, null);
+        ctx.Bind(MakeGraph(), null, null, null, null, null);
 
         ctx.Clear();
 

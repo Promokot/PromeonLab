@@ -6,7 +6,7 @@ using UnityEngine;
 
 // Per-type runtime construction helper for Rig: loads the static mesh AND builds the proxy-bone
 // hierarchy. BuildProxyRig is the single construction core, invoked from RigEntityBuilder.RestoreAsync
-// (import + builtin) and RigRuntime.ApplyDefinition (manual rigging). The factory is a shared
+// (import + builtin). The factory is a shared
 // singleton, so proxies are built into LOCALS and handed to a per-rig ProxyRigRuntime.
 public class RigEntityFactory
 {

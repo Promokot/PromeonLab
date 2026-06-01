@@ -45,8 +45,8 @@ public class ProxyRigRuntime : MonoBehaviour
     }
 
     // Registers the whole-rig selector boxes with the root interactable so a hit on any of them selects
-    // the rig. Called after InteractionCapability.Apply has created the interactable (by the registry /
-    // RigRuntime). No-op if there is no interactable yet.
+    // the rig. Called after InteractionCapability.Apply has created the interactable (by the registry).
+    // No-op if there is no interactable yet.
     public void RegisterSelectorColliders()
     {
         var it = GetComponent<XRPromeonInteractable>();
