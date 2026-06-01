@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+**Status:** ✅ Implemented & verified (2026-06-01) — all 4 tasks complete, EditMode green (6 baseline only), VR-verified.
+
 **Goal:** Fix click-selection dying after a scene re-entry, encapsulate the XRI collider re-registration honestly, and delete the unreachable manual-rigging code.
 
 **Architecture:** Three independent edits. (1) The persistent `InteractionMaskBinder` resets its context flags on `ModeChangedEvent` so every scene entry starts in the object-selection mask. (2) `XRPromeonInteractable.RegisterColliders` delegates its manager re-index to a named `RefreshColliderRegistration()` with a truthful comment. (3) Remove the dead `RigRuntime`/`IRigRuntime`/`IkWizardPanel`/`BoneInspectorPanel` cluster and unwire its DI references.

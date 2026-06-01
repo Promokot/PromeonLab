@@ -1,33 +1,86 @@
 # Planning Archive
 
-Implemented and superseded specs/plans, moved out of the active `docs/superpowers/{specs,plans}/`
-folders so those show only live work. Nothing here is deleted — it is project history.
+Implemented, superseded, and obsolete specs / plans / reports / notes, physically moved out of
+the active `docs/superpowers/{specs,plans}` and `docs/{reports,session-reports,developer-notes}`
+folders so the active folders show **only live work and current-state reference docs**.
 
-One line per archived doc: title — status — date archived.
+Nothing here is deleted — it is project history (also in git). Re-archived 2026-06-01 after the
+full project audit (`docs/superpowers/audit-2026-06-01/`), which is the authoritative current-state
+reference alongside root `CLAUDE.md`.
 
-## Scene / scope lifecycle redesign (milestone, 2026-05-30)
+**What stays ACTIVE (not archived):**
+- `specs/` — only specs that still accurately describe the *live* code (the 2026-06-01 entity/rig
+  cycle, region-model, settings, grab-and-lock, interaction-layer v2, animator-system v2,
+  bone-pose-persistence). These are current reference.
+- `plans/` — only plans with **outstanding** work: `2026-05-30-project-cleanup.md` (dead-code
+  removal, BaseSceneScope — not done) and `2026-05-30-docs-and-archive-cleanup.md`.
+- `audit-2026-06-01/` — the six reconciliation reports (current-state source of truth).
+- `investigations/` — kept as research records.
+- `docs/developer-notes/ui-conventions.md` — kept (partially updated 2026-06-01).
+- `docs/reports/2026-05-21-vkr-implementation.md` — kept (academic write-up).
 
-- Scene/Scope Lifecycle Redesign (design spec) — implemented (A+B+C); FeatureLifetimeScope removed (docs-only) — 2026-05-30
-- Plan A — SceneContext foundation — implemented — 2026-05-30
-- Plan B — SceneContext consumer migration — implemented — 2026-05-30
-- Plan C — Single-scene loading + DDOL (`PersistentRoot`, `ISceneTransition`/`SceneTransitionRunner`, `HeadFade`) — implemented — 2026-05-30
-- Plan D — Docs & planning-archive cleanup (this archival pass) — implemented — 2026-05-30
-- Scene Loading Isolation (design + plan) — **superseded** by Plan C (single load removes render-bleed) — 2026-05-30
+---
 
-## SpatialUi region model + nav bar (2026-05-29 / 2026-05-17–18)
+## specs/ (29 archived)
 
-- SpatialUi Region Model (design + plan) — implemented — 2026-05-30
-- SpatialUi Region Prefab Verification (plan) — implemented — 2026-05-30
-- NavBar Panel System (design + plan) — implemented — 2026-05-30
-- NavBar Exclusive Groups (design) — implemented — 2026-05-30
+| Doc | Status | Reason |
+|---|---|---|
+| `2026-05-14-demo-development-plan-design` | OBSOLETE | Earliest demo plan; overtaken by all subsequent milestones. |
+| `2026-05-15-panel-consolidation-design` | OBSOLETE | Per-subsystem `SpatialUi.asmdef` / `_Shared/Interfaces` / `UI_Scripts/` premise contradicts the single-`_App.Runtime` no-namespace topology. |
+| `2026-05-16-asset-browser-design` | OBSOLETE | `ILabAsset.SpawnAsync`, `AssetBrowserModule`, drag-and-drop, `AssetPropertiesView` — almost nothing matches shipped design. |
+| `2026-05-16-asset-browser-spawn-filebrowser-design` | OBSOLETE | `AssetBrowserModule` + `FileBrowserVrAnchor` (deleted; now `FileBrowserSurface` + region router). |
+| `2026-05-16-double-userpanel-cursor-fix-design` | SUPERSEDED | Targeted `UiPanelManager`/`DefaultPanelRegistry` double-spawn; UserPanel is now rig-persistent. |
+| `2026-05-16-userpanel-filebrowser-fixes-design` | SUPERSEDED | Y-drift/FaceCamera logic rewritten by 2026-05-30 grab-and-lock. |
+| `2026-05-16-userpanel-menu-button-fix-design` | DONE | Null-orchestrator fix; UserPanel now injected in `RootLifetimeScope`. |
+| `2026-05-16-vr-keyboard-design` | DONE | Keyboard brain shipped; toggle migrated to region model (`UserPanelKeyboardToggle` deleted). |
+| `2026-05-17-navbar-panel-system-design` | SUPERSEDED-BY region model | `NavBarBinding[]`/`ContextSlot`/`DetachablePanel`/`StartsEnabled` all replaced. |
+| `2026-05-17-scene-objects-selection-outliner-design` | OBSOLETE (selection) | Multi-select removed (gizmo Phase 0 → single-select). |
+| `2026-05-17-spatialui-scripts-reorganization-design` | PARTIALLY SUPERSEDED | Proposed `Scripts/{Panels,Views,Elements}`; final tree is `SpatialUi/{Panels,Elements,Behaviors,Events}`. |
+| `2026-05-18-interaction-input-rework-design` | OBSOLETE | Multi-select API + **inverted** move/rotate mapping (live: hold-trigger=rotate, hold-grip=move). |
+| `2026-05-18-navbar-exclusive-groups-design` | SUPERSEDED-BY region model | `ExclusiveGroup` survived as region key; `HideAllPanels` mechanism gone. |
+| `2026-05-18-scene-ui-interaction-fixes-design` | DONE | Bugfix batch, landed. |
+| `2026-05-20-animation-system-design` | SUPERSEDED-BY `2026-05-21-animator-system-design` | v1 single-`SceneAnimationData` model replaced by per-`ActionContainer` v2. |
+| `2026-05-20-promeon-bone-renderer-design` | SUPERSEDED-BY entity pipeline | `PromeonInteractableRigBuilder : BoneRenderer` + Animation-Rigging — class & package gone. |
+| `2026-05-20-rig-builder-v2-fixes` | SUPERSEDED-BY entity pipeline Slice B | Mesh/follower technique survived; host builder + `RigRuntime` gone. |
+| `2026-05-20-rig-builder-v2-proxy-skeleton` | SUPERSEDED-BY rig-builder-v2-fixes → entity pipeline | First proxy-skeleton/`BoneFollower` design on a now-deleted builder. |
+| `2026-05-20-rig-interaction-polish` | SUPERSEDED-BY rig-bake-prefab → entity pipeline | `BoneInteractableFactory`/`SceneInspectorView` deleted. |
+| `2026-05-20-scene-loading-isolation` | SUPERSEDED-BY single-scene+DDOL (Plan C) | Single load removes render-bleed; additive-era design. |
+| `2026-05-21-animator-panel-layout-design` | DONE / stale paths | `AnimationModule.prefab` + old `*View` names; layout landed. |
+| `2026-05-21-animator-panel-module-design` | DONE / stale paths | `AnimatorPanelModuleBuilder` with old `*View` names (now `AnimatorPanel`/`AnimatorSub*`). |
+| `2026-05-21-player-anchor-fall-guard-design` | OBSOLETE | Anchor + `PlayerSpawnRequestedEvent` + `XRBodyTransformer` replaced by teleport-to-origin. |
+| `2026-05-21-rig-bake-prefab-design` | SUPERSEDED-BY rig-slice-b (Approach A) | Bake-into-prefab premise reversed by "always build proxies at runtime." |
+| `2026-05-21-vr-gizmo-system-design` | DONE w/ drift | Core gizmo arch matches; `_originalTargetCollider` disable, attach-transform input, bounds-fit all removed. See audit 06 for live behavior. |
+| `2026-05-28-app-restructure-design` | DONE | `Scripts/Core` + `_App` layout is live. |
+| `2026-05-29-scene-scope-lifecycle-redesign-design` | DONE | A+B+C landed (the `IRigRuntime Rig` property in §2 was never added). |
+| `2026-05-29-spatialui-animation-refactor-design` | DONE (scope A) | Rename/relocate done; scope B (overlays→modules) is future. |
+| `2026-05-31-asset-import-pipeline-design` | SUPERSEDED-BY `2026-06-01-asset-entity-builders` | `IAssetSpawner`/`Meta`/`asset-library` singular renamed/dropped downstream. |
 
-## UserPanel / Asset & File Browser (2026-05-16–17)
+## plans/ (46 archived)
 
-- UserPanel + File Browser fixes (design + plan) — implemented — 2026-05-30
-- Asset Browser → Spawn / File Browser (design + plan) — implemented — 2026-05-30
-- Scene Objects Selection + Outliner (design + plan) — implemented — 2026-05-30
-- Double UserPanel / cursor fix (design + plan) — implemented — 2026-05-30
+All implemented plans whose work has landed. The corresponding live-state reference is either the
+matching kept spec or the audit reports. Grouped:
 
-## Player spawn (2026-05-21)
+- **Asset/import:** `2026-05-16-asset-browser-spawn-filebrowser`, `2026-05-16-asset-spawn-button`, `2026-05-31-asset-spawn-service-and-persistence`, `2026-05-31-asset-import-gltf-and-wizard`, `2026-06-01-asset-entity-builders-slice1`, `2026-06-01-builtin-recipe-bake`.
+- **Rig:** `2026-05-20-promeon-bone-renderer`, `2026-05-20-rig-builder-proxy-visual-split`, `2026-05-20-rig-builder-v2-fixes`, `2026-05-20-rig-builder-v2-proxy-skeleton`, `2026-05-20-rig-interaction-polish`, `2026-05-21-rig-bake-prefab`, `2026-06-01-rig-entity-pipeline-slice-a`, `2026-06-01-rig-slice-b-runtime-proxy`, `2026-06-01-rig-leaf-bone-axis`, `2026-06-01-bone-pose-persistence`.
+- **Animation:** `2026-05-20-animation-system`, `2026-05-21-animator-panel-layout`, `2026-05-21-animator-panel-module`, `2026-05-21-animator-system`, `2026-05-29-spatialui-animation-refactor`.
+- **SpatialUi / panels:** `2026-05-15-panel-consolidation`, `2026-05-16-double-userpanel-cursor-fix`, `2026-05-16-userpanel-filebrowser-fixes`, `2026-05-16-userpanel-menu-button-fix`, `2026-05-17-navbar-panel-system`, `2026-05-29-spatialui-region-model`, `2026-05-29-spatialui-region-prefab-verification`, `2026-05-30-settings-panel-controls-bindings`, `2026-05-30-userpanel-grab-and-lock`.
+- **Interaction / gizmo / outline:** `2026-05-17-scene-objects-selection-outliner`, `2026-05-18-interaction-input-rework`, `2026-05-18-scene-ui-interaction-fixes`, `2026-05-21-vr-gizmo-system`, `2026-05-30-gizmo-fixes`, `2026-05-30-outline-see-through` (superseded by layered-masks), `2026-05-30-outliner-scroll-fix`, `2026-05-31-outline-layered-masks-and-bone-toggle`, `2026-05-31-interaction-layer-priority` (v1 — superseded by v2 spec), `2026-06-01-type-keyed-selection-colliders`, `2026-06-01-interaction-context-reset-and-registration-cleanup`.
+- **Architecture / scene-scope:** `2026-05-28-app-restructure`, `2026-05-30-scene-context-foundation` (Plan A), `2026-05-30-scene-context-consumer-migration` (Plan B), `2026-05-30-scene-loading-single-ddol` (Plan C).
 
-- Player Anchor + Fall Guard (design) — implemented (later simplified: anchor removed, teleport-to-origin) — 2026-05-30
+## reports/ (3 archived)
+
+- `2026-05-16-asset-browser-spawn-sfb-vr` — OBSOLETE (SFB-VR/AssetBrowserModule work; `FileBrowserVrAnchor` removed).
+- `2026-05-16-double-userpanel-cursor-fixes` — DONE (references removed `UiPanelManager`).
+- `2026-05-21-project-audit` — SUPERSEDED by `audit-2026-06-01/`.
+
+## session-reports/ (2 archived)
+
+- `2026-05-20-rig-builder-refactor` — OBSOLETE (`PromeonInteractableRigBuilder` no longer exists).
+- `2026-05-20-scene-loading-isolation` — SUPERSEDED by single-scene load.
+
+## developer-notes/ (7 archived)
+
+- `2026-05-17-navbar-manual-wiring-guide`, `2026-05-17-scene-outliner-manual-setup`, `2026-05-17-xr-ui-bugfixes-and-navbar-design`, `vr-keyboard` — OBSOLETE manual-wiring guides for a model that is now DI-discovery-driven.
+- `2026-05-17-scene-save-load-bugs` — bug list, resolved.
+- `2026-05-21-bone-outline-needs-click` — DONE (resolved 2026-05-31).
+- `2026-05-31-gizmo-occluded-not-selectable` — DONE (resolved by `InteractionMaskBinder` GizmoHandles context).

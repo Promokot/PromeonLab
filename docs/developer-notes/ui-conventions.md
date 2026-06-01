@@ -1,6 +1,14 @@
 # UserPanel UI Conventions
 
-Правила построения панелей и модулей внутри UserPanel. Canonical example — `AssetBrowserModule`.
+> ⚠️ **Partially stale (2026-06-01 audit).** The general rules below (§1 Z=0, §2 World-Space Canvas,
+> §5 module/DI pattern, §7 forbidden list) are still valid. But the **NavBar wiring** parts are
+> obsolete: panels are now discovery-registered into the **root-lifetime region model**
+> (`PanelRegionRouter` + `NavBarConfig` + `RegionMember`), not via `NavBarBinding[]` on `UserPanel`;
+> and `DetachablePanel` is now `SpatialPanelDetachable`. See `CLAUDE.md` (SpatialUi row) and
+> `docs/superpowers/specs/2026-05-29-spatialui-region-model-design.md` for the current model.
+> `AssetBrowserModule` (the "canonical example") is now `AssetBrowserPanel`.
+
+Правила построения панелей и модулей внутри UserPanel.
 
 ---
 

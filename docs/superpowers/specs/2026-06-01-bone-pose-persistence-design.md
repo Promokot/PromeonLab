@@ -1,7 +1,7 @@
 # Bone-Pose Persistence — Design
 
 **Date:** 2026-06-01
-**Status:** Approved (pending spec review)
+**Status:** ✅ Implemented & verified (2026-06-01) — EditMode green (6 baseline only), VR-verified by user. Includes the ShowBones-on-exit reset follow-up.
 **Scope:** Persist per-bone poses of a rig across save/load. One cohesive change across `StorageCore`, `RigBuilder`, `SceneComposition`, `AssetBrowser` (factory wiring).
 
 ## Problem

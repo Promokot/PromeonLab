@@ -117,6 +117,16 @@ public class AnimatorPanel : MonoBehaviour
 
     private void OnContainerChanged(AnimationContainerChangedEvent e)
     {
+        // A newly-Added container for the current selection must refresh even when _activeOwner is
+        // still null (no container existed a moment ago, so Refresh cleared it). Without this, the
+        // first "Add animation" looks like a no-op until the next reselect. (audit H5)
+        if (e.Change == ContainerChange.Added)
+        {
+            var selectedOwner = AnimationAuthoring.OwnerOf(_ctx.Selection?.SelectedNodeId);
+            if (e.OwnerNodeId == _activeOwner || e.OwnerNodeId == selectedOwner) Refresh();
+            return;
+        }
+
         if (e.OwnerNodeId != _activeOwner) return;
 
         switch (e.Change)
@@ -129,10 +139,6 @@ public class AnimatorPanel : MonoBehaviour
             case ContainerChange.FpsChanged:
                 ApplyContainerToClock();
                 RebuildTimeline();
-                break;
-
-            case ContainerChange.Added:
-                Refresh();
                 break;
         }
     }

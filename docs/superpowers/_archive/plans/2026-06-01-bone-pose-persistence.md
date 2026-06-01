@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+**Status:** ✅ Implemented & verified (2026-06-01) — all 3 tasks complete, EditMode green (6 baseline only; +4 new tests), VR-verified. Plus a follow-up fix: reset persistent ShowBones state on scene exit (`InspectorPanel`).
+
 **Goal:** Persist each rig's per-bone poses (full local TRS) across save/load so manual posing survives a scene reload.
 
 **Architecture:** Add a `BonePose` record + a `BonePoses` list on `NodeData` (scene.json, schema v3). `ProxyRigRuntime` (which owns the proxy↔bone mapping) gains `CapturePoses`/`ApplyPoses` working on proxy-local transforms — the authoritative pose input that `BoneFollower` propagates to real bones. `SceneGraph` captures poses per rig node at save and re-applies them after spawn at load.

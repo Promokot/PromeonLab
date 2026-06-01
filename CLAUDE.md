@@ -29,17 +29,21 @@ This is a Unity project — there is no CLI build script. All compilation, build
 
 ### VR Workflow
 
-1. **VR Editing** — create/edit skeletal animations in immersive VR (rigs, keyframes, NLA composition)
-2. **Export** — FBX (via Unity FBX Exporter SDK) or custom JSON fallback
+1. **VR Editing** — create/edit skeletal animations in immersive VR (rigs, keyframe authoring on a per-`ActionContainer` timeline; NLA composition is planned, not yet built — see `docs/BACKLOG.md`)
+2. **Export** — FBX / custom JSON (planned — `ExportPipeline` is currently a placeholder; see `docs/BACKLOG.md`)
+
+> **Current-state reference:** `CLAUDE.md` is the authoritative overview. For a code-verified
+> reconciliation of every subsystem (and where docs drifted), see `docs/superpowers/audit-2026-06-01/`.
+> For features specced/aspirational but **not yet implemented**, see `docs/BACKLOG.md`.
 
 ### VContainer Scope Hierarchy
 
 | Scope | Lifetime | Key Registrations |
 |---|---|---|
-| `RootLifetimeScope` | App lifetime (`DontDestroyOnLoad` under `PersistentRoot`) | `AppStorage`, `PathProvider`, `AnimationClock`, `EventBus`, `SceneContext`, `ModeOrchestrator`, `ISceneTransition`/`SceneTransitionRunner`, `PanelRegionRouter` |
-| Scene scope | The loaded mode scene's own `LifetimeScope` (`MainMenu`/`VrEditing`/`Sandbox`) | `SceneGraph`, `SelectionManager`, `CommandStack`, `GizmoController`, scene `AssetImporter`; binds `SceneContext` via `SceneContextBinder` |
+| `RootLifetimeScope` | App lifetime (`DontDestroyOnLoad` under `PersistentRoot`) | `AppStorage`, `PathProvider`, `EventBus`, `SceneContext`, `ModeOrchestrator`, `ISceneTransition`/`SceneTransitionRunner`, `PanelRegionRouter`, `AnimationClipboard`, asset libraries (`Builtin`/`Imported`/`Saved`), `AssetRegistry`, `ImportPipeline`, `VrKeyboard`, `UserPanel` |
+| Scene scope | The loaded mode scene's own `LifetimeScope` (`MainMenu`/`VrEditing`/`Sandbox`) | `SceneGraph`, `SelectionManager`, `CommandStack`, `GizmoController`, `AssetSpawner`; **VrEditing only** also registers `AnimationClock`, `AnimationAuthoring`, `SceneAutoSaver`, `UnsavedChangesGuard`; binds `SceneContext` via `SceneContextBinder` |
 
-Child scopes may depend on parent registrations; **never the reverse**. Exactly one mode scene is loaded at a time (`LoadSceneMode.Single`); its scope parents to the persistent `RootLifetimeScope`. Scene-scoped services are exposed app-wide through the root `SceneContext` façade, populated on scene-scope start and cleared on dispose by `SceneContextBinder` (which publishes `SceneContextChangedEvent`). **`HasScene` (Graph bound) does not imply other services are non-null** — Sandbox does not register `AnimationAuthoring`/`AnimationClock`/`RigRuntime`, so guard on the specific service a consumer uses.
+Child scopes may depend on parent registrations; **never the reverse**. Exactly one mode scene is loaded at a time (`LoadSceneMode.Single`); its scope parents to the persistent `RootLifetimeScope`. Scene-scoped services are exposed app-wide through the root `SceneContext` façade, populated on scene-scope start and cleared on dispose by `SceneContextBinder` (which publishes `SceneContextChangedEvent`). **`HasScene` (Graph bound) does not imply other services are non-null** — Sandbox does not register `AnimationAuthoring`/`AnimationClock`, so guard on the specific service a consumer uses.
 
 ### App Modes (`ModeOrchestrator` + `ModeTransitionGraph`)
 
@@ -51,17 +55,17 @@ Located in `Assets/_App/Scripts/<Subsystem>/`. Interfaces and contracts for each
 
 | Subsystem | Core Responsibility |
 |---|---|
-| `StorageCore` | File I/O, JSON serialization, `PathProvider`, schema migration via `StorageMigrator` |
-| `AssetBrowser` | VR gallery UI over three asset libraries keyed by `AssetSource` (`Builtin`/`Imported`/`Saved`); runtime import pipeline (`ImportPipeline` + `ImportWizardSurface`) for glTF/GLB (via glTFast) and images; per-`AssetType` spawning via `IAssetSpawner`/`AssetSpawnerRegistry`; no direct file access (delegates to `StorageCore`/`AssetSourceStore`) |
-| `SceneComposition` | Scene node hierarchy, `CommandStack` (undo/redo), `SelectionManager` |
-| `RigBuilder` | Skeletal rigging from imported mesh; IK/FK via Unity Animation Rigging |
-| `Animation` | `ActionData`, keyframe recording/authoring, NLA composition, and playback transport (scrub/loop/speed). Key types: `AnimationAuthoring`, `AnimationPlayback`, `AnimationClock` |
-| `ExportPipeline` | FBX + custom JSON export; no reverse import |
-| `InputBindings` | OpenXR controller mapping; context-switched (`Navigation`, `Ui`, `GizmoManipulation`, …) |
+| `StorageCore` | File I/O, JSON serialization, `PathProvider`, inline schema migration in `SceneSerializer.Deserialize` (versioned `scene.json`; current v3 adds per-rig bone poses) |
+| `AssetBrowser` | VR gallery UI over three asset libraries keyed by `AssetSource` (`Builtin`/`Imported`/`Saved`); runtime import pipeline (`ImportPipeline` + `ImportWizardSurface`) for glTF/GLB (via glTFast) and images; **build-once/restore-many** entity pipeline (`IAssetEntityBuilder` + `AssetEntityBuilderRegistry`, Object/Rig/Reference builders) with capability applied via `InteractionCapability.Apply`; spawning via `AssetSpawner`; no direct file access (delegates to `StorageCore`/`AssetSourceStore`) |
+| `SceneComposition` | Scene node hierarchy, `CommandStack` (undo only, max 30 — **no redo**), `SelectionManager` (single-select: `Select(id?)` / `SelectedNodeId`) |
+| `RigBuilder` | Runtime proxy-bone rig built on spawn (`RigEntityFactory.BuildProxyRig` → per-bone proxy GO + `BoneFollower`; coordinated by `ProxyRigRuntime`). Bone poses persist via schema-v3 `NodeData.BonePoses`. **IK chains are serialized but no solver consumes them yet** (no Animation Rigging) |
+| `Animation` | Per-`ActionContainer` keyframe authoring (`AnimationAuthoring`), debounced persistence, `AnimationClip`-based sampling, and transport (`AnimationClock`: scrub + play/pause + speed=fps). **No loop, no NLA, no multi-container playback yet** (see `docs/BACKLOG.md`). UI: `AnimatorPanel` + `AnimatorSub*` modules |
+| `ExportPipeline` | **Placeholder — not implemented.** FBX + custom JSON export is planned (see `docs/BACKLOG.md`) |
+| `InputBindings` | Controls vocabulary for the Settings panel: `ControlsProfile` (SO) + `ControlBinding` data, rendered by `SettingsPanel`. (The interaction *input model* itself lives in `VrInteraction`.) |
 | `ModeOrchestrator` | Mode policy: validates `ModeTransitionGraph`, delegates to `ISceneTransition`/`SceneTransitionRunner` (single-scene load behind `HeadFade`); publishes `ModeExitingEvent` before the load (outgoing scope still alive) and `ModeChangedEvent` after the load |
-| `VrInteraction` | `RayInteractor`, `NearInteractor`, `GizmoController`, multi-select |
-| `SpatialUi` | VR panels (`BodyLocked` / `WorldFixed` / `Free`), `ToolbarPanel`, billboard mode |
-| `ErrorHandling` | `ErrorDispatcher`, three levels (`Warning`/`Error`/`Critical`), async error wrapping |
+| `VrInteraction` | `XRPromeonInteractable` direct-input on `NearFarInteractor` (tap-trigger = select, hold-trigger = rotate, hold-grip = move; XRI select-flow disabled); `GizmoController`/`GizmoActivator` gizmo; `InteractionMaskBinder` contextual cast-masks; QuickOutline-based outline. **Single-select** |
+| `SpatialUi` | VR panels (`SpatialPanel`: `BodyLocked` / `WorldFixed` / `Free` + billboard); root-lifetime region/navbar model (`PanelRegionRouter` + `NavBarConfig` + `RegionMember`); `UserPanel` (grip-grab + triple-lock); `SettingsPanel`; `AnimatorPanel` |
+| `ErrorHandling` | `ErrorLevel` enum + `ErrorOccurredEvent`. **`ErrorDispatcher` is not implemented** — error reporting currently goes straight to `Debug.Log*` (see `docs/BACKLOG.md`) |
 
 ### Cross-Subsystem Communication
 
@@ -69,8 +73,8 @@ All cross-subsystem messages are `struct` types suffixed `Event` (e.g., `SceneOp
 
 `SceneOpened` → SceneComposition, AssetBrowser  
 `SceneModified` → UnsavedChangesGuard  
-`SelectionChanged` → PropertyPanel, GizmoController  
-`FrameChanged` → AnimationEvaluator, TrackRecorder  
+`SelectionChanged` → PropertyPanel, GizmoController, `ProxyRigRuntime`, `SelectionVisualSync`  
+`FrameChanged` → `AnimationAuthoring` (samples the clip), `AnimatorPanel` (moves playhead)  
 `ModeExiting` → SceneAutoSaver (fired *before* the Single load, while the outgoing scene/scope are still alive)  
 `ModeChanged` → SpatialUi region router / nav-bar visibility (fired *after* the new scene has loaded)  
 `SceneContextChanged` → OutlinerPanel, InspectorPanel, PropertyPanel, AnimatorPanel (scene services bound/unbound)  
@@ -78,7 +82,7 @@ All cross-subsystem messages are `struct` types suffixed `Event` (e.g., `SceneOp
 `ImportRequested` → ImportWizardSurface (show wizard: file name, suggested type/name)  
 `ImportConfirmed` → ImportPipeline (handler copies source + writes the library record)  
 `AssetImported` → AssetBrowser grid refresh  
-`AssetSpawnRequested` → AssetSpawner (spawns through `AssetSpawnerRegistry`)  
+`AssetSpawnRequested` → `AssetSpawner` (restores through `AssetEntityBuilderRegistry.RestoreAsync`)  
 
 ### Data Storage Layout
 
@@ -86,20 +90,16 @@ All paths are built exclusively through `PathProvider` — no manual string conc
 
 ```
 Application.persistentDataPath/
-├── asset-library/                    (global, reusable across scenes)
-│   ├── imported.json                 (Imported-library records)
-│   ├── saved.json                    (Saved-library records; Slice 3, not yet implemented)
-│   └── sources/{assetId}.{ext}       (copied raw import files — .glb/.gltf/.png/.jpg)
+├── asset-libraries/                  (global, reusable across scenes)
+│   ├── imported-lib.json             (Imported-library records; recipe-per-entry, schemaVersion 2)
+│   ├── saved-lib.json                (Saved-library records; persisted, but spawn-from-saved/Slice 3 not yet implemented)
+│   └── sources/{assetId}.{ext}       (copied raw import files — .glb/.gltf/.png/.jpg/.jpeg)
 └── scenes/{SceneId}/
-    ├── scene.json            (scene graph + animation data)
-    ├── asset-catalog.json    (asset registry)
-    ├── assets/Models|Textures|Materials|Media/
-    ├── Rigs/                 rig-{assetId}.json
-    ├── Poses/                pose-{assetId}.json
-    └── export/               *.fbx / *.json
+    ├── scene.json            (scene graph + animation data + per-rig bone poses, schemaVersion 3)
+    └── export/               *.fbx / *.json   (export not yet implemented)
 ```
 
-Imported assets are global: a node in `scene.json` stores `AssetRef{Source, AssetId}`, and the spawner loads geometry from `asset-library/sources/` by the record's `SourceRef` (stored **relative** to `persistentDataPath`). `Saved` is a distinct, scene-origin flow (manual save-out), not yet implemented.
+Imported assets are global: a node in `scene.json` stores `AssetRef{Source, AssetId}`, and the spawner restores geometry from `asset-libraries/sources/` by the record's `SourceRef` (stored **relative** to `persistentDataPath`). Rig definitions and bone poses are carried **inline** — rig data in the asset recipe, bone poses in each node's `NodeData.BonePoses` — so the old per-scene `Rigs/` and `Poses/` folders are no longer written. `Saved` is a distinct, scene-origin flow (manual save-out), not yet implemented.
 
 ## Folder Structure
 
@@ -149,22 +149,22 @@ Assets/
 
 ### Rules
 
-- `[SerializeField] private` for inspector-exposed fields — **never `public` fields**
+- `[SerializeField] private` for inspector-exposed `MonoBehaviour`/`ScriptableObject` fields — **never `public` fields** on behaviors/SOs. (Plain `[Serializable]` data classes serialized by `JsonUtility` — `BoneRecord`, `NodeData`, `AnimKeyData`, event structs — may use `public` fields, since `JsonUtility` won't serialize private fields without `[SerializeField]` and these carry no behavior.)
 - No `async void` except Unity lifecycle entry points (`Start`, `Awake`), wrapped with error handling; pass `CancellationToken` as the last parameter on all async methods
 - ScriptableObjects for config/graphs/profiles only — **not** for runtime mutable state
 - One public type per file; file name matches type name exactly
 - All user-reversible actions go through `CommandStack` — no direct mutation bypassing it
 - Platform-dependent code behind interfaces declared in the owning subsystem's folder (no concrete platform classes at call sites)
-- All serialized data carries a `schemaVersion` field; migrations only in `StorageMigrator`
+- All serialized data carries a `schemaVersion` field; migrations are inline at the deserialization boundary (e.g. `SceneSerializer.Deserialize` does v1/v2→v3) — there is no separate `StorageMigrator` class
 - Cross-subsystem boundaries are enforced by convention (folder structure + code review) — there are no per-subsystem assemblies; all runtime code compiles into `_App.Runtime`
 - Subsystem-specific code stays in its subsystem folder under `Scripts/`
 
 ### Strictly Forbidden
 
-- `FindObjectOfType` / `GameObject.Find` at runtime — use DI
+- `FindObjectOfType` / `FindAnyObjectByType` / `GameObject.Find` in **gameplay/runtime** code — use DI. **Exception:** the DI-bootstrap shim inside `LifetimeScope.Configure` (and its `RegisterBuildCallback`s) may use `FindAnyObjectByType` / `FindObjectsByType(..., FindObjectsInactive.Include)` *solely* to locate scene-placed `MonoBehaviour`s and hand them to `builder.Inject` / `RegisterInstance`. That is the only legal home for `Find*`; it must never appear in a panel, behavior, or service.
 - `Singleton.Instance` pattern — use VContainer scopes
-- `static` fields holding mutable runtime state
-- Generic type name suffixes: `Manager`, `Handler`, `Utils`, `Helper`, `Controller`, `Processor`, `Service`
+- `static` fields holding mutable runtime state (pure-function statics and `static readonly` cached constants are fine)
+- **Junk-drawer type names** — don't reach for `*Manager`/`*Handler`/`*Helper`/`*Utils`/`*Processor`/`*Service`/`*Controller` as a *default* when a domain noun exists (`SceneGraph` not `SceneManager`; `CommandStack` not `UndoManager`). A pattern suffix is acceptable when it **is** the domain role with a specific prefix (`SelectionManager`, `GizmoController`, `UndoKeyHandler`, `*Orchestrator`). Banned outright: bare/over-generic names with no domain prefix (`Manager`, `Utils`, `Helper`, `DataController`) and catch-all `*Service`/`*Utils`/`*Helper` grab-bag classes.
 - `Resources.Load` — `_App` code must not use this; use prefab references via DI or `Content/` folder
 - `MonoBehaviour` as a data container
 - `Update()`-based polling where an event suffices

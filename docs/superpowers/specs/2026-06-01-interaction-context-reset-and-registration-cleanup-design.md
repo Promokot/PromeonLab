@@ -1,7 +1,7 @@
 # Interaction Context Reset + Collider-Registration Cleanup — Design
 
 **Date:** 2026-06-01
-**Status:** Approved (pending spec review)
+**Status:** ✅ Implemented & verified (2026-06-01) — EditMode green (6 baseline only), VR-verified by user.
 **Scope:** Three independent, cohesive changes in `VrInteraction` + `Bootstrap` wiring. No new features.
 
 ## Problem

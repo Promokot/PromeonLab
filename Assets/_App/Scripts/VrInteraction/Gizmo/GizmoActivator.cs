@@ -77,8 +77,6 @@ public class GizmoActivator : MonoBehaviour
         _bus.Subscribe<GizmoToolsPanelClosedEvent>(OnPanelClosed);
         _bus.Subscribe<GizmoModeChangedEvent>(OnModeChanged);
         _bus.Subscribe<SelectionChangedEvent>(OnSelectionChanged);
-
-        Debug.Log("[GizmoActivator] Construct() called — subscriptions registered.");
     }
 
     private void OnDestroy()
@@ -111,7 +109,6 @@ public class GizmoActivator : MonoBehaviour
 
     private void OnPanelOpened(GizmoToolsPanelOpenedEvent _)
     {
-        Debug.Log($"[GizmoActivator] OnPanelOpened received. _target={(_target != null ? _target.name : "null")}");
         _panelOpen = true;
         _mode      = GizmoMode.Move;
         RefreshVisibility();
@@ -136,14 +133,12 @@ public class GizmoActivator : MonoBehaviour
         if (_dragActive) return;
         _target       = (e.SelectedNodeId != null) ? _graph?.GetNode(e.SelectedNodeId)?.transform : null;
         _targetNodeId = e.SelectedNodeId;
-        Debug.Log($"[GizmoActivator] OnSelectionChanged: id={e.SelectedNodeId}, target={(_target != null ? _target.name : "null")}");
         RefreshVisibility();
     }
 
     private void RefreshVisibility()
     {
         bool shouldShow = _panelOpen && _target != null;
-        Debug.Log($"[GizmoActivator] RefreshVisibility: panelOpen={_panelOpen}, target={(_target != null ? _target.name : "null")}, shouldShow={shouldShow}, instance={(_instance != null ? "exists" : "null")}");
         if (shouldShow && _instance == null)       Spawn();
         else if (!shouldShow && _instance != null) Despawn();
         else if (shouldShow && _instance != null)  { Despawn(); Spawn(); }
@@ -379,7 +374,6 @@ public class GizmoActivator : MonoBehaviour
 
     public void OnHandleGrabbed(GizmoHandle handle, Vector3 handPos, Quaternion handRot)
     {
-        Debug.Log($"[GizmoActivator] OnHandleGrabbed: handle={(handle != null ? handle.name : "null")}, dragActive={_dragActive}, target={(_target != null ? _target.name : "null")}");
         if (_dragActive || _target == null || handle == null || _instance == null) return;
         _dragActive          = true;
         _originalPos         = _target.position;

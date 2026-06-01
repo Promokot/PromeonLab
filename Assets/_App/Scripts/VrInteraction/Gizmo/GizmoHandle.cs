@@ -69,7 +69,6 @@ public class GizmoHandle : XRBaseInteractable
                 // Debug.Log($"[GizmoHandle:{name}] f={Time.frameCount} HOVER ReadValue={ni.selectInput.ReadValue():F2} IsPerformed={ni.selectInput.ReadIsPerformed()} WasPerformed={ni.selectInput.ReadWasPerformedThisFrame()} WasCompleted={ni.selectInput.ReadWasCompletedThisFrame()}");
                 if (gripDownNow && !_gripWasDownLastFrame)
                 {
-                    Debug.Log($"[GizmoHandle:{name}] GRIP DOWN — entering Dragging");
                     _locked = ni;
                     _state  = HandleState.Dragging;
                     // Drop hover state so the grab color owns the handle; re-evaluated on release.
@@ -92,7 +91,6 @@ public class GizmoHandle : XRBaseInteractable
                 // Debug.Log($"[GizmoHandle:{name}] f={Time.frameCount} DRAG ReadValue={_locked.selectInput.ReadValue():F2} IsPerformed={_locked.selectInput.ReadIsPerformed()} WasCompleted={_locked.selectInput.ReadWasCompletedThisFrame()}");
                 if (!gripStillDown)
                 {
-                    Debug.Log($"[GizmoHandle:{name}] GRIP UP — releasing");
                     _activator?.OnHandleReleased();
                     _locked = null;
                     _state  = HandleState.Idle;
