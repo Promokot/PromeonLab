@@ -49,6 +49,8 @@ public class RootLifetimeScope : LifetimeScope
         // Runtime loaders + per-type spawners.
         builder.Register<AssetSourceStore>(Lifetime.Singleton);
         builder.Register<GltfModelLoader>(Lifetime.Singleton);
+        builder.Register<ObjectEntityFactory>(Lifetime.Singleton);
+        builder.Register<RigEntityFactory>(Lifetime.Singleton);
         builder.Register<ReferenceEntityFactory>(Lifetime.Singleton);
         builder.Register<BoundsBoxColliderStrategy>(Lifetime.Singleton).As<IColliderStrategy>();
         builder.Register<ObjectEntityBuilder>(Lifetime.Singleton).As<IAssetEntityBuilder>();

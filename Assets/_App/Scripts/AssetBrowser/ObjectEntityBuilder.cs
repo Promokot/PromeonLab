@@ -7,14 +7,14 @@ using UnityEngine;
 // (imported) or instantiates the prefab (builtin) and applies the baked recipe.
 public class ObjectEntityBuilder : IAssetEntityBuilder
 {
-    protected readonly AssetSourceStore  _store;
-    protected readonly GltfModelLoader   _loader;
-    protected readonly IColliderStrategy _collider;
+    protected readonly AssetSourceStore    _store;
+    protected readonly ObjectEntityFactory _factory;
+    protected readonly IColliderStrategy   _collider;
 
-    public ObjectEntityBuilder(AssetSourceStore store, GltfModelLoader loader, IColliderStrategy collider)
+    public ObjectEntityBuilder(AssetSourceStore store, ObjectEntityFactory factory, IColliderStrategy collider)
     {
         _store    = store;
-        _loader   = loader;
+        _factory  = factory;
         _collider = collider;
     }
 
@@ -29,7 +29,7 @@ public class ObjectEntityBuilder : IAssetEntityBuilder
             interactionLayer = InteractionLayer.SceneObjects,
         };
 
-        var temp = await _loader.LoadAsync(sourceAbsolutePath, Vector3.zero, Quaternion.identity, ct);
+        var temp = await _factory.CreateAsync(sourceAbsolutePath, Vector3.zero, Quaternion.identity, ct);
         if (temp == null)
             throw new NotSupportedException($"ObjectEntityBuilder: cannot load '{sourceAbsolutePath}'");
         try
@@ -56,7 +56,6 @@ public class ObjectEntityBuilder : IAssetEntityBuilder
         if (string.IsNullOrEmpty(asset.SourceRef))
             throw new NotSupportedException($"Imported asset '{asset.Id}' has no SourceRef");
 
-        // Capability is applied by AssetEntityBuilderRegistry.RestoreAsync (single point).
-        return _loader.LoadAsync(_store.AbsolutePath(asset.SourceRef), position, rotation, ct);
+        return _factory.CreateAsync(_store.AbsolutePath(asset.SourceRef), position, rotation, ct);
     }
 }

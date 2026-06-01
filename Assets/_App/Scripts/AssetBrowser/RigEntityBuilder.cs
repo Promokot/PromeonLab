@@ -1,9 +1,70 @@
-// Slice 1: a Rig import behaves exactly like a static Object (selectable static skinned mesh).
-// Slice 2 will replace this with runtime proxy-rig building + a bone descriptor in the recipe.
-public class RigEntityBuilder : ObjectEntityBuilder
-{
-    public RigEntityBuilder(AssetSourceStore store, GltfModelLoader loader, IColliderStrategy collider)
-        : base(store, loader, collider) { }
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using UnityEngine;
 
-    public override AssetType HandledType => AssetType.Rig;
+// Rig (Slice A): a static skinned mesh, selectable as a whole, PLUS a baked skeleton descriptor in the
+// recipe for the future proxy-rig slice. BuildAsync measures the collider AND extracts the skeleton
+// (graceful: no skeleton → recipe.rig stays null → behaves as a static object). RestoreAsync loads the
+// static mesh; whole-rig selectability is applied by the registry. Proxy construction is Slice B.
+public class RigEntityBuilder : IAssetEntityBuilder
+{
+    private readonly AssetSourceStore  _store;
+    private readonly RigEntityFactory  _factory;
+    private readonly IColliderStrategy _collider;
+
+    public RigEntityBuilder(AssetSourceStore store, RigEntityFactory factory, IColliderStrategy collider)
+    {
+        _store    = store;
+        _factory  = factory;
+        _collider = collider;
+    }
+
+    public AssetType HandledType => AssetType.Rig;
+
+    public async Task<AssetEntityRecipe> BuildAsync(string sourceAbsolutePath, AssetType chosenType, CancellationToken ct)
+    {
+        var recipe = new AssetEntityRecipe
+        {
+            type             = AssetType.Rig,
+            selectable       = true,
+            interactionLayer = InteractionLayer.SceneObjects,
+        };
+
+        var temp = await _factory.CreateAsync(sourceAbsolutePath, Vector3.zero, Quaternion.identity, ct);
+        if (temp == null)
+            throw new NotSupportedException($"RigEntityBuilder: cannot load '{sourceAbsolutePath}'");
+        try
+        {
+            _collider.Measure(temp, out var kind, out var center, out var size);
+            recipe.colliderKind   = kind;
+            recipe.colliderCenter = center;
+            recipe.colliderSize   = size;
+
+            var smr = temp.GetComponentInChildren<SkinnedMeshRenderer>(includeInactive: true);
+            recipe.rig = RigDefinitionExtractor.FromSkinnedMesh(smr);
+            if (recipe.rig == null)
+                Debug.LogWarning($"RigEntityBuilder: '{sourceAbsolutePath}' has no skeleton — importing as a static object.");
+        }
+        finally { UnityEngine.Object.Destroy(temp); }
+
+        return recipe;
+    }
+
+    public Task<GameObject> RestoreAsync(ILabAsset asset, AssetEntityRecipe recipe, Vector3 position, Quaternion rotation, CancellationToken ct)
+    {
+        if (asset.Source == AssetSource.Builtin)
+        {
+            if (asset is not BuiltinLabAsset b)
+                throw new NotSupportedException($"Builtin asset '{asset.Id}' is not a BuiltinLabAsset");
+            return Task.FromResult(UnityEngine.Object.Instantiate(b.Prefab, position, rotation));
+        }
+
+        if (string.IsNullOrEmpty(asset.SourceRef))
+            throw new NotSupportedException($"Imported asset '{asset.Id}' has no SourceRef");
+
+        // Slice A: static mesh; whole-rig selectability is applied by the registry from the recipe.
+        // Slice B: branch on recipe.HasRig here to build the proxy hierarchy via the factory.
+        return _factory.CreateAsync(_store.AbsolutePath(asset.SourceRef), position, rotation, ct);
+    }
 }
