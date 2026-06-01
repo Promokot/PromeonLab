@@ -24,4 +24,14 @@ public class AssetSourceStore
     }
 
     public string AbsolutePath(string sourceRef) => Path.Combine(_paths.RootForSources, sourceRef);
+
+    /// Deletes the raw source file backing an asset record (no-op if the ref is empty or the
+    /// file is already gone). Builtin assets have no SourceRef, so this is only meaningful for
+    /// Imported/Saved entries.
+    public void Delete(string sourceRef)
+    {
+        if (string.IsNullOrEmpty(sourceRef)) return;
+        var abs = AbsolutePath(sourceRef);
+        if (File.Exists(abs)) File.Delete(abs);
+    }
 }

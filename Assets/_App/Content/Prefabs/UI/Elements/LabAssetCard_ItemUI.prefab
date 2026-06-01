@@ -564,3 +564,4 @@ MonoBehaviour:
   _iconImage: {fileID: 8837537769401096740}
   _nameText: {fileID: 1552050260225028135}
   _button: {fileID: 954399209392460375}
+  _selectedColor: {r: 0.5544821, g: 0.8020648, b: 0.41816443, a: 1}

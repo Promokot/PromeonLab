@@ -12,22 +12,27 @@ public class LabAssetCard : MonoBehaviour
     [Header("Selection")]
     [Tooltip("Background tint applied while this card is the selected one. Persists across " +
              "hover/press until another card is selected.")]
-    [SerializeField] private Color _selectedColor = new Color(0.30f, 0.80f, 0.40f, 1f);
+    [SerializeField] private Color _selectedColor = new Color(0.20f, 1f, 0.35f, 1f);
 
-    private ILabAsset  _asset;
-    private ColorBlock _defaultColors;
-    private bool       _hasDefaults;
+    private ILabAsset _asset;
+    private Graphic   _background;
+    private Color     _backgroundDefault;
+    private bool      _hasBackground;
 
     public event Action<LabAssetCard> Selected;
 
     public ILabAsset Asset => _asset;
 
-    private void Awake()
+    private void Awake() => CacheBackground();
+
+    private void CacheBackground()
     {
-        if (_button != null)
+        if (_hasBackground || _button == null) return;
+        _background = _button.targetGraphic;
+        if (_background != null)
         {
-            _defaultColors = _button.colors;
-            _hasDefaults   = true;
+            _backgroundDefault = _background.color;
+            _hasBackground     = true;
         }
     }
 
@@ -45,24 +50,17 @@ public class LabAssetCard : MonoBehaviour
         SetSelected(false);
     }
 
-    // Persistent selection tint, driven by AssetBrowserPanel. We push the green through the
-    // button's own ColorBlock (normal/highlighted/selected) so it survives the button's hover/
-    // press transitions; deselecting restores the prefab's original palette.
+    // Persistent selection tint, driven by AssetBrowserPanel. We set the background Graphic's own
+    // color directly (NOT the button's ColorBlock): the button's ColorTint transition multiplies
+    // its state color by this graphic color, so driving selection through the ColorBlock would get
+    // multiplied down by a non-white background and render dark/invisible. Setting the graphic color
+    // and leaving the (≈white) button states alone renders the exact picked color; deselecting
+    // restores the prefab's original background color.
     public void SetSelected(bool selected)
     {
-        if (_button == null || !_hasDefaults) return;
+        CacheBackground();
+        if (!_hasBackground) return;
 
-        if (!selected)
-        {
-            _button.colors = _defaultColors;
-            return;
-        }
-
-        var colors = _defaultColors;
-        colors.normalColor      = _selectedColor;
-        colors.highlightedColor = _selectedColor;
-        colors.selectedColor    = _selectedColor;
-        colors.pressedColor     = Color.Lerp(_selectedColor, Color.black, 0.15f);
-        _button.colors = colors;
+        _background.color = selected ? _selectedColor : _backgroundDefault;
     }
 }

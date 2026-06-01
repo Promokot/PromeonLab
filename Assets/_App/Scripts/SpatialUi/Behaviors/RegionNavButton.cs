@@ -11,9 +11,7 @@ public class RegionNavButton : MonoBehaviour
 {
     [SerializeField] private string _moduleId;
     [SerializeField] private Button _button;
-    [SerializeField] [Range(0f, 2f)] private float _inactiveHoverBrightness = 1.2f;
-    [SerializeField] [Range(0f, 2f)] private float _activeBrightness        = 0.6f;
-    [SerializeField] [Range(0f, 2f)] private float _activeHoverBrightness   = 0.8f;
+    [SerializeField] [Range(0f, 2f)] private float _activeBrightness = 0.6f;
 
     private PanelRegionRouter _router;
 
@@ -58,15 +56,17 @@ public class RegionNavButton : MonoBehaviour
             var baseColor = _button.colors.normalColor;
             var block     = _button.colors;
 
+            var activeBase = Brighten(baseColor, _activeBrightness);
+
             _inactiveColors                  = block;
             _inactiveColors.normalColor      = baseColor;
-            _inactiveColors.highlightedColor = Brighten(baseColor, _inactiveHoverBrightness);
+            _inactiveColors.highlightedColor = Hover(baseColor);
             _inactiveColors.selectedColor    = baseColor;
 
             _activeColors                  = block;
-            _activeColors.normalColor      = Brighten(baseColor, _activeBrightness);
-            _activeColors.highlightedColor = Brighten(baseColor, _activeHoverBrightness);
-            _activeColors.selectedColor    = Brighten(baseColor, _activeBrightness);
+            _activeColors.normalColor      = activeBase;
+            _activeColors.highlightedColor = Hover(activeBase);
+            _activeColors.selectedColor    = activeBase;
 
             _colorsReady = true;
         }
@@ -89,6 +89,18 @@ public class RegionNavButton : MonoBehaviour
     {
         if (_colorsReady && _button != null)
             _button.colors = _highlight ? _activeColors : _inactiveColors;
+    }
+
+    // Hover tint that is always visibly distinct: shifts brightness toward whichever end has the
+    // most headroom, so near-white buttons darken and dark buttons brighten instead of the old
+    // brighten-only path that no-oped on already-light colors (the "no visible hover" symptom).
+    private static Color Hover(Color c)
+    {
+        Color.RGBToHSV(c, out float h, out float s, out float v);
+        float vNew   = v > 0.5f ? v - 0.22f : v + 0.22f;
+        var   result = Color.HSVToRGB(h, s, Mathf.Clamp01(vNew));
+        result.a = c.a;
+        return result;
     }
 
     private static Color Brighten(Color c, float mult)

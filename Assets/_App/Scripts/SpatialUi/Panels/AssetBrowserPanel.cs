@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +17,7 @@ public class AssetBrowserPanel : MonoBehaviour
     [SerializeField] private LabAssetCard _cardPrefab;
     [SerializeField] private Button       _addButton;
     [SerializeField] private Button       _spawnButton;
+    [SerializeField] private Button       _removeButton; // "RemoveBtn" — deletes the selected asset
 
     [Header("Properties")]
     [SerializeField] private TMP_Text _propertiesText;
@@ -25,6 +28,7 @@ public class AssetBrowserPanel : MonoBehaviour
     private SavedAssetLibrary    _savedLibrary;
     private EventBus             _bus;
     private PanelRegionRouter   _router;
+    private AssetSourceStore    _sources;
 
     private IAssetLibrary _activeLibrary;
     private ILabAsset     _selectedAsset;
@@ -33,7 +37,7 @@ public class AssetBrowserPanel : MonoBehaviour
     private bool          _reopenAfterFileBrowser;
 
     [Inject]
-    public void Construct(ModeOrchestrator orchestrator, BuiltinAssetLibrary builtin, ImportedAssetLibrary imported, SavedAssetLibrary saved, EventBus bus, PanelRegionRouter router)
+    public void Construct(ModeOrchestrator orchestrator, BuiltinAssetLibrary builtin, ImportedAssetLibrary imported, SavedAssetLibrary saved, EventBus bus, PanelRegionRouter router, AssetSourceStore sources)
     {
         _orchestrator    = orchestrator;
         _builtinLibrary  = builtin;
@@ -41,6 +45,7 @@ public class AssetBrowserPanel : MonoBehaviour
         _savedLibrary    = saved;
         _bus             = bus;
         _router          = router;
+        _sources         = sources;
     }
 
     private void Awake()
@@ -50,6 +55,7 @@ public class AssetBrowserPanel : MonoBehaviour
         _savedTabButton?.onClick.AddListener(() => SwitchLibrary(_savedLibrary));
         _addButton?.onClick.AddListener(OnAddClicked);
         _spawnButton?.onClick.AddListener(OnSpawnClicked);
+        _removeButton?.onClick.AddListener(OnRemoveClicked);
     }
 
     private void Start()
@@ -111,6 +117,7 @@ public class AssetBrowserPanel : MonoBehaviour
 
         _selectedAsset = card.Asset;
         RefreshSpawnButton();
+        RefreshRemoveButton();
         ShowProperties(card.Asset);
     }
 
@@ -122,12 +129,22 @@ public class AssetBrowserPanel : MonoBehaviour
         _selectedCard  = null;
         _selectedAsset = null;
         RefreshSpawnButton();
+        RefreshRemoveButton();
     }
 
     private void RefreshSpawnButton()
     {
         if (_spawnButton != null)
             _spawnButton.interactable = _isEditableMode && _selectedAsset != null;
+    }
+
+    private void RefreshRemoveButton()
+    {
+        // Deletable only for non-Builtin libraries (Imported/Saved) and only with a selection.
+        // Mode-independent: you can prune libraries from the menu too.
+        if (_removeButton != null)
+            _removeButton.interactable =
+                _selectedAsset != null && _activeLibrary != null && _activeLibrary != (IAssetLibrary)_builtinLibrary;
     }
 
     private void ShowProperties(ILabAsset asset)
@@ -169,6 +186,32 @@ public class AssetBrowserPanel : MonoBehaviour
             // back. (-fwd points from the spawn point back to the camera; up stays world-up.)
             Rotation = Quaternion.LookRotation(-fwd, Vector3.up),
         });
+    }
+
+    private void OnRemoveClicked()
+    {
+        var asset   = _selectedAsset;
+        var library = _activeLibrary;
+        if (asset == null || library == null || library == (IAssetLibrary)_builtinLibrary) return;
+
+        _ = DeleteAssetAsync(asset, library, CancellationToken.None);
+    }
+
+    // Removes the record from its library, persists the change, and deletes the raw source file.
+    // Fire-and-forget from the click handler; exceptions are logged rather than swallowed.
+    private async Task DeleteAssetAsync(ILabAsset asset, IAssetLibrary library, CancellationToken ct)
+    {
+        try
+        {
+            library.Remove(asset.Id);
+            await library.SaveAsync(ct);
+            _sources?.Delete(asset.SourceRef);
+            RefreshGrid();
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogException(ex);
+        }
     }
 
     private void OnAddClicked()
