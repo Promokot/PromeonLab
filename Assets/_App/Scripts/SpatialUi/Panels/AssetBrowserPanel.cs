@@ -28,6 +28,7 @@ public class AssetBrowserPanel : MonoBehaviour
 
     private IAssetLibrary _activeLibrary;
     private ILabAsset     _selectedAsset;
+    private LabAssetCard  _selectedCard;
     private bool          _isEditableMode;
     private bool          _reopenAfterFileBrowser;
 
@@ -102,6 +103,12 @@ public class AssetBrowserPanel : MonoBehaviour
 
     private void OnCardSelected(LabAssetCard card)
     {
+        if (_selectedCard != null && _selectedCard != card)
+            _selectedCard.SetSelected(false);
+
+        _selectedCard = card;
+        _selectedCard.SetSelected(true);
+
         _selectedAsset = card.Asset;
         RefreshSpawnButton();
         ShowProperties(card.Asset);
@@ -109,6 +116,10 @@ public class AssetBrowserPanel : MonoBehaviour
 
     private void ClearSelection()
     {
+        if (_selectedCard != null)
+            _selectedCard.SetSelected(false);
+
+        _selectedCard  = null;
         _selectedAsset = null;
         RefreshSpawnButton();
     }
