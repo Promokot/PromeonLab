@@ -10,6 +10,7 @@ public class RootLifetimeScope : LifetimeScope
     [SerializeField] private NavBarConfig        _navBarConfig;
     [SerializeField] private OutlineConfig       _outlineConfig;
     [SerializeField] private ImportRenderProfile _importRenderProfile;
+    [SerializeField] private ProxyRigConfig      _proxyRigConfig;
 
     protected override void Configure(IContainerBuilder builder)
     {
@@ -51,6 +52,12 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<GltfModelLoader>(Lifetime.Singleton);
         builder.Register<ObjectEntityFactory>(Lifetime.Singleton);
         builder.Register<RigEntityFactory>(Lifetime.Singleton);
+        var proxyRigConfig = _proxyRigConfig != null
+            ? _proxyRigConfig
+            : ScriptableObject.CreateInstance<ProxyRigConfig>();
+        if (_proxyRigConfig == null)
+            Debug.LogWarning("RootLifetimeScope: _proxyRigConfig not assigned — proxy bones spawn with no material (outline-only).");
+        builder.RegisterInstance(proxyRigConfig);
         builder.Register<ReferenceEntityFactory>(Lifetime.Singleton);
         builder.Register<BoundsBoxColliderStrategy>(Lifetime.Singleton).As<IColliderStrategy>();
         builder.Register<ObjectEntityBuilder>(Lifetime.Singleton).As<IAssetEntityBuilder>();

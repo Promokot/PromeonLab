@@ -469,6 +469,7 @@ MonoBehaviour:
   _navBarConfig: {fileID: 11400000, guid: 44b184438768cae4e81d3a22c376d5b0, type: 2}
   _outlineConfig: {fileID: 11400000, guid: 5f8e42b75c8d90d4692dc4e8dbdf6b0e, type: 2}
   _importRenderProfile: {fileID: 0}
+  _proxyRigConfig: {fileID: 11400000, guid: 33efad53f4b23d749b4d180e566c95f5, type: 2}
 --- !u!114 &1960825257
 MonoBehaviour:
   m_ObjectHideFlags: 0
