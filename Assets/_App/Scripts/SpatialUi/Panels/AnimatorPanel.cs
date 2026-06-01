@@ -155,7 +155,7 @@ public class AnimatorPanel : MonoBehaviour
         if (_ctx.Authoring == null) return;
         var owner = AnimationAuthoring.OwnerOf(_ctx.Selection?.SelectedNodeId);
         if (string.IsNullOrEmpty(owner)) return;
-        _ctx.Authoring.CreateContainer(owner);
+        _ctx.Authoring.CreateContainer(owner, _config.DefaultTotalFrames, _config.DefaultFps);
     }
 
     private void OnRemoveAnimationClicked()

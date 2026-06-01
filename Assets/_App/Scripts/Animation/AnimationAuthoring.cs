@@ -49,7 +49,18 @@ public class AnimationAuthoring : IStartable, IDisposable
     public ActionContainer CreateContainer(string ownerNodeId)
     {
         EnsureData();
-        var c = _data.CreateContainer(ownerNodeId);
+        return FinishCreate(ownerNodeId, _data.CreateContainer(ownerNodeId));
+    }
+
+    public ActionContainer CreateContainer(string ownerNodeId, int totalFrames, int fps)
+    {
+        EnsureData();
+        return FinishCreate(ownerNodeId,
+            _data.CreateContainer(ownerNodeId, Mathf.Max(1, totalFrames), Mathf.Max(1, fps)));
+    }
+
+    private ActionContainer FinishCreate(string ownerNodeId, ActionContainer c)
+    {
         _bus.Publish(new AnimationContainerChangedEvent
         {
             OwnerNodeId = ownerNodeId,
