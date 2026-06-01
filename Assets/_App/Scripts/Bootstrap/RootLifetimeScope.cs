@@ -37,7 +37,7 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<AssetRegistry>(Lifetime.Singleton).As<IAssetRegistry>();
 
         // Render presets for runtime-imported assets (shader + two-sided per AssetType).
-        // Always register a non-null instance so ReferenceQuadFactory resolves; an empty
+        // Always register a non-null instance so ReferenceEntityFactory resolves; an empty
         // runtime profile just means every type falls back to built-in defaults.
         var renderProfile = _importRenderProfile != null
             ? _importRenderProfile
@@ -49,7 +49,7 @@ public class RootLifetimeScope : LifetimeScope
         // Runtime loaders + per-type spawners.
         builder.Register<AssetSourceStore>(Lifetime.Singleton);
         builder.Register<GltfModelLoader>(Lifetime.Singleton);
-        builder.Register<ReferenceQuadFactory>(Lifetime.Singleton);
+        builder.Register<ReferenceEntityFactory>(Lifetime.Singleton);
         builder.Register<BoundsBoxColliderStrategy>(Lifetime.Singleton).As<IColliderStrategy>();
         builder.Register<ObjectEntityBuilder>(Lifetime.Singleton).As<IAssetEntityBuilder>();
         builder.Register<RigEntityBuilder>(Lifetime.Singleton).As<IAssetEntityBuilder>();

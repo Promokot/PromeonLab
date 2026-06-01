@@ -25,4 +25,11 @@ public class AssetEntityRecipe
     public float            referenceAspect = 1f;
     public float            referenceBottomGap = 0.5f;
     public bool             referenceTwoSided = true;
+
+    // Rig-specific (null / empty for non-rig). Reuses the existing RigDefinition (Bones + IkChains).
+    public RigDefinition    rig;
+
+    // Canonical "this recipe describes a skeleton" check. JsonUtility cannot persist a null nested
+    // object, so `rig` may come back as an empty object — guard on the bone count, never on null.
+    public bool HasRig => rig != null && rig.Bones != null && rig.Bones.Count > 0;
 }

@@ -3,17 +3,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class ReferenceQuadFactory
+// Per-type runtime construction helper for Reference: builds a centered textured quad from the
+// recipe's baked aspect/two-sided. The quad IS the node (pivot at geometry center, so the gizmo
+// rotates around the middle); the vertical lift comes from the recipe's spawnOffset, applied once at
+// spawn, so it survives reload without drifting.
+public class ReferenceEntityFactory
 {
     private readonly ImportRenderProfile _renderProfile;
 
-    public ReferenceQuadFactory(ImportRenderProfile renderProfile)
+    public ReferenceEntityFactory(ImportRenderProfile renderProfile)
     {
         _renderProfile = renderProfile;
     }
 
-    // Builds the empty pivot + child quad using the RECIPE's baked aspect/gap/two-sided. The pivot
-    // sits at the spawn point on the floor; the image's bottom edge clears the floor by bottomGap.
     public Task<GameObject> CreateAsync(string absolutePath, Vector3 position, Quaternion rotation,
                                         float aspect, bool twoSided, CancellationToken ct)
     {
@@ -21,14 +23,11 @@ public class ReferenceQuadFactory
         var tex   = new Texture2D(2, 2, TextureFormat.RGBA32, mipChain: false);
         if (!tex.LoadImage(bytes))
         {
-            Debug.LogError($"ReferenceQuadFactory: not a readable image '{absolutePath}'");
+            Debug.LogError($"ReferenceEntityFactory: not a readable image '{absolutePath}'");
             Object.Destroy(tex);
             return Task.FromResult<GameObject>(null);
         }
 
-        // The image IS the node: a centered quad mesh whose pivot is its geometry center, so the gizmo
-        // rotates around the middle. No empty parent — the vertical lift comes from the recipe's
-        // spawnOffset (applied once at spawn), so it survives reload without drifting.
         var go = new GameObject("ReferenceImage");
         go.transform.SetPositionAndRotation(position, rotation);
         go.transform.localScale = new Vector3(aspect, 1f, 1f);

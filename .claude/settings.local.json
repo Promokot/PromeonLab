@@ -61,7 +61,8 @@
       "Bash(grep -iE \"\\\\.mat$|\\\\.mat \")",
       "Bash(grep -m1 guid: Assets/_App/Content/Materials/Gizmo/__TRACKED_VAR__.mat.meta)",
       "Bash(find Assets -name \"Gizmo_Red.mat\" -o -name \"Gizmo_Default.mat\" -o -name \"Gizmo_Green.mat\" -o -name \"Gizmo_Blue.mat\")",
-      "PowerShell(Remove-Item *)"
+      "PowerShell(Remove-Item *)",
+      "PowerShell($f = @\\(\"S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\\\\Assets\\\\_App\\\\Scripts\\\\AssetBrowser\\\\ReferenceQuadFactory.cs\",\"S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\\\\Assets\\\\_App\\\\Scripts\\\\AssetBrowser\\\\ReferenceQuadFactory.cs.meta\"\\); foreach \\($p in $f\\) { if \\(Test-Path -LiteralPath $p\\) { Remove-Item -LiteralPath $p -Force } }; \"QuadStillExists: $\\(Test-Path -LiteralPath $f[0]\\)\")"
     ]
   },
   "enabledMcpjsonServers": [
