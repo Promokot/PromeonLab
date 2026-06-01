@@ -27,7 +27,7 @@ Status legend: **ABSENT** (no code) · **STUB** (placeholder type/field, no beha
 | **Multi-container / master timeline** | ABSENT | Only one `ActionContainer` plays at a time (clock reconfigured per selection). | audit 04 §4 |
 | **Undo/Redo for animation actions** | ABSENT | Key set/delete/remove mutate directly, bypassing `CommandStack` (out of scope in specs). | audit 04 §4 |
 | **`SceneModifiedEvent` on key mutation** | ABSENT | Spec wanted every `SetKey` to also mark the scene dirty for `UnsavedChangesGuard`; not published. | audit 04 §4 |
-| **First-Add-animation UI refresh** | BUG (PARTIAL) | `OnContainerChanged` drops the first `Added` event (`_activeOwner==null` guard); panel only goes Active on a later reselect. Live bug H5. | audit 04 §6 |
+| ~~First-Add-animation UI refresh~~ | ✅ FIXED 2026-06-01 | `OnContainerChanged` now handles `Added` before the `_activeOwner` guard (refreshes when the new owner matches the current selection). | audit 04 §6 |
 
 ## RigBuilder
 
@@ -65,7 +65,7 @@ Status legend: **ABSENT** (no code) · **STUB** (placeholder type/field, no beha
 
 | Item | Status | Notes | Ref |
 |---|---|---|---|
-| **Remove dead `PanelRegistry` / `UiPanelOrchestrator`** | OPEN | Code path is wired but `DefaultPanelRegistry.asset` is empty → runtime no-op. Region model is the live system. **Product call needed:** delete, or populate if top-level mode-gated panels are still wanted. GUID sweep required before deleting. | audit 01 §4, project-cleanup Task 1 |
+| ~~Remove dead `PanelRegistry` / `UiPanelOrchestrator`~~ | ✅ DONE 2026-06-01 | Deleted `PanelRegistry.cs`, `UiPanelOrchestrator.cs`, `DefaultPanelRegistry.asset` + the `_panelRegistry`/`Register<UiPanelOrchestrator>` lines in both scene scopes (GUID sweep was clean). `PanelId.cs` is now fully dead (harmless) — optional later removal. Region model is the sole panel system. | audit 01 §4 |
 | **Extract `BaseSceneScope`** | OPEN | `VrEditingSceneScope` and `SandboxSceneScope` are ~90% duplicated. | audit 01 §4, project-cleanup Task 3 |
 | **Gizmo moves through `CommandStack`** | OPEN | `TransformCommand` has no constructors / no callers; gizmo drags commit but undo coverage of gizmo moves is unverified. | audit 01 §6 |
 | **`AppMode.Debug` overlay** | UNUSED | Enum value declared, never wired. | audit 01 §6 |

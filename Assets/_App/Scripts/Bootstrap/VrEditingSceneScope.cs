@@ -4,17 +4,14 @@ using UnityEngine;
 
 public class VrEditingSceneScope : LifetimeScope
 {
-    [SerializeField] private PanelRegistry _panelRegistry;
     [SerializeField] private GizmoConfig   _gizmoConfig;
 
     protected override void Configure(IContainerBuilder builder)
     {
-        builder.RegisterInstance(_panelRegistry);
         // Scene-scoped: fills/clears the root SceneContext for this scene's lifetime.
         builder.RegisterEntryPoint<SceneContextBinder>();
         if (_gizmoConfig != null) builder.RegisterInstance(_gizmoConfig);
         builder.RegisterInstance(Camera.main);
-        builder.Register<UiPanelOrchestrator>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<UnsavedChangesGuard>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SceneGraph>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SceneAutoSaver>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();

@@ -8,14 +8,13 @@ logs were **already removed** automatically.
 
 ## Needs a product decision first
 
-- [ ] **`PanelRegistry` + `UiPanelOrchestrator` panel system** — code path is wired in both scene
-      scopes but `DefaultPanelRegistry.asset` is empty → runtime no-op (region model is the live
-      system). **Decide:** delete or populate. If deleting, remove together:
-      `SpatialUi/PanelRegistry.cs`, `SpatialUi/UiPanelOrchestrator.cs`,
-      `Content/ScriptableObjects/DefaultPanelRegistry.asset`, the `_panelRegistry` serialized field +
-      `RegisterInstance`/`Register<UiPanelOrchestrator>` lines in `VrEditingSceneScope.cs` and
-      `SandboxSceneScope.cs`, and (then-dead) `PanelId.cs` / `SpatialPanel.Init`/`PanelId` plumbing.
-      GUID sweep mandatory (`PanelRegistry` GUID `cf920f1c0606a6c4ca8cb6082d5abf0f`).
+- [x] **`PanelRegistry` + `UiPanelOrchestrator` panel system** — ✅ **DELETED 2026-06-01** (decision:
+      delete; GUID sweep was clean — refs only from the now-deleted `.asset` and the two scope fields).
+      Removed `PanelRegistry.cs`, `UiPanelOrchestrator.cs`, `DefaultPanelRegistry.asset`, and the
+      `_panelRegistry`/`Register<UiPanelOrchestrator>` lines in both scene scopes. **Left:** `PanelId.cs`
+      + `SpatialPanel.Init`/`PanelId` are now fully dead (harmless, no deleted-type refs) — optional
+      later removal. The orphan `_panelRegistry:` line in `VrEditing.unity`/`Sandbox.unity` is auto-
+      dropped by Unity on next scene save (the field no longer exists in the script).
 - [ ] **Placeholder subsystem stubs** — `InputBindings/InputBindings.cs`,
       `ExportPipeline/ExportPipeline.cs`, `ErrorHandling/ErrorHandling.cs` are near-empty.
       **Decide:** keep as roadmap markers (ExportPipeline + ErrorDispatcher are real backlog items)
