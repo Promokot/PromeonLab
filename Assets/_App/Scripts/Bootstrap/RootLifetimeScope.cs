@@ -67,6 +67,10 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<ImageImportHandler>(Lifetime.Singleton).As<IAssetImportHandler>();
         builder.RegisterEntryPoint<ImportPipeline>(Lifetime.Singleton).AsSelf();
 
+        // Export pipeline — app-lifetime so it works from any mode.
+        // IStartable wires the EventBus subscription; IDisposable tears it down.
+        builder.RegisterEntryPoint<SceneExporter>(Lifetime.Singleton).AsSelf();
+
         var transition = Object.FindAnyObjectByType<SceneTransitionRunner>(FindObjectsInactive.Include);
         if (transition != null)
             builder.RegisterInstance(transition).As<ISceneTransition>();
@@ -135,6 +139,10 @@ public class RootLifetimeScope : LifetimeScope
                 // are reached through the root SceneContext façade, which is null-guarded at use.
                 foreach (var ap in Object.FindObjectsByType<AnimatorPanel>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                     c.Inject(ap);
+
+                // ExportPanel — same pattern: persistent, all deps root-scoped.
+                foreach (var ep in Object.FindObjectsByType<ExportPanel>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                    c.Inject(ep);
 
                 foreach (var rm in Object.FindObjectsByType<RegionMember>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                 {
