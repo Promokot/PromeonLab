@@ -10,8 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8be17ba4fd8d4934c9e28ff704e0da4e, type: 3}
-  m_Name: ProxyRigConfig
+  m_Name: DefaultProxyRigConfig
   m_EditorClassIdentifier: _App.Runtime::ProxyRigConfig
   _boneMaterial: {fileID: 2100000, guid: ad2591d1028f32d4a8bae13135f480f7, type: 2}
+  _boneSelectedMaterial: {fileID: 2100000, guid: 6d49274309ad1044a89407758261baa5, type: 2}
   _boneWidth: 0.06
   _useConvexCollider: 1

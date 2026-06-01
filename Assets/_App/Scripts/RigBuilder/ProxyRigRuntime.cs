@@ -13,13 +13,15 @@ public class ProxyRigRuntime : MonoBehaviour
     private Collider      _rootCollider;       // resolved lazily (added by the registry AFTER build)
     private bool          _rootColliderResolved;
 
-    private EventBus      _eventBus;
-    private OutlineConfig _outlineConfig;
+    private EventBus       _eventBus;
+    private OutlineConfig  _outlineConfig;
+    private ProxyRigConfig _proxyConfig;
 
     [Inject]
-    public void Construct(EventBus bus, OutlineConfig outlineConfig)
+    public void Construct(EventBus bus, OutlineConfig outlineConfig, ProxyRigConfig proxyConfig)
     {
         _outlineConfig = outlineConfig;
+        _proxyConfig   = proxyConfig;
         if (_eventBus == bus) return;
         if (_eventBus != null) _eventBus.Unsubscribe<SelectionChangedEvent>(OnSelectionChanged);
         _eventBus = bus;
@@ -111,22 +113,47 @@ public class ProxyRigRuntime : MonoBehaviour
         var rootCol = RootCollider();
         if (rootCol != null) rootCol.enabled = !enabled;
 
-        if (enabled) ApplyBoneOutlineColors(null);
+        if (enabled) ApplyBoneSelection(null);
     }
 
-    private void OnSelectionChanged(SelectionChangedEvent evt) => ApplyBoneOutlineColors(evt.SelectedNodeId);
+    private void OnSelectionChanged(SelectionChangedEvent evt) => ApplyBoneSelection(evt.SelectedNodeId);
 
-    private void ApplyBoneOutlineColors(string selectedId)
+    // Reflects the current selection on every bone proxy: outline color (selected vs idle) AND the
+    // primary-submesh material — the selected bone swaps to BoneSelectedMaterial (emissive warm orange),
+    // mirroring how the gizmo adopts its active material. Outline passes (submeshes 1+) are untouched.
+    private void ApplyBoneSelection(string selectedId)
     {
         foreach (var go in _proxyGOs)
         {
             if (go == null) continue;
-            var sn      = go.GetComponent<SceneNode>();
+            var sn = go.GetComponent<SceneNode>();
+            if (sn == null) continue;
+            bool isSelected = sn.NodeId == selectedId;
+
             var outline = go.GetComponent<Outline>();
-            if (sn == null || outline == null || _outlineConfig == null) continue;
-            outline.OutlineColor = sn.NodeId == selectedId
-                ? _outlineConfig.BoneSelectedColor
-                : _outlineConfig.BoneColor;
+            if (outline != null && _outlineConfig != null)
+                outline.OutlineColor = isSelected ? _outlineConfig.BoneSelectedColor : _outlineConfig.BoneColor;
+
+            ApplyBoneMaterial(go, isSelected);
         }
+    }
+
+    // Swaps submesh 0 (the diamond's base material) between the idle and selected materials from the
+    // config, leaving any appended outline passes (submeshes 1+) in place. Shared materials, so no
+    // per-instance leak. No-op if the config or its materials are unassigned.
+    private void ApplyBoneMaterial(GameObject go, bool isSelected)
+    {
+        if (_proxyConfig == null || _proxyConfig.BoneMaterial == null) return;
+        var mr = go.GetComponent<MeshRenderer>();
+        if (mr == null) return;
+
+        var target = isSelected && _proxyConfig.BoneSelectedMaterial != null
+            ? _proxyConfig.BoneSelectedMaterial
+            : _proxyConfig.BoneMaterial;
+
+        var mats = mr.sharedMaterials;
+        if (mats.Length == 0 || mats[0] == target) return;
+        mats[0] = target;
+        mr.sharedMaterials = mats;
     }
 }

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class RootLifetimeScope : LifetimeScope
 {
-    [SerializeField] private DemoAssetCatalog    _demoAssetCatalog;
     [SerializeField] private ModeTransitionGraph _transitionGraph;
     [SerializeField] private BuiltinAssetLibrary _builtinLibrary;
     [SerializeField] private NavBarConfig        _navBarConfig;
@@ -19,7 +18,6 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<EventBus>(Lifetime.Singleton);
         builder.Register<SceneContext>(Lifetime.Singleton);
         builder.Register<AnimationClipboard>(Lifetime.Singleton);
-        builder.RegisterInstance(_demoAssetCatalog);
         builder.RegisterInstance(_transitionGraph);
         if (_builtinLibrary != null)
             builder.RegisterInstance(_builtinLibrary);
@@ -77,7 +75,6 @@ public class RootLifetimeScope : LifetimeScope
             Debug.LogError("RootLifetimeScope: SceneTransitionRunner not found — mode transitions will fail.");
 
         builder.Register<ModeOrchestrator>(Lifetime.Singleton);
-        // AssetImporter registered in VrEditingSceneScope (needs SceneGraph)
 
         var userPanel = Object.FindAnyObjectByType<UserPanel>(FindObjectsInactive.Include);
         if (userPanel != null)

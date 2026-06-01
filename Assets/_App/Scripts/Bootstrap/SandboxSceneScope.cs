@@ -20,7 +20,6 @@ public class SandboxSceneScope : LifetimeScope
         builder.Register<CommandStack>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<GizmoController>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SelectionVisualSync>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
-        builder.Register<AssetImporter>(Lifetime.Scoped);
 
         var catcher = Object.FindAnyObjectByType<WorldClickCatcher>(FindObjectsInactive.Include);
         if (catcher != null)
