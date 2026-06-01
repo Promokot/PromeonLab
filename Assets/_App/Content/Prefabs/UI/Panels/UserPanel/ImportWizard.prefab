@@ -3225,6 +3225,9 @@ MonoBehaviour:
   _objectToggle: {fileID: 7583787690627065767}
   _rigToggle: {fileID: 5567348410307443095}
   _referenceToggle: {fileID: 1705111538285517809}
+  _axisXToggle: {fileID: 4665216029316143895}
+  _axisYToggle: {fileID: 7238785881978972740}
+  _axisZToggle: {fileID: 5361761490856370615}
   _importButton: {fileID: 2764463832410050761}
   _cancelButton: {fileID: 8535077336072878342}
 --- !u!1 &5658355232075832016

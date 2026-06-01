@@ -66,7 +66,8 @@
       "Bash(xargs grep -l \"f6336ac4ac8b4d34bc5072418cdc62a0\")",
       "Bash(Get-ChildItem -Path \"S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\" -Directory)",
       "Bash(Select-Object Name)",
-      "Bash(test -f 'S:/[02] Projects/[02] Study/[00] Repositories/PromeonLab/Assets/_App/Content/Prefabs/BuiltInAssets/Crush Dummy.prefab')"
+      "Bash(test -f 'S:/[02] Projects/[02] Study/[00] Repositories/PromeonLab/Assets/_App/Content/Prefabs/BuiltInAssets/Crush Dummy.prefab')",
+      "mcp__unityMCP__create_script"
     ]
   },
   "enabledMcpjsonServers": [

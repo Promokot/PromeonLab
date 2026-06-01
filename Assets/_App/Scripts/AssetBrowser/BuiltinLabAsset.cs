@@ -8,7 +8,8 @@ public struct BuiltinLabAsset : ILabAsset
     [SerializeField] private string     _displayName;
     [SerializeField] private AssetType  _type;
     [SerializeField] private Sprite     _icon;
-    [SerializeField] private GameObject _prefab;
+    [SerializeField] private GameObject      _prefab;
+    [SerializeField] private TerminalBoneAxis _terminalAxis;   // leaf-bone axis for Rig entries; ignored otherwise
 
     public string      Id          => _id;
     public string      DisplayName => _displayName;
@@ -16,5 +17,6 @@ public struct BuiltinLabAsset : ILabAsset
     public AssetSource Source      => AssetSource.Builtin;
     public string      SourceRef   => null;
     public Sprite      Icon        => _icon;
-    public GameObject  Prefab      => _prefab;
+    public GameObject       Prefab        => _prefab;
+    public TerminalBoneAxis TerminalAxis  => _terminalAxis;
 }

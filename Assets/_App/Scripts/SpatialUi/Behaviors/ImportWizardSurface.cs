@@ -11,6 +11,10 @@ public class ImportWizardSurface : MonoBehaviour, IRegionSurface
     [SerializeField] private Toggle         _objectToggle;
     [SerializeField] private Toggle         _rigToggle;
     [SerializeField] private Toggle         _referenceToggle;
+    [Header("Leaf-Bone Axis (Rig)")]
+    [SerializeField] private Toggle _axisXToggle;
+    [SerializeField] private Toggle _axisYToggle;
+    [SerializeField] private Toggle _axisZToggle;
     [SerializeField] private Button         _importButton;
     [SerializeField] private Button         _cancelButton;
 
@@ -73,6 +77,7 @@ public class ImportWizardSurface : MonoBehaviour, IRegionSurface
             FilePath    = _filePath,
             DisplayName = string.IsNullOrWhiteSpace(_nameInput?.text) ? System.IO.Path.GetFileNameWithoutExtension(_filePath) : _nameInput.text,
             ChosenType  = SelectedType(),
+            TerminalAxis = SelectedTerminalAxis(),
         });
         _router?.Close("importWizard");
     }
@@ -95,5 +100,12 @@ public class ImportWizardSurface : MonoBehaviour, IRegionSurface
         if (_rigToggle       != null && _rigToggle.isOn)       return AssetType.Rig;
         if (_referenceToggle != null && _referenceToggle.isOn) return AssetType.Reference;
         return AssetType.Object;
+    }
+
+    private TerminalBoneAxis SelectedTerminalAxis()
+    {
+        if (_axisYToggle != null && _axisYToggle.isOn) return TerminalBoneAxis.Y;
+        if (_axisZToggle != null && _axisZToggle.isOn) return TerminalBoneAxis.Z;
+        return TerminalBoneAxis.X; // X is the default selection
     }
 }

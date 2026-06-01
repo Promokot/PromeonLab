@@ -69,6 +69,11 @@ public class ImportPipeline : IStartable, IDisposable
 
             // Build once: bake the entity recipe now so spawn/scene-load can restore deterministically.
             var recipe = await _builders.BuildAsync(record.Type, _store.AbsolutePath(record.SourceRef), CancellationToken.None);
+
+            // Per-rig leaf-bone orientation comes from the wizard. Only rigs have recipe.rig.
+            if (recipe.rig != null)
+                recipe.rig.TerminalAxis = e.TerminalAxis;
+
             record.SetRecipe(recipe);
 
             _library.Add(record);

@@ -55,29 +55,29 @@ public class RigEntityBuilder : IAssetEntityBuilder
 
     public async Task<GameObject> RestoreAsync(ILabAsset asset, AssetEntityRecipe recipe, Vector3 position, Quaternion rotation, CancellationToken ct)
     {
-        GameObject go;
+        GameObject       go;
+        TerminalBoneAxis axis;
         if (asset.Source == AssetSource.Builtin)
         {
             if (asset is not BuiltinLabAsset b)
                 throw new NotSupportedException($"Builtin asset '{asset.Id}' is not a BuiltinLabAsset");
-            go = UnityEngine.Object.Instantiate(b.Prefab, position, rotation);
+            go   = UnityEngine.Object.Instantiate(b.Prefab, position, rotation);
+            axis = b.TerminalAxis;
         }
         else
         {
             if (string.IsNullOrEmpty(asset.SourceRef))
                 throw new NotSupportedException($"Imported asset '{asset.Id}' has no SourceRef");
-            go = await _factory.CreateAsync(_store.AbsolutePath(asset.SourceRef), position, rotation, ct);
+            go   = await _factory.CreateAsync(_store.AbsolutePath(asset.SourceRef), position, rotation, ct);
+            axis = recipe != null && recipe.HasRig ? recipe.rig.TerminalAxis : TerminalBoneAxis.Auto;
         }
 
         if (go == null) return null;
 
-        // Slice B: build the proxy-bone hierarchy after load (both branches). Imported → bone names from
-        // the recipe; builtin → null (all live bones). No-op when there is no skeleton (graceful static
-        // fallback). Whole-rig selectability + ProxyRigRuntime wiring are applied by the registry.
         var boneNames = recipe != null && recipe.HasRig
             ? recipe.rig.Bones.Select(bn => bn.BoneName).ToList()
             : null;
-        _factory.BuildProxyRig(go, boneNames);
+        _factory.BuildProxyRig(go, boneNames, axis);
 
         return go;
     }
