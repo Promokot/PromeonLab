@@ -57,7 +57,6 @@ public class RootLifetimeScope : LifetimeScope
             Debug.LogWarning("RootLifetimeScope: _proxyRigConfig not assigned — proxy bones spawn with no material (outline-only).");
         builder.RegisterInstance(proxyRigConfig);
         builder.Register<ReferenceEntityFactory>(Lifetime.Singleton);
-        builder.Register<BoundsBoxColliderStrategy>(Lifetime.Singleton).As<IColliderStrategy>();
         builder.Register<ObjectEntityBuilder>(Lifetime.Singleton).As<IAssetEntityBuilder>();
         builder.Register<RigEntityBuilder>(Lifetime.Singleton).As<IAssetEntityBuilder>();
         builder.Register<ReferenceEntityBuilder>(Lifetime.Singleton).As<IAssetEntityBuilder>();

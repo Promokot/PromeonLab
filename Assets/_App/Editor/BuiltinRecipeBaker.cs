@@ -44,7 +44,6 @@ public static class BuiltinRecipeBaker
     private static void BakeIndex(IList list, int i)
     {
         var entry = (BuiltinLabAsset)list[i];
-        var collider = new BoundsBoxColliderStrategy();
 
         AssetEntityRecipe recipe;
         GameObject generatedPrefab = null;
@@ -53,13 +52,13 @@ public static class BuiltinRecipeBaker
         {
             case AssetType.Object:
                 if (!TryGetPrefabPath(entry, "Object", out var objPath)) return;
-                recipe = MeasurePrefab(objPath, go => ObjectEntityBuilder.RecipeFromInstance(go, collider, AssetType.Object));
+                recipe = MeasurePrefab(objPath, go => ObjectEntityBuilder.RecipeFromInstance(go, AssetType.Object));
                 break;
 
             case AssetType.Rig:
                 if (!TryGetPrefabPath(entry, "Rig", out var rigPath)) return;
                 recipe = MeasurePrefab(rigPath, go => RigEntityBuilder.RecipeFromInstance(
-                    go, collider, entry.TerminalBonesAxis, entry.InvertTerminalBonesAxis));
+                    go, entry.TerminalBonesAxis, entry.InvertTerminalBonesAxis));
                 break;
 
             case AssetType.Reference:

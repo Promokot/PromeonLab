@@ -36,6 +36,11 @@ public class AssetEntityBuilderRegistry
             InteractionCapability.Apply(go, recipe.interactionLayer, recipe.colliderKind,
                 recipe.colliderCenter, recipe.colliderSize, recipe.selectable);
 
+        // BoneBoxes selectors are built on the rig side; register them with the interactable Apply just
+        // created so a hit on any selector box selects the whole rig.
+        if (go != null && recipe != null && recipe.colliderKind == ColliderKind.BoneBoxes)
+            go.GetComponent<ProxyRigRuntime>()?.RegisterSelectorColliders();
+
         return go;
     }
 

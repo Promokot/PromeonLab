@@ -9,9 +9,8 @@ using VContainer;
 public class ProxyRigRuntime : MonoBehaviour
 {
     private readonly List<GameObject> _proxyGOs = new();
-    private Transform     _proxyRoot;
-    private Collider      _rootCollider;       // resolved lazily (added by the registry AFTER build)
-    private bool          _rootColliderResolved;
+    private Transform               _proxyRoot;
+    private readonly List<Collider> _selectorColliders = new(); // whole-rig select boxes (SceneObjects)
 
     private EventBus       _eventBus;
     private OutlineConfig  _outlineConfig;
@@ -35,22 +34,25 @@ public class ProxyRigRuntime : MonoBehaviour
     }
 
     // Called once by the factory right after construction.
-    public void Bind(Transform proxyRoot, List<GameObject> proxyGOs)
+    public void Bind(Transform proxyRoot, List<GameObject> proxyGOs, List<Collider> selectorColliders)
     {
         _proxyRoot = proxyRoot;
         _proxyGOs.Clear();
         _proxyGOs.AddRange(proxyGOs);
+        _selectorColliders.Clear();
+        if (selectorColliders != null) _selectorColliders.AddRange(selectorColliders);
         SetBonesInteractive(false); // start in whole-rig select mode
     }
 
-    private Collider RootCollider()
+    // Registers the whole-rig selector boxes with the root interactable so a hit on any of them selects
+    // the rig. Called after InteractionCapability.Apply has created the interactable (by the registry /
+    // RigRuntime). No-op if there is no interactable yet.
+    public void RegisterSelectorColliders()
     {
-        if (!_rootColliderResolved)
-        {
-            _rootCollider = GetComponent<Collider>();
-            _rootColliderResolved = true;
-        }
-        return _rootCollider;
+        var it = GetComponent<XRPromeonInteractable>();
+        if (it == null) return;
+        it.RegisterColliders(_selectorColliders);
+        it.SetInteractionLayer(InteractionLayer.SceneObjects);
     }
 
     public void SetVisualsEnabled(bool enabled)
@@ -110,8 +112,8 @@ public class ProxyRigRuntime : MonoBehaviour
                 go.GetComponent<XRPromeonInteractable>()?.SetInteractionLayer(InteractionLayer.BoneProxies);
         }
 
-        var rootCol = RootCollider();
-        if (rootCol != null) rootCol.enabled = !enabled;
+        foreach (var sc in _selectorColliders)
+            if (sc != null) sc.enabled = !enabled;
 
         if (enabled) ApplyBoneSelection(null);
     }

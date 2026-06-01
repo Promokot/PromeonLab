@@ -13,94 +13,163 @@ MonoBehaviour:
   m_Name: DefaultBuiltinAssetLibrary
   m_EditorClassIdentifier: Subsystems.AssetBrowser::BuiltinAssetLibrary
   _entries:
-  - _id: 001
-    _displayName: CoffeTable
+  - _id: vegetation_tree1
+    _displayName: Tree 1
     _type: 0
-    _icon: {fileID: 21300000, guid: 7b44e63be4ca308418f6de1e37336057, type: 3}
-    _prefab: {fileID: 2299578420850200342, guid: b235c805f008f6f4da469f7364846b10, type: 3}
-    _terminalBonesAxis: 0
-    _invertTerminalBonesAxis: 0
-  - _id: 002
-    _displayName: Drawer
-    _type: 0
-    _icon: {fileID: 21300000, guid: 4679f7b7343bdbf46822ce9537199054, type: 3}
-    _prefab: {fileID: 1511515837578834361, guid: 676edecf7cf6d7645a15b3550dce3e70, type: 3}
-    _terminalBonesAxis: 0
-    _invertTerminalBonesAxis: 0
-  - _id: 003
-    _displayName: Storage
-    _type: 0
-    _icon: {fileID: 21300000, guid: 6456abc86c4b64c4ca478b0f17051174, type: 3}
-    _prefab: {fileID: 2412714583272646910, guid: 6f78a21f077ae8f4f85a5d7128a8056d, type: 3}
-    _terminalBonesAxis: 0
-    _invertTerminalBonesAxis: 0
-  - _id: 004
-    _displayName: Toilet
-    _type: 0
-    _icon: {fileID: 21300000, guid: 1ba136227da9cbf428376981c1a70d00, type: 3}
-    _prefab: {fileID: 7584598876083903512, guid: 5e1b8b1cf115f2940b01346027776031, type: 3}
-    _terminalBonesAxis: 0
-    _invertTerminalBonesAxis: 0
-  - _id: 101
+    _icon: {fileID: 21300000, guid: 2cdf35881aa401144993c3630ce05980, type: 3}
+    _prefab: {fileID: 5226376544459073269, guid: 8f72d781b6d09714f81e831288c0e8d7, type: 3}
+    _image: {fileID: 0}
+    _terminalBonesAxis: 1
+    _invertTerminalBonesAxis: 1
+    _recipe:
+      schemaVersion: 1
+      type: 0
+      selectable: 1
+      interactionLayer: 2
+      colliderKind: 2
+      colliderCenter: {x: 0, y: 0, z: 0}
+      colliderSize: {x: 1, y: 1, z: 1}
+      boneColliderDepth: 3
+      spawnOffset: {x: 0, y: 0, z: 0}
+      referenceAspect: 1
+      referenceBottomGap: 0.5
+      referenceTwoSided: 1
+      rig:
+        SchemaVersion: 1
+        AssetId: 
+        TerminalBonesAxis: 0
+        InvertTerminalBonesAxis: 0
+        Bones: []
+        IkChains: []
+  - _id: dummyRiig1
     _displayName: Dummy Rig
     _type: 1
     _icon: {fileID: 21300000, guid: a5e778c81bf5fc14697bca0b5685d5f9, type: 3}
-    _prefab: {fileID: 5583578640569777744, guid: 54e8cd525b578914d912cca117aa6a2a, type: 3}
+    _prefab: {fileID: 164424147626226388, guid: 3c5e129c52b529d4b9252a4d20b8f9b3, type: 3}
+    _image: {fileID: 0}
     _terminalBonesAxis: 0
     _invertTerminalBonesAxis: 0
-  - _id: 102
-    _displayName: Dummy IK
-    _type: 1
-    _icon: {fileID: 21300000, guid: be3845e7a648c114aa3fd99d70ccae19, type: 3}
-    _prefab: {fileID: 5583578640569777744, guid: 54e8cd525b578914d912cca117aa6a2a, type: 3}
-    _terminalBonesAxis: 0
-    _invertTerminalBonesAxis: 0
-  - _id: 103
-    _displayName: "\u0412ummy UE4"
-    _type: 1
-    _icon: {fileID: 21300000, guid: a5e778c81bf5fc14697bca0b5685d5f9, type: 3}
-    _prefab: {fileID: 63228636203005734, guid: 0469d73f0e123474a82d1d75b52093c4, type: 3}
-    _terminalBonesAxis: 1
-    _invertTerminalBonesAxis: 1
-  - _id: 021
-    _displayName: Plants1
-    _type: 0
-    _icon: {fileID: 21300000, guid: 78a9d1d6deb88ae43a8d283b04b8438f, type: 3}
-    _prefab: {fileID: 7405459916679172010, guid: 2edfb40d4bae84a4888593afa512daac, type: 3}
-    _terminalBonesAxis: 0
-    _invertTerminalBonesAxis: 0
-  - _id: 022
-    _displayName: Plants2
-    _type: 0
-    _icon: {fileID: 21300000, guid: 776d7d4ac9521174286c8a97d3e7d913, type: 3}
-    _prefab: {fileID: 7858438986250983658, guid: 33a55beaafdc05442aced67b7919bf5f, type: 3}
-    _terminalBonesAxis: 0
-    _invertTerminalBonesAxis: 0
-  - _id: 023
-    _displayName: Plants3
-    _type: 0
-    _icon: {fileID: 21300000, guid: 803a266a4c9fe194cb5d3663b105c5a6, type: 3}
-    _prefab: {fileID: 5337317524493405810, guid: e9ff77abae7e263459c87f573b09929d, type: 3}
-    _terminalBonesAxis: 0
-    _invertTerminalBonesAxis: 0
-  - _id: 024
-    _displayName: PlantsTree1
-    _type: 0
-    _icon: {fileID: 21300000, guid: 2cdf35881aa401144993c3630ce05980, type: 3}
-    _prefab: {fileID: 805797623111974284, guid: fc8b90f36ca2c874580c01f6ce44fae5, type: 3}
-    _terminalBonesAxis: 0
-    _invertTerminalBonesAxis: 0
-  - _id: 025
-    _displayName: PlantsTree2
-    _type: 0
-    _icon: {fileID: 21300000, guid: 4698d9d355c3cf7498a28d9f17d3d788, type: 3}
-    _prefab: {fileID: 3770011721477655312, guid: 6a7b58c713998dc4daeccdabd58c23a3, type: 3}
-    _terminalBonesAxis: 0
-    _invertTerminalBonesAxis: 0
-  - _id: 026
-    _displayName: PlantsTree3
-    _type: 0
-    _icon: {fileID: 21300000, guid: f6b8448c363479c48bc5de1b66f8b023, type: 3}
-    _prefab: {fileID: 4477631289688194059, guid: 7c378151d3dbfbc42ad905926a37e692, type: 3}
-    _terminalBonesAxis: 0
-    _invertTerminalBonesAxis: 0
+    _recipe:
+      schemaVersion: 1
+      type: 1
+      selectable: 1
+      interactionLayer: 2
+      colliderKind: 3
+      colliderCenter: {x: 0, y: 0, z: 0}
+      colliderSize: {x: 1, y: 1, z: 1}
+      boneColliderDepth: 3
+      spawnOffset: {x: 0, y: 0, z: 0}
+      referenceAspect: 1
+      referenceBottomGap: 0.5
+      referenceTwoSided: 1
+      rig:
+        SchemaVersion: 1
+        AssetId: cd_body_LOD0
+        TerminalBonesAxis: 0
+        InvertTerminalBonesAxis: 0
+        Bones:
+        - BoneName: pelvis
+          TranslationLocked: 1
+        - BoneName: spine_01
+          TranslationLocked: 1
+        - BoneName: thigh_r
+          TranslationLocked: 1
+        - BoneName: calf_r
+          TranslationLocked: 1
+        - BoneName: foot_r
+          TranslationLocked: 1
+        - BoneName: ball_r
+          TranslationLocked: 1
+        - BoneName: upperarm_r
+          TranslationLocked: 1
+        - BoneName: lowerarm_r
+          TranslationLocked: 1
+        - BoneName: hand_r
+          TranslationLocked: 1
+        - BoneName: thumb_02_r
+          TranslationLocked: 1
+        - BoneName: thumb_03_r
+          TranslationLocked: 1
+        - BoneName: thumb_01_r
+          TranslationLocked: 1
+        - BoneName: index_02_r
+          TranslationLocked: 1
+        - BoneName: index_03_r
+          TranslationLocked: 1
+        - BoneName: index_01_r
+          TranslationLocked: 1
+        - BoneName: middle_02_r
+          TranslationLocked: 1
+        - BoneName: middle_03_r
+          TranslationLocked: 1
+        - BoneName: middle_01_r
+          TranslationLocked: 1
+        - BoneName: ring_02_r
+          TranslationLocked: 1
+        - BoneName: ring_03_r
+          TranslationLocked: 1
+        - BoneName: ring_01_r
+          TranslationLocked: 1
+        - BoneName: pinky_02_r
+          TranslationLocked: 1
+        - BoneName: pinky_03_r
+          TranslationLocked: 1
+        - BoneName: pinky_01_r
+          TranslationLocked: 1
+        - BoneName: spine_02
+          TranslationLocked: 1
+        - BoneName: clavicle_r
+          TranslationLocked: 1
+        - BoneName: neck_01
+          TranslationLocked: 1
+        - BoneName: spine_03
+          TranslationLocked: 1
+        - BoneName: head
+          TranslationLocked: 1
+        - BoneName: thigh_l
+          TranslationLocked: 1
+        - BoneName: calf_l
+          TranslationLocked: 1
+        - BoneName: foot_l
+          TranslationLocked: 1
+        - BoneName: ball_l
+          TranslationLocked: 1
+        - BoneName: upperarm_l
+          TranslationLocked: 1
+        - BoneName: lowerarm_l
+          TranslationLocked: 1
+        - BoneName: hand_l
+          TranslationLocked: 1
+        - BoneName: thumb_02_l
+          TranslationLocked: 1
+        - BoneName: thumb_03_l
+          TranslationLocked: 1
+        - BoneName: thumb_01_l
+          TranslationLocked: 1
+        - BoneName: index_02_l
+          TranslationLocked: 1
+        - BoneName: index_03_l
+          TranslationLocked: 1
+        - BoneName: index_01_l
+          TranslationLocked: 1
+        - BoneName: middle_02_l
+          TranslationLocked: 1
+        - BoneName: middle_03_l
+          TranslationLocked: 1
+        - BoneName: middle_01_l
+          TranslationLocked: 1
+        - BoneName: ring_02_l
+          TranslationLocked: 1
+        - BoneName: ring_03_l
+          TranslationLocked: 1
+        - BoneName: ring_01_l
+          TranslationLocked: 1
+        - BoneName: pinky_02_l
+          TranslationLocked: 1
+        - BoneName: pinky_03_l
+          TranslationLocked: 1
+        - BoneName: pinky_01_l
+          TranslationLocked: 1
+        - BoneName: clavicle_l
+          TranslationLocked: 1
+        IkChains: []

@@ -25,7 +25,7 @@ public class RigEntityFactory
     // Builds the proxy hierarchy onto rigRoot and attaches a bound ProxyRigRuntime.
     // boneNames: from recipe.rig (import) → mapped to live bones by name; null → all SkinnedMeshRenderer.bones
     // (builtin / manual rigging). No-op if there is no skeleton.
-    public void BuildProxyRig(GameObject rigRoot, IReadOnlyList<string> boneNames, TerminalBoneAxis terminalAxis, bool invertAxis)
+    public void BuildProxyRig(GameObject rigRoot, IReadOnlyList<string> boneNames, TerminalBoneAxis terminalAxis, bool invertAxis, int selectorDepth = 3)
     {
         var transforms = ResolveTransforms(rigRoot, boneNames);
         if (transforms == null || transforms.Length == 0) return;
@@ -59,8 +59,54 @@ public class RigEntityFactory
 
         if (proxyRoot == null) return; // skeleton present but no buildable root bone
 
+        var selectorColliders = BuildSelectorColliders(transforms, set, selectorDepth);
+
         var runtime = rigRoot.GetComponent<ProxyRigRuntime>() ?? rigRoot.AddComponent<ProxyRigRuntime>();
-        runtime.Bind(proxyRoot, proxyGOs);
+        runtime.Bind(proxyRoot, proxyGOs, selectorColliders);
+    }
+
+    // Whole-rig selection colliders: boxes placed along the skeleton to `depth` (BoneSelectorBoxPlanner),
+    // each on a child GO parented to its bone (so it follows the pose), on the SceneObjects layer. Sized
+    // to a bone-local AABB of the planned origins, padded to a minimum thickness so straight chains are
+    // still hittable. Returned for ProxyRigRuntime to own/toggle/register.
+    // Assumes unit-scaled bones (the case for glTFast imports and our built-ins): the BoxCollider
+    // center/size live in the child GO's local space, which equals the bone's only when scale is 1.
+    private List<Collider> BuildSelectorColliders(Transform[] transforms, HashSet<Transform> set, int depth)
+    {
+        var colliders = new List<Collider>();
+        float minThk = Mathf.Max(_config.BoneWidth, 0.01f);
+
+        foreach (var bone in transforms)
+        {
+            if (bone == null) continue;
+            if (set.Contains(bone.parent)) continue; // only root bones of the set start a walk
+            if (bone.parent == null)       continue;
+
+            foreach (var plan in BoneSelectorBoxPlanner.Plan(bone, depth, set))
+            {
+                var boxGo = new GameObject($"selector_{plan.Bone.name}");
+                boxGo.transform.SetParent(plan.Bone, worldPositionStays: false);
+                boxGo.transform.localPosition = Vector3.zero;
+                boxGo.transform.localRotation = Quaternion.identity;
+                boxGo.transform.localScale    = Vector3.one;
+
+                var min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+                var max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+                foreach (var world in plan.WorldOrigins)
+                {
+                    var local = plan.Bone.InverseTransformPoint(world);
+                    min = Vector3.Min(min, local);
+                    max = Vector3.Max(max, local);
+                }
+
+                var box    = boxGo.AddComponent<BoxCollider>();
+                box.center = (min + max) * 0.5f;
+                box.size   = Vector3.Max(max - min, Vector3.one * minThk);
+                boxGo.SetInteractionLayer(InteractionLayer.SceneObjects);
+                colliders.Add(box);
+            }
+        }
+        return colliders;
     }
 
     private Transform[] ResolveTransforms(GameObject rigRoot, IReadOnlyList<string> boneNames)

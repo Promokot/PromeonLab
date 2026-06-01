@@ -40,6 +40,8 @@ public class XRPromeonInteractable : XRBaseInteractable
                 colliders.Add(c);
     }
 
+    public bool IsRegistered(Collider c) => c != null && colliders.Contains(c);
+
     protected override void Awake()
     {
         base.Awake();

@@ -18,6 +18,9 @@ public class AssetEntityRecipe
     public Vector3          colliderCenter;
     public Vector3          colliderSize = Vector3.one;
 
+    // BoneBoxes only: how deep into the skeleton to place selector boxes (see BoneSelectorBoxPlanner).
+    public int              boneColliderDepth = 3;
+
     // Initial placement: world-space offset applied ONCE at fresh spawn (reload uses the saved pos).
     public Vector3          spawnOffset;
 

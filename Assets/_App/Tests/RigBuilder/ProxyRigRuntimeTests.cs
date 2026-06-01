@@ -15,28 +15,33 @@ public class ProxyRigRuntimeTests
     }
 
     [Test]
-    public void SetBonesInteractive_True_EnablesProxyColliders_AndDisablesRootCollider()
+    public void SetBonesInteractive_True_EnablesProxyColliders_AndDisablesSelectorColliders()
     {
         var root      = new GameObject("rig");
-        var rootCol   = root.AddComponent<BoxCollider>();
         var proxyRoot = new GameObject("ProxyRig"); proxyRoot.transform.SetParent(root.transform);
         var p1 = MakeProxy(proxyRoot.transform);
         var p2 = MakeProxy(proxyRoot.transform);
 
+        // A selector collider (whole-rig box) — must be OFF in bone mode, ON outside it.
+        var selectorGo  = new GameObject("selector");
+        var selectorCol = selectorGo.AddComponent<BoxCollider>();
+
         var runtime = root.AddComponent<ProxyRigRuntime>();
-        runtime.Bind(proxyRoot.transform, new List<GameObject> { p1, p2 });
+        runtime.Bind(proxyRoot.transform, new List<GameObject> { p1, p2 },
+            new List<Collider> { selectorCol });
 
         runtime.SetBonesInteractive(true);
 
         Assert.IsTrue(p1.GetComponent<MeshRenderer>().enabled);
         Assert.IsTrue(p1.GetComponent<Collider>().enabled);
-        Assert.IsFalse(rootCol.enabled, "root collider must be OFF in bone mode");
+        Assert.IsFalse(selectorCol.enabled, "selector collider must be OFF in bone mode");
 
         runtime.SetBonesInteractive(false);
         Assert.IsFalse(p1.GetComponent<MeshRenderer>().enabled);
-        Assert.IsTrue(rootCol.enabled, "root collider must be ON outside bone mode");
+        Assert.IsTrue(selectorCol.enabled, "selector collider must be ON outside bone mode");
 
         Object.DestroyImmediate(root);
+        Object.DestroyImmediate(selectorGo);
     }
 
     [Test]
@@ -47,7 +52,7 @@ public class ProxyRigRuntimeTests
         var p1 = MakeProxy(proxyRoot.transform);
 
         var runtime = root.AddComponent<ProxyRigRuntime>();
-        runtime.Bind(proxyRoot.transform, new List<GameObject> { p1 });
+        runtime.Bind(proxyRoot.transform, new List<GameObject> { p1 }, null);
 
         runtime.SetVisualsEnabled(false);
         Assert.IsFalse(p1.GetComponent<MeshRenderer>().enabled);

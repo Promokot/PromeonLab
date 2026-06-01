@@ -29,7 +29,12 @@ public class RigRuntime : MonoBehaviour, IRigRuntime
 
         _factory.BuildProxyRig(rigRoot, boneNames,
             definition != null ? definition.TerminalBonesAxis : TerminalBoneAxis.Auto,
-            definition != null && definition.InvertTerminalBonesAxis);
+            definition != null && definition.InvertTerminalBonesAxis,
+            3);
+        // Best-effort: manual rigging runs on an already-spawned scene entity, so the root
+        // XRPromeonInteractable normally exists. RegisterSelectorColliders no-ops gracefully if it
+        // doesn't yet (bone-mode selection still works via the proxy colliders).
+        rigRoot.GetComponent<ProxyRigRuntime>()?.RegisterSelectorColliders();
 
         // Proxies get programmatic Selectable/XRPromeonInteractable/SceneNode + ProxyRigRuntime;
         // wire their [Inject] deps now (recursive over children).
