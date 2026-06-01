@@ -35,8 +35,10 @@ public class UserPanel : SpatialPanel
     [SerializeField] private float _faceBelowOffset   = 0.15f;
 
     private ModeOrchestrator _orchestrator;
+    private EventBus         _bus;
 
     private LockMode _lockMode = LockMode.Follow;
+    private int      _lockDir  = 1; // ping-pong direction for the lock toggle: Follow→LockPos→LockPosRot→LockPos→Follow…
     private bool     _initialized;
     private bool     _isDragging;
     private Vector3  _followVelocity;
@@ -53,7 +55,21 @@ public class UserPanel : SpatialPanel
     private static readonly Color ColorLockPosRot   = new Color(1.00f, 0.42f, 0.42f, 0.90f); // red
 
     [Inject]
-    public void Construct(ModeOrchestrator orchestrator) => _orchestrator = orchestrator;
+    public void Construct(ModeOrchestrator orchestrator, EventBus bus)
+    {
+        _orchestrator = orchestrator;
+        if (_bus == bus) return;
+        if (_bus != null) _bus.Unsubscribe<ModeChangedEvent>(OnModeChanged);
+        _bus = bus;
+        if (_bus != null) _bus.Subscribe<ModeChangedEvent>(OnModeChanged);
+    }
+
+    private void OnDestroy()
+    {
+        if (_bus != null) _bus.Unsubscribe<ModeChangedEvent>(OnModeChanged);
+    }
+
+    private void OnModeChanged(ModeChangedEvent e) => ResetPosition();
 
     private void Start()
     {
@@ -115,12 +131,12 @@ public class UserPanel : SpatialPanel
             if (angle > _recenterAngle)
             {
                 var targetXZ = camXZ + yaw * _preferredDistance;
-                _activeTarget = new Vector3(targetXZ.x, _cameraTransform.position.y + _yOffset, targetXZ.z);
+                _activeTarget = new Vector3(targetXZ.x, transform.position.y, targetXZ.z);
             }
             else if (xzDist < _minDistance || xzDist > _maxDistance)
             {
                 var targetXZ = camXZ + delta.normalized * _preferredDistance;
-                _activeTarget = new Vector3(targetXZ.x, _cameraTransform.position.y + _yOffset, targetXZ.z);
+                _activeTarget = new Vector3(targetXZ.x, transform.position.y, targetXZ.z);
             }
         }
 
@@ -182,10 +198,12 @@ public class UserPanel : SpatialPanel
 
     public void CycleLockMode()
     {
-        _lockMode = (LockMode)(((int)_lockMode + 1) % 3);
-        // Clear any in-flight follow target on every transition. It is only consumed in Follow
-        // mode, so clearing unconditionally is a no-op for the lock modes and keeps the state
-        // robust against future LateUpdate changes.
+        int next = (int)_lockMode + _lockDir;
+        if (next >= 2)      { next = 2; _lockDir = -1; }
+        else if (next <= 0) { next = 0; _lockDir =  1; }
+        _lockMode = (LockMode)next;
+
+        // Clear any in-flight follow target on every transition (only consumed in Follow mode).
         _activeTarget   = null;
         _followVelocity = Vector3.zero;
         ApplyLockVisual();
