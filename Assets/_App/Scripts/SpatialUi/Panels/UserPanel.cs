@@ -69,7 +69,16 @@ public class UserPanel : SpatialPanel
         if (_bus != null) _bus.Unsubscribe<ModeChangedEvent>(OnModeChanged);
     }
 
-    private void OnModeChanged(ModeChangedEvent e) => ResetPosition();
+    private void OnModeChanged(ModeChangedEvent e)
+    {
+        // On a scene/mode change, mirror the panel's CLOSED state: reset lock→Follow and hide it.
+        // Re-opening via the toggle button (UserPanelOpener) then re-places it cleanly in front of the
+        // player AFTER the rig recenter has settled. Repositioning a still-visible panel here instead
+        // races the camera recenter — the panel flashes in front for a frame, then snaps to its old
+        // world spot. Hiding sidesteps that; the user re-invokes it the same way as the button.
+        ResetPosition();
+        if (gameObject.activeSelf) gameObject.SetActive(false);
+    }
 
     private void Start()
     {
