@@ -29,7 +29,7 @@ public class RigEntityFactoryBuildProxyTests
     public void BuildProxyRig_AllBones_CreatesProxyHierarchyAndRuntime()
     {
         var (root, _) = MakeSkeleton();
-        MakeFactory().BuildProxyRig(root, null, TerminalBoneAxis.Auto);
+        MakeFactory().BuildProxyRig(root, null, TerminalBoneAxis.Auto, false);
 
         Assert.IsNotNull(root.GetComponent<ProxyRigRuntime>(), "ProxyRigRuntime attached to rig root");
         var proxyRoot = root.transform.Find("Armature/ProxyRig") ?? FindDeep(root.transform, "ProxyRig");
@@ -47,7 +47,7 @@ public class RigEntityFactoryBuildProxyTests
         var root = new GameObject("empty");
         root.AddComponent<SkinnedMeshRenderer>().bones = new Transform[0];
 
-        MakeFactory().BuildProxyRig(root, null, TerminalBoneAxis.Auto);
+        MakeFactory().BuildProxyRig(root, null, TerminalBoneAxis.Auto, false);
 
         Assert.IsNull(root.GetComponent<ProxyRigRuntime>(), "no skeleton → no proxy rig");
         Object.DestroyImmediate(root);
@@ -57,7 +57,7 @@ public class RigEntityFactoryBuildProxyTests
     public void BuildProxyRig_NamedSubset_BuildsOnlyMatchedBones()
     {
         var (root, _) = MakeSkeleton();
-        MakeFactory().BuildProxyRig(root, new List<string> { "Bone" }, TerminalBoneAxis.Auto);
+        MakeFactory().BuildProxyRig(root, new List<string> { "Bone" }, TerminalBoneAxis.Auto, false);
 
         var markers = root.GetComponentsInChildren<BoneSceneNodeMarker>(true);
         Assert.AreEqual(1, markers.Length, "only the named bone gets a proxy");
@@ -68,7 +68,7 @@ public class RigEntityFactoryBuildProxyTests
     public void BuildProxyRig_LeafAxisX_OrientsDiamondAlongLocalX()
     {
         var (root, _) = MakeSkeleton();
-        MakeFactory().BuildProxyRig(root, null, TerminalBoneAxis.X);
+        MakeFactory().BuildProxyRig(root, null, TerminalBoneAxis.X, false);
 
         var tip = LeafDiamondTip(root, "proxy_Bone.001");
         Assert.AreEqual(1f, tip.x, 0.02f, "leaf diamond tip points local +X");
@@ -78,10 +78,22 @@ public class RigEntityFactoryBuildProxyTests
     }
 
     [Test]
+    public void BuildProxyRig_LeafAxisXInverted_OrientsDiamondAlongNegativeLocalX()
+    {
+        var (root, _) = MakeSkeleton();
+        MakeFactory().BuildProxyRig(root, null, TerminalBoneAxis.X, invertAxis: true);
+
+        var tip = LeafDiamondTip(root, "proxy_Bone.001");
+        Assert.AreEqual(-1f, tip.x, 0.02f, "invert flips the chosen +X to -X");
+
+        Object.DestroyImmediate(root);
+    }
+
+    [Test]
     public void BuildProxyRig_LeafAuto_OrientsDiamondFromParent()
     {
         var (root, _) = MakeSkeleton(); // leaf sits at local +Y of its parent
-        MakeFactory().BuildProxyRig(root, null, TerminalBoneAxis.Auto);
+        MakeFactory().BuildProxyRig(root, null, TerminalBoneAxis.Auto, false);
 
         var tip = LeafDiamondTip(root, "proxy_Bone.001");
         Assert.AreEqual(1f, tip.y, 0.02f, "Auto keeps the legacy from-parent (+Y here) direction");

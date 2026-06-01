@@ -57,19 +57,22 @@ public class RigEntityBuilder : IAssetEntityBuilder
     {
         GameObject       go;
         TerminalBoneAxis axis;
+        bool             invert;
         if (asset.Source == AssetSource.Builtin)
         {
             if (asset is not BuiltinLabAsset b)
                 throw new NotSupportedException($"Builtin asset '{asset.Id}' is not a BuiltinLabAsset");
-            go   = UnityEngine.Object.Instantiate(b.Prefab, position, rotation);
-            axis = b.TerminalAxis;
+            go     = UnityEngine.Object.Instantiate(b.Prefab, position, rotation);
+            axis   = b.TerminalBonesAxis;
+            invert = b.InvertTerminalBonesAxis;
         }
         else
         {
             if (string.IsNullOrEmpty(asset.SourceRef))
                 throw new NotSupportedException($"Imported asset '{asset.Id}' has no SourceRef");
-            go   = await _factory.CreateAsync(_store.AbsolutePath(asset.SourceRef), position, rotation, ct);
-            axis = recipe != null && recipe.HasRig ? recipe.rig.TerminalAxis : TerminalBoneAxis.Auto;
+            go     = await _factory.CreateAsync(_store.AbsolutePath(asset.SourceRef), position, rotation, ct);
+            axis   = recipe != null && recipe.HasRig ? recipe.rig.TerminalBonesAxis : TerminalBoneAxis.Auto;
+            invert = recipe != null && recipe.HasRig ? recipe.rig.InvertTerminalBonesAxis : false;
         }
 
         if (go == null) return null;
@@ -77,7 +80,7 @@ public class RigEntityBuilder : IAssetEntityBuilder
         var boneNames = recipe != null && recipe.HasRig
             ? recipe.rig.Bones.Select(bn => bn.BoneName).ToList()
             : null;
-        _factory.BuildProxyRig(go, boneNames, axis);
+        _factory.BuildProxyRig(go, boneNames, axis, invert);
 
         return go;
     }

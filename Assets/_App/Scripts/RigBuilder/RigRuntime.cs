@@ -27,7 +27,9 @@ public class RigRuntime : MonoBehaviour, IRigRuntime
             ? definition.Bones.Select(b => b.BoneName).ToList()
             : null;
 
-        _factory.BuildProxyRig(rigRoot, boneNames, definition != null ? definition.TerminalAxis : TerminalBoneAxis.Auto);
+        _factory.BuildProxyRig(rigRoot, boneNames,
+            definition != null ? definition.TerminalBonesAxis : TerminalBoneAxis.Auto,
+            definition != null && definition.InvertTerminalBonesAxis);
 
         // Proxies get programmatic Selectable/XRPromeonInteractable/SceneNode + ProxyRigRuntime;
         // wire their [Inject] deps now (recursive over children).

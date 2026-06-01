@@ -25,7 +25,7 @@ public class RigEntityFactory
     // Builds the proxy hierarchy onto rigRoot and attaches a bound ProxyRigRuntime.
     // boneNames: from recipe.rig (import) → mapped to live bones by name; null → all SkinnedMeshRenderer.bones
     // (builtin / manual rigging). No-op if there is no skeleton.
-    public void BuildProxyRig(GameObject rigRoot, IReadOnlyList<string> boneNames, TerminalBoneAxis terminalAxis)
+    public void BuildProxyRig(GameObject rigRoot, IReadOnlyList<string> boneNames, TerminalBoneAxis terminalAxis, bool invertAxis)
     {
         var transforms = ResolveTransforms(rigRoot, boneNames);
         if (transforms == null || transforms.Length == 0) return;
@@ -54,7 +54,7 @@ public class RigEntityFactory
                 proxyRoot = rig.transform;
             }
 
-            BuildProxyNode(bone, proxyRoot, set, proxyGOs, terminalAxis);
+            BuildProxyNode(bone, proxyRoot, set, proxyGOs, terminalAxis, invertAxis);
         }
 
         if (proxyRoot == null) return; // skeleton present but no buildable root bone
@@ -75,7 +75,7 @@ public class RigEntityFactory
         return smr.bones.Where(b => b != null && wanted.Contains(b.name)).ToArray();
     }
 
-    private void BuildProxyNode(Transform bone, Transform proxyParent, HashSet<Transform> set, List<GameObject> proxyGOs, TerminalBoneAxis terminalAxis)
+    private void BuildProxyNode(Transform bone, Transform proxyParent, HashSet<Transform> set, List<GameObject> proxyGOs, TerminalBoneAxis terminalAxis, bool invertAxis)
     {
         var children = new List<Transform>();
         for (int i = 0; i < bone.childCount; i++)
@@ -111,6 +111,7 @@ public class RigEntityFactory
                     TerminalBoneAxis.Z => Vector3.forward,
                     _                  => Vector3.up,
                 };
+                if (invertAxis) localLongAxis = -localLongAxis;
             }
 
             float width = EffectiveWidth(_config.BoneWidth, length);
@@ -157,7 +158,7 @@ public class RigEntityFactory
         bone.gameObject.AddComponent<BoneFollower>().SetProxy(proxyGo.transform);
 
         foreach (var child in children)
-            BuildProxyNode(child, proxyGo.transform, set, proxyGOs, terminalAxis);
+            BuildProxyNode(child, proxyGo.transform, set, proxyGOs, terminalAxis, invertAxis);
     }
 
     // ---- Static mesh builders (moved verbatim from the original proxy-rig builder) ----

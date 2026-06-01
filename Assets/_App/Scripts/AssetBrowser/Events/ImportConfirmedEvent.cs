@@ -5,5 +5,6 @@ public struct ImportConfirmedEvent
     public string           FilePath;
     public string           DisplayName;
     public AssetType        ChosenType;
-    public TerminalBoneAxis TerminalAxis;   // leaf-bone orientation chosen in the wizard (Rig only)
+    public TerminalBoneAxis TerminalBonesAxis;       // leaf-bone orientation chosen in the wizard (Rig only)
+    public bool             InvertTerminalBonesAxis; // invert toggle in the wizard
 }

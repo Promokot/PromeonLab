@@ -72,7 +72,10 @@ public class ImportPipeline : IStartable, IDisposable
 
             // Per-rig leaf-bone orientation comes from the wizard. Only rigs have recipe.rig.
             if (recipe.rig != null)
-                recipe.rig.TerminalAxis = e.TerminalAxis;
+            {
+                recipe.rig.TerminalBonesAxis       = e.TerminalBonesAxis;
+                recipe.rig.InvertTerminalBonesAxis = e.InvertTerminalBonesAxis;
+            }
 
             record.SetRecipe(recipe);
 

@@ -1,7 +1,15 @@
 # Rig Leaf-Bone Orientation Axis — Design
 
 **Date:** 2026-06-01
-**Status:** Approved (design); spec under review.
+**Status:** Implemented. See "v2 changes" below for post-implementation refinements.
+
+## v2 changes (2026-06-01, owner refinements — implemented)
+
+- **Default = Y:** the wizard's pre-selected axis is now `Y` (was `X`). Builtin/manual rigs without an explicit choice still resolve to `Auto` (legacy from-parent).
+- **Invert option:** a per-rig `bool` flips the chosen **explicit** axis (`+X→-X`, etc.). It is **ignored for `Auto`** (Auto keeps the from-parent direction). Carried as `RigDefinition.InvertTerminalBonesAxis`, `BuiltinLabAsset.InvertTerminalBonesAxis` (serialized `_invertTerminalBonesAxis`), and `ImportConfirmedEvent.InvertTerminalBonesAxis`; the wizard exposes it via a new serialized `Toggle _axisInvertToggle` slot (the UI toggle is wired in the prefab by the owner). `BuildProxyRig`/`BuildProxyNode` take a `bool invertAxis`; the negation is applied only in the explicit-axis sub-branch.
+- **Rename:** the data field/property `TerminalAxis` → **`TerminalBonesAxis`** everywhere (RigDefinition, BuiltinLabAsset, ImportConfirmedEvent; backing field `_terminalAxis`→`_terminalBonesAxis`). The **enum TYPE stays `TerminalBoneAxis`** (singular) — only the field/property is plural. The serialized `DefaultBuiltinAssetLibrary.asset` YAML key was renamed in place to preserve existing per-entry values.
+
+The sections below describe the original (v1) design; where they say `TerminalAxis`/default `X`, read `TerminalBonesAxis`/default `Y` per the above.
 
 ## Problem
 
