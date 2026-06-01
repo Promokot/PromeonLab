@@ -35,9 +35,26 @@ public class XRPromeonInteractable : XRBaseInteractable
     public void RegisterColliders(IEnumerable<Collider> source)
     {
         if (source == null) return;
+        bool added = false;
         foreach (var c in source)
             if (c != null && !colliders.Contains(c))
+            {
                 colliders.Add(c);
+                added = true;
+            }
+
+        // XRInteractionManager builds its collider→interactable lookup once, at registration time, and
+        // never re-scans it (see XRInteractionManager.RegisterInteractable + the explicit assumption on
+        // UnregisterInteractable). Our builders create colliders AFTER AddComponent has already run
+        // OnEnable→RegisterInteractable (convex child colliders, rig selector boxes), so a ray hit on
+        // them would resolve to no interactable — selectable via the outliner but never by clicking.
+        // Re-register so the map is rebuilt over the full collider set. No-op until we're registered
+        // (inactive GO): OnEnable will then map the complete list itself.
+        if (added && interactionManager != null && interactionManager.IsRegistered((IXRInteractable)this))
+        {
+            interactionManager.UnregisterInteractable((IXRInteractable)this);
+            interactionManager.RegisterInteractable((IXRInteractable)this);
+        }
     }
 
     public bool IsRegistered(Collider c) => c != null && colliders.Contains(c);
