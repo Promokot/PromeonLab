@@ -44,23 +44,19 @@ public class ObjectEntityBuilder : IAssetEntityBuilder
         return recipe;
     }
 
-    public virtual async Task<GameObject> RestoreAsync(ILabAsset asset, AssetEntityRecipe recipe, Vector3 position, Quaternion rotation, CancellationToken ct)
+    public virtual Task<GameObject> RestoreAsync(ILabAsset asset, AssetEntityRecipe recipe, Vector3 position, Quaternion rotation, CancellationToken ct)
     {
         if (asset.Source == AssetSource.Builtin)
         {
             if (asset is not BuiltinLabAsset b)
                 throw new NotSupportedException($"Builtin asset '{asset.Id}' is not a BuiltinLabAsset");
-            return UnityEngine.Object.Instantiate(b.Prefab, position, rotation);
+            return Task.FromResult(UnityEngine.Object.Instantiate(b.Prefab, position, rotation));
         }
 
         if (string.IsNullOrEmpty(asset.SourceRef))
             throw new NotSupportedException($"Imported asset '{asset.Id}' has no SourceRef");
 
-        var go = await _loader.LoadAsync(_store.AbsolutePath(asset.SourceRef), position, rotation, ct);
-        if (go == null) return null;
-
-        var r = recipe ?? await BuildAsync(_store.AbsolutePath(asset.SourceRef), asset.Type, ct); // legacy fallback
-        InteractionCapability.Apply(go, r.interactionLayer, r.colliderKind, r.colliderCenter, r.colliderSize, r.selectable);
-        return go;
+        // Capability is applied by AssetEntityBuilderRegistry.RestoreAsync (single point).
+        return _loader.LoadAsync(_store.AbsolutePath(asset.SourceRef), position, rotation, ct);
     }
 }

@@ -48,18 +48,15 @@ public class ReferenceEntityBuilder : IAssetEntityBuilder
         return Task.FromResult(recipe);
     }
 
-    public async Task<GameObject> RestoreAsync(ILabAsset asset, AssetEntityRecipe recipe, Vector3 position, Quaternion rotation, CancellationToken ct)
+    public Task<GameObject> RestoreAsync(ILabAsset asset, AssetEntityRecipe recipe, Vector3 position, Quaternion rotation, CancellationToken ct)
     {
         if (string.IsNullOrEmpty(asset.SourceRef))
             throw new NotSupportedException($"Reference asset '{asset.Id}' has no SourceRef");
+        if (recipe == null)
+            throw new NotSupportedException($"Reference asset '{asset.Id}' has no recipe");
 
         var abs = _store.AbsolutePath(asset.SourceRef);
-        var r   = recipe ?? await BuildAsync(abs, AssetType.Reference, ct); // legacy fallback
-
-        var go = await _quads.CreateAsync(abs, position, rotation, r.referenceAspect, r.referenceTwoSided, ct);
-        if (go == null) return null;
-
-        InteractionCapability.Apply(go, r.interactionLayer, r.colliderKind, r.colliderCenter, r.colliderSize, r.selectable);
-        return go;
+        // Capability is applied by AssetEntityBuilderRegistry.RestoreAsync (single point).
+        return _quads.CreateAsync(abs, position, rotation, recipe.referenceAspect, recipe.referenceTwoSided, ct);
     }
 }

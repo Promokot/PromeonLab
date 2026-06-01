@@ -9,10 +9,11 @@ public class AssetEntityBuilderRegistryTests
     {
         public AssetType HandledType { get; set; }
         public AssetEntityRecipe LastRecipe;
+        public GameObject ReturnGo;
         public Task<AssetEntityRecipe> BuildAsync(string p, AssetType t, CancellationToken ct)
             => Task.FromResult(new AssetEntityRecipe { type = t });
         public Task<GameObject> RestoreAsync(ILabAsset a, AssetEntityRecipe r, Vector3 pos, Quaternion rot, CancellationToken ct)
-        { LastRecipe = r; return Task.FromResult<GameObject>(null); }
+        { LastRecipe = r; return Task.FromResult(ReturnGo); }
     }
 
     [Test]
@@ -28,5 +29,45 @@ public class AssetEntityBuilderRegistryTests
 
         Assert.IsNotNull(refBuilder.LastRecipe);
         Assert.That(refBuilder.LastRecipe.referenceAspect, Is.EqualTo(3f));
+    }
+
+    [Test]
+    public void RestoreAsync_AppliesCapabilityFromRecipe_WhenRecipePresent()
+    {
+        var go  = new GameObject("imported");
+        var b   = new FakeBuilder { HandledType = AssetType.Object, ReturnGo = go };
+        var reg = new AssetEntityBuilderRegistry(new IAssetEntityBuilder[] { b });
+
+        var recipe = new AssetEntityRecipe
+        {
+            type = AssetType.Object, selectable = true,
+            colliderKind = ColliderKind.Box, colliderSize = new Vector3(2f, 3f, 4f),
+        };
+        var asset = new ImportedLabAsset("id", "n", AssetType.Object, "asset-libraries/sources/id.glb", recipe);
+
+        var result = reg.RestoreAsync(asset, Vector3.zero, Quaternion.identity, CancellationToken.None)
+                        .GetAwaiter().GetResult();
+
+        var box = result.GetComponent<BoxCollider>();
+        Assert.IsNotNull(box, "Registry should apply InteractionCapability when a recipe is present");
+        Assert.AreEqual(new Vector3(2f, 3f, 4f), box.size);
+
+        Object.DestroyImmediate(go);
+    }
+
+    [Test]
+    public void RestoreAsync_SkipsCapability_WhenRecipeNull()
+    {
+        var go  = new GameObject("builtin-like");
+        var b   = new FakeBuilder { HandledType = AssetType.Object, ReturnGo = go };
+        var reg = new AssetEntityBuilderRegistry(new IAssetEntityBuilder[] { b });
+
+        var asset = new ImportedLabAsset("id", "n", AssetType.Object, "ref", null); // no recipe
+
+        var result = reg.RestoreAsync(asset, Vector3.zero, Quaternion.identity, CancellationToken.None)
+                        .GetAwaiter().GetResult();
+
+        Assert.IsNull(result.GetComponent<BoxCollider>(), "No recipe → no capability applied by the registry");
+        Object.DestroyImmediate(go);
     }
 }

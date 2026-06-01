@@ -18,10 +18,18 @@ public class AssetEntityBuilderRegistry
     public Task<AssetEntityRecipe> BuildAsync(AssetType type, string sourceAbsolutePath, CancellationToken ct)
         => Resolve(type).BuildAsync(sourceAbsolutePath, type, ct);
 
-    public Task<GameObject> RestoreAsync(ILabAsset asset, Vector3 position, Quaternion rotation, CancellationToken ct)
+    public async Task<GameObject> RestoreAsync(ILabAsset asset, Vector3 position, Quaternion rotation, CancellationToken ct)
     {
-        var recipe = (asset as ImportedLabAsset)?.Recipe; // null for builtin/legacy
-        return Resolve(asset.Type).RestoreAsync(asset, recipe, position, rotation, ct);
+        var recipe = (asset as ImportedLabAsset)?.Recipe; // null for builtin (prefab already baked)
+        var go = await Resolve(asset.Type).RestoreAsync(asset, recipe, position, rotation, ct);
+
+        // Single finalization point: builders produce only geometry; selectability/collider/identity
+        // are applied here from the recipe. Builtin (recipe == null) is pre-baked, so skip.
+        if (go != null && recipe != null)
+            InteractionCapability.Apply(go, recipe.interactionLayer, recipe.colliderKind,
+                recipe.colliderCenter, recipe.colliderSize, recipe.selectable);
+
+        return go;
     }
 
     private IAssetEntityBuilder Resolve(AssetType type)
