@@ -17,10 +17,10 @@ MonoBehaviour:
   DefaultTotalFrames: 100
   DefaultFps: 24
   KeyColor_Object: {r: 0.18, g: 0.5, b: 0.95, a: 1}
-  KeyColor_Rig: {r: 0.18, g: 0.5, b: 0.95, a: 1}
+  KeyColor_Rig: {r: 0.77767897, g: 1, b: 0.9480335, a: 1}
   KeyColor_Bone: {r: 0.33, g: 0.29, b: 0.72, a: 1}
   KeyColor_Selected: {r: 0.95, g: 0.69, b: 0.13, a: 1}
   TrackRow_Active: {r: 0.18, g: 0.5, b: 0.95, a: 0.6}
-  TrackRow_Inactive: {r: 0, g: 0, b: 0, a: 0}
+  TrackRow_Inactive: {r: 0.22961903, g: 0.22961903, b: 0.22961903, a: 0}
   RigRow_BonesOn: {r: 0.31, g: 0.51, b: 0.94, a: 1}
   RigRow_BonesOff: {r: 1, g: 1, b: 1, a: 1}
