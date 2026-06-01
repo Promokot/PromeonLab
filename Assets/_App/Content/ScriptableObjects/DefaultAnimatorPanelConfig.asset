@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66d582c477a43584ea2a0320d6e1d73a, type: 3}
   m_Name: DefaultAnimatorPanelConfig
   m_EditorClassIdentifier: Subsystems.SpatialUi::AnimatorPanelConfig
-  FramePx: 30
+  FramePx: 35
   MajorTickInterval: 5
   DefaultTotalFrames: 100
   DefaultFps: 24

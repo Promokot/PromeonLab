@@ -5535,12 +5535,12 @@ GameObject:
   m_Component:
   - component: {fileID: 6382330434030273164}
   - component: {fileID: 81473714907190557}
-  - component: {fileID: 4030742551056738542}
   - component: {fileID: 1908821616006376074}
   - component: {fileID: 5653460787677900570}
   - component: {fileID: 6976636901024659750}
   - component: {fileID: 6008856585333315251}
   - component: {fileID: 6574033770267510506}
+  - component: {fileID: 1387838863652169203}
   m_Layer: 5
   m_Name: AnimatorPanelModule
   m_TagString: Untagged
@@ -5592,23 +5592,6 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!114 &4030742551056738542
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3911379191047347838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!222 &1908821616006376074
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5700,6 +5683,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: _App.Runtime::RegionMember
   _moduleId: animator
+--- !u!114 &1387838863652169203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3911379191047347838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7951c64acb0fa62458bf30a60089fe2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.XR.Interaction.Toolkit::UnityEngine.XR.Interaction.Toolkit.UI.TrackedDeviceGraphicRaycaster
+  m_IgnoreReversedGraphics: 0
+  m_CheckFor2DOcclusion: 0
+  m_CheckFor3DOcclusion: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RaycastTriggerInteraction: 1
 --- !u!1 &4119351987595139320
 GameObject:
   m_ObjectHideFlags: 0

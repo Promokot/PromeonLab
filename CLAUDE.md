@@ -95,7 +95,9 @@ Application.persistentDataPath/
 │   ├── saved-lib.json                (Saved-library records; persisted, but spawn-from-saved/Slice 3 not yet implemented)
 │   └── sources/{assetId}.{ext}       (copied raw import files — .glb/.gltf/.png/.jpg/.jpeg)
 └── scenes/{SceneId}/
-    ├── scene.json            (scene graph + animation data + per-rig bone poses, schemaVersion 3)
+    ├── scene.json            (scene graph + per-rig bone poses, schemaVersion 3)
+    ├── animation.json        (per-ActionContainer keyframe data, schemaVersion 2; written by AnimationAuthoring)
+    ├── asset-catalog.json    (per-scene asset registry)
     └── export/               *.fbx / *.json   (export not yet implemented)
 ```
 
