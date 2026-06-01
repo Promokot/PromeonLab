@@ -486,9 +486,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: _App.Runtime::RegionNavButton
   _moduleId: outliner
   _button: {fileID: 2776303213348794971}
-  _inactiveHoverBrightness: 1.2
   _activeBrightness: 0.6
-  _activeHoverBrightness: 0.8
 --- !u!1 &1836677667070533152
 GameObject:
   m_ObjectHideFlags: 0
@@ -701,9 +699,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: _App.Runtime::RegionNavButton
   _moduleId: inspector
   _button: {fileID: 8406348899792679389}
-  _inactiveHoverBrightness: 1.2
   _activeBrightness: 0.6
-  _activeHoverBrightness: 0.8
 --- !u!1 &3548581874721195055
 GameObject:
   m_ObjectHideFlags: 0
@@ -1250,9 +1246,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: _App.Runtime::RegionNavButton
   _moduleId: gizmo
   _button: {fileID: 553658437618346861}
-  _inactiveHoverBrightness: 1.2
   _activeBrightness: 0.6
-  _activeHoverBrightness: 0.8
 --- !u!1 &4968612462016197325
 GameObject:
   m_ObjectHideFlags: 0
@@ -1932,9 +1926,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: _App.Runtime::RegionNavButton
   _moduleId: animator
   _button: {fileID: 7827140520507362270}
-  _inactiveHoverBrightness: 1.2
   _activeBrightness: 0.6
-  _activeHoverBrightness: 0.8
 --- !u!1 &7335507245571185869
 GameObject:
   m_ObjectHideFlags: 0
@@ -2410,9 +2402,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: _App.Runtime::RegionNavButton
   _moduleId: rigging
   _button: {fileID: 859348479988488541}
-  _inactiveHoverBrightness: 1.2
   _activeBrightness: 0.6
-  _activeHoverBrightness: 0.8
 --- !u!1 &8841440687737950728
 GameObject:
   m_ObjectHideFlags: 0
@@ -2625,6 +2615,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: _App.Runtime::RegionNavButton
   _moduleId: assets
   _button: {fileID: 8332389619067574998}
-  _inactiveHoverBrightness: 1.2
   _activeBrightness: 0.6
-  _activeHoverBrightness: 0.8
