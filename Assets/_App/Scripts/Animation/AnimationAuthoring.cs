@@ -71,6 +71,21 @@ public class AnimationAuthoring : IStartable, IDisposable
         return c;
     }
 
+    public void EnsureTrack(string ownerNodeId, string trackNodeId)
+    {
+        var c = _data?.FindByOwner(ownerNodeId);
+        if (c == null) return;
+        if (c.FindTrack(trackNodeId) != null) return;
+        c.GetOrCreateTrack(trackNodeId);
+        _bus.Publish(new AnimationContainerChangedEvent
+        {
+            OwnerNodeId = ownerNodeId,
+            Change      = ContainerChange.TracksChanged
+        });
+        RequestSave();
+        RebuildActiveClips();
+    }
+
     public void RemoveContainer(string ownerNodeId)
     {
         if (_data == null) return;

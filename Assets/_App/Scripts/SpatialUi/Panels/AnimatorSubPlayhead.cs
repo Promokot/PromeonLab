@@ -7,10 +7,12 @@ public class AnimatorSubPlayhead : MonoBehaviour
     [SerializeField] private TMP_Text             _frameLabel;
     [SerializeField] private AnimatorPanelConfig  _config;
 
+    public float LeftOffset { get; set; }
+
     public void SetFrame(int frame)
     {
         if (_root == null || _config == null) return;
-        _root.anchoredPosition = new Vector2(frame * _config.FramePx, _root.anchoredPosition.y);
+        _root.anchoredPosition = new Vector2(LeftOffset + frame * _config.FramePx, _root.anchoredPosition.y);
         if (_frameLabel != null) _frameLabel.text = frame.ToString();
     }
 

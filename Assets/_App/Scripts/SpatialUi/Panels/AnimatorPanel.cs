@@ -11,18 +11,17 @@ public class AnimatorPanel : MonoBehaviour
     [SerializeField] private AnimatorSubEmptyState _emptyState;
     [SerializeField] private GameObject            _activeStateRoot;
     [SerializeField] private AnimatorSubRuler      _ruler;
-    [SerializeField] private AnimatorSubLanes      _lanes;
     [SerializeField] private AnimatorSubPlayhead   _playhead;
     [SerializeField] private TimelineScrubInput    _timelineInput;
-    [SerializeField] private RectTransform         _tracksColumnContent;
-    [SerializeField] private TrackRow              _trackRowPrefab;
+    [SerializeField] private TimelineRow           _rowPrefab;
+    [SerializeField] private RectTransform         _rowsContent;
 
     private EventBus           _bus;
     private AnimationClipboard _clipboard;
     private SceneContext       _ctx;
 
-    private string                   _activeOwner;
-    private readonly List<TrackRow> _rowPool = new();
+    private string                       _activeOwner;
+    private readonly List<TimelineRow> _rowPool = new();
 
     [Inject]
     public void Construct(EventBus bus, AnimationClipboard clipboard, SceneContext ctx)
@@ -107,7 +106,7 @@ public class AnimatorPanel : MonoBehaviour
         if (_playhead != null) _playhead.SetFrame(e.Frame);
         if (_toolbar  != null) _toolbar.SetCurrentFrame(e.Frame);
         RefreshKeyButtonStates();
-        RefreshLaneKeys();
+        RefreshRowKeys();
     }
 
     private void OnPlaybackStateChanged(PlaybackStateChangedEvent e)
@@ -135,6 +134,10 @@ public class AnimatorPanel : MonoBehaviour
                 Refresh();
                 break;
 
+            case ContainerChange.TracksChanged:
+                RebuildTimeline();
+                break;
+
             case ContainerChange.LengthChanged:
             case ContainerChange.FpsChanged:
                 ApplyContainerToClock();
@@ -146,16 +149,23 @@ public class AnimatorPanel : MonoBehaviour
     private void OnKeyframeChanged(AnimationKeyframeChangedEvent e)
     {
         if (e.OwnerNodeId != _activeOwner) return;
-        RefreshLaneKeys();
+        RefreshRowKeys();
         RefreshKeyButtonStates();
     }
 
     private void OnAddAnimationClicked()
     {
         if (_ctx.Authoring == null) return;
-        var owner = AnimationAuthoring.OwnerOf(_ctx.Selection?.SelectedNodeId);
+        var selected = _ctx.Selection?.SelectedNodeId;
+        var owner = AnimationAuthoring.OwnerOf(selected);
         if (string.IsNullOrEmpty(owner)) return;
         _ctx.Authoring.CreateContainer(owner, _config.DefaultTotalFrames, _config.DefaultFps);
+
+        bool isBone = selected != null && selected.StartsWith("bone:");
+        var ownerGo = _ctx.Graph?.GetNode(owner);
+        bool isRig  = ownerGo != null && ownerGo.GetComponentInChildren<ProxyRigRuntime>() != null;
+        if (!isBone && !isRig && owner == selected)
+            _ctx.Authoring.EnsureTrack(owner, owner);
     }
 
     private void OnRemoveAnimationClicked()
@@ -277,84 +287,64 @@ public class AnimatorPanel : MonoBehaviour
         var c = _ctx.Authoring.GetContainer(_activeOwner);
         if (c == null) return;
 
-        if (_timelineContent != null && _config != null)
+        float off = _config != null ? _config.TrackNameWidth : 0f;
+        float px  = _config != null ? _config.FramePx : 30f;
+
+        if (_timelineContent != null)
         {
             var size = _timelineContent.sizeDelta;
-            size.x = (c.TotalFrames + 1) * _config.FramePx;
+            size.x = off + (c.TotalFrames + 1) * px;
             _timelineContent.sizeDelta = size;
         }
 
-        if (_timelineInput != null) _timelineInput.MaxFrame = c.TotalFrames;
+        if (_timelineInput != null) { _timelineInput.MaxFrame = c.TotalFrames; _timelineInput.LeftOffset = off; }
 
         _ruler?.Rebuild(c.TotalFrames);
-        RebuildTrackRows(c);
-        RebuildLanes(c);
-        RefreshLaneKeys();
+        RebuildRows(c);
 
-        if (_playhead != null)
-        {
-            _playhead.SetFrame(_ctx.Clock.CurrentFrame);
-        }
+        if (_playhead != null) { _playhead.LeftOffset = off; _playhead.SetFrame(_ctx.Clock.CurrentFrame); }
     }
 
-    private void RebuildTrackRows(ActionContainer c)
+    private void RebuildRows(ActionContainer c)
     {
-        if (_tracksColumnContent == null || _trackRowPrefab == null) return;
         foreach (var r in _rowPool) if (r != null) r.gameObject.SetActive(false);
+        if (_rowsContent == null || _rowPrefab == null) return;
 
         for (int i = 0; i < c.Tracks.Count; i++)
         {
-            var t  = c.Tracks[i];
-            var go = _ctx.Graph?.GetNode(t.NodeId);
+            var t       = c.Tracks[i];
+            var go      = _ctx.Graph?.GetNode(t.NodeId);
             var display = go != null ? go.DisplayName : t.NodeId;
             bool isBone = t.NodeId.StartsWith("bone:");
-            var kind    = isBone ? TrackRowKind.Bone : (c.OwnerNodeId == t.NodeId ? TrackRowKind.Rig : TrackRowKind.Object);
-            int indent  = isBone ? 1 : 0;
 
             var row = GetOrCreateRow(i);
             row.gameObject.SetActive(true);
-            row.Bind(t.NodeId, display, kind, t.Keys.Count > 0, indent,
-                () => _ctx.Selection.Select(t.NodeId));
-
+            row.Bind(t.NodeId, display, isBone, () => _ctx.Selection.Select(t.NodeId));
             row.SetActive(t.NodeId == _ctx.Selection.SelectedNodeId);
+            row.SetKeys(_ctx.Authoring.GetKeyFrames(t.NodeId), _ctx.Clock.CurrentFrame);
         }
     }
 
-    private TrackRow GetOrCreateRow(int idx)
+    private TimelineRow GetOrCreateRow(int idx)
     {
         while (_rowPool.Count <= idx)
         {
-            var r = Instantiate(_trackRowPrefab, _tracksColumnContent);
+            var r = Instantiate(_rowPrefab, _rowsContent);
             r.gameObject.SetActive(false);
             _rowPool.Add(r);
         }
         return _rowPool[idx];
     }
 
-    private void RebuildLanes(ActionContainer c)
+    private void RefreshRowKeys()
     {
-        if (_lanes == null) return;
-        var list = new List<(string, bool)>(c.Tracks.Count);
-        foreach (var t in c.Tracks)
-            list.Add((t.NodeId, t.NodeId.StartsWith("bone:")));
-        _lanes.Rebuild(list);
-
-        foreach (var lane in _lanes.Lanes)
-            if (lane != null && lane.gameObject.activeSelf)
-                lane.SetActive(lane.TrackNodeId == _ctx.Selection.SelectedNodeId);
-    }
-
-    private void RefreshLaneKeys()
-    {
-        if (_lanes == null || string.IsNullOrEmpty(_activeOwner)) return;
+        if (string.IsNullOrEmpty(_activeOwner)) return;
         var c = _ctx.Authoring.GetContainer(_activeOwner);
         if (c == null) return;
-        foreach (var t in c.Tracks)
+        foreach (var row in _rowPool)
         {
-            var lane = _lanes.FindLane(t.NodeId);
-            if (lane == null) continue;
-            var frames = _ctx.Authoring.GetKeyFrames(t.NodeId);
-            lane.SetKeys(frames, _ctx.Clock.CurrentFrame);
+            if (row == null || !row.gameObject.activeSelf) continue;
+            row.SetKeys(_ctx.Authoring.GetKeyFrames(row.TrackNodeId), _ctx.Clock.CurrentFrame);
         }
     }
 

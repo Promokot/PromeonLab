@@ -5,6 +5,7 @@ public class AnimatorPanelConfig : ScriptableObject
 {
     [Header("Timeline metrics")]
     public float FramePx             = 30f;
+    public float TrackNameWidth     = 100f;
     public int   MajorTickInterval   = 5;
     public int   DefaultTotalFrames  = 100;
     public int   DefaultFps          = 24;
