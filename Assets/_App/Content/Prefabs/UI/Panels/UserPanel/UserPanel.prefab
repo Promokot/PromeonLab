@@ -374,16 +374,16 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2708427577241762857}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.01}
   m_LocalScale: {x: 0.975, y: 0.6, z: 0.6}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5658050947546298298}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 180, y: 22}
+  m_SizeDelta: {x: -2, y: 4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7897087351792468533
 CanvasRenderer:
@@ -406,10 +406,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.8020648, g: 0.8020648, b: 0.8020648, a: 0.7058824}
-  m_RaycastTarget: 1
+  m_Color: {r: 0.8020648, g: 0.8020648, b: 0.8020648, a: 0.13725491}
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: -8, y: -12, z: -8, w: -6}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -422,7 +422,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 1.1
 --- !u!1 &3388815086346117155
 GameObject:
   m_ObjectHideFlags: 0
@@ -1385,9 +1385,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: _App.Runtime::RegionNavButton
   _moduleId: settings
   _button: {fileID: 6973736447621748074}
-  _inactiveHoverBrightness: 1.2
   _activeBrightness: 0.6
-  _activeHoverBrightness: 0.8
 --- !u!1 &6664021387027771371
 GameObject:
   m_ObjectHideFlags: 0
@@ -1426,7 +1424,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -88}
-  m_SizeDelta: {x: 180, y: 18}
+  m_SizeDelta: {x: 160, y: 18}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8580430220249529581
 CanvasRenderer:
@@ -1485,7 +1483,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 150, y: 22, z: 2}
+  m_Size: {x: 110, y: 20, z: 2}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &2847193650428871943
 MonoBehaviour:
@@ -1885,9 +1883,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: _App.Runtime::RegionNavButton
   _moduleId: keyboard
   _button: {fileID: 1558720005864284642}
-  _inactiveHoverBrightness: 1.2
   _activeBrightness: 0.6
-  _activeHoverBrightness: 0.8
 --- !u!1 &9121493452059706353
 GameObject:
   m_ObjectHideFlags: 0
