@@ -87,11 +87,18 @@ public class InspectorPanel : MonoBehaviour
     private void OnSceneContextChanged(SceneContextChangedEvent e)
     {
         if (e.HasScene) Refresh();
-        else if (_emptyState != null)
+        else
         {
-            _emptyState.SetActive(true);
-            if (_content   != null) _content.SetActive(false);
-            if (_boneState != null) _boneState.SetActive(false);
+            // Scene torn down: this panel is persistent, so drop the remembered bone-mode rig.
+            // Otherwise the toggle stays ON into the next scene (which rebuilds the rig with the same
+            // NodeId in whole-rig mode), leaving ShowBones stuck on and out of sync with the rig.
+            _activeBoneRigId = null;
+            if (_emptyState != null)
+            {
+                _emptyState.SetActive(true);
+                if (_content   != null) _content.SetActive(false);
+                if (_boneState != null) _boneState.SetActive(false);
+            }
         }
     }
 
