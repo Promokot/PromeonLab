@@ -4,7 +4,7 @@ using UnityEngine;
 public class SceneSerializerTests
 {
     [Test]
-    public void Serialize_ThenDeserialize_RoundTripsV2Fields()
+    public void Serialize_ThenDeserialize_RoundTripsV3Fields()
     {
         var original = new SceneData
         {
@@ -27,7 +27,7 @@ public class SceneSerializerTests
 
         Assert.AreEqual("scene-42", result.SceneId);
         Assert.AreEqual("My Scene", result.DisplayName);
-        Assert.AreEqual(2,          result.SchemaVersion);
+        Assert.AreEqual(3,          result.SchemaVersion);
         Assert.AreEqual(1,          result.Nodes.Count);
         Assert.AreEqual("n1",       result.Nodes[0].NodeId);
         Assert.AreEqual(AssetSource.Builtin, result.Nodes[0].AssetRef.Source);
@@ -42,12 +42,12 @@ public class SceneSerializerTests
     }
 
     [Test]
-    public void Deserialize_V1Json_MigratesToV2WithEmptyNodes()
+    public void Deserialize_V1Json_MigratesToV3WithEmptyNodes()
     {
         var v1Json = "{ \"SchemaVersion\": 1, \"SceneId\": \"old\", \"DisplayName\": \"Old\", \"CreatedAt\": \"2024-01-01\" }";
         var result = SceneSerializer.Deserialize(v1Json);
 
-        Assert.AreEqual(2, result.SchemaVersion);
+        Assert.AreEqual(3, result.SchemaVersion);
         Assert.IsNotNull(result.Nodes);
         Assert.AreEqual(0, result.Nodes.Count);
     }

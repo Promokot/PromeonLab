@@ -28,7 +28,7 @@ public class ProxyRigRuntimeTests
 
         var runtime = root.AddComponent<ProxyRigRuntime>();
         runtime.Bind(proxyRoot.transform, new List<GameObject> { p1, p2 },
-            new List<Collider> { selectorCol });
+            new List<Collider> { selectorCol }, new Dictionary<string, Transform>());
 
         runtime.SetBonesInteractive(true);
 
@@ -52,7 +52,7 @@ public class ProxyRigRuntimeTests
         var p1 = MakeProxy(proxyRoot.transform);
 
         var runtime = root.AddComponent<ProxyRigRuntime>();
-        runtime.Bind(proxyRoot.transform, new List<GameObject> { p1 }, null);
+        runtime.Bind(proxyRoot.transform, new List<GameObject> { p1 }, null, null);
 
         runtime.SetVisualsEnabled(false);
         Assert.IsFalse(p1.GetComponent<MeshRenderer>().enabled);

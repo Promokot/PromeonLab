@@ -4,7 +4,7 @@ using System.Collections.Generic;
 [Serializable]
 public class SceneData
 {
-    public int            SchemaVersion = 2;
+    public int            SchemaVersion = 3;
     public string         SceneId;
     public string         DisplayName;
     public string         CreatedAt;

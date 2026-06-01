@@ -17,6 +17,12 @@ public static class SceneSerializer
             data.SchemaVersion = 2;
             data.Nodes ??= new List<NodeData>();
         }
+        if (data.SchemaVersion < 3)
+        {
+            Debug.LogWarning($"SceneSerializer: migrating scene '{data.SceneId}' from v{data.SchemaVersion} to v3");
+            data.SchemaVersion = 3;
+            foreach (var n in data.Nodes) n.BonePoses ??= new List<BonePose>();
+        }
         return data;
     }
 }

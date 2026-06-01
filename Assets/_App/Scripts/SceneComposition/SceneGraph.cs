@@ -155,6 +155,8 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
                 go.transform.localScale = nd.Scale;
                 AddNodeInternal(go, nd.NodeId, nd.AssetRef, nd.DisplayName, nd.ParentNodeId, isLoad: true);
                 _resolver.InjectGameObject(go);
+                if (nd.BonePoses != null && nd.BonePoses.Count > 0)
+                    go.GetComponentInChildren<ProxyRigRuntime>(includeInactive: true)?.ApplyPoses(nd.BonePoses);
             }
 
             foreach (var nd in data.Nodes)
@@ -189,7 +191,7 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
     {
         var data = new SceneData
         {
-            SchemaVersion = 2,
+            SchemaVersion = 3,
             SceneId       = sceneId,
             DisplayName   = displayName,
             CreatedAt     = createdAt,
@@ -204,6 +206,7 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
                 var pn = node.transform.parent.GetComponent<SceneNode>();
                 if (pn != null) parentId = pn.NodeId;
             }
+            var rig = node.GetComponentInChildren<ProxyRigRuntime>(includeInactive: true);
             data.Nodes.Add(new NodeData
             {
                 NodeId       = id,
@@ -213,6 +216,7 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
                 Scale        = node.transform.localScale,
                 DisplayName  = node.DisplayName,
                 ParentNodeId = parentId,
+                BonePoses    = rig != null ? rig.CapturePoses() : new List<BonePose>(),
             });
         }
         return data;

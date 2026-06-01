@@ -11,6 +11,7 @@ public class ProxyRigRuntime : MonoBehaviour
     private readonly List<GameObject> _proxyGOs = new();
     private Transform               _proxyRoot;
     private readonly List<Collider> _selectorColliders = new(); // whole-rig select boxes (SceneObjects)
+    private readonly Dictionary<string, Transform> _boneProxies = new(); // boneName → proxy transform (pose I/O)
 
     private EventBus       _eventBus;
     private OutlineConfig  _outlineConfig;
@@ -34,14 +35,52 @@ public class ProxyRigRuntime : MonoBehaviour
     }
 
     // Called once by the factory right after construction.
-    public void Bind(Transform proxyRoot, List<GameObject> proxyGOs, List<Collider> selectorColliders)
+    public void Bind(Transform proxyRoot, List<GameObject> proxyGOs, List<Collider> selectorColliders,
+                     IReadOnlyDictionary<string, Transform> boneProxies)
     {
         _proxyRoot = proxyRoot;
         _proxyGOs.Clear();
         _proxyGOs.AddRange(proxyGOs);
         _selectorColliders.Clear();
         if (selectorColliders != null) _selectorColliders.AddRange(selectorColliders);
+        _boneProxies.Clear();
+        if (boneProxies != null)
+            foreach (var kv in boneProxies) _boneProxies[kv.Key] = kv.Value;
         SetBonesInteractive(false); // start in whole-rig select mode
+    }
+
+    // Per-bone pose I/O for scene persistence. The proxy's LOCAL transform is the authoritative pose
+    // input (BoneFollower copies it onto the real bone each LateUpdate), so we capture/restore proxy
+    // locals keyed by bone name. No-ops for null/empty input or unknown bone names.
+    public List<BonePose> CapturePoses()
+    {
+        var poses = new List<BonePose>(_boneProxies.Count);
+        foreach (var kv in _boneProxies)
+        {
+            var t = kv.Value;
+            if (t == null) continue;
+            poses.Add(new BonePose
+            {
+                BoneName      = kv.Key,
+                LocalPosition = t.localPosition,
+                LocalRotation = t.localRotation,
+                LocalScale    = t.localScale,
+            });
+        }
+        return poses;
+    }
+
+    public void ApplyPoses(IReadOnlyList<BonePose> poses)
+    {
+        if (poses == null) return;
+        foreach (var p in poses)
+        {
+            if (p == null || string.IsNullOrEmpty(p.BoneName)) continue;
+            if (!_boneProxies.TryGetValue(p.BoneName, out var t) || t == null) continue;
+            t.localPosition = p.LocalPosition;
+            t.localRotation = p.LocalRotation;
+            t.localScale    = p.LocalScale;
+        }
     }
 
     // Registers the whole-rig selector boxes with the root interactable so a hit on any of them selects

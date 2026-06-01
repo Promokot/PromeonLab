@@ -31,6 +31,7 @@ public class RigEntityFactory
         if (transforms == null || transforms.Length == 0) return;
 
         var proxyGOs    = new List<GameObject>();
+        var boneProxies = new Dictionary<string, Transform>();
         Transform proxyRoot = null;
 
         var set = new HashSet<Transform>(transforms);
@@ -54,7 +55,7 @@ public class RigEntityFactory
                 proxyRoot = rig.transform;
             }
 
-            BuildProxyNode(bone, proxyRoot, set, proxyGOs, terminalAxis, invertAxis);
+            BuildProxyNode(bone, proxyRoot, set, proxyGOs, boneProxies, terminalAxis, invertAxis);
         }
 
         if (proxyRoot == null) return; // skeleton present but no buildable root bone
@@ -62,7 +63,7 @@ public class RigEntityFactory
         var selectorColliders = BuildSelectorColliders(transforms, set, selectorDepth);
 
         var runtime = rigRoot.GetComponent<ProxyRigRuntime>() ?? rigRoot.AddComponent<ProxyRigRuntime>();
-        runtime.Bind(proxyRoot, proxyGOs, selectorColliders);
+        runtime.Bind(proxyRoot, proxyGOs, selectorColliders, boneProxies);
     }
 
     // Whole-rig selection colliders: boxes placed along the skeleton to `depth` (BoneSelectorBoxPlanner),
@@ -121,7 +122,7 @@ public class RigEntityFactory
         return smr.bones.Where(b => b != null && wanted.Contains(b.name)).ToArray();
     }
 
-    private void BuildProxyNode(Transform bone, Transform proxyParent, HashSet<Transform> set, List<GameObject> proxyGOs, TerminalBoneAxis terminalAxis, bool invertAxis)
+    private void BuildProxyNode(Transform bone, Transform proxyParent, HashSet<Transform> set, List<GameObject> proxyGOs, Dictionary<string, Transform> boneProxies, TerminalBoneAxis terminalAxis, bool invertAxis)
     {
         var children = new List<Transform>();
         for (int i = 0; i < bone.childCount; i++)
@@ -198,13 +199,14 @@ public class RigEntityFactory
         proxyGo.AddComponent<XRPromeonInteractable>().SetInteractionLayer(InteractionLayer.BoneProxies);
 
         proxyGOs.Add(proxyGo);
+        boneProxies[bone.name] = proxyGo.transform;
 
         foreach (var stale in bone.GetComponents<BoneFollower>())
             UnityEngine.Object.Destroy(stale);
         bone.gameObject.AddComponent<BoneFollower>().SetProxy(proxyGo.transform);
 
         foreach (var child in children)
-            BuildProxyNode(child, proxyGo.transform, set, proxyGOs, terminalAxis, invertAxis);
+            BuildProxyNode(child, proxyGo.transform, set, proxyGOs, boneProxies, terminalAxis, invertAxis);
     }
 
     // ---- Static mesh builders (moved verbatim from the original proxy-rig builder) ----
