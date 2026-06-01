@@ -105,6 +105,7 @@ RESTORE imported (RigEntityFactory):
 - `PromeonProxyRigBuilder`/`RigRuntime`/`Crush Dummy`/панели **не трогаем**.
 
 **Срез B (паритет) — рантайм-построение прокси.**
+- ⚠️ Долг из Среза A: `RigDefinitionExtractor` ставит `RigDefinition.AssetId = smr.gameObject.name` (имя временного загруженного GO, не стабильный id). В Срезе A не используется; при сборке прокси выставлять из `record.Id` в `RigEntityBuilder.BuildAsync`, а не в экстракторе.
 - Наполнить `RigEntityFactory.BuildProxyRig` (постройка из `PromeonProxyRigBuilder`).
 - Создать `ProxyRigRuntime` (рантайм-роль из `PromeonProxyRigBuilder`).
 - Растворить `PromeonProxyRigBuilder` + ретайр `RigRuntime`; перенавесить is-rig-детект в панелях; перепечь `Crush Dummy`; починить тесты *(= задача #16)*.
