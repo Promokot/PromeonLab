@@ -48,6 +48,12 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
     public ActionContainer GetContainer(string ownerNodeId) =>
         _data?.FindByOwner(ownerNodeId);
 
+    /// <summary>
+    /// Read-only access to the live scene animation data for export. Returns null when no
+    /// animation data has been created/loaded yet (e.g. Sandbox, or an untouched scene).
+    /// </summary>
+    public SceneAnimationData CaptureForExport() => _data;
+
     public ActionContainer CreateContainer(string ownerNodeId)
     {
         EnsureData();

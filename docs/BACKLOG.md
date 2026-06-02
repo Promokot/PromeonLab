@@ -58,7 +58,7 @@ Status legend: **ABSENT** (no code) · **STUB** (placeholder type/field, no beha
 
 | Feature | Status | Notes | Ref |
 |---|---|---|---|
-| **Detach → add-on split (`PanelDetachAddon`)** | ABSENT | `SpatialPanelDetachable` + `DetachablePanelDragHandle` remain monolithic. (Region-model "out of scope".) | audit 05 §4 |
+| **Detachable / floating panels** (`SpatialPanelDetachable`, `DetachablePanelDragHandle`, `PanelDetachAddon`) | STUB (unused) | Scripts exist and a `SpatialPanelDetachable` component still lingers on `AnimatorPanelModule.prefab`, but the detach / unlink / float feature is wired into **no live UX** — panels are governed by the root-lifetime region router (`PanelRegionRouter`). Treat detachable panels as an **unimplemented feature**; the planned dock-vs-detach add-on split (`PanelDetachAddon`) was never built. | audit 05 §4 |
 | **General settings tab content** | STUB | `_generalContent` empty placeholder (explicit Non-Goal). | audit 05 §4 |
 | **Runtime rebinding / settings persistence** | ABSENT | Explicit Non-Goal in the settings spec. | audit 05 §4 |
 | **Keyboard close-on-submit** | PARTIAL | `VrKeyboard.SubmitWord`/focus-switch now fire the field's `onEndEdit` (so numeric inputs commit), but the keyboard panel itself still hides only via its nav button. | audit 05 §6 |

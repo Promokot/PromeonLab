@@ -7,6 +7,13 @@
 > and `DetachablePanel` is now `SpatialPanelDetachable`. See `CLAUDE.md` (SpatialUi row) and
 > `docs/superpowers/specs/2026-05-29-spatialui-region-model-design.md` for the current model.
 > `AssetBrowserModule` (the "canonical example") is now `AssetBrowserPanel`.
+>
+> ⚠️ **Detachable / floating panels are an unimplemented feature.** The `SpatialPanelDetachable` /
+> `DetachablePanelDragHandle` scripts exist (and a `SpatialPanelDetachable` component still lingers on
+> `AnimatorPanelModule.prefab`), but detach / unlink / float is **not functional** — panels are
+> governed by the root-lifetime region router, not by per-panel detach chrome. Where the hierarchy
+> sketches below show `DetachablePanel` on a panel root, read it as "a panel module registered into the
+> region model", **not** as a working detach behavior. See `BACKLOG.md` → SpatialUi.
 
 Правила построения панелей и модулей внутри UserPanel.
 

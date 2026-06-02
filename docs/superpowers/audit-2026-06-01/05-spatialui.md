@@ -35,7 +35,7 @@ Excludes AnimatorPanel + timeline (other agent). Read-only audit; code paths ver
 
 ### Other
 - `HeadFade` (frame-locked coroutine fade for scene transitions) implemented (`HeadFade.cs`) — drives the `SceneTransitionRunner` black-out.
-- `SpatialPanel` base (BodyLocked/WorldFixed/Free + billboard/lazy-follow) (`SpatialPanel.cs`); `SpatialPanelDetachable` + `DetachablePanelDragHandle` (link/unlink/lock/close floating chrome) still present and functional.
+- `SpatialPanel` base (BodyLocked/WorldFixed/Free + billboard/lazy-follow) (`SpatialPanel.cs`). `SpatialPanelDetachable` + `DetachablePanelDragHandle` (link/unlink/lock/close floating chrome) — **scripts present but the feature is unused/non-functional**: a `SpatialPanelDetachable` component still lingers on `AnimatorPanelModule.prefab`, but nothing in the live UX drives detach/float — panels are governed by the region router (`PanelRegionRouter`). Treat detachable panels as unimplemented (see `BACKLOG.md` → SpatialUi).
 - Elements: `OutlinerItem`/`RigOutlinerItem`, `SceneItem`, `BindingRow`/`BindingSectionCard` all present.
 
 ---
