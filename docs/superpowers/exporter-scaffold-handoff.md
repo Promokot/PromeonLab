@@ -1,5 +1,12 @@
 # Exporter scaffold — handoff notes
 
+> ✅ **COMPLETED 2026-06-02.** This handoff is historical. The exporter was finished and shipped as a
+> working ZIP-bundle export (not the stub manifest described below) and verified in-headset. The output
+> is `Documents/{productName}/{name}.zip` (`scene.json` + `models/`/`textures/`), the panel is wired
+> into the `exporter` nav-bar tab, and `SceneExporter.ExportManifest` was replaced by `SceneBundle` +
+> `BuildBundle`. Current truth: `CLAUDE.md` (ExportPipeline row), `docs/BACKLOG.md` (ExportPipeline),
+> and `docs/superpowers/{specs,plans}/2026-06-02-scene-export-bundle*`. Kept for reference only.
+
 Scope: what the code session delivered vs. what still needs editor/prefab work to be usable in-headset.
 
 ---

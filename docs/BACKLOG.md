@@ -44,9 +44,10 @@ Status legend: **ABSENT** (no code) · **STUB** (placeholder type/field, no beha
 
 | Feature | Status | Notes | Ref |
 |---|---|---|---|
-| **Scene exporter scaffold** (`SceneExporter` + `ExportPanel`) | PARTIAL | Code-complete & DI-registered: writes a minimal scene **manifest** JSON to `Documents/{Application.productName}/{name}.json` via `SceneExportRequested`/`SceneExported` events; `ExportPanel` has the filename input / path label / scene-name label / export button. **Not yet wired into a nav-bar tab** (prefab + `NavBarConfig`/`RegionMember` pending) — see `docs/superpowers/exporter-scaffold-handoff.md`. | 2026-06-02 |
-| **FBX export** (Unity FBX Exporter SDK) | ABSENT | Real geometry/animation export not implemented (the scaffold writes only a stub manifest). | audit 01/conv |
-| **Custom JSON export** | PARTIAL | Scaffold writes a minimal scene manifest; the real export schema is still TBD. | — |
+| ~~Scene exporter / nav-bar tab~~ | ✅ DONE 2026-06-02 | `SceneExporter` writes a self-contained **ZIP bundle** to `Documents/{productName}/{name}.zip` (`scene.json` + copied `models/`/`textures/` import sources, deduped); reachable from the `exporter` nav-bar tab (`ExportModule.prefab` + `NavBarConfig` entry + `RegionMember`/`RegionNavButton`). Verified in-headset. Spec/plan: `docs/superpowers/{specs,plans}/2026-06-02-scene-export-bundle*`. | — |
+| ~~Custom JSON export~~ | ✅ DONE 2026-06-02 | `scene.json` (`SceneBundle`, schemaVersion 1) carries nodes (transforms, bone poses), per-container animation tracks, and asset refs. **One-way / not re-importable** by design (format for an external tool). | — |
+| **FBX export** (Unity FBX Exporter SDK) | ABSENT | No runtime FBX SDK; the bundle copies the source `.glb` instead of re-encoding geometry. Builtin assets have no source file → flagged `geometryMissing` in `scene.json` (no model bundled). | audit 01/conv |
+| **Geometry for builtin assets** | ABSENT | Builtin/primitive nodes export as a reference + `geometryMissing:true`; no mesh-bake (runtime meshes are often `isReadable:false`). | — |
 
 ## ErrorHandling
 
