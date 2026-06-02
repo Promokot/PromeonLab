@@ -56,7 +56,7 @@ Located in `Assets/_App/Scripts/<Subsystem>/`. Interfaces and contracts for each
 | Subsystem | Core Responsibility |
 |---|---|
 | `StorageCore` | File I/O, JSON serialization, `PathProvider`, inline schema migration in `SceneSerializer.Deserialize` (versioned `scene.json`; current v3 adds per-rig bone poses) |
-| `AssetBrowser` | VR gallery UI over three asset libraries keyed by `AssetSource` (`Builtin`/`Imported`/`Saved`); runtime import pipeline (`ImportPipeline` + `ImportWizardSurface`) for glTF/GLB (via glTFast) and images; **build-once/restore-many** entity pipeline (`IAssetEntityBuilder` + `AssetEntityBuilderRegistry`, Object/Rig/Reference builders) with capability applied via `InteractionCapability.Apply`; spawning via `AssetSpawner`; no direct file access (delegates to `StorageCore`/`AssetSourceStore`) |
+| `AssetBrowser` | VR gallery UI over three asset libraries keyed by `AssetSource` (`Builtin`/`Imported`/`Saved`); runtime import pipeline (`ImportPipeline` + `ImportWizardSurface`) for glTF/GLB (via glTFast) and images; **build-once/restore-many** entity pipeline (`IAssetEntityBuilder` + `AssetEntityBuilderRegistry`, Object/Rig/Reference builders) with capability applied via `InteractionCapability.Apply`; spawning via `AssetSpawner`; **thumbnails generated at import** (`ThumbnailRenderer` off-screen-renders models → `thumbnails/{id}.png`; images reuse their source; shown by `AssetBrowserPanel.ResolveIcon` per `ILabAsset.ThumbnailRef`); no direct file access (delegates to `StorageCore`/`AssetSourceStore`) |
 | `SceneComposition` | Scene node hierarchy, `CommandStack` (undo only, max 30 — **no redo**), `SelectionManager` (single-select: `Select(id?)` / `SelectedNodeId`) |
 | `RigBuilder` | Runtime proxy-bone rig built on spawn (`RigEntityFactory.BuildProxyRig` → per-bone proxy GO + `BoneFollower`; coordinated by `ProxyRigRuntime`). Bone poses persist via schema-v3 `NodeData.BonePoses`. **IK chains are serialized but no solver consumes them yet** (no Animation Rigging) |
 | `Animation` | Per-`ActionContainer` keyframe authoring (`AnimationAuthoring`): selected-track keying, per-container **Linear/Stepped interpolation** (runtime tangents, not `AnimationUtility`), scrub preview, debounced persistence, `AnimationClip`-based sampling. Transport (`AnimationClock`) is always **single-shot** (scrub + play/pause + scene-wide fps; rewinds to the first keyframe at end). **Per-object Loop** is background playback — `AnimationAuthoring` is also `ITickable` and samples every looping container on its own cursor, so multiple looped objects play concurrently regardless of selection; the transport drives only the selected object. **No NLA / master timeline yet** (see `docs/BACKLOG.md`). UI: `AnimatorPanel` + `AnimatorSub*` modules |
@@ -93,7 +93,8 @@ Application.persistentDataPath/
 ├── asset-libraries/                  (global, reusable across scenes)
 │   ├── imported-lib.json             (Imported-library records; recipe-per-entry, schemaVersion 2)
 │   ├── saved-lib.json                (Saved-library records; persisted, but spawn-from-saved/Slice 3 not yet implemented)
-│   └── sources/{assetId}.{ext}       (copied raw import files — .glb/.gltf/.png/.jpg/.jpeg)
+│   ├── sources/{assetId}.{ext}       (copied raw import files — .glb/.gltf/.png/.jpg/.jpeg)
+│   └── thumbnails/{assetId}.png      (rendered model thumbnails, RGB24 256²; images reuse their source instead)
 └── scenes/{SceneId}/
     ├── scene.json            (scene graph + per-rig bone poses, schemaVersion 3)
     ├── animation.json        (per-ActionContainer keyframe data + per-container interpolation/loop + scene-wide fps, schemaVersion 2; written by AnimationAuthoring)

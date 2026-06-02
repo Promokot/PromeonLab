@@ -13,7 +13,8 @@ Status legend: **ABSENT** (no code) · **STUB** (placeholder type/field, no beha
 
 | Feature | Status | Notes | Ref |
 |---|---|---|---|
-| **Asset thumbnails / preview generation** | ABSENT | `Icon` exists on records, but only `BuiltinLabAsset` carries an inspector-assigned sprite; `ImportedLabAsset.Icon`/`SavedLabAsset.Icon` return `null`. Imported/Saved cards render iconless. No preview-render pipeline. | audit 02 §4 |
+| ~~Asset thumbnails / preview generation~~ | ✅ DONE 2026-06-02 | Imported assets get a thumbnail at import: **models** (Object/Rig) are rendered off-screen by `ThumbnailRenderer` (`Camera.Render` → `asset-libraries/thumbnails/{id}.png`); **images** (Reference) reuse their source file. Stored as `ImportedLabAsset._thumbnailRef` (relative, additive — `imported-lib.json` stays schemaVersion 2). `AssetBrowserPanel.ResolveIcon` loads/caches the sprite onto each card (`LabAssetCard.Bind(asset, icon)`). Builtin still uses its inspector sprite. Verified in-headset. Spec/plan: `docs/superpowers/{specs,plans}/2026-06-02-import-thumbnail-generator*`. | — |
+| **Saved-library thumbnails** | ABSENT | `SavedLabAsset.ThumbnailRef => null` (Slice 3 spawn flow isn't implemented, so there's nothing to render yet). | — |
 | **Saved library spawn (Slice 3)** | PARTIAL | `SavedAssetLibrary` load/save/add/remove is built & wired, but `SavedLabAsset.Recipe => null` and `RestoreAsync` has no Saved branch → cannot spawn. No "save object from scene" producer either. | audit 02 §4 |
 | **Drag-and-drop spawn** (`LabAssetCardDragHandler`) | ABSENT | Replaced by the explicit Spawn button. | audit 02 §4 |
 | **`AssetPropertiesView` / per-type property prefabs** | ABSENT | `AssetBrowserPanel` shows a flat text blob instead. | audit 02 §4 |
