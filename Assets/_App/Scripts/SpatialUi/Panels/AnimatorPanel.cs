@@ -13,6 +13,7 @@ public class AnimatorPanel : MonoBehaviour
     [SerializeField] private AnimatorSubRuler      _ruler;
     [SerializeField] private AnimatorSubPlayhead   _playhead;
     [SerializeField] private TimelineScrubInput    _timelineInput;
+    [SerializeField] private TimelineScrubInput    _rulerInput;
     [SerializeField] private TimelineRow           _rowPrefab;
     [SerializeField] private RectTransform         _rowsContent;
 
@@ -100,6 +101,7 @@ public class AnimatorPanel : MonoBehaviour
     {
         if (_timelineInput == null) return;
         _timelineInput.OnFrameRequested = frame => _ctx.Clock?.Seek(frame);
+        if (_rulerInput != null) _rulerInput.OnFrameRequested = frame => _ctx.Clock?.Seek(frame);
     }
 
     private void OnSceneContextChanged(SceneContextChangedEvent e) => Refresh();
@@ -336,6 +338,7 @@ public class AnimatorPanel : MonoBehaviour
         }
 
         if (_timelineInput != null) { _timelineInput.MaxFrame = c.TotalFrames; _timelineInput.LeftOffset = off; }
+        if (_rulerInput != null) { _rulerInput.MaxFrame = c.TotalFrames; _rulerInput.LeftOffset = off; }
 
         _ruler?.Rebuild(c.TotalFrames);
         RebuildRows(c);

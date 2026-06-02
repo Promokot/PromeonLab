@@ -44,9 +44,6 @@ public class ActionContainer
     public void TruncateToTotalFrames()
     {
         for (int i = Tracks.Count - 1; i >= 0; i--)
-        {
             Tracks[i].TrimKeysAfter(TotalFrames);
-            if (Tracks[i].Keys.Count == 0) Tracks.RemoveAt(i);
-        }
     }
 }

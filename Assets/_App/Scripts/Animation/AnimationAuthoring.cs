@@ -130,6 +130,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
         });
         RequestSave();
         RebuildActiveClips();
+        RebuildLoopClips(ownerNodeId);
     }
 
     public void SetFps(string ownerNodeId, int fps)
@@ -185,6 +186,16 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
         _loopClips.Remove(ownerNodeId);
     }
 
+    private void RebuildLoopClips(string owner)
+    {
+        if (!_loopClips.ContainsKey(owner)) return;
+        var c = _data?.FindByOwner(owner);
+        if (c == null) return;
+        var clips = new Dictionary<string, AnimationClip>();
+        foreach (var t in c.Tracks) clips[t.NodeId] = BuildClip(t, GetSceneFps(), c.Interpolation);
+        _loopClips[owner] = clips;
+    }
+
     internal static float AdvanceLoopCursor(float cursor, float deltaFrames, int total)
     {
         if (total <= 0) return 0f;
@@ -206,6 +217,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
         });
         RequestSave();
         RebuildActiveClips();
+        RebuildLoopClips(ownerNodeId);
     }
 
     public void SetSceneFps(int fps)
@@ -220,6 +232,8 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
             });
         RequestSave();
         RebuildActiveClips();
+        foreach (var owner in new System.Collections.Generic.List<string>(_loopClips.Keys))
+            RebuildLoopClips(owner);
     }
 
     internal void InitForTest()
@@ -304,6 +318,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
         });
         RequestSave();
         RebuildActiveClips();
+        RebuildLoopClips(owner);
     }
 
     public void DeleteKey(string nodeId, int frame)
@@ -330,6 +345,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
                 { OwnerNodeId = owner, Change = ContainerChange.TracksChanged });
         RequestSave();
         RebuildActiveClips();
+        RebuildLoopClips(owner);
     }
 
     public bool HasKey(string nodeId, int frame)
@@ -453,6 +469,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
         }
         RequestSave();
         RebuildActiveClips();
+        RebuildLoopClips(ownerNodeId);
     }
 
     public int? NearestKeyBefore(string ownerNodeId, int frame)

@@ -63,15 +63,16 @@ public class ActionContainerTests
     }
 
     [Test]
-    public void TruncateToTotalFrames_RemovesEmptyTracks()
+    public void TruncateToTotalFrames_KeepsEmptyTracks()
     {
         var c = new ActionContainer { OwnerNodeId = "rig", TotalFrames = 10 };
-        var t = c.GetOrCreateTrack("bone:rig:hand");
-        t.UpsertKey(20, Vector3.zero, Quaternion.identity, Vector3.one);
+        var t = c.GetOrCreateTrack("rig");
+        t.UpsertKey(20, Vector3.zero, Quaternion.identity, Vector3.one); // beyond total → trimmed away
 
         c.TruncateToTotalFrames();
 
-        Assert.AreEqual(0, c.Tracks.Count);
+        Assert.AreEqual(1, c.Tracks.Count, "empty tracks are kept, not removed");
+        Assert.AreEqual(0, t.Keys.Count);
     }
 
     [Test]

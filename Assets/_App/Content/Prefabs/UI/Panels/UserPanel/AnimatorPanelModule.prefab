@@ -4925,6 +4925,7 @@ GameObject:
   - component: {fileID: 2298410765276263345}
   - component: {fileID: 8961746891365957926}
   - component: {fileID: 1996926392963285287}
+  - component: {fileID: 3841029174620384512}
   m_Layer: 5
   m_Name: Ruler
   m_TagString: Untagged
@@ -5005,6 +5006,20 @@ MonoBehaviour:
   _content: {fileID: 8461202564026676662}
   _tickPrefab: {fileID: 8248410660065128046, guid: 69faedcd0469c8c46be87769762bfd0b, type: 3}
   _labelPrefab: {fileID: 3497842917125191478, guid: 51b8a14a41745434f802f9d92021cf68, type: 3}
+  _config: {fileID: 11400000, guid: 4b710848b9de3b74b97536367c823ac8, type: 2}
+--- !u!114 &3841029174620384512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3511017396802017454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6821c0c9b58a55a48b17f30bb023565a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Subsystems.SpatialUi::TimelineInputHandler
+  _content: {fileID: 5205562835984420159}
   _config: {fileID: 11400000, guid: 4b710848b9de3b74b97536367c823ac8, type: 2}
 --- !u!1 &3728873423776172255
 GameObject:
@@ -11076,6 +11091,7 @@ MonoBehaviour:
   _ruler: {fileID: 1996926392963285287}
   _playhead: {fileID: 5595308175976035771}
   _timelineInput: {fileID: 6480858154427394673}
+  _rulerInput: {fileID: 3841029174620384512}
   _rowPrefab: {fileID: 7646522570702466723, guid: f94d06062179fce49a98f93d1fc47c2c, type: 3}
   _rowsContent: {fileID: 5205562835984420159}
 --- !u!114 &409918699652375960
