@@ -18,6 +18,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
     private readonly Dictionary<string, AnimationClip> _clips = new();
     private readonly Dictionary<string, float> _loopCursors = new();
     private readonly Dictionary<string, Dictionary<string, AnimationClip>> _loopClips = new();
+    private readonly Dictionary<string, int> _loopLastFrame = new();
     private string _sceneId;
     private string _activeContainerOwner;
 
@@ -190,6 +191,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
     {
         _loopCursors.Remove(ownerNodeId);
         _loopClips.Remove(ownerNodeId);
+        _loopLastFrame.Remove(ownerNodeId);
     }
 
     private void RebuildLoopClips(string owner)
@@ -530,6 +532,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
             _loopCursors[owner] = cursor;
             if (_loopClips.TryGetValue(owner, out var clips))
                 SampleContainerAt(c, clips, cursor / Mathf.Max(1f, fps));
+            PublishLoopFrameIfChanged(owner, cursor);
         }
     }
 
@@ -542,6 +545,16 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
             if (go == null) continue;
             clip.SampleAnimation(go, t);
         }
+    }
+
+    // Publishes a LoopFrameChangedEvent for an owner only when its integer frame changes, so the
+    // playhead steps once per frame rather than every tick. Internal for EditMode testing.
+    internal void PublishLoopFrameIfChanged(string owner, float cursor)
+    {
+        int frame = UnityEngine.Mathf.FloorToInt(cursor);
+        if (_loopLastFrame.TryGetValue(owner, out var last) && last == frame) return;
+        _loopLastFrame[owner] = frame;
+        _bus.Publish(new LoopFrameChangedEvent { OwnerNodeId = owner, Frame = frame });
     }
 
     private void ApplyFrame(int frame)

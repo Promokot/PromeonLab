@@ -488,9 +488,9 @@ public class GizmoActivator : MonoBehaviour
         switch (handle.Kind)
         {
             case HandleKind.MoveAxis:     return new AxisMoveStrategy();
-            case HandleKind.ScaleAxis:    return new AxisScaleStrategy();
-            case HandleKind.ScaleUniform: return new UniformScaleStrategy();
-            case HandleKind.RotateRing:   return new RingRotateStrategy();
+            case HandleKind.ScaleAxis:    return new AxisScaleStrategy(_config.ScaleGain, _config.DeadzoneMeters);
+            case HandleKind.ScaleUniform: return new UniformScaleStrategy(_config.ScaleGain, _config.DeadzoneMeters);
+            case HandleKind.RotateRing:   return new RingRotateStrategy(_config.RotGain, _config.DeadzoneMeters);
             default:                      return new AxisMoveStrategy();
         }
     }

@@ -15,6 +15,15 @@ public class Selectable : MonoBehaviour
         _node = GetComponent<SceneNode>();
     }
 
+    // TODO(bug2): Reverted — this targeted the wrong root cause. The "stale blue rig on re-entry" was
+    // OutlinerPanel's _bonesActiveByRig surviving the scene swap (fixed there), not a pre-existing mesh
+    // Outline. Kept commented in case a residual cosmetic 3D outline shows up and needs a real fix.
+    // private void Start()
+    // {
+    //     var existing = GetComponent<Outline>();
+    //     if (existing != null) existing.enabled = false;
+    // }
+
     [Inject]
     public void Construct(OutlineConfig outlineConfig)
     {

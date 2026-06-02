@@ -3,62 +3,60 @@ using UnityEngine;
 
 public class AxisScaleStrategyTests
 {
-    private GameObject _targetGo;
-    private Transform  _target;
+    private GameObject _go;
+    private Transform  _t;
     private AxisScaleStrategy _sut;
+
+    // gain = ln2 per metre → factor 2 at s = 1; deadzone 0.02.
+    private static readonly float Gain = Mathf.Log(2f);
 
     [SetUp]
     public void SetUp()
     {
-        _targetGo = new GameObject("target");
-        _target   = _targetGo.transform;
-        _target.position   = Vector3.zero;
-        _target.rotation   = Quaternion.identity;
-        _target.localScale = Vector3.one;
-        _sut = new AxisScaleStrategy();
+        _go = new GameObject("target");
+        _t  = _go.transform;
+        _t.localScale = Vector3.one;
+        _sut = new AxisScaleStrategy(Gain, 0.02f);
     }
 
     [TearDown]
-    public void TearDown() => Object.DestroyImmediate(_targetGo);
+    public void TearDown() => Object.DestroyImmediate(_go);
 
     [Test]
-    public void Drag_AwayFromCenter_DoublesAxisScale()
+    public void InsideDeadzone_NoChange()
     {
-        _sut.BeginDrag(_target, AxisKind.X, new Vector3(1f, 0f, 0f), Quaternion.identity);
-        _sut.UpdateDrag(new Vector3(2f, 0f, 0f), Quaternion.identity);
-        Assert.AreEqual(2f, _target.localScale.x, 1e-4);
-        Assert.AreEqual(1f, _target.localScale.y, 1e-4);
-        Assert.AreEqual(1f, _target.localScale.z, 1e-4);
+        _sut.BeginDrag(_t, AxisKind.X, Vector3.zero, Quaternion.identity);
+        _sut.UpdateDrag(new Vector3(0.01f, 0f, 0f), Quaternion.identity);
+        Assert.AreEqual(1f, _t.localScale.x, 1e-4f);
     }
 
     [Test]
-    public void Drag_TowardCenter_HalvesAxisScale()
+    public void PushAlongRefDir_DoublesAxis()
     {
-        _sut.BeginDrag(_target, AxisKind.X, new Vector3(2f, 0f, 0f), Quaternion.identity);
-        _sut.UpdateDrag(new Vector3(1f, 0f, 0f), Quaternion.identity);
-        Assert.AreEqual(0.5f, _target.localScale.x, 1e-4);
+        _sut.BeginDrag(_t, AxisKind.X, Vector3.zero, Quaternion.identity);
+        _sut.UpdateDrag(new Vector3(1.02f, 0f, 0f), Quaternion.identity); // s = 1 → factor 2
+        Assert.AreEqual(2f, _t.localScale.x, 1e-3f);
+        Assert.AreEqual(1f, _t.localScale.y, 1e-4f);
+        Assert.AreEqual(1f, _t.localScale.z, 1e-4f);
     }
 
     [Test]
-    public void Drag_AtPivot_DistAtGrabClamped()
+    public void PullBackPastStart_ShrinksBelowOriginal()
     {
-        Assert.DoesNotThrow(() =>
-        {
-            _sut.BeginDrag(_target, AxisKind.X, Vector3.zero, Quaternion.identity);
-            _sut.UpdateDrag(new Vector3(1f, 0f, 0f), Quaternion.identity);
-        });
-        Assert.IsFalse(float.IsNaN(_target.localScale.x));
-        Assert.IsFalse(float.IsInfinity(_target.localScale.x));
+        _sut.BeginDrag(_t, AxisKind.X, Vector3.zero, Quaternion.identity);
+        _sut.UpdateDrag(new Vector3(1.02f, 0f, 0f), Quaternion.identity);  // lock +X
+        _sut.UpdateDrag(new Vector3(-0.98f, 0f, 0f), Quaternion.identity); // s = −1 → factor 0.5
+        Assert.AreEqual(0.5f, _t.localScale.x, 1e-3f);
     }
 
     [Test]
-    public void Drag_PreservesOriginalScale()
+    public void PreservesOtherAxesOriginalScale()
     {
-        _target.localScale = new Vector3(2f, 3f, 4f);
-        _sut.BeginDrag(_target, AxisKind.Y, new Vector3(0f, 1f, 0f), Quaternion.identity);
-        _sut.UpdateDrag(new Vector3(0f, 2f, 0f), Quaternion.identity);
-        Assert.AreEqual(2f, _target.localScale.x, 1e-4);
-        Assert.AreEqual(6f, _target.localScale.y, 1e-4);
-        Assert.AreEqual(4f, _target.localScale.z, 1e-4);
+        _t.localScale = new Vector3(2f, 3f, 4f);
+        _sut.BeginDrag(_t, AxisKind.Y, Vector3.zero, Quaternion.identity);
+        _sut.UpdateDrag(new Vector3(0f, 1.02f, 0f), Quaternion.identity);  // s = 1 → ×2 on Y
+        Assert.AreEqual(2f, _t.localScale.x, 1e-4f);
+        Assert.AreEqual(6f, _t.localScale.y, 1e-3f);
+        Assert.AreEqual(4f, _t.localScale.z, 1e-4f);
     }
 }

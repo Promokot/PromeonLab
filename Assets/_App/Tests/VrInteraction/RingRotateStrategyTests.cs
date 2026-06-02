@@ -3,47 +3,49 @@ using UnityEngine;
 
 public class RingRotateStrategyTests
 {
-    private GameObject _targetGo;
-    private Transform  _target;
+    private GameObject _go;
+    private Transform  _t;
     private RingRotateStrategy _sut;
 
+    // gain = 90 deg per metre → 90° at s = 1; deadzone 0.02.
     [SetUp]
     public void SetUp()
     {
-        _targetGo = new GameObject("target");
-        _target   = _targetGo.transform;
-        _target.position = Vector3.zero;
-        _target.rotation = Quaternion.identity;
-        _sut = new RingRotateStrategy();
+        _go = new GameObject("target");
+        _t  = _go.transform;
+        _t.position = Vector3.zero;
+        _t.rotation = Quaternion.identity;
+        _sut = new RingRotateStrategy(90f, 0.02f);
     }
 
     [TearDown]
-    public void TearDown() => Object.DestroyImmediate(_targetGo);
+    public void TearDown() => Object.DestroyImmediate(_go);
 
     [Test]
-    public void Rotate_AroundY_90Degrees()
+    public void PushAlongRefDir_RotatesAroundAxis()
     {
-        _sut.BeginDrag(_target, AxisKind.Y, new Vector3(1f, 0f, 0f), Quaternion.identity);
-        _sut.UpdateDrag(new Vector3(0f, 0f, 1f), Quaternion.identity);
+        _sut.BeginDrag(_t, AxisKind.Y, Vector3.zero, Quaternion.identity);
+        _sut.UpdateDrag(new Vector3(1.02f, 0f, 0f), Quaternion.identity); // s = 1 → 90°
         var expected = Quaternion.AngleAxis(90f, Vector3.up);
-        Assert.AreEqual(0f, Quaternion.Angle(expected, _target.rotation), 0.1f);
+        Assert.AreEqual(0f, Quaternion.Angle(expected, _t.rotation), 0.2f);
     }
 
     [Test]
-    public void Rotate_ReverseDirection_NegativeAngle()
+    public void PullBackPastStart_RotatesNegative()
     {
-        _sut.BeginDrag(_target, AxisKind.Y, new Vector3(1f, 0f, 0f), Quaternion.identity);
-        _sut.UpdateDrag(new Vector3(0f, 0f, -1f), Quaternion.identity);
+        _sut.BeginDrag(_t, AxisKind.Y, Vector3.zero, Quaternion.identity);
+        _sut.UpdateDrag(new Vector3(1.02f, 0f, 0f), Quaternion.identity);  // lock +X, +90°
+        _sut.UpdateDrag(new Vector3(-0.98f, 0f, 0f), Quaternion.identity); // s = −1 → −90°
         var expected = Quaternion.AngleAxis(-90f, Vector3.up);
-        Assert.AreEqual(0f, Quaternion.Angle(expected, _target.rotation), 0.1f);
+        Assert.AreEqual(0f, Quaternion.Angle(expected, _t.rotation), 0.2f);
     }
 
     [Test]
-    public void Rotate_HandAtPivot_DoesNotWrite()
+    public void InsideDeadzone_DoesNotRotate()
     {
-        _sut.BeginDrag(_target, AxisKind.Y, new Vector3(1f, 0f, 0f), Quaternion.identity);
-        var before = _target.rotation;
-        Assert.DoesNotThrow(() => _sut.UpdateDrag(Vector3.zero, Quaternion.identity));
-        Assert.AreEqual(0f, Quaternion.Angle(before, _target.rotation), 1e-4);
+        _sut.BeginDrag(_t, AxisKind.Y, Vector3.zero, Quaternion.identity);
+        var before = _t.rotation;
+        _sut.UpdateDrag(new Vector3(0.01f, 0f, 0f), Quaternion.identity);
+        Assert.AreEqual(0f, Quaternion.Angle(before, _t.rotation), 1e-4f);
     }
 }

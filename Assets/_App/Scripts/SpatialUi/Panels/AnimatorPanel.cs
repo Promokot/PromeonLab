@@ -39,6 +39,7 @@ public class AnimatorPanel : MonoBehaviour
         _bus.Subscribe<SceneContextChangedEvent>(OnSceneContextChanged);
         _bus.Subscribe<SelectionChangedEvent>(OnSelectionChanged);
         _bus.Subscribe<FrameChangedEvent>(OnFrameChanged);
+        _bus.Subscribe<LoopFrameChangedEvent>(OnLoopFrameChanged);
         _bus.Subscribe<PlaybackStateChangedEvent>(OnPlaybackStateChanged);
         _bus.Subscribe<AnimationContainerChangedEvent>(OnContainerChanged);
         _bus.Subscribe<AnimationKeyframeChangedEvent>(OnKeyframeChanged);
@@ -59,6 +60,7 @@ public class AnimatorPanel : MonoBehaviour
         _bus.Unsubscribe<SceneContextChangedEvent>(OnSceneContextChanged);
         _bus.Unsubscribe<SelectionChangedEvent>(OnSelectionChanged);
         _bus.Unsubscribe<FrameChangedEvent>(OnFrameChanged);
+        _bus.Unsubscribe<LoopFrameChangedEvent>(OnLoopFrameChanged);
         _bus.Unsubscribe<PlaybackStateChangedEvent>(OnPlaybackStateChanged);
         _bus.Unsubscribe<BonesVisibilityChangedEvent>(OnBonesVisibilityChanged);
         _bus.Unsubscribe<AnimationContainerChangedEvent>(OnContainerChanged);
@@ -134,6 +136,13 @@ public class AnimatorPanel : MonoBehaviour
         RefreshRowKeys();
     }
 
+    private void OnLoopFrameChanged(LoopFrameChangedEvent e)
+    {
+        if (e.OwnerNodeId != _activeOwner) return;   // playhead follows only the selected owner
+        if (_playhead != null) _playhead.SetFrame(e.Frame);
+        if (_toolbar  != null) _toolbar.SetCurrentFrame(e.Frame);
+    }
+
     private void OnPlaybackStateChanged(PlaybackStateChangedEvent e)
     {
         if (_transport != null) _transport.SetPlaying(e.IsPlaying);
@@ -182,13 +191,13 @@ public class AnimatorPanel : MonoBehaviour
     {
         if (_ctx.Authoring == null) return;
         var selected = _ctx.Selection?.SelectedNodeId;
-        var owner = AnimationAuthoring.OwnerOf(selected);
+        var owner    = AnimationAuthoring.OwnerOf(selected);
+        if (string.IsNullOrEmpty(owner) && !string.IsNullOrEmpty(_boneModeRig))
+            owner = _boneModeRig;                         // bone mode, nothing selected → target the rig
         if (string.IsNullOrEmpty(owner)) return;
-        _ctx.Authoring.CreateContainer(owner, _config.DefaultTotalFrames, _config.DefaultFps);
 
-        bool isBone = selected != null && selected.StartsWith("bone:");
-        if (!isBone && owner == selected)
-            _ctx.Authoring.EnsureTrack(owner, owner); // owner track for ANY non-bone type, incl. rigs
+        _ctx.Authoring.CreateContainer(owner, _config.DefaultTotalFrames, _config.DefaultFps);
+        _ctx.Authoring.EnsureTrack(owner, owner);         // owner track ALWAYS — object/rig's own transform
     }
 
     private void OnRemoveAnimationClicked()
