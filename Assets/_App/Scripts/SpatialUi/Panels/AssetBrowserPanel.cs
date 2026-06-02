@@ -35,6 +35,7 @@ public class AssetBrowserPanel : MonoBehaviour
     private LabAssetCard  _selectedCard;
     private bool          _isEditableMode;
     private bool          _reopenAfterFileBrowser;
+    private readonly System.Collections.Generic.Dictionary<string, Sprite> _thumbCache = new();
 
     [Inject]
     public void Construct(ModeOrchestrator orchestrator, BuiltinAssetLibrary builtin, ImportedAssetLibrary imported, SavedAssetLibrary saved, EventBus bus, PanelRegionRouter router, AssetSourceStore sources)
@@ -102,7 +103,7 @@ public class AssetBrowserPanel : MonoBehaviour
         foreach (var asset in _activeLibrary.Assets)
         {
             var card = Instantiate(_cardPrefab, _gridRoot);
-            card.Bind(asset);
+            card.Bind(asset, ResolveIcon(asset));
             card.Selected += OnCardSelected;
         }
     }
@@ -247,5 +248,37 @@ public class AssetBrowserPanel : MonoBehaviour
     {
         if (_activeLibrary == _importedLibrary)
             RefreshGrid();
+    }
+
+    // Builtin assets carry an inspector sprite; imported assets carry a relative ThumbnailRef
+    // (a rendered model PNG, or the source image for References). Loaded sprites are cached by ref.
+    private Sprite ResolveIcon(ILabAsset asset)
+    {
+        if (asset.Icon != null) return asset.Icon;
+
+        var refPath = asset.ThumbnailRef;
+        if (string.IsNullOrEmpty(refPath)) return null;
+
+        if (_thumbCache.TryGetValue(refPath, out var cached)) return cached;
+
+        Sprite sprite = null;
+        try
+        {
+            var abs = _sources.AbsolutePath(refPath);
+            if (System.IO.File.Exists(abs))
+            {
+                var bytes = System.IO.File.ReadAllBytes(abs);
+                var tex   = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                if (tex.LoadImage(bytes))
+                    sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"AssetBrowserPanel: failed to load thumbnail '{refPath}'. {ex.Message}");
+        }
+
+        _thumbCache[refPath] = sprite;   // cache null too — don't retry a broken ref every rebuild
+        return sprite;
     }
 }

@@ -13,34 +13,6 @@ MonoBehaviour:
   m_Name: DefaultBuiltinAssetLibrary
   m_EditorClassIdentifier: Subsystems.AssetBrowser::BuiltinAssetLibrary
   _entries:
-  - _id: vegetation_tree1
-    _displayName: Tree 1
-    _type: 0
-    _icon: {fileID: 21300000, guid: 2cdf35881aa401144993c3630ce05980, type: 3}
-    _prefab: {fileID: 5226376544459073269, guid: 8f72d781b6d09714f81e831288c0e8d7, type: 3}
-    _image: {fileID: 0}
-    _terminalBonesAxis: 1
-    _invertTerminalBonesAxis: 1
-    _recipe:
-      schemaVersion: 1
-      type: 0
-      selectable: 1
-      interactionLayer: 2
-      colliderKind: 2
-      colliderCenter: {x: 0, y: 0, z: 0}
-      colliderSize: {x: 1, y: 1, z: 1}
-      boneColliderDepth: 4
-      spawnOffset: {x: 0, y: 0, z: 0}
-      referenceAspect: 1
-      referenceBottomGap: 0.5
-      referenceTwoSided: 1
-      rig:
-        SchemaVersion: 1
-        AssetId: 
-        TerminalBonesAxis: 0
-        InvertTerminalBonesAxis: 0
-        Bones: []
-        IkChains: []
   - _id: dummyRiig1
     _displayName: Dummy Rig
     _type: 1
@@ -172,4 +144,228 @@ MonoBehaviour:
           TranslationLocked: 1
         - BoneName: clavicle_l
           TranslationLocked: 1
+        IkChains: []
+  - _id: cube_scalable
+    _displayName: MagiCube
+    _type: 0
+    _icon: {fileID: 21300000, guid: 3731631d64cf9a94ea92aabf05bc8591, type: 3}
+    _prefab: {fileID: 8992884101688023062, guid: 6ad872ee0f153374688533484dc850ba, type: 3}
+    _image: {fileID: 0}
+    _terminalBonesAxis: 0
+    _invertTerminalBonesAxis: 0
+    _recipe:
+      schemaVersion: 1
+      type: 0
+      selectable: 1
+      interactionLayer: 2
+      colliderKind: 2
+      colliderCenter: {x: 0, y: 0, z: 0}
+      colliderSize: {x: 1, y: 1, z: 1}
+      boneColliderDepth: 4
+      spawnOffset: {x: 0, y: 0, z: 0}
+      referenceAspect: 1
+      referenceBottomGap: 0.5
+      referenceTwoSided: 1
+      rig:
+        SchemaVersion: 1
+        AssetId: 
+        TerminalBonesAxis: 0
+        InvertTerminalBonesAxis: 0
+        Bones: []
+        IkChains: []
+  - _id: cube_simple
+    _displayName: WhiteCube
+    _type: 0
+    _icon: {fileID: 21300000, guid: 054c5055e16fecd41981e8297ca8e2d2, type: 3}
+    _prefab: {fileID: 5385280713719349681, guid: 390bb64f0f8ddd545ba86e7cd943c354, type: 3}
+    _image: {fileID: 0}
+    _terminalBonesAxis: 0
+    _invertTerminalBonesAxis: 0
+    _recipe:
+      schemaVersion: 1
+      type: 0
+      selectable: 1
+      interactionLayer: 2
+      colliderKind: 2
+      colliderCenter: {x: 0, y: 0, z: 0}
+      colliderSize: {x: 1, y: 1, z: 1}
+      boneColliderDepth: 4
+      spawnOffset: {x: 0, y: 0, z: 0}
+      referenceAspect: 1
+      referenceBottomGap: 0.5
+      referenceTwoSided: 1
+      rig:
+        SchemaVersion: 1
+        AssetId: 
+        TerminalBonesAxis: 0
+        InvertTerminalBonesAxis: 0
+        Bones: []
+        IkChains: []
+  - _id: tree_1
+    _displayName: Street Tree
+    _type: 0
+    _icon: {fileID: 21300000, guid: 2cdf35881aa401144993c3630ce05980, type: 3}
+    _prefab: {fileID: 5226376544459073269, guid: 8f72d781b6d09714f81e831288c0e8d7, type: 3}
+    _image: {fileID: 0}
+    _terminalBonesAxis: 0
+    _invertTerminalBonesAxis: 0
+    _recipe:
+      schemaVersion: 1
+      type: 0
+      selectable: 1
+      interactionLayer: 2
+      colliderKind: 2
+      colliderCenter: {x: 0, y: 0, z: 0}
+      colliderSize: {x: 1, y: 1, z: 1}
+      boneColliderDepth: 4
+      spawnOffset: {x: 0, y: 0, z: 0}
+      referenceAspect: 1
+      referenceBottomGap: 0.5
+      referenceTwoSided: 1
+      rig:
+        SchemaVersion: 1
+        AssetId: 
+        TerminalBonesAxis: 0
+        InvertTerminalBonesAxis: 0
+        Bones: []
+        IkChains: []
+  - _id: tree_2
+    _displayName: Tree
+    _type: 0
+    _icon: {fileID: 21300000, guid: da62fa44f207ef04c8032d9b8f4b3b30, type: 3}
+    _prefab: {fileID: 5133904572919665443, guid: c1187fd5125a9524f8e3a2618feb7635, type: 3}
+    _image: {fileID: 0}
+    _terminalBonesAxis: 0
+    _invertTerminalBonesAxis: 0
+    _recipe:
+      schemaVersion: 1
+      type: 0
+      selectable: 1
+      interactionLayer: 2
+      colliderKind: 2
+      colliderCenter: {x: 0, y: 0, z: 0}
+      colliderSize: {x: 1, y: 1, z: 1}
+      boneColliderDepth: 4
+      spawnOffset: {x: 0, y: 0, z: 0}
+      referenceAspect: 1
+      referenceBottomGap: 0.5
+      referenceTwoSided: 1
+      rig:
+        SchemaVersion: 1
+        AssetId: 
+        TerminalBonesAxis: 0
+        InvertTerminalBonesAxis: 0
+        Bones: []
+        IkChains: []
+  - _id: house_chair
+    _displayName: Chair
+    _type: 0
+    _icon: {fileID: 21300000, guid: c5c9d2c264bf1604dac539094af50502, type: 3}
+    _prefab: {fileID: 8830542164102226030, guid: f5e3ebd483b198045931532615070f13, type: 3}
+    _image: {fileID: 0}
+    _terminalBonesAxis: 0
+    _invertTerminalBonesAxis: 0
+    _recipe:
+      schemaVersion: 1
+      type: 0
+      selectable: 1
+      interactionLayer: 2
+      colliderKind: 2
+      colliderCenter: {x: 0, y: 0, z: 0}
+      colliderSize: {x: 1, y: 1, z: 1}
+      boneColliderDepth: 4
+      spawnOffset: {x: 0, y: 0, z: 0}
+      referenceAspect: 1
+      referenceBottomGap: 0.5
+      referenceTwoSided: 1
+      rig:
+        SchemaVersion: 1
+        AssetId: 
+        TerminalBonesAxis: 0
+        InvertTerminalBonesAxis: 0
+        Bones: []
+        IkChains: []
+  - _id: house_toilet
+    _displayName: Throne
+    _type: 0
+    _icon: {fileID: 21300000, guid: 38bb344a988fbd54bb021525ac09c831, type: 3}
+    _prefab: {fileID: 6941164600022597774, guid: 17ac5c62b80ac2b4f9d301fc61ae4299, type: 3}
+    _image: {fileID: 0}
+    _terminalBonesAxis: 0
+    _invertTerminalBonesAxis: 0
+    _recipe:
+      schemaVersion: 1
+      type: 0
+      selectable: 1
+      interactionLayer: 2
+      colliderKind: 2
+      colliderCenter: {x: 0, y: 0, z: 0}
+      colliderSize: {x: 1, y: 1, z: 1}
+      boneColliderDepth: 4
+      spawnOffset: {x: 0, y: 0, z: 0}
+      referenceAspect: 1
+      referenceBottomGap: 0.5
+      referenceTwoSided: 1
+      rig:
+        SchemaVersion: 1
+        AssetId: 
+        TerminalBonesAxis: 0
+        InvertTerminalBonesAxis: 0
+        Bones: []
+        IkChains: []
+  - _id: sighn_cone
+    _displayName: Cone
+    _type: 0
+    _icon: {fileID: 21300000, guid: ffd87f5cbd3361b46ac34a522522a350, type: 3}
+    _prefab: {fileID: 8350157937594722183, guid: 9aad91a5278966f48a7558b5f9634ce5, type: 3}
+    _image: {fileID: 0}
+    _terminalBonesAxis: 0
+    _invertTerminalBonesAxis: 0
+    _recipe:
+      schemaVersion: 1
+      type: 0
+      selectable: 1
+      interactionLayer: 2
+      colliderKind: 2
+      colliderCenter: {x: 0, y: 0, z: 0}
+      colliderSize: {x: 1, y: 1, z: 1}
+      boneColliderDepth: 4
+      spawnOffset: {x: 0, y: 0, z: 0}
+      referenceAspect: 1
+      referenceBottomGap: 0.5
+      referenceTwoSided: 1
+      rig:
+        SchemaVersion: 1
+        AssetId: 
+        TerminalBonesAxis: 0
+        InvertTerminalBonesAxis: 0
+        Bones: []
+        IkChains: []
+  - _id: sighn_panel
+    _displayName: Stand
+    _type: 0
+    _icon: {fileID: 21300000, guid: 0ed29330772db4346a1aff3734fda550, type: 3}
+    _prefab: {fileID: 3863240796143182141, guid: b966ab533336a8e44a1009201290d7ef, type: 3}
+    _image: {fileID: 0}
+    _terminalBonesAxis: 0
+    _invertTerminalBonesAxis: 0
+    _recipe:
+      schemaVersion: 1
+      type: 0
+      selectable: 1
+      interactionLayer: 2
+      colliderKind: 2
+      colliderCenter: {x: 0, y: 0, z: 0}
+      colliderSize: {x: 1, y: 1, z: 1}
+      boneColliderDepth: 4
+      spawnOffset: {x: 0, y: 0, z: 0}
+      referenceAspect: 1
+      referenceBottomGap: 0.5
+      referenceTwoSided: 1
+      rig:
+        SchemaVersion: 1
+        AssetId: 
+        TerminalBonesAxis: 0
+        InvertTerminalBonesAxis: 0
+        Bones: []
         IkChains: []

@@ -9,6 +9,7 @@ public class ImportedLabAsset : ILabAsset
     [SerializeField] private AssetType         _type;
     [SerializeField] private string            _sourceRef;
     [SerializeField] private AssetEntityRecipe _recipe;
+    [SerializeField] private string            _thumbnailRef;
 
     public string            Id          => _id;
     public string            DisplayName => _displayName;
@@ -16,6 +17,7 @@ public class ImportedLabAsset : ILabAsset
     public AssetSource       Source      => AssetSource.Imported;
     public string            SourceRef   => _sourceRef;
     public Sprite            Icon        => null;
+    public string            ThumbnailRef => _thumbnailRef;
     public AssetEntityRecipe Recipe      => _recipe;
 
     public ImportedLabAsset() { }
@@ -30,4 +32,5 @@ public class ImportedLabAsset : ILabAsset
     }
 
     public void SetRecipe(AssetEntityRecipe recipe) => _recipe = recipe;
+    public void SetThumbnailRef(string thumbnailRef) => _thumbnailRef = thumbnailRef;
 }

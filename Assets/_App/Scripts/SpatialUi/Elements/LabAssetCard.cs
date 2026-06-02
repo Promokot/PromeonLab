@@ -36,13 +36,13 @@ public class LabAssetCard : MonoBehaviour
         }
     }
 
-    public void Bind(ILabAsset asset)
+    public void Bind(ILabAsset asset, Sprite icon)
     {
         _asset         = asset;
         _nameText.text = asset.DisplayName;
 
-        if (asset.Icon != null)
-            _iconImage.sprite = asset.Icon;
+        if (icon != null)
+            _iconImage.sprite = icon;
 
         _button.onClick.RemoveAllListeners();
         _button.onClick.AddListener(() => Selected?.Invoke(this));

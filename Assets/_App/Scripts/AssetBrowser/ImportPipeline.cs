@@ -14,15 +14,22 @@ public class ImportPipeline : IStartable, IDisposable
     private readonly IReadOnlyList<IAssetImportHandler> _handlers;
     private readonly AssetEntityBuilderRegistry _builders;
     private readonly AssetSourceStore           _store;
+    private readonly GltfModelLoader            _loader;
+    private readonly ThumbnailRenderer          _renderer;
+    private readonly PathProvider               _paths;
 
     public ImportPipeline(EventBus bus, ImportedAssetLibrary library, IReadOnlyList<IAssetImportHandler> handlers,
-                          AssetEntityBuilderRegistry builders, AssetSourceStore store)
+                          AssetEntityBuilderRegistry builders, AssetSourceStore store,
+                          GltfModelLoader loader, ThumbnailRenderer renderer, PathProvider paths)
     {
         _bus      = bus;
         _library  = library;
         _handlers = handlers;
         _builders = builders;
         _store    = store;
+        _loader   = loader;
+        _renderer = renderer;
+        _paths    = paths;
     }
 
     public void Start()
@@ -79,6 +86,8 @@ public class ImportPipeline : IStartable, IDisposable
 
             record.SetRecipe(recipe);
 
+            await GenerateThumbnailAsync(record, CancellationToken.None);
+
             _library.Add(record);
             await _library.SaveAsync(CancellationToken.None);
             _bus.Publish(new AssetImportedEvent { AssetId = record.Id });
@@ -86,6 +95,46 @@ public class ImportPipeline : IStartable, IDisposable
         catch (Exception ex)
         {
             Debug.LogError($"ImportPipeline: import failed for '{e.FilePath}'. {ex}");
+        }
+    }
+
+    private async Task GenerateThumbnailAsync(ImportedLabAsset record, CancellationToken ct)
+    {
+        try
+        {
+            if (record.Type == AssetType.Reference)
+            {
+                // The image file itself is the thumbnail — no render.
+                record.SetThumbnailRef(record.SourceRef);
+                return;
+            }
+
+            // Object / Rig: render the .glb off-screen, parked far below the scene.
+            var abs   = _store.AbsolutePath(record.SourceRef);
+            var model = await _loader.LoadAsync(abs, new Vector3(0f, -10000f, 0f), Quaternion.identity, ct);
+            if (model == null) return;
+
+            try
+            {
+                var tex = _renderer.Render(model, 256, new Color(0.22f, 0.22f, 0.24f, 1f));
+                var png = tex.EncodeToPNG();
+                UnityEngine.Object.Destroy(tex);
+
+                var path = _paths.ThumbnailPath(record.Id);
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                await File.WriteAllBytesAsync(path, png, ct);
+
+                record.SetThumbnailRef(PathProvider.ThumbnailRelativeRef(record.Id));
+            }
+            finally
+            {
+                UnityEngine.Object.Destroy(model);
+            }
+        }
+        catch (Exception ex)
+        {
+            // A missing thumbnail must never abort the import.
+            Debug.LogError($"ImportPipeline: thumbnail generation failed for '{record.Id}'. {ex}");
         }
     }
 

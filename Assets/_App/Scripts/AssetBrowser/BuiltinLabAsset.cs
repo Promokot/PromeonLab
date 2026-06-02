@@ -20,6 +20,7 @@ public struct BuiltinLabAsset : ILabAsset
     public AssetSource Source      => AssetSource.Builtin;
     public string      SourceRef   => null;
     public Sprite      Icon        => _icon;
+    public string      ThumbnailRef => null;   // Builtin uses its inspector Icon sprite
     public GameObject       Prefab        => _prefab;
     public Texture2D        Image         => _image;
     public TerminalBoneAxis TerminalBonesAxis       => _terminalBonesAxis;

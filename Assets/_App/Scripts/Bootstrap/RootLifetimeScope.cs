@@ -48,6 +48,7 @@ public class RootLifetimeScope : LifetimeScope
         // Runtime loaders + per-type spawners.
         builder.Register<AssetSourceStore>(Lifetime.Singleton);
         builder.Register<GltfModelLoader>(Lifetime.Singleton);
+        builder.Register<ThumbnailRenderer>(Lifetime.Singleton);
         builder.Register<ObjectEntityFactory>(Lifetime.Singleton);
         builder.Register<RigEntityFactory>(Lifetime.Singleton);
         var proxyRigConfig = _proxyRigConfig != null

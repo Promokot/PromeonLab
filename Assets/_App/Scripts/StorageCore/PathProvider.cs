@@ -46,5 +46,15 @@ public class PathProvider
         return System.IO.Path.Combine(SourcesDir, assetId + clean);
     }
 
+    public string ThumbnailsDir =>
+        System.IO.Path.Combine(_root, "asset-libraries", "thumbnails");
+
+    public string ThumbnailPath(string assetId) =>
+        System.IO.Path.Combine(ThumbnailsDir, assetId + ".png");
+
+    /// Root-independent relative ref stored on the record (mirrors how SourceRef is stored).
+    public static string ThumbnailRelativeRef(string assetId) =>
+        System.IO.Path.Combine("asset-libraries", "thumbnails", assetId + ".png");
+
     public string RootForSources => _root;
 }
