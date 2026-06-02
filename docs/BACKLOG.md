@@ -23,8 +23,10 @@ Status legend: **ABSENT** (no code) · **STUB** (placeholder type/field, no beha
 | Feature | Status | Notes | Ref |
 |---|---|---|---|
 | **NLA composition** (clip blending / action layering) | ABSENT | Mentioned historically; never specced in detail, zero code. | audit 04 §4 |
-| **Loop playback** | ABSENT | `AnimationClock` hard-stops at `TotalFrames`. | audit 04 §4 |
-| **Multi-container / master timeline** | ABSENT | Only one `ActionContainer` plays at a time (clock reconfigured per selection). | audit 04 §4 |
+| ~~Loop playback~~ | ✅ DONE 2026-06-02 | Per-object Loop (`ActionContainer.Loop`); `AnimationAuthoring` (`ITickable`) runs each looping container on its own background cursor. Replaced the prior scene-wide clock `PlayMode`. | — |
+| **Master timeline / NLA** | PARTIAL | Multiple **looped** containers now play concurrently in the background, but there is no master timeline that scrubs/composes several actions together; the transport still drives one selected container. | audit 04 §4 |
+| **Interpolation (Linear/Stepped)** | ✅ DONE 2026-06-02 | Per-container `InterpolationMode`; runtime curve tangents in `BuildClip`. | — |
+| ~~Scrub preview / per-frame intermediate pose~~ | ✅ DONE 2026-06-02 | `OnFrameChanged` samples the active container on scrub (not only during playback). | — |
 | **Undo/Redo for animation actions** | ABSENT | Key set/delete/remove mutate directly, bypassing `CommandStack` (out of scope in specs). | audit 04 §4 |
 | **`SceneModifiedEvent` on key mutation** | ABSENT | Spec wanted every `SetKey` to also mark the scene dirty for `UnsavedChangesGuard`; not published. | audit 04 §4 |
 | ~~First-Add-animation UI refresh~~ | ✅ FIXED 2026-06-01 | `OnContainerChanged` now handles `Added` before the `_activeOwner` guard (refreshes when the new owner matches the current selection). | audit 04 §6 |
@@ -42,8 +44,9 @@ Status legend: **ABSENT** (no code) · **STUB** (placeholder type/field, no beha
 
 | Feature | Status | Notes | Ref |
 |---|---|---|---|
-| **FBX export** (Unity FBX Exporter SDK) | STUB | `ExportPipeline.cs` is an empty placeholder class. | audit 01/conv |
-| **Custom JSON export** | STUB | Same placeholder. | — |
+| **Scene exporter scaffold** (`SceneExporter` + `ExportPanel`) | PARTIAL | Code-complete & DI-registered: writes a minimal scene **manifest** JSON to `Documents/{Application.productName}/{name}.json` via `SceneExportRequested`/`SceneExported` events; `ExportPanel` has the filename input / path label / scene-name label / export button. **Not yet wired into a nav-bar tab** (prefab + `NavBarConfig`/`RegionMember` pending) — see `docs/superpowers/exporter-scaffold-handoff.md`. | 2026-06-02 |
+| **FBX export** (Unity FBX Exporter SDK) | ABSENT | Real geometry/animation export not implemented (the scaffold writes only a stub manifest). | audit 01/conv |
+| **Custom JSON export** | PARTIAL | Scaffold writes a minimal scene manifest; the real export schema is still TBD. | — |
 
 ## ErrorHandling
 
@@ -58,7 +61,7 @@ Status legend: **ABSENT** (no code) · **STUB** (placeholder type/field, no beha
 | **Detach → add-on split (`PanelDetachAddon`)** | ABSENT | `SpatialPanelDetachable` + `DetachablePanelDragHandle` remain monolithic. (Region-model "out of scope".) | audit 05 §4 |
 | **General settings tab content** | STUB | `_generalContent` empty placeholder (explicit Non-Goal). | audit 05 §4 |
 | **Runtime rebinding / settings persistence** | ABSENT | Explicit Non-Goal in the settings spec. | audit 05 §4 |
-| **Keyboard close-on-submit** | PARTIAL | `VrKeyboard.SubmitWord` only nulls the target; keyboard closes only via its nav button. | audit 05 §6 |
+| **Keyboard close-on-submit** | PARTIAL | `VrKeyboard.SubmitWord`/focus-switch now fire the field's `onEndEdit` (so numeric inputs commit), but the keyboard panel itself still hides only via its nav button. | audit 05 §6 |
 | **`NavBarConfig` → `PanelRegionConfig` rename** | DEFERRED | Trivial follow-up; intentionally not done. | audit 05 §4 |
 
 ## Architecture / tech-debt (planned cleanups, not features)

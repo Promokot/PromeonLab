@@ -22,6 +22,7 @@ public class AnimatorPanel : MonoBehaviour
     private SceneContext       _ctx;
 
     private string                       _activeOwner;
+    private string                       _boneModeRig; // rig whose bone-edit mode is ON; keeps the timeline up when no bone is selected
     private readonly List<TimelineRow> _rowPool = new();
 
     [Inject]
@@ -42,6 +43,7 @@ public class AnimatorPanel : MonoBehaviour
         _bus.Subscribe<AnimationContainerChangedEvent>(OnContainerChanged);
         _bus.Subscribe<AnimationKeyframeChangedEvent>(OnKeyframeChanged);
         _bus.Subscribe<NodeRenamedEvent>(OnNodeRenamed);
+        _bus.Subscribe<BonesVisibilityChangedEvent>(OnBonesVisibilityChanged);
 
         WireToolbar();
         WireTransport();
@@ -58,6 +60,7 @@ public class AnimatorPanel : MonoBehaviour
         _bus.Unsubscribe<SelectionChangedEvent>(OnSelectionChanged);
         _bus.Unsubscribe<FrameChangedEvent>(OnFrameChanged);
         _bus.Unsubscribe<PlaybackStateChangedEvent>(OnPlaybackStateChanged);
+        _bus.Unsubscribe<BonesVisibilityChangedEvent>(OnBonesVisibilityChanged);
         _bus.Unsubscribe<AnimationContainerChangedEvent>(OnContainerChanged);
         _bus.Unsubscribe<AnimationKeyframeChangedEvent>(OnKeyframeChanged);
         _bus.Unsubscribe<NodeRenamedEvent>(OnNodeRenamed);
@@ -104,9 +107,19 @@ public class AnimatorPanel : MonoBehaviour
         if (_rulerInput != null) _rulerInput.OnFrameRequested = frame => _ctx.Clock?.Seek(frame);
     }
 
-    private void OnSceneContextChanged(SceneContextChangedEvent e) => Refresh();
+    private void OnSceneContextChanged(SceneContextChangedEvent e)
+    {
+        _boneModeRig = null; // bone mode does not survive a scene swap
+        Refresh();
+    }
 
     private void OnSelectionChanged(SelectionChangedEvent _) => Refresh();
+
+    private void OnBonesVisibilityChanged(BonesVisibilityChangedEvent e)
+    {
+        _boneModeRig = e.Visible ? e.RigNodeId : null;
+        Refresh();
+    }
 
     private void OnNodeRenamed(NodeRenamedEvent _)
     {
@@ -197,7 +210,8 @@ public class AnimatorPanel : MonoBehaviour
     private void OnSetKeyClicked()
     {
         if (string.IsNullOrEmpty(_activeOwner)) return;
-        var target = _ctx.Selection?.SelectedNodeId ?? _activeOwner;
+        var target = _ctx.Selection?.SelectedNodeId;
+        if (string.IsNullOrEmpty(target)) return; // nothing selected (e.g. bone mode, no bone) → no key
         _ctx.Authoring.SetKey(target, _ctx.Clock.CurrentFrame); // keys only the selected track
         RefreshKeyButtonStates();
     }
@@ -205,7 +219,8 @@ public class AnimatorPanel : MonoBehaviour
     private void OnDeleteKeyClicked()
     {
         if (string.IsNullOrEmpty(_activeOwner)) return;
-        var target = _ctx.Selection?.SelectedNodeId ?? _activeOwner;
+        var target = _ctx.Selection?.SelectedNodeId;
+        if (string.IsNullOrEmpty(target)) return;
         _ctx.Authoring.DeleteKey(target, _ctx.Clock.CurrentFrame); // removes only the selected track's key
     }
 
@@ -265,9 +280,13 @@ public class AnimatorPanel : MonoBehaviour
 
         var selected = _ctx.Selection?.SelectedNodeId;
         var owner    = AnimationAuthoring.OwnerOf(selected);
+        // Bone-edit mode: with no bone selected we are still focused on the rig, so keep its timeline
+        // visible (keying is disabled because no specific track is selected).
+        if (string.IsNullOrEmpty(owner) && !string.IsNullOrEmpty(_boneModeRig))
+            owner = _boneModeRig;
         var has      = !string.IsNullOrEmpty(owner) && _ctx.Authoring.HasContainer(owner);
 
-        if (string.IsNullOrEmpty(selected))
+        if (string.IsNullOrEmpty(owner))
         {
             _activeOwner = null;
             ShowEmpty(AnimatorSubEmptyState.State.NoSelection);
@@ -393,9 +412,10 @@ public class AnimatorPanel : MonoBehaviour
     {
         if (_toolbar == null) return;
         bool hasContainer = !string.IsNullOrEmpty(_activeOwner);
+        bool hasSelection = !string.IsNullOrEmpty(_ctx.Selection?.SelectedNodeId);
         bool hasKey = hasContainer && (_ctx.Authoring.GetContainer(_activeOwner)?.HasAnyKeyAtFrame(_ctx.Clock.CurrentFrame) ?? false);
-        _toolbar.SetSetKeyInteractable   (hasContainer);
-        _toolbar.SetDeleteKeyInteractable(hasKey);
+        _toolbar.SetSetKeyInteractable   (hasContainer && hasSelection);
+        _toolbar.SetDeleteKeyInteractable(hasKey && hasSelection);
         _toolbar.SetPasteInteractable    (!_clipboard.IsEmpty);
     }
 
