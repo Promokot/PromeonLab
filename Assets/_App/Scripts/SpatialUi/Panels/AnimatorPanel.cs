@@ -31,6 +31,18 @@ public class AnimatorPanel : MonoBehaviour
         _bus       = bus;
         _clipboard = clipboard;
         _ctx       = ctx;
+
+        // Bone-edit mode must be tracked even while this panel is hidden: the Show Bones toggle lives
+        // in the Inspector, so the user can enter bone mode with the Animator tab closed. A subscription
+        // scoped to OnEnable/OnDisable would miss that event and reopen showing "select something" with
+        // no bone selected. The panel is injected once at root (persistent on the UserPanel), so this
+        // durable subscription is safe and single. Redraw is deferred to OnEnable when hidden.
+        _bus.Subscribe<BonesVisibilityChangedEvent>(OnBonesVisibilityChanged);
+    }
+
+    private void OnDestroy()
+    {
+        if (_bus != null) _bus.Unsubscribe<BonesVisibilityChangedEvent>(OnBonesVisibilityChanged);
     }
 
     private void OnEnable()
@@ -44,7 +56,7 @@ public class AnimatorPanel : MonoBehaviour
         _bus.Subscribe<AnimationContainerChangedEvent>(OnContainerChanged);
         _bus.Subscribe<AnimationKeyframeChangedEvent>(OnKeyframeChanged);
         _bus.Subscribe<NodeRenamedEvent>(OnNodeRenamed);
-        _bus.Subscribe<BonesVisibilityChangedEvent>(OnBonesVisibilityChanged);
+        // NOTE: BonesVisibilityChangedEvent is subscribed durably in Construct (see there), not here.
 
         WireToolbar();
         WireTransport();
@@ -62,7 +74,6 @@ public class AnimatorPanel : MonoBehaviour
         _bus.Unsubscribe<FrameChangedEvent>(OnFrameChanged);
         _bus.Unsubscribe<LoopFrameChangedEvent>(OnLoopFrameChanged);
         _bus.Unsubscribe<PlaybackStateChangedEvent>(OnPlaybackStateChanged);
-        _bus.Unsubscribe<BonesVisibilityChangedEvent>(OnBonesVisibilityChanged);
         _bus.Unsubscribe<AnimationContainerChangedEvent>(OnContainerChanged);
         _bus.Unsubscribe<AnimationKeyframeChangedEvent>(OnKeyframeChanged);
         _bus.Unsubscribe<NodeRenamedEvent>(OnNodeRenamed);
@@ -120,7 +131,8 @@ public class AnimatorPanel : MonoBehaviour
     private void OnBonesVisibilityChanged(BonesVisibilityChangedEvent e)
     {
         _boneModeRig = e.Visible ? e.RigNodeId : null;
-        Refresh();
+        // Hidden panel: state is stored above; the redraw happens on the next OnEnable's Refresh.
+        if (isActiveAndEnabled) Refresh();
     }
 
     private void OnNodeRenamed(NodeRenamedEvent _)

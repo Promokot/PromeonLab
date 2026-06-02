@@ -522,17 +522,36 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
 
     public void Tick()
     {
-        if (_data == null || _loopCursors.Count == 0) return;
+        if (_data == null) return;
         float fps = GetSceneFps();
-        foreach (var owner in new List<string>(_loopCursors.Keys)) // snapshot: StopLoopPlayback mutates
+
+        // Background loops: each looping owner advances on its own cursor and samples per render frame.
+        if (_loopCursors.Count > 0)
         {
-            var c = _data.FindByOwner(owner);
-            if (c == null || !c.Loop) { StopLoopPlayback(owner); continue; }
-            float cursor = AdvanceLoopCursor(_loopCursors[owner], Time.deltaTime * fps, c.TotalFrames);
-            _loopCursors[owner] = cursor;
-            if (_loopClips.TryGetValue(owner, out var clips))
-                SampleContainerAt(c, clips, cursor / Mathf.Max(1f, fps));
-            PublishLoopFrameIfChanged(owner, cursor);
+            foreach (var owner in new List<string>(_loopCursors.Keys)) // snapshot: StopLoopPlayback mutates
+            {
+                var c = _data.FindByOwner(owner);
+                if (c == null || !c.Loop) { StopLoopPlayback(owner); continue; }
+                float cursor = AdvanceLoopCursor(_loopCursors[owner], Time.deltaTime * fps, c.TotalFrames);
+                _loopCursors[owner] = cursor;
+                if (_loopClips.TryGetValue(owner, out var clips))
+                    SampleContainerAt(c, clips, cursor / Mathf.Max(1f, fps));
+                PublishLoopFrameIfChanged(owner, cursor);
+            }
+        }
+
+        // Direct transport playback of the SELECTED non-looping container: sample at the clock's
+        // FRACTIONAL position every render frame, so it is as smooth as loop playback. ApplyFrame's
+        // integer-frame sampling (driven by FrameChangedEvent) only steps the playhead during play —
+        // sampling the pose there would quantize motion to the animation fps. Scrubbing while paused
+        // still goes through ApplyFrame (see its IsPlaying guard).
+        if (_clock != null && _clock.IsPlaying
+            && !string.IsNullOrEmpty(_activeContainerOwner)
+            && !_loopCursors.ContainsKey(_activeContainerOwner)
+            && fps > 0f)
+        {
+            var c = _data.FindByOwner(_activeContainerOwner);
+            if (c != null) SampleContainerAt(c, _clips, _clock.CurrentFrameContinuous / fps);
         }
     }
 
@@ -561,6 +580,9 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
     {
         if (string.IsNullOrEmpty(_activeContainerOwner)) return;
         if (_loopCursors.ContainsKey(_activeContainerOwner)) return; // background loop owns sampling
+        // During transport playback Tick samples continuously (smooth); this integer path would quantize
+        // the pose to the fps. It still runs for scrub/seek/stop (when the clock is not playing).
+        if (_clock != null && _clock.IsPlaying) return;
         var c = _data?.FindByOwner(_activeContainerOwner);
         if (c == null) return;
         int fps = GetSceneFps();
