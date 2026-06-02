@@ -30,7 +30,7 @@ This is a Unity project — there is no CLI build script. All compilation, build
 ### VR Workflow
 
 1. **VR Editing** — create/edit skeletal animations in immersive VR (rigs, keyframe authoring on a per-`ActionContainer` timeline; NLA composition is planned, not yet built — see `docs/BACKLOG.md`)
-2. **Export** — FBX / custom JSON (planned — `ExportPipeline` is currently a placeholder; see `docs/BACKLOG.md`)
+2. **Export** — scene → self-contained **ZIP bundle** (`scene.json` + copied model/texture sources) via `ExportPipeline`, reachable from the `exporter` nav-bar tab. Real **FBX** export still planned (see `docs/BACKLOG.md`)
 
 > **Current-state reference:** `CLAUDE.md` is the authoritative overview. For a code-verified
 > reconciliation of every subsystem (and where docs drifted), see `docs/superpowers/audit-2026-06-01/`.
@@ -60,7 +60,7 @@ Located in `Assets/_App/Scripts/<Subsystem>/`. Interfaces and contracts for each
 | `SceneComposition` | Scene node hierarchy, `CommandStack` (undo only, max 30 — **no redo**), `SelectionManager` (single-select: `Select(id?)` / `SelectedNodeId`) |
 | `RigBuilder` | Runtime proxy-bone rig built on spawn (`RigEntityFactory.BuildProxyRig` → per-bone proxy GO + `BoneFollower`; coordinated by `ProxyRigRuntime`). Bone poses persist via schema-v3 `NodeData.BonePoses`. **IK chains are serialized but no solver consumes them yet** (no Animation Rigging) |
 | `Animation` | Per-`ActionContainer` keyframe authoring (`AnimationAuthoring`): selected-track keying, per-container **Linear/Stepped interpolation** (runtime tangents, not `AnimationUtility`), scrub preview, debounced persistence, `AnimationClip`-based sampling. Transport (`AnimationClock`) is always **single-shot** (scrub + play/pause + scene-wide fps; rewinds to the first keyframe at end). **Per-object Loop** is background playback — `AnimationAuthoring` is also `ITickable` and samples every looping container on its own cursor, so multiple looped objects play concurrently regardless of selection; the transport drives only the selected object. **No NLA / master timeline yet** (see `docs/BACKLOG.md`). UI: `AnimatorPanel` + `AnimatorSub*` modules |
-| `ExportPipeline` | **Scaffold only.** `SceneExporter` (writes a manifest JSON to `Documents/{Application.productName}/{name}.json` via request/result events) + `ExportPanel` UI are code-complete and DI-registered, but the panel is **not yet wired into a nav-bar tab** (prefab/region pending — see `docs/superpowers/exporter-scaffold-handoff.md`). Real FBX / full JSON export still planned (see `docs/BACKLOG.md`) |
+| `ExportPipeline` | **Working ZIP-bundle export.** `SceneExporter` (app-lifetime, request/result events) captures live state via `SceneContext` (Graph snapshot + `AnimationAuthoring.CaptureForExport`), runs a pure `static BuildBundle`, and writes `Documents/{Application.productName}/{name}.zip` = `scene.json` (flat external schema, `SceneBundle`, **one-way / not re-importable**) + `models/{assetId}.glb` + `textures/{assetId}.png` (copied import sources, deduped). Builtin assets carry no source file → flagged `geometryMissing`. Zip via `System.IO.Compression.ZipArchive` (Quest-safe), written on a thread-pool thread. UI: `ExportPanel` on the `exporter` nav-bar tab (`ExportModule.prefab`). Real **FBX** / richer JSON still planned (see `docs/BACKLOG.md`) |
 | `InputBindings` | Controls vocabulary for the Settings panel: `ControlsProfile` (SO) + `ControlBinding` data, rendered by `SettingsPanel`. (The interaction *input model* itself lives in `VrInteraction`.) |
 | `ModeOrchestrator` | Mode policy: validates `ModeTransitionGraph`, delegates to `ISceneTransition`/`SceneTransitionRunner` (single-scene load behind `HeadFade`); publishes `ModeExitingEvent` before the load (outgoing scope still alive) and `ModeChangedEvent` after the load |
 | `VrInteraction` | `XRPromeonInteractable` direct-input on `NearFarInteractor` (tap-trigger = select, hold-trigger = rotate, hold-grip = move; XRI select-flow disabled); `GizmoController`/`GizmoActivator` gizmo; `InteractionMaskBinder` contextual cast-masks; QuickOutline-based outline. **Single-select** |
@@ -97,9 +97,12 @@ Application.persistentDataPath/
 └── scenes/{SceneId}/
     ├── scene.json            (scene graph + per-rig bone poses, schemaVersion 3)
     ├── animation.json        (per-ActionContainer keyframe data + per-container interpolation/loop + scene-wide fps, schemaVersion 2; written by AnimationAuthoring)
-    ├── asset-catalog.json    (per-scene asset registry)
-    └── export/               *.fbx / *.json   (export not yet implemented)
+    └── asset-catalog.json    (per-scene asset registry)
 ```
+
+> **Export output is NOT written under `scenes/`** — `SceneExporter` writes the ZIP bundle to
+> `Documents/{Application.productName}/{name}.zip` (outside `persistentDataPath`). The legacy
+> `PathProvider.ExportDir(sceneId)` (`scenes/{id}/export/`) is unused by the current exporter.
 
 Imported assets are global: a node in `scene.json` stores `AssetRef{Source, AssetId}`, and the spawner restores geometry from `asset-libraries/sources/` by the record's `SourceRef` (stored **relative** to `persistentDataPath`). Rig definitions and bone poses are carried **inline** — rig data in the asset recipe, bone poses in each node's `NodeData.BonePoses` — so the old per-scene `Rigs/` and `Poses/` folders are no longer written. `Saved` is a distinct, scene-origin flow (manual save-out), not yet implemented.
 

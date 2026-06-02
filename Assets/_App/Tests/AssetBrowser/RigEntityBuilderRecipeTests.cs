@@ -21,7 +21,7 @@ public class RigEntityBuilderRecipeTests
             Assert.AreEqual(TerminalBoneAxis.X, recipe.rig.TerminalBonesAxis);
             Assert.IsTrue(recipe.rig.InvertTerminalBonesAxis);
             Assert.AreEqual(ColliderKind.BoneBoxes, recipe.colliderKind);
-            Assert.AreEqual(3, recipe.boneColliderDepth);
+            Assert.AreEqual(4, recipe.boneColliderDepth);
         }
         finally { Object.DestroyImmediate(root); }
     }

@@ -38,7 +38,7 @@ public class RigEntityBuilder : IAssetEntityBuilder
             recipe.rig.TerminalBonesAxis       = axis;
             recipe.rig.InvertTerminalBonesAxis = invert;
             recipe.colliderKind     = ColliderKind.BoneBoxes;
-            recipe.boneColliderDepth = 3;
+            recipe.boneColliderDepth = 4;
         }
         else
         {
@@ -82,7 +82,7 @@ public class RigEntityBuilder : IAssetEntityBuilder
 
         var axis      = recipe != null && recipe.HasRig ? recipe.rig.TerminalBonesAxis : TerminalBoneAxis.Auto;
         var invert    = recipe != null && recipe.HasRig && recipe.rig.InvertTerminalBonesAxis;
-        var depth     = recipe != null ? recipe.boneColliderDepth : 3;
+        var depth     = recipe != null ? recipe.boneColliderDepth : 4;
         var boneNames = recipe != null && recipe.HasRig
             ? recipe.rig.Bones.Select(bn => bn.BoneName).ToList()
             : null;

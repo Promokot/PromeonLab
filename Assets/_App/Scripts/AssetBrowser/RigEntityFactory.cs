@@ -25,7 +25,7 @@ public class RigEntityFactory
     // Builds the proxy hierarchy onto rigRoot and attaches a bound ProxyRigRuntime.
     // boneNames: from recipe.rig (import) → mapped to live bones by name; null → all SkinnedMeshRenderer.bones
     // (builtin / manual rigging). No-op if there is no skeleton.
-    public void BuildProxyRig(GameObject rigRoot, IReadOnlyList<string> boneNames, TerminalBoneAxis terminalAxis, bool invertAxis, int selectorDepth = 3)
+    public void BuildProxyRig(GameObject rigRoot, IReadOnlyList<string> boneNames, TerminalBoneAxis terminalAxis, bool invertAxis, int selectorDepth = 4)
     {
         var transforms = ResolveTransforms(rigRoot, boneNames);
         if (transforms == null || transforms.Length == 0) return;
@@ -75,7 +75,7 @@ public class RigEntityFactory
     private List<Collider> BuildSelectorColliders(Transform[] transforms, HashSet<Transform> set, int depth)
     {
         var colliders = new List<Collider>();
-        float minThk = Mathf.Max(_config.BoneWidth, 0.01f);
+        float minThk = Mathf.Max(_config.BoneWidth * _config.SelectorThicknessMultiplier, 0.01f);
 
         foreach (var bone in transforms)
         {

@@ -10,10 +10,15 @@ public class ProxyRigConfig : ScriptableObject
              "(assign an emissive 'warm orange'). Falls back to BoneMaterial if unassigned.")]
     [SerializeField] private Material _boneSelectedMaterial;
     [SerializeField] private float    _boneWidth = 0.06f;
+    [Tooltip("Multiplier applied to BoneWidth to size the SELECTION colliders only (RigEntityFactory's " +
+             "min box thickness). The visible bone mesh stays on raw BoneWidth, so this fattens the " +
+             "hitboxes — making bones easier to click — without changing how they look.")]
+    [SerializeField] private float    _selectorThicknessMultiplier = 3f;
     [SerializeField] private bool     _useConvexCollider = true;
 
-    public Material BoneMaterial         => _boneMaterial;
-    public Material BoneSelectedMaterial => _boneSelectedMaterial;
-    public float    BoneWidth            => _boneWidth;
-    public bool     UseConvexCollider    => _useConvexCollider;
+    public Material BoneMaterial                 => _boneMaterial;
+    public Material BoneSelectedMaterial         => _boneSelectedMaterial;
+    public float    BoneWidth                    => _boneWidth;
+    public float    SelectorThicknessMultiplier  => _selectorThicknessMultiplier;
+    public bool     UseConvexCollider            => _useConvexCollider;
 }

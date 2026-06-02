@@ -45,12 +45,12 @@ MonoBehaviour:
     VisibleModes: 0100000002000000
     ExclusiveGroup: center_top
     IsRegionDefault: 0
-  - Id: export
-    VisibleModes: 01000000
-    ExclusiveGroup: center_top
-    IsRegionDefault: 0
   - Id: importWizard
     VisibleModes: 000000000100000002000000
+    ExclusiveGroup: center_top
+    IsRegionDefault: 0
+  - Id: exporter
+    VisibleModes: 0100000002000000
     ExclusiveGroup: center_top
     IsRegionDefault: 0
   - Id: ---
