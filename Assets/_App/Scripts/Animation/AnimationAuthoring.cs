@@ -8,11 +8,11 @@ using VContainer.Unity;
 
 public class AnimationAuthoring : IStartable, ITickable, IDisposable
 {
-    private readonly AnimationClock _clock;
-    private readonly ISceneGraph    _sceneGraph;
-    private readonly PathProvider   _paths;
-    private readonly AppStorage     _storage;
-    private readonly EventBus       _bus;
+    private readonly AnimationClock   _clock;
+    private readonly ISceneGraph      _sceneGraph;
+    private readonly AnimationStorage _animStorage;
+    private readonly AppStorage       _storage;
+    private readonly EventBus         _bus;
 
     private SceneAnimationData                     _data;
     private readonly Dictionary<string, AnimationClip> _clips = new();
@@ -22,17 +22,14 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
     private string _sceneId;
     private string _activeContainerOwner;
 
-    private CancellationTokenSource _saveCts;
-    private const int SAVE_DEBOUNCE_MS = 200;
-
     public AnimationAuthoring(AnimationClock clock, ISceneGraph sceneGraph,
-                               PathProvider paths, AppStorage storage, EventBus bus)
+                               AnimationStorage animStorage, AppStorage storage, EventBus bus)
     {
-        _clock      = clock;
-        _sceneGraph = sceneGraph;
-        _paths      = paths;
-        _storage    = storage;
-        _bus        = bus;
+        _clock       = clock;
+        _sceneGraph  = sceneGraph;
+        _animStorage = animStorage;
+        _storage     = storage;
+        _bus         = bus;
     }
 
     public static string OwnerOf(string nodeId)
@@ -250,23 +247,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
         _bus.Subscribe<PlaybackStateChangedEvent>(OnPlaybackState);
     }
 
-    private void RequestSave()
-    {
-        _saveCts?.Cancel();
-        _saveCts = new CancellationTokenSource();
-        _ = DebouncedSave(_saveCts.Token);
-    }
-
-    private async Task DebouncedSave(CancellationToken ct)
-    {
-        try
-        {
-            await Task.Delay(SAVE_DEBOUNCE_MS, ct);
-            if (ct.IsCancellationRequested) return;
-            await SaveAsync(ct);
-        }
-        catch (TaskCanceledException) { }
-    }
+    private void RequestSave() => _animStorage?.RequestSave(_data, _sceneId);
 
     public void Start()
     {
@@ -286,8 +267,6 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
         _bus.Unsubscribe<PlaybackStateChangedEvent>(OnPlaybackState);
         _loopCursors.Clear();
         _loopClips.Clear();
-        _saveCts?.Cancel();
-        _saveCts?.Dispose();
     }
 
     public void SetKey(string nodeId, int frame)
@@ -601,65 +580,9 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
     private async Task LoadAsync(string sceneId, CancellationToken ct)
     {
         _sceneId = sceneId;
-        var path = _paths.AnimationJson(sceneId);
-
-        if (!File.Exists(path))
-        {
-            _data = new SceneAnimationData();
-            return;
-        }
-
-        try
-        {
-            var json   = await File.ReadAllTextAsync(path, ct);
-            var loaded = JsonUtility.FromJson<SceneAnimationData>(json);
-
-            if (loaded == null || loaded.schemaVersion < 2)
-            {
-                Debug.LogWarning(
-                    $"AnimationAuthoring: discarding old animation data at '{path}' (schemaVersion={loaded?.schemaVersion ?? 0}). Starting fresh.");
-                try { File.Delete(path); }
-                catch (Exception delEx)
-                {
-                    Debug.LogError($"AnimationAuthoring: failed to delete v1 file '{path}': {delEx.Message}");
-                }
-                _data = new SceneAnimationData();
-                return;
-            }
-
-            if (loaded.schemaVersion > 2)
-            {
-                Debug.LogError(
-                    $"AnimationAuthoring: animation file '{path}' has schemaVersion={loaded.schemaVersion} (newer than supported 2). Opening empty in-memory data; file NOT touched.");
-                _data = new SceneAnimationData();
-                return;
-            }
-
-            if (loaded.Fps <= 0)
-                loaded.Fps = loaded.Containers.Count > 0 ? Mathf.Max(1, loaded.Containers[0].Fps) : 24;
-
-            _data = loaded;
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"AnimationAuthoring: load failed '{path}': {ex.Message}");
-            _data = new SceneAnimationData();
-        }
-    }
-
-    private async Task SaveAsync(CancellationToken ct)
-    {
-        if (_data == null || string.IsNullOrEmpty(_sceneId)) return;
-        try
-        {
-            var path = _paths.AnimationJson(_sceneId);
-            var json = JsonUtility.ToJson(_data, prettyPrint: true);
-            await File.WriteAllTextAsync(path, json, ct);
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"AnimationAuthoring: save failed: {ex.Message}");
-        }
+        _data = _animStorage != null
+            ? await _animStorage.LoadAsync(sceneId, ct)
+            : new SceneAnimationData();
     }
 
     private void EnsureData() => _data ??= new SceneAnimationData();

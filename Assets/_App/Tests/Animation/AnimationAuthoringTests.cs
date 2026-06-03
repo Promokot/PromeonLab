@@ -40,11 +40,11 @@ public class AnimationAuthoringTests
         public AuthoringFixture()
         {
             Authoring = new AnimationAuthoring(
-                clock     : null,
-                sceneGraph: null,
-                paths     : null,
-                storage   : null,
-                bus       : Bus);
+                clock      : null,
+                sceneGraph : null,
+                animStorage: null,
+                storage    : null,
+                bus        : Bus);
             Authoring.InitForTest();
         }
     }

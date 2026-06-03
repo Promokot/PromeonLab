@@ -45,6 +45,7 @@ public class VrEditingSceneScope : LifetimeScope
         // root-only deps → injected in RootLifetimeScope so they work in every mode.
 
         builder.RegisterEntryPoint<AnimationClock>(Lifetime.Scoped).AsSelf();
+        builder.Register<AnimationStorage>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.RegisterEntryPoint<AnimationAuthoring>(Lifetime.Scoped).AsSelf();
 
         // AnimatorPanel is persistent (XR rig / UserPanel) with root-only deps → injected in
