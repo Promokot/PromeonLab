@@ -214,28 +214,39 @@ public class RigEntityFactory
     private static float EffectiveWidth(float boneWidth, float length) =>
         Mathf.Min(boneWidth, length * 0.2f);
 
+    // The bone-proxy diamond: one shared 6-vertex base + 24-index triangle list, scaled per segment.
+    // Both builders below append through AppendDiamond so the silhouette can only be edited in one place.
+    private static readonly Vector3[] DIAMOND_BASE =
+    {
+        new Vector3( 0f,    0f,    0f),
+        new Vector3( 0.5f,  0.15f, 0f),
+        new Vector3(-0.5f,  0.15f, 0f),
+        new Vector3( 0f,    0.15f, 0.5f),
+        new Vector3( 0f,    0.15f,-0.5f),
+        new Vector3( 0f,    1f,    0f),
+    };
+    private static readonly int[] DIAMOND_TRIS = { 0,1,3, 0,3,2, 0,2,4, 0,4,1, 1,5,3, 3,5,2, 2,5,4, 4,5,1 };
+
+    private static void AppendDiamond(List<Vector3> verts, List<int> tris, Quaternion rot, float length, float width)
+    {
+        int baseIdx = verts.Count;
+        foreach (var v in DIAMOND_BASE)
+        {
+            var scaled = new Vector3(v.x * width, v.y * length, v.z * width);
+            verts.Add(rot * scaled);
+        }
+        foreach (var t in DIAMOND_TRIS) tris.Add(t + baseIdx);
+    }
+
     private static Mesh BuildOrientedDiamondMesh(Vector3 localLongAxis, float length, float width)
     {
-        var rot = Quaternion.FromToRotation(Vector3.up, localLongAxis.normalized);
-        var baseVerts = new[]
-        {
-            new Vector3( 0f,    0f,    0f),
-            new Vector3( 0.5f,  0.15f, 0f),
-            new Vector3(-0.5f,  0.15f, 0f),
-            new Vector3( 0f,    0.15f, 0.5f),
-            new Vector3( 0f,    0.15f,-0.5f),
-            new Vector3( 0f,    1f,    0f),
-        };
-        var verts = new Vector3[baseVerts.Length];
-        for (int i = 0; i < baseVerts.Length; i++)
-        {
-            var v = baseVerts[i];
-            v = new Vector3(v.x * width, v.y * length, v.z * width);
-            verts[i] = rot * v;
-        }
+        var rot   = Quaternion.FromToRotation(Vector3.up, localLongAxis.normalized);
+        var verts = new List<Vector3>();
+        var tris  = new List<int>();
+        AppendDiamond(verts, tris, rot, length, width);
         var mesh = new Mesh { name = "PromeonBoneDiamond" };
-        mesh.vertices  = verts;
-        mesh.triangles = new[] { 0,1,3, 0,3,2, 0,2,4, 0,4,1, 1,5,3, 3,5,2, 2,5,4, 4,5,1 };
+        mesh.vertices  = verts.ToArray();
+        mesh.triangles = tris.ToArray();
         mesh.RecalculateNormals();
         return mesh;
     }
@@ -252,24 +263,7 @@ public class RigEntityFactory
             if (localChildDir.sqrMagnitude < 0.0001f) localChildDir = Vector3.up;
             float width = EffectiveWidth(boneWidth, length);
             var rot = Quaternion.FromToRotation(Vector3.up, localChildDir);
-
-            int baseIdx = allVerts.Count;
-            var baseVerts = new[]
-            {
-                new Vector3( 0f,    0f,    0f),
-                new Vector3( 0.5f,  0.15f, 0f),
-                new Vector3(-0.5f,  0.15f, 0f),
-                new Vector3( 0f,    0.15f, 0.5f),
-                new Vector3( 0f,    0.15f,-0.5f),
-                new Vector3( 0f,    1f,    0f),
-            };
-            foreach (var v in baseVerts)
-            {
-                var scaled = new Vector3(v.x * width, v.y * length, v.z * width);
-                allVerts.Add(rot * scaled);
-            }
-            int[] tris = { 0,1,3, 0,3,2, 0,2,4, 0,4,1, 1,5,3, 3,5,2, 2,5,4, 4,5,1 };
-            foreach (var t in tris) allTris.Add(t + baseIdx);
+            AppendDiamond(allVerts, allTris, rot, length, width);
         }
         var mesh = new Mesh { name = "PromeonBoneDiamond" };
         mesh.vertices  = allVerts.ToArray();
