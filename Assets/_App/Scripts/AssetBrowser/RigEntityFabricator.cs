@@ -8,12 +8,12 @@ using UnityEngine;
 // hierarchy. BuildProxyRig is the single construction core, invoked from RigEntityBuilder.RestoreAsync
 // (import + builtin). The factory is a shared
 // singleton, so proxies are built into LOCALS and handed to a per-rig ProxyRigRuntime.
-public class RigEntityFactory
+public class RigEntityFabricator
 {
     private readonly GltfModelImporter _loader;
     private readonly ProxyRigConfig  _config;
 
-    public RigEntityFactory(GltfModelImporter loader, ProxyRigConfig config)
+    public RigEntityFabricator(GltfModelImporter loader, ProxyRigConfig config)
     {
         _loader = loader;
         _config = config;
@@ -173,7 +173,7 @@ public class RigEntityFactory
         proxyGo.AddComponent<MeshFilter>().sharedMesh = mesh;
         var mr = proxyGo.AddComponent<MeshRenderer>();
         if (_config.BoneMaterial == null)
-            Debug.LogWarning("RigEntityFactory: ProxyRigConfig.BoneMaterial not assigned — proxy renders outline-only.");
+            Debug.LogWarning("RigEntityFabricator: ProxyRigConfig.BoneMaterial not assigned — proxy renders outline-only.");
         mr.sharedMaterial = _config.BoneMaterial;
 
         var outline          = proxyGo.AddComponent<Outline>();

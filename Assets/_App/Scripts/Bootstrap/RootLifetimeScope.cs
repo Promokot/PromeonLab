@@ -36,7 +36,7 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<AssetRegistry>(Lifetime.Singleton).As<IAssetRegistry>();
 
         // Render presets for runtime-imported assets (shader + two-sided per AssetType).
-        // Always register a non-null instance so ReferenceEntityFactory resolves; an empty
+        // Always register a non-null instance so ReferenceEntityFabricator resolves; an empty
         // runtime profile just means every type falls back to built-in defaults.
         var renderProfile = _importRenderProfile != null
             ? _importRenderProfile
@@ -49,15 +49,15 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<ImportedSourceProvider>(Lifetime.Singleton);
         builder.Register<GltfModelImporter>(Lifetime.Singleton);
         builder.Register<ThumbnailRenderer>(Lifetime.Singleton);
-        builder.Register<ObjectEntityFactory>(Lifetime.Singleton);
-        builder.Register<RigEntityFactory>(Lifetime.Singleton);
+        builder.Register<ObjectEntityFabricator>(Lifetime.Singleton);
+        builder.Register<RigEntityFabricator>(Lifetime.Singleton);
         var proxyRigConfig = _proxyRigConfig != null
             ? _proxyRigConfig
             : ScriptableObject.CreateInstance<ProxyRigConfig>();
         if (_proxyRigConfig == null)
             Debug.LogWarning("RootLifetimeScope: _proxyRigConfig not assigned — proxy bones spawn with no material (outline-only).");
         builder.RegisterInstance(proxyRigConfig);
-        builder.Register<ReferenceEntityFactory>(Lifetime.Singleton);
+        builder.Register<ReferenceEntityFabricator>(Lifetime.Singleton);
         builder.Register<ObjectEntityBuilder>(Lifetime.Singleton).As<IAssetEntityBuilder>();
         builder.Register<RigEntityBuilder>(Lifetime.Singleton).As<IAssetEntityBuilder>();
         builder.Register<ReferenceEntityBuilder>(Lifetime.Singleton).As<IAssetEntityBuilder>();

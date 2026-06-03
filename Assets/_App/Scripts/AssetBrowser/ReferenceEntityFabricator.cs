@@ -7,11 +7,11 @@ using UnityEngine;
 // recipe's baked aspect/two-sided. The quad IS the node (pivot at geometry center). BuildCenteredQuad
 // and BuildMaterial are public statics so the editor builtin-image generator builds asset-backed
 // equivalents from the SAME geometry/material logic.
-public class ReferenceEntityFactory
+public class ReferenceEntityFabricator
 {
     private readonly ImportRenderProfile _renderProfile;
 
-    public ReferenceEntityFactory(ImportRenderProfile renderProfile)
+    public ReferenceEntityFabricator(ImportRenderProfile renderProfile)
     {
         _renderProfile = renderProfile;
     }
@@ -23,7 +23,7 @@ public class ReferenceEntityFactory
         var tex   = new Texture2D(2, 2, TextureFormat.RGBA32, mipChain: false);
         if (!tex.LoadImage(bytes))
         {
-            Debug.LogError($"ReferenceEntityFactory: not a readable image '{absolutePath}'");
+            Debug.LogError($"ReferenceEntityFabricator: not a readable image '{absolutePath}'");
             Object.Destroy(tex);
             return Task.FromResult<GameObject>(null);
         }

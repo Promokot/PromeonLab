@@ -9,9 +9,9 @@ using UnityEngine;
 public class ReferenceEntityBuilder : IAssetEntityBuilder
 {
     private readonly ImportedSourceProvider       _store;
-    private readonly ReferenceEntityFactory _quads;
+    private readonly ReferenceEntityFabricator _quads;
 
-    public ReferenceEntityBuilder(ImportedSourceProvider store, ReferenceEntityFactory quads)
+    public ReferenceEntityBuilder(ImportedSourceProvider store, ReferenceEntityFabricator quads)
     {
         _store = store;
         _quads = quads;

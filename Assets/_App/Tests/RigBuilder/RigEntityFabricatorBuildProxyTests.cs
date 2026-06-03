@@ -3,7 +3,7 @@ using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 
-public class RigEntityFactoryBuildProxyTests
+public class RigEntityFabricatorBuildProxyTests
 {
     private static (GameObject root, SkinnedMeshRenderer smr) MakeSkeleton()
     {
@@ -19,10 +19,10 @@ public class RigEntityFactoryBuildProxyTests
         return (root, smr);
     }
 
-    private static RigEntityFactory MakeFactory()
+    private static RigEntityFabricator MakeFactory()
     {
         var cfg = ScriptableObject.CreateInstance<ProxyRigConfig>();
-        return new RigEntityFactory(new GltfModelImporter(), cfg);
+        return new RigEntityFabricator(new GltfModelImporter(), cfg);
     }
 
     [Test]

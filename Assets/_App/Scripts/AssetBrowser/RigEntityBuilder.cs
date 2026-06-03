@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 // Rig: a static skinned mesh + a baked skeleton descriptor. Selection collider = box colliders along
-// the skeleton to boneColliderDepth, built at restore by RigEntityFactory (BoneBoxes). A skeleton-less
+// the skeleton to boneColliderDepth, built at restore by RigEntityFabricator (BoneBoxes). A skeleton-less
 // import is a static mesh → ConvexMesh fallback so it is still selectable.
 public class RigEntityBuilder : IAssetEntityBuilder
 {
     private readonly ImportedSourceProvider _store;
-    private readonly RigEntityFactory _factory;
+    private readonly RigEntityFabricator _factory;
 
-    public RigEntityBuilder(ImportedSourceProvider store, RigEntityFactory factory)
+    public RigEntityBuilder(ImportedSourceProvider store, RigEntityFabricator factory)
     {
         _store   = store;
         _factory = factory;

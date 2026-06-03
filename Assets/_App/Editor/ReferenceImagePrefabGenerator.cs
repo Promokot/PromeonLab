@@ -3,7 +3,7 @@ using UnityEngine;
 
 // Editor-only: turns a built-in Reference entry's Texture2D into asset-backed quad mesh + material +
 // prefab, and returns the matching recipe. Mirrors ReferenceEntityBuilder.BuildAsync's recipe values
-// and ReferenceEntityFactory's geometry/material so runtime and built-in references look identical.
+// and ReferenceEntityFabricator's geometry/material so runtime and built-in references look identical.
 public static class ReferenceImagePrefabGenerator
 {
     private const string Dir      = "Assets/_App/Content/Generated/References";
@@ -19,14 +19,14 @@ public static class ReferenceImagePrefabGenerator
         var mesh = AssetDatabase.LoadAssetAtPath<Mesh>(MeshPath);
         if (mesh == null)
         {
-            mesh = ReferenceEntityFactory.BuildCenteredQuad();
+            mesh = ReferenceEntityFabricator.BuildCenteredQuad();
             AssetDatabase.CreateAsset(mesh, MeshPath);
         }
 
         // Per-entry material asset (overwrite in place on re-generate).
         var profile = LoadRenderProfile();
         var matPath = $"{Dir}/{id}_Mat.mat";
-        var mat = ReferenceEntityFactory.BuildMaterial(image, twoSided: true, profile);
+        var mat = ReferenceEntityFabricator.BuildMaterial(image, twoSided: true, profile);
         var existingMat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
         if (existingMat != null)
         {

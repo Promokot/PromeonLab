@@ -4,7 +4,7 @@ using UnityEngine;
 using VContainer;
 
 // Per-rig runtime coordinator for the proxy-bone hierarchy. Built and bound by
-// RigEntityFactory.BuildProxyRig. Drives selection outline + visuals/bone-mode toggles.
+// RigEntityFabricator.BuildProxyRig. Drives selection outline + visuals/bone-mode toggles.
 // Holds no construction logic (that is the factory's job).
 public class ProxyRigRuntime : MonoBehaviour
 {

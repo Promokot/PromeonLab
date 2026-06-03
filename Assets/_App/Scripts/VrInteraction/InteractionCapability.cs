@@ -6,7 +6,7 @@ using UnityEngine;
 // already present (a baked built-in prefab), so it can never disturb working assets.
 //   Box        → one BoxCollider on the root (center/size from the recipe).
 //   ConvexMesh → one convex MeshCollider per mesh-bearing renderer, registered to the interactable.
-//   BoneBoxes  → built on the rig side (RigEntityFactory) and registered via
+//   BoneBoxes  → built on the rig side (RigEntityFabricator) and registered via
 //                ProxyRigRuntime.RegisterSelectorColliders(); nothing is built here.
 public static class InteractionCapability
 {

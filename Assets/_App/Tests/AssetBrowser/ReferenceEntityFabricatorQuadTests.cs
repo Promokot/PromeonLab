@@ -1,12 +1,12 @@
 using NUnit.Framework;
 using UnityEngine;
 
-public class ReferenceEntityFactoryQuadTests
+public class ReferenceEntityFabricatorQuadTests
 {
     [Test]
     public void BuildCenteredQuad_IsUnitCentered_FourVertsTwoTris()
     {
-        var mesh = ReferenceEntityFactory.BuildCenteredQuad();
+        var mesh = ReferenceEntityFabricator.BuildCenteredQuad();
         try
         {
             Assert.AreEqual(4, mesh.vertexCount);
