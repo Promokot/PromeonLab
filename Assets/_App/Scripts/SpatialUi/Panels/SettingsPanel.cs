@@ -18,8 +18,8 @@ public class SettingsPanel : MonoBehaviour
     [Header("Bindings")]
     [SerializeField] private ControlsProfile    _profile;
     [SerializeField] private Transform          _bindingsRoot;   // контейнер секций (VerticalLayoutGroup)
-    [SerializeField] private BindingSectionCard _sectionPrefab;
-    [SerializeField] private BindingRow         _rowPrefab;
+    [SerializeField] private BindingSection_Item _sectionPrefab;
+    [SerializeField] private BindingSectionRow_Item         _rowPrefab;
 
     [Header("Tab Colors")]
     [SerializeField] private Color _activeTabColor   = new Color(0.165f, 0.227f, 0.4f, 1f); // ~#2A3A66

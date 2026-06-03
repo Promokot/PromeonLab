@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TimelineRow : MonoBehaviour
+public class TimelineRow_Item : MonoBehaviour
 {
     [SerializeField] private RectTransform       _nameSegment;
     [SerializeField] private TMP_Text            _nameLabel;

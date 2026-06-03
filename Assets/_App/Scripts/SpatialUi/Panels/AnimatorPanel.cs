@@ -14,7 +14,7 @@ public class AnimatorPanel : MonoBehaviour
     [SerializeField] private AnimatorSubPlayhead   _playhead;
     [SerializeField] private TimelineScrubInput    _timelineInput;
     [SerializeField] private TimelineScrubInput    _rulerInput;
-    [SerializeField] private TimelineRow           _rowPrefab;
+    [SerializeField] private TimelineRow_Item           _rowPrefab;
     [SerializeField] private RectTransform         _rowsContent;
 
     private EventBus           _bus;
@@ -23,7 +23,7 @@ public class AnimatorPanel : MonoBehaviour
 
     private string                       _activeOwner;
     private string                       _boneModeRig; // rig whose bone-edit mode is ON; keeps the timeline up when no bone is selected
-    private readonly List<TimelineRow> _rowPool = new();
+    private readonly List<TimelineRow_Item> _rowPool = new();
 
     [Inject]
     public void Construct(EventBus bus, AnimationClipboard clipboard, SceneContext ctx)
@@ -406,7 +406,7 @@ public class AnimatorPanel : MonoBehaviour
         }
     }
 
-    private TimelineRow GetOrCreateRow(int idx)
+    private TimelineRow_Item GetOrCreateRow(int idx)
     {
         while (_rowPool.Count <= idx)
         {

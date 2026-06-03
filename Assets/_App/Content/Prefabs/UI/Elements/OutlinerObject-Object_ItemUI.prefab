@@ -383,7 +383,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62e362646d084824ea009a6d28ef024f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Subsystems.SpatialUi::OutlinerItem
+  m_EditorClassIdentifier: Subsystems.SpatialUi::OutlinerNode_Item
   _label: {fileID: 7891950311889417219}
   _highlight: {fileID: 5215591715217501923}
   _indentSpacer: {fileID: 0}

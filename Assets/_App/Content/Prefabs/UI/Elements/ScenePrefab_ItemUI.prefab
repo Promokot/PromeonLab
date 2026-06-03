@@ -346,7 +346,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ac9032e3adb9d444cb3e3f12e351725d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Subsystems.SpatialUi::SceneItem
+  m_EditorClassIdentifier: Subsystems.SpatialUi::SceneListNode_Item
   _label: {fileID: 966776131546559874}
   _background: {fileID: 7656741467314158074}
   _button: {fileID: 4911297778257708786}

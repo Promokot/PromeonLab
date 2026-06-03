@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RigOutlinerItem : OutlinerItem
+public class OutlinerNode_Rig_Item : OutlinerNode_Item
 {
     [SerializeField] private Image _backgroundTint;
     [SerializeField] private Image _iconImage;

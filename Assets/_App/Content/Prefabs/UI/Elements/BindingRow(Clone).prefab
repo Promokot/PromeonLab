@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5021565784388943307}
   - component: {fileID: 3150488510788294977}
   m_Layer: 5
-  m_Name: BindingRow(Clone)
+  m_Name: BindingSectionRow_Item(Clone)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -99,7 +99,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b6890548c5be45b4b96478ae83e53b5f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: ::BindingRow
+  m_EditorClassIdentifier: ::BindingSectionRow_Item
   _nameText: {fileID: 9222873604980198870}
   _descriptionText: {fileID: 4664600538977439377}
   _handText: {fileID: 3025032784307770757}

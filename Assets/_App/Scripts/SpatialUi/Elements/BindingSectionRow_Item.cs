@@ -3,7 +3,7 @@ using UnityEngine;
 
 // Одна строка в списке биндов: название + описание + бейдж (рука + input-label).
 // Иконка опциональна и в v1 не используется (поле IconId хранится в данных для md/будущего).
-public class BindingRow : MonoBehaviour
+public class BindingSectionRow_Item : MonoBehaviour
 {
     [SerializeField] private TMP_Text _nameText;
     [SerializeField] private TMP_Text _descriptionText;

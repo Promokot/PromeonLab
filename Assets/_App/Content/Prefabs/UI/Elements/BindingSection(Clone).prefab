@@ -435,6 +435,6 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c30b2bf0d72b311488fbeab73dbff832, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: _App.Runtime::BindingSectionCard
+  m_EditorClassIdentifier: _App.Runtime::BindingSection_Item
   _titleText: {fileID: 5670349414774055081}
   _rowList: {fileID: 2172333339758666417}

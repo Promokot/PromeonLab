@@ -14,7 +14,7 @@ public class AssetBrowserPanel : MonoBehaviour
 
     [Header("Grid")]
     [SerializeField] private Transform    _gridRoot;
-    [SerializeField] private LabAssetCard _cardPrefab;
+    [SerializeField] private LabAsset_Item _cardPrefab;
     [SerializeField] private Button       _addButton;
     [SerializeField] private Button       _spawnButton;
     [SerializeField] private Button       _removeButton; // "RemoveBtn" — deletes the selected asset
@@ -32,7 +32,7 @@ public class AssetBrowserPanel : MonoBehaviour
 
     private IAssetLibrary _activeLibrary;
     private ILabAsset     _selectedAsset;
-    private LabAssetCard  _selectedCard;
+    private LabAsset_Item  _selectedCard;
     private bool          _isEditableMode;
     private bool          _reopenAfterFileBrowser;
     private readonly System.Collections.Generic.Dictionary<string, Sprite> _thumbCache = new();
@@ -108,7 +108,7 @@ public class AssetBrowserPanel : MonoBehaviour
         }
     }
 
-    private void OnCardSelected(LabAssetCard card)
+    private void OnCardSelected(LabAsset_Item card)
     {
         if (_selectedCard != null && _selectedCard != card)
             _selectedCard.SetSelected(false);

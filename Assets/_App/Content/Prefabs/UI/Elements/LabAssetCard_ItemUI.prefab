@@ -560,7 +560,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b9c40f083e1a6a49b85653c61a88d11, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Subsystems.SpatialUi::LabAssetCard
+  m_EditorClassIdentifier: Subsystems.SpatialUi::LabAsset_Item
   _iconImage: {fileID: 8837537769401096740}
   _nameText: {fileID: 1552050260225028135}
   _button: {fileID: 954399209392460375}

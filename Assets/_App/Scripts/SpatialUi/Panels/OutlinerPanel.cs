@@ -6,8 +6,8 @@ using VContainer;
 public class OutlinerPanel : MonoBehaviour
 {
     [SerializeField] private Transform       _rowsRoot;
-    [SerializeField] private OutlinerItem    _objectRowPrefab;
-    [SerializeField] private RigOutlinerItem _rigRowPrefab;
+    [SerializeField] private OutlinerNode_Item    _objectRowPrefab;
+    [SerializeField] private OutlinerNode_Rig_Item _rigRowPrefab;
     [SerializeField] private float           _indentPx = 16f;
 
     private EventBus    _bus;
@@ -56,7 +56,7 @@ public class OutlinerPanel : MonoBehaviour
     private void OnNodeRenamed(NodeRenamedEvent e)
     {
         if (_rowsRoot == null) return;
-        foreach (var row in _rowsRoot.GetComponentsInChildren<OutlinerItem>())
+        foreach (var row in _rowsRoot.GetComponentsInChildren<OutlinerNode_Item>())
             if (row.NodeId == e.NodeId) { row.SetLabel(e.NewName); return; }
     }
 
@@ -64,7 +64,7 @@ public class OutlinerPanel : MonoBehaviour
     {
         _bonesActiveByRig[e.RigNodeId] = e.Visible;
         if (_rowsRoot == null) return;
-        foreach (var row in _rowsRoot.GetComponentsInChildren<RigOutlinerItem>())
+        foreach (var row in _rowsRoot.GetComponentsInChildren<OutlinerNode_Rig_Item>())
             if (row.NodeId == e.RigNodeId) row.SetBonesMode(e.Visible);
     }
 
@@ -104,7 +104,7 @@ public class OutlinerPanel : MonoBehaviour
         foreach (var node in children)
         {
             var isRig = node.GetComponentInChildren<ProxyRigRuntime>(includeInactive: true) != null;
-            OutlinerItem row = isRig
+            OutlinerNode_Item row = isRig
                 ? Instantiate(_rigRowPrefab, _rowsRoot)
                 : Instantiate(_objectRowPrefab, _rowsRoot);
 
@@ -117,7 +117,7 @@ public class OutlinerPanel : MonoBehaviour
                 _ctx.Selection?.Select(node.NodeId);
             });
 
-            if (row is RigOutlinerItem rigRow
+            if (row is OutlinerNode_Rig_Item rigRow
                 && _bonesActiveByRig.TryGetValue(node.NodeId, out var bonesOn))
             {
                 rigRow.SetBonesMode(bonesOn);
@@ -148,7 +148,7 @@ public class OutlinerPanel : MonoBehaviour
     {
         if (_rowsRoot == null || _ctx.Selection == null) return;
         var selectedId = _ctx.Selection.SelectedNodeId;
-        foreach (var row in _rowsRoot.GetComponentsInChildren<OutlinerItem>())
+        foreach (var row in _rowsRoot.GetComponentsInChildren<OutlinerNode_Item>())
         {
             row.SetVisualState(row.NodeId == selectedId
                 ? SelectionVisual.Selected

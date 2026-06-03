@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class LabAssetCard : MonoBehaviour
+public class LabAsset_Item : MonoBehaviour
 {
     [SerializeField] private Image    _iconImage;
     [SerializeField] private TMP_Text _nameText;
@@ -19,7 +19,7 @@ public class LabAssetCard : MonoBehaviour
     private Color     _backgroundDefault;
     private bool      _hasBackground;
 
-    public event Action<LabAssetCard> Selected;
+    public event Action<LabAsset_Item> Selected;
 
     public ILabAsset Asset => _asset;
 

@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 
 // Карточка-секция в списке биндов: заголовок (название категории) + контейнер строк.
-public class BindingSectionCard : MonoBehaviour
+public class BindingSection_Item : MonoBehaviour
 {
     [SerializeField] private TMP_Text  _titleText;
     [SerializeField] private Transform _rowList;

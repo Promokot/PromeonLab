@@ -15,7 +15,7 @@ public class AnimatorPanelModulePrefabTests
         var row = AssetDatabase.LoadAssetAtPath<GameObject>(
             "Assets/_App/Content/Prefabs/UI/Elements/TimelineRow.prefab");
         Assert.IsNotNull(row, "TimelineRow.prefab missing");
-        Assert.IsNotNull(row.GetComponent<TimelineRow>(), "TimelineRow component missing");
+        Assert.IsNotNull(row.GetComponent<TimelineRow_Item>(), "TimelineRow_Item component missing");
         Assert.IsNotNull(row.transform.Find("NameSegment"), "NameSegment missing");
         Assert.IsNotNull(row.transform.Find("KeyStrip"), "KeyStrip missing");
     }

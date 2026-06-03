@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class OutlinerItem : MonoBehaviour
+public class OutlinerNode_Item : MonoBehaviour
 {
     [SerializeField] private TMP_Text      _label;
     [SerializeField] private Image         _highlight;

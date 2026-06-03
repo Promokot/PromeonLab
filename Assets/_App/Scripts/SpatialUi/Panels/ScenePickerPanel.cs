@@ -15,7 +15,7 @@ public class ScenePickerPanel : MonoBehaviour
 
     private AppStorage _storage;
     private EventBus   _bus;
-    private SceneItem  _selectedItem;
+    private SceneListNode_Item  _selectedItem;
 
     [Inject]
     public void Construct(AppStorage storage, EventBus bus)
@@ -49,12 +49,12 @@ public class ScenePickerPanel : MonoBehaviour
     private void SpawnItem(string sceneId, string displayName)
     {
         var go   = Instantiate(_sceneItemPrefab, _listRoot);
-        var item = go.GetComponent<SceneItem>();
+        var item = go.GetComponent<SceneListNode_Item>();
         item.Init(sceneId, displayName);
         item.Clicked += OnItemClicked;
     }
 
-    private void OnItemClicked(SceneItem item)
+    private void OnItemClicked(SceneListNode_Item item)
     {
         _selectedItem?.SetSelected(false);
         _selectedItem = item;

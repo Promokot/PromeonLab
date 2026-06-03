@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class SceneItem : MonoBehaviour
+public class SceneListNode_Item : MonoBehaviour
 {
     [SerializeField] private TMP_Text _label;
     [SerializeField] private Image    _background;
@@ -15,7 +15,7 @@ public class SceneItem : MonoBehaviour
     public string SceneId     { get; private set; }
     public string DisplayName { get; private set; }
 
-    public event Action<SceneItem> Clicked;
+    public event Action<SceneListNode_Item> Clicked;
 
     public void Init(string sceneId, string displayName)
     {
