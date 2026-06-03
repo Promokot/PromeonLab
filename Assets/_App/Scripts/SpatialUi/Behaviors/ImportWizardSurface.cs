@@ -52,6 +52,7 @@ public class ImportWizardSurface : MonoBehaviour, IRegionSurface
         if (_fileNameLabel != null) _fileNameLabel.text = System.IO.Path.GetFileName(e.FilePath);
         if (_nameInput != null)     _nameInput.text     = e.SuggestedName;
         SetTypeSelection(e.SuggestedType);
+        ClearAxisSelection();
         _router?.Open("importWizard");
     }
 
@@ -104,10 +105,22 @@ public class ImportWizardSurface : MonoBehaviour, IRegionSurface
         return AssetType.Object;
     }
 
+    // Leaves every axis toggle off so the wizard opens in Auto (no explicit leaf-bone axis).
+    // The Axis Toggle Group must have AllowSwitchOff enabled, otherwise Unity's EnsureValidState
+    // force-selects the first toggle on enable and Auto can never be the default.
+    private void ClearAxisSelection()
+    {
+        _axisXToggle?.SetIsOnWithoutNotify(false);
+        _axisYToggle?.SetIsOnWithoutNotify(false);
+        _axisZToggle?.SetIsOnWithoutNotify(false);
+        _axisInvertToggle?.SetIsOnWithoutNotify(false);
+    }
+
     private TerminalBoneAxis SelectedTerminalBonesAxis()
     {
         if (_axisXToggle != null && _axisXToggle.isOn) return TerminalBoneAxis.X;
+        if (_axisYToggle != null && _axisYToggle.isOn) return TerminalBoneAxis.Y;
         if (_axisZToggle != null && _axisZToggle.isOn) return TerminalBoneAxis.Z;
-        return TerminalBoneAxis.Y; // Y is the default selection
+        return TerminalBoneAxis.Auto; // no toggle selected = Auto (orient along parent direction)
     }
 }
