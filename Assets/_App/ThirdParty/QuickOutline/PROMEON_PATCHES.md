@@ -51,3 +51,16 @@ outline. No-op when `materials.Length >= subMeshCount` (single-submesh objects u
 already-clamped material is visually identical. Known limit: a NON-readable multi-submesh mesh still
 can't get a combined submesh (CombineSubmeshes needs `mesh.triangles`), so it would remain partial —
 such a mesh needs Read/Write enabled in its import settings.
+
+## 6. Real-submesh tracking — fixes material overdraw on shared meshes (2026-06-03)
+Bug: a SECOND Outline instance on the same SHARED mesh painted the last material over the whole object
+("materials shift") and triggered "This renderer has more materials than the Mesh has submeshes".
+Cause: `CombineSubmeshes` permanently mutates the shared mesh (`subMeshCount++` + a combined all-triangles
+submesh) ONCE per mesh (guarded by the static `registeredMeshes`), but patch #5's `EnsureMaterialPerSubmesh`
+had NO such guard and padded materials up to the already-inflated `subMeshCount`, duplicating the last
+REAL material onto the combined whole-mesh submesh → it overdraws everything.
+Fix: a static `Dictionary<Mesh,int> realSubmeshCounts` + `RealSubmeshCount(mesh)` records the pristine
+(pre-combine) submesh count the first time a mesh is seen. `EnsureMaterialPerSubmesh` pads only to that
+REAL count (never the combined one); `CombineSubmeshes` uses the real count and bails if `subMeshCount > real`
+(already combined). Residual: the appended fill still overflows by one slot → the perf-hint warning can
+appear by +1; it is inherent to QuickOutline's overflow-fill and harmless.

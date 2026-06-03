@@ -75,7 +75,11 @@
       "Bash(grep guid: Assets/_App/Scripts/SpatialUi/Panels/__TRACKED_VAR__.cs.meta)",
       "Bash(grep -rl \"10f9c3b833735084fa42f947b0cd842c\" Assets --include=*.prefab --include=*.unity --include=*.asset)",
       "Bash(grep -rl \"a5b5ff4e63bf30248884449bbb45c36e\" Assets --include=*.prefab --include=*.unity --include=*.asset)",
-      "Bash(grep -rl \"c80757e098dae5048a35a538cf3b7e97\" Assets --include=*.prefab --include=*.unity --include=*.asset)"
+      "Bash(grep -rl \"c80757e098dae5048a35a538cf3b7e97\" Assets --include=*.prefab --include=*.unity --include=*.asset)",
+      "PowerShell($src = \"S:\\\\[01] Files\\\\[03] Obsidian Vaults\\\\OVault_Promokot\\\\Data\\\\Files\\\\Documents\\\\ВКР_Пищагин.М.А.v11.docx\"; $dst = \"S:\\\\[02] Projects\\\\[02] Study\\\\[00] Repositories\\\\PromeonLab\\\\.tmp_thesis_v11\"; try { Remove-Item -LiteralPath $dst -Recurse -Force -ErrorAction Stop } catch {}; New-Item -ItemType Directory -Path $dst | Out-Null; Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory\\($src, $dst\\); Get-ChildItem $dst -Recurse | Where-Object { -not $_.PSIsContainer } | Select-Object -ExpandProperty FullName)",
+      "Bash(grep -hoE 'BoxCollider|MeshCollider|SphereCollider|CapsuleCollider' Assets/_App/Content/Prefabs/BuiltInAssets/__TRACKED_VAR__.prefab)",
+      "Bash(grep -nE 'm_Name:|BoxCollider|m_GameObject:' Assets/_App/Content/Prefabs/BuiltInAssets/__TRACKED_VAR__.prefab)",
+      "Bash(grep -c BoxCollider Assets/_App/Content/Prefabs/BuiltInAssets/__TRACKED_VAR__.prefab)"
     ]
   },
   "enabledMcpjsonServers": [

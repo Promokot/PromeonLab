@@ -16,6 +16,21 @@ using UnityEngine;
 public class Outline : MonoBehaviour {
   private static HashSet<Mesh> registeredMeshes = new HashSet<Mesh>();
 
+  // Original (pre-combine) submesh count per shared mesh. CombineSubmeshes mutates the SHARED mesh
+  // once per mesh (guarded by registeredMeshes), so a SECOND Outline instance on the same mesh would
+  // otherwise read the inflated subMeshCount and EnsureMaterialPerSubmesh would pad a real material
+  // onto the appended combined submesh — overdrawing the whole object with the last material.
+  // Recording the real count the first time we touch a mesh keeps padding bounded to actual submeshes.
+  private static readonly Dictionary<Mesh, int> realSubmeshCounts = new Dictionary<Mesh, int>();
+
+  private static int RealSubmeshCount(Mesh mesh) {
+    if (!realSubmeshCounts.TryGetValue(mesh, out int count)) {
+      count = mesh.subMeshCount; // first sighting precedes this component's CombineSubmeshes
+      realSubmeshCounts[mesh] = count;
+    }
+    return count;
+  }
+
   public enum Mode {
     OutlineAll,
     OutlineVisible,
@@ -146,10 +161,13 @@ public class Outline : MonoBehaviour {
       }
       if (mesh == null) continue;
 
+      int real = RealSubmeshCount(mesh);
       var materials = renderer.sharedMaterials;
-      if (materials.Length >= mesh.subMeshCount) continue; // already enough — no-op
+      if (materials.Length >= real) continue; // already a material per REAL submesh — no-op
 
-      var padded = new Material[mesh.subMeshCount];
+      // Pad to the REAL submesh count only — never to an inflated (already-combined) subMeshCount,
+      // or the duplicated last material would paint the combined whole-mesh submesh over everything.
+      var padded = new Material[real];
       for (int i = 0; i < padded.Length; i++) {
         padded[i] = materials[Mathf.Min(i, materials.Length - 1)];
       }
@@ -229,6 +247,14 @@ public class Outline : MonoBehaviour {
   private void AppendMaterials() {
     foreach (var renderer in renderers) {
       var materials = renderer.sharedMaterials.ToList();
+
+      // TEMP DIAG (remove after): diagnose flat-fill-on-select. Logs per-renderer the real material
+      // count vs the mesh submesh count + outline mode/stencil at the moment outline materials append.
+      var diagMesh = renderer is SkinnedMeshRenderer dsmr ? dsmr.sharedMesh
+                   : renderer.GetComponent<MeshFilter>() != null ? renderer.GetComponent<MeshFilter>().sharedMesh : null;
+      Debug.Log($"[OutlineDiag] {gameObject.name}/{renderer.name} matsBefore={materials.Count} " +
+                $"subMeshes={(diagMesh != null ? diagMesh.subMeshCount : -1)} mode={outlineMode} stencilRef={stencilRef}");
+
       materials.Add(outlineMaskMaterial);
       materials.Add(outlineFillMaterial);
       renderer.materials = materials.ToArray();
@@ -363,19 +389,24 @@ public class Outline : MonoBehaviour {
 
   void CombineSubmeshes(Mesh mesh, Material[] materials) {
 
-    // Skip meshes with a single submesh
-    if (mesh.subMeshCount == 1) {
+    int real = RealSubmeshCount(mesh);
+
+    // Single real submesh: the overflow fill already covers it, no combined submesh needed.
+    if (real == 1) {
       return;
     }
 
-    // Skip if submesh count exceeds material count
-    if (mesh.subMeshCount > materials.Length) {
+    // Skip if there are fewer materials than real submeshes (nothing to combine against).
+    if (real > materials.Length) {
       return;
     }
 
-    // Append combined submesh
-    mesh.subMeshCount++;
-    mesh.SetTriangles(mesh.triangles, mesh.subMeshCount - 1);
+    // Append the combined whole-mesh submesh once; bail if a prior instance already combined this mesh.
+    if (mesh.subMeshCount > real) {
+      return;
+    }
+    mesh.subMeshCount = real + 1;
+    mesh.SetTriangles(mesh.triangles, real);
   }
 
   void UpdateMaterialProperties() {
