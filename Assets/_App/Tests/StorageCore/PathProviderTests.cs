@@ -20,13 +20,6 @@ public class PathProviderTests
     }
 
     [Test]
-    public void AssetPath_ReturnsExpectedPath()
-    {
-        Assert.AreEqual("/data/scenes/scene-01/assets/Models/mesh.fbx",
-            _sut.AssetPath("scene-01", "Models/mesh.fbx"));
-    }
-
-    [Test]
     public void AnimationJson_ReturnsExpectedPath()
     {
         Assert.AreEqual("/data/scenes/scene-01/animation.json",

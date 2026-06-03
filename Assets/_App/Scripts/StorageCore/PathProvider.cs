@@ -16,17 +16,8 @@ public class PathProvider
     public string SceneJson(string sceneId) =>
         Path.Combine(SceneRoot(sceneId), "scene.json");
 
-    public string AssetCatalogJson(string sceneId) =>
-        Path.Combine(SceneRoot(sceneId), "asset-catalog.json");
-
     public string AnimationJson(string sceneId) =>
         Path.Combine(SceneRoot(sceneId), "animation.json");
-
-    public string AssetPath(string sceneId, string relativePath) =>
-        Path.Combine(SceneRoot(sceneId), "assets", relativePath);
-
-    public string ExportDir(string sceneId) =>
-        Path.Combine(SceneRoot(sceneId), "export");
 
     public string ScenesRoot() =>
         Path.Combine(_root, "scenes");
