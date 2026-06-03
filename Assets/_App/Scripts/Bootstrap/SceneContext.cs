@@ -6,23 +6,21 @@ public class SceneContext
 {
     public SceneGraph        Graph     { get; private set; }
     public ISelectionManager Selection { get; private set; }
-    public CommandStack      Commands  { get; private set; }
-    public GizmoController    Gizmo     { get; private set; }
     public AnimationAuthoring Authoring { get; private set; }
     public AnimationClock     Clock     { get; private set; }
 
     public bool HasScene => Graph != null;
 
-    public void Bind(SceneGraph graph, ISelectionManager selection, CommandStack commands,
-                     GizmoController gizmo, AnimationAuthoring authoring, AnimationClock clock)
+    public void Bind(SceneGraph graph, ISelectionManager selection,
+                     AnimationAuthoring authoring, AnimationClock clock)
     {
-        Graph = graph; Selection = selection; Commands = commands;
-        Gizmo = gizmo; Authoring = authoring; Clock = clock;
+        Graph = graph; Selection = selection;
+        Authoring = authoring; Clock = clock;
     }
 
     public void Clear()
     {
-        Graph = null; Selection = null; Commands = null;
-        Gizmo = null; Authoring = null; Clock = null;
+        Graph = null; Selection = null;
+        Authoring = null; Clock = null;
     }
 }

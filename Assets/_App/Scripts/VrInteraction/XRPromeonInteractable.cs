@@ -20,7 +20,6 @@ public class XRPromeonInteractable : XRBaseInteractable
     [SerializeField] private InteractionLayer _interactionLayer = InteractionLayer.SceneObjects;
 
     private ISelectionManager _selectionManager;
-    private GizmoController   _gizmoController;
     private IDragStrategy     _dragStrategy = new SingleDragStrategy();
     private SceneNode         _node;
 
@@ -101,10 +100,9 @@ public class XRPromeonInteractable : XRBaseInteractable
     }
 
     [Inject]
-    public void Construct(ISelectionManager selectionManager, GizmoController gizmoController)
+    public void Construct(ISelectionManager selectionManager)
     {
         _selectionManager = selectionManager;
-        _gizmoController  = gizmoController;
     }
 
     // Disable XRI standard select-flow. We read inputs directly. Hover still works
@@ -120,7 +118,7 @@ public class XRPromeonInteractable : XRBaseInteractable
         if (_state != State.Idle && (_locked == null || !_locked.isActiveAndEnabled))
         { EndInteraction(); return; }
 
-        if (_selectionManager == null || _gizmoController == null) return;
+        if (_selectionManager == null) return;
 
         switch (_state)
         {
@@ -165,11 +163,7 @@ public class XRPromeonInteractable : XRBaseInteractable
             case State.TriggerRotate:
                 if (_locked.activateInput.ReadWasCompletedThisFrame())
                 {
-                    var pos = transform.position;
-                    var rot = transform.rotation;
-                    var scl = transform.localScale;
                     EndInteraction();
-                    _gizmoController.CommitTransform(transform, pos, rot, scl);
                     break;
                 }
                 ApplyRotate();
@@ -178,11 +172,7 @@ public class XRPromeonInteractable : XRBaseInteractable
             case State.GripMove:
                 if (_locked.selectInput.ReadWasCompletedThisFrame())
                 {
-                    var pos = transform.position;
-                    var rot = transform.rotation;
-                    var scl = transform.localScale;
                     EndInteraction();
-                    _gizmoController.CommitTransform(transform, pos, rot, scl);
                     break;
                 }
                 ApplyMove();

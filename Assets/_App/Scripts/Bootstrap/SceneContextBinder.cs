@@ -24,8 +24,6 @@ public class SceneContextBinder : IStartable, IDisposable
         _ctx.Bind(
             Resolve<SceneGraph>(),
             Resolve<ISelectionManager>(),
-            Resolve<CommandStack>(),
-            Resolve<GizmoController>(),
             Resolve<AnimationAuthoring>(),
             Resolve<AnimationClock>());
 

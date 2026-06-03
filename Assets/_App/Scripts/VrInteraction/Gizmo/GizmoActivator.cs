@@ -36,7 +36,6 @@ public class GizmoActivator : MonoBehaviour
     private EventBus          _bus;
     private SceneGraph        _graph;
     private ISelectionManager _selection;
-    private GizmoController   _gizmoController;
     private OutlineConfig     _outlineConfig;
 
     private bool       _panelOpen;
@@ -62,12 +61,11 @@ public class GizmoActivator : MonoBehaviour
     private Vector3             _targetScaleAtGrab;
 
     [Inject]
-    public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection, GizmoController gizmoController, OutlineConfig outlineConfig)
+    public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection, OutlineConfig outlineConfig)
     {
         _bus             = bus;
         _graph           = graph;
         _selection       = selection;
-        _gizmoController = gizmoController;
         _outlineConfig   = outlineConfig;
 
         // Subscribe immediately. Doing this in OnEnable would race with LifetimeScope.Awake's
@@ -434,14 +432,7 @@ public class GizmoActivator : MonoBehaviour
         var currentMode = _mode;
         _hierarchy?.OnHandleReleased(currentMode);
         if (_target == null) { EndDragInternal(); return; }
-        var finalPos   = _target.position;
-        var finalRot   = _target.rotation;
-        var finalScale = _target.localScale;
-        // Restore to original so TransformCommand.ctor captures the correct _old snapshot.
-        _target.position   = _originalPos;
-        _target.rotation   = _originalRot;
-        _target.localScale = _originalScale;
-        _gizmoController?.CommitTransform(_target, finalPos, finalRot, finalScale);
+        // Transform is already live from the drag; undo recording was removed, so keep the final pose.
         // Bounds-fit frozen: a scale drag mutated the instance scale, so reset it back to the fixed size.
         if (_instance != null && _config != null)
             _instance.transform.localScale = Vector3.one * CurrentSize();

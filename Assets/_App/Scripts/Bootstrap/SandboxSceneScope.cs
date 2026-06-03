@@ -14,17 +14,11 @@ public class SandboxSceneScope : LifetimeScope
         builder.RegisterInstance(Camera.main);
         builder.Register<SceneGraph>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SelectionManager>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
-        builder.Register<CommandStack>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
-        builder.Register<GizmoController>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SelectionVisualSync>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
 
         var catcher = Object.FindAnyObjectByType<WorldClickCatcher>(FindObjectsInactive.Include);
         if (catcher != null)
             builder.RegisterBuildCallback(c => c.Inject(catcher));
-
-        var undo = Object.FindAnyObjectByType<UndoKeyHandler>(FindObjectsInactive.Include);
-        if (undo != null)
-            builder.RegisterBuildCallback(c => c.Inject(undo));
 
         var propPanel = Object.FindAnyObjectByType<PropertyPanel>(FindObjectsInactive.Include);
         if (propPanel != null) builder.RegisterInstance(propPanel).AsImplementedInterfaces().AsSelf();
