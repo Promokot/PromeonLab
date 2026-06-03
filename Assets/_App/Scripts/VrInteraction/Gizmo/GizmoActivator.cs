@@ -11,6 +11,7 @@ public class GizmoActivator : MonoBehaviour
     private OutlineConfig     _outlineConfig;
 
     private GizmoHighlightPainter _painter;
+    private GizmoDragSession      _drag;
 
     private bool       _panelOpen;
     private GizmoMode  _mode = GizmoMode.Move;
@@ -19,17 +20,6 @@ public class GizmoActivator : MonoBehaviour
 
     private GameObject     _instance;
     private GizmoHierarchy _hierarchy;
-    private GizmoHandle    _grabbedHandle;
-
-    private bool                _dragActive;
-    private IGizmoDragStrategy  _activeStrategy;
-    private Vector3             _originalPos;
-    private Quaternion          _originalRot;
-    private Vector3             _originalScale;
-    // Scale-inversion baselines: при scale-drag гизмо мутирует свою localScale, а target
-    // получает пропорциональный фактор (instance.scale / instanceAtGrab → target = targetAtGrab * factor).
-    private Vector3             _instanceScaleAtGrab;
-    private Vector3             _targetScaleAtGrab;
 
     [Inject]
     public void Construct(EventBus bus, SceneGraph graph, ISelectionManager selection, OutlineConfig outlineConfig)
@@ -39,6 +29,7 @@ public class GizmoActivator : MonoBehaviour
         _selection       = selection;
         _outlineConfig   = outlineConfig;
         _painter         = new GizmoHighlightPainter(_outlineConfig, _config);
+        _drag            = new GizmoDragSession(_config, _bus, _painter);
 
         // Subscribe immediately. Doing this in OnEnable would race with LifetimeScope.Awake's
         // BuildCallback — if Activator's OnEnable ran first, _bus would be null and the bail-out
@@ -69,10 +60,10 @@ public class GizmoActivator : MonoBehaviour
     private void LateUpdate()
     {
         if (_instance == null) return;
-        if (_target == null) { if (!_dragActive) Despawn(); return; }
+        if (_target == null) { if (!_drag.IsActive) Despawn(); return; }
         // Во время drag гизмо — primary source-of-truth (strategy мутирует instance напрямую,
         // target подтягивается за ним в OnHandleDragged). Не переписываем instance из target.
-        if (_dragActive) return;
+        if (_drag.IsActive) return;
         _instance.transform.position = _target.position;
         _instance.transform.rotation = _target.rotation;
     }
@@ -86,21 +77,21 @@ public class GizmoActivator : MonoBehaviour
 
     private void OnPanelClosed(GizmoToolsPanelClosedEvent _)
     {
-        if (_dragActive) return;
+        if (_drag.IsActive) return;
         _panelOpen = false;
         RefreshVisibility();
     }
 
     private void OnModeChanged(GizmoModeChangedEvent e)
     {
-        if (_dragActive) return;
+        if (_drag.IsActive) return;
         _mode = e.Mode;
         if (_instance != null && _hierarchy != null) _hierarchy.ShowMode(_mode);
     }
 
     private void OnSelectionChanged(SelectionChangedEvent e)
     {
-        if (_dragActive) return;
+        if (_drag.IsActive) return;
         _target       = (e.SelectedNodeId != null) ? _graph?.GetNode(e.SelectedNodeId)?.transform : null;
         _targetNodeId = e.SelectedNodeId;
         RefreshVisibility();
@@ -152,15 +143,15 @@ public class GizmoActivator : MonoBehaviour
     // Fired by GizmoHandle when its primary-hover state flips (skipped while that handle is grabbed).
     public void OnHandleHoverChanged(GizmoHandle handle, bool hovering)
     {
-        if (handle == null) return;
-        if (_dragActive && _grabbedHandle == handle) return; // grab color wins
+        if (handle == null || _painter == null) return;
+        if (_drag != null && _drag.IsGrabbing(handle)) return; // grab color wins
         if (hovering) _painter.Darken(handle);
         else          _painter.Restore(handle);
     }
 
     private void Despawn()
     {
-        if (_dragActive) AbortDrag();
+        _drag?.Abort();
         if (_instance != null) Destroy(_instance);
         _instance  = null;
         _hierarchy = null;
@@ -169,117 +160,24 @@ public class GizmoActivator : MonoBehaviour
 
     public void OnHandleGrabbed(GizmoHandle handle, Vector3 handPos, Quaternion handRot)
     {
-        if (_dragActive || _target == null || handle == null || _instance == null) return;
-        _dragActive          = true;
-        _originalPos         = _target.position;
-        _originalRot         = _target.rotation;
-        _originalScale       = _target.localScale;
-        _instanceScaleAtGrab = _instance.transform.localScale;
-        _targetScaleAtGrab   = _target.localScale;
-        _activeStrategy      = ResolveStrategy(handle);
-        _hierarchy?.OnHandleGrabbed(handle);
-
-        // Highlight the grabbed handle (mesh material + outline) in the distinct active color;
-        // restored in EndDragInternal. Uses the handle→parts map, so it lands on the renderer even
-        // when it sits on a child of the handle GO (the scaler).
-        _grabbedHandle = handle;
-        _painter.Recolor(handle, _painter.GrabOutlineColor);
-        // Гизмо — primary: strategy мутирует _instance.transform во всех режимах.
-        // Target подтягивается за гизмо в OnHandleDragged в зависимости от типа стратегии.
-        _activeStrategy.BeginDrag(_instance.transform, handle.Axis, handPos, handRot);
-        _bus?.Publish(new GizmoDragStartedEvent { TargetNodeId = _targetNodeId });
+        if (_drag == null || _target == null || handle == null || _instance == null) return;
+        _drag.Begin(_instance.transform, _target, _targetNodeId, _hierarchy, _mode, CurrentSize(),
+                    handle, handPos, handRot);
     }
 
     public void OnHandleDragged(Vector3 handPos, Quaternion handRot)
     {
-        if (!_dragActive) return;
-        if (_target == null || _instance == null) { OnHandleAborted(); return; }
-        _activeStrategy?.UpdateDrag(handPos, handRot);
-        // Target follows гизмо. Тип синка зависит от стратегии.
-        switch (_activeStrategy)
-        {
-            case AxisMoveStrategy:
-                _target.position = _instance.transform.position;
-                break;
-            case RingRotateStrategy:
-                _target.rotation = _instance.transform.rotation;
-                break;
-            case AxisScaleStrategy:
-            case UniformScaleStrategy:
-                // Гизмо сама масштабируется визуально → target получает тот же фактор изменения,
-                // применённый к собственной исходной шкале (не к гизмовой bounds-fit шкале).
-                var inst = _instance.transform.localScale;
-                var fX = SafeRatio(inst.x, _instanceScaleAtGrab.x);
-                var fY = SafeRatio(inst.y, _instanceScaleAtGrab.y);
-                var fZ = SafeRatio(inst.z, _instanceScaleAtGrab.z);
-                _target.localScale = new Vector3(
-                    _targetScaleAtGrab.x * fX,
-                    _targetScaleAtGrab.y * fY,
-                    _targetScaleAtGrab.z * fZ);
-                break;
-        }
+        _drag?.Update(handPos, handRot);
     }
-
-    private static float SafeRatio(float num, float den) => Mathf.Abs(den) < 1e-6f ? 1f : num / den;
 
     public void OnHandleReleased()
     {
-        if (!_dragActive) return;
-        _activeStrategy?.EndDrag();
-        var currentMode = _mode;
-        _hierarchy?.OnHandleReleased(currentMode);
-        if (_target == null) { EndDragInternal(); return; }
-        // Transform is already live from the drag; undo recording was removed, so keep the final pose.
-        // Bounds-fit frozen: a scale drag mutated the instance scale, so reset it back to the fixed size.
-        if (_instance != null && _config != null)
-            _instance.transform.localScale = Vector3.one * CurrentSize();
-        EndDragInternal();
+        _drag?.End();
     }
 
     public void OnHandleAborted()
     {
-        Debug.LogWarning($"[GizmoActivator] OnHandleAborted called, dragActive={_dragActive}");
-        if (!_dragActive) return;
-        AbortDrag();
-    }
-
-    private void AbortDrag()
-    {
-        if (_target != null)
-        {
-            _target.position   = _originalPos;
-            _target.rotation   = _originalRot;
-            _target.localScale = _originalScale;
-        }
-        _activeStrategy?.EndDrag();
-        if (_hierarchy != null) _hierarchy.OnHandleReleased(_mode);
-        EndDragInternal();
-    }
-
-    private void EndDragInternal()
-    {
-        // Restore the grabbed handle (mesh material + outline) from the active color to its base.
-        if (_grabbedHandle != null)
-        {
-            _painter.Restore(_grabbedHandle);
-            _grabbedHandle = null;
-        }
-
-        var id = _targetNodeId;
-        _activeStrategy = null;
-        _dragActive     = false;
-        _bus?.Publish(new GizmoDragEndedEvent { TargetNodeId = id });
-    }
-
-    private IGizmoDragStrategy ResolveStrategy(GizmoHandle handle)
-    {
-        switch (handle.Kind)
-        {
-            case HandleKind.MoveAxis:     return new AxisMoveStrategy();
-            case HandleKind.ScaleAxis:    return new AxisScaleStrategy(_config.ScaleGain, _config.DeadzoneMeters);
-            case HandleKind.ScaleUniform: return new UniformScaleStrategy(_config.ScaleGain, _config.DeadzoneMeters);
-            case HandleKind.RotateRing:   return new RingRotateStrategy(_config.RotGain, _config.DeadzoneMeters);
-            default:                      return new AxisMoveStrategy();
-        }
+        Debug.LogWarning($"[GizmoActivator] OnHandleAborted called, dragActive={_drag != null && _drag.IsActive}");
+        _drag?.Abort();
     }
 }
