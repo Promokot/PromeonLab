@@ -8,7 +8,7 @@
 Assets/
 ├── _App/                         ← ALL project code and owned assets
 │   ├── Scripts/                  ← ALL runtime C# (_App.Runtime.asmdef)
-│   │   ├── Core/                 ← Generic primitives only: EventBus.cs, ICommand.cs
+│   │   ├── Core/                 ← Generic primitives only: EventBus.cs
 │   │   ├── Bootstrap/            ← LifetimeScopes, AppBootstrap, scene loader
 │   │   └── {SubsystemName}/      ← one folder per subsystem
 │   ├── Editor/                   ← Editor-only code (_App.Editor.asmdef), excluded from builds
@@ -54,7 +54,7 @@ Scripts/{SubsystemName}/
 
 Notes:
 - A *simple* panel needs only its root `*Panel` script (it is both "brain" and "hands"). Sub-parts appear only when a panel grows large enough to split (today: `AnimatorPanel`).
-- `Panels/` is **flat** — the `<Panel>` prefix groups a panel with its sub-parts (e.g. `AnimatorPanel`, `AnimatorSubToolbar`, `AnimatorSubRuler`).
+- `Panels/` is **flat** — the `<Panel>` prefix groups a panel with its sub-parts (e.g. `AnimatorPanel`, `AnimatorToolbarView`, `AnimatorRulerView`).
 - `Module` / `Overlay` are *placements* of a Panel, not script types — expressed by hierarchy, not the suffix.
 
 ### Region model (panel open/close)
@@ -62,7 +62,7 @@ Notes:
 All panel opening goes through one mechanism, not per-panel show/hide logic:
 
 - **`PanelRegionRouter`** (Framework, `RootLifetimeScope` — app-lifetime, since the UserPanel + nav buttons live on the persistent XR rig) — `Open`/`Close`/`Toggle(moduleId)`, keeps **at most one open surface per region**, publishes `RegionChangedEvent`.
-- **`IRegionSurface`** (`Show`/`Hide`/`IsOpen`) — the router speaks only this, never raw `SetActive`. **`RegionMember`** carries a module's `moduleId` and is the default surface (SetActive), delegating to a sibling `IRegionSurface` adapter when present (e.g. `FileBrowserSurface` over the SimpleFileBrowser modal).
+- **`IRegionSurface`** (`Show`/`Hide`/`IsOpen`) — the router speaks only this, never raw `SetActive`. **`RegionMember`** carries a module's `moduleId` and is the default surface (SetActive), delegating to a sibling `IRegionSurface` adapter when present (e.g. `FileBrowserPanel` over the SimpleFileBrowser modal).
 - A module's **region** is its `NavBarConfig.ExclusiveGroup`; `NavBarConfig` (`IRegionConfig`) also supplies per-mode visibility and an optional **per-region default** (`IsRegionDefault`) that the router auto-reopens when its region empties (this is how the keyboard's nav-bar overlay restores on close).
 - **Triggers live in `Behaviors/`** and call the router: `RegionNavButton` (button → `Toggle`, plus per-mode button visibility and open/closed brightness from `RegionChangedEvent`) — used by both nav buttons and the keyboard button. Code paths open imperatively too (e.g. `AssetBrowserPanel` → `router.Open("fileBrowser")`).
 - Modules **self-describe** (a `RegionMember` with a `moduleId`); the scene scope discovers all `RegionMember`s (including inactive) in a build callback and registers them — hosts do not hold module lists.
@@ -173,13 +173,13 @@ All panel opening goes through one mechanism, not per-panel show/hide logic:
 - **Context-specific and domain-oriented type names** — named after the domain concept, not the pattern
 - **Editor-only code inside `Editor/`** — no `#if UNITY_EDITOR` guards in runtime files
 - **One public type per file** — file name matches the type name exactly
-- **`CommandStack` for all user-reversible actions** — no direct mutation bypassing commands
+- **No undo/redo subsystem** — the `CommandStack`/`ICommand` undo stack was removed; mutations apply directly
 - **`PathProvider` as the single path-building authority** — no manual string concatenation for asset/scene paths
 - **Interface-first for platform-dependent code** — wrappers behind interfaces in the owning subsystem's folder, not concrete platform classes at call sites
 - **Per-scope `EventBus`** — Root-scope events never carry scene-specific data
 - **Mode-specific services live in the mode scene's own scope** (e.g. VrEditing registers `AnimationAuthoring`/`AnimationClock`; Sandbox does not) — consumers read them through the root `SceneContext` façade and must guard on the specific service, not just `HasScene`
 - **Subsystem-specific code stays in its subsystem folder** under `Scripts/`
-- **All serialized data versioned** with a `schemaVersion` field — migrations handled exclusively in `StorageMigrator`
+- **All serialized data versioned** with a `schemaVersion` field — migrations handled inline at the deserialization boundary (e.g. `SceneSerializer.Deserialize`); there is no separate `StorageMigrator`
 
 ---
 
@@ -188,7 +188,7 @@ All panel opening goes through one mechanism, not per-panel show/hide logic:
 | Scope | Contents |
 |---|---|
 | `RootLifetimeScope` | App-lifetime singletons (`DontDestroyOnLoad` under `PersistentRoot`): `AppStorage`, `PathProvider`, `AnimationClock`, `EventBus`, `SceneContext`, `ModeOrchestrator`, `ISceneTransition`/`SceneTransitionRunner`, `PanelRegionRouter` |
-| Mode scene scope | The loaded scene's own `LifetimeScope` (`MainMenu`/`VrEditing`/`Sandbox`): `SceneGraph`, `SelectionManager`, `CommandStack`, `GizmoController`, scene `AssetImporter`; binds `SceneContext` via `SceneContextBinder` |
+| Mode scene scope | The loaded scene's own `LifetimeScope` (`MainMenu`/`VrEditing`/`Sandbox`): `SceneGraph`, `SelectionManager`, `AssetSpawner`; binds `SceneContext` via `SceneContextBinder` |
 
 - Child scopes may depend on parent scope registrations; parent scopes must never depend on child scopes
 - Exactly one mode scene is loaded at a time (`LoadSceneMode.Single`); its scope parents to the persistent root and is disposed with the scene. Scene services are surfaced app-wide via the root `SceneContext` (bound/cleared by `SceneContextBinder`, signalled by `SceneContextChangedEvent`)

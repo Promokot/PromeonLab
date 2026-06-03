@@ -253,7 +253,6 @@ Assets/
     │   │
     │   ├── Core/                           shared primitives used across all subsystems
     │   │   ├── EventBus.cs
-    │   │   └── ICommand.cs
     │   │
     │   ├── Animation/                      (merged AnimationAuthoring + AnimationPlayback)
     │   │   ├── ActionContainer.cs
@@ -281,21 +280,21 @@ Assets/
     │   │   ├── AssetRef.cs
     │   │   ├── AssetRegistry.cs
     │   │   ├── AssetSource.cs               enum: Builtin | Imported | Saved
-    │   │   ├── AssetSourceStore.cs          copies raw import file → asset-library/sources/{id}{ext}
+    │   │   ├── ImportedSourceProvider.cs          copies raw import file → asset-library/sources/{id}{ext}
     │   │   ├── AssetSpawner.cs              browser-placement trigger → AssetSpawnerRegistry
     │   │   ├── AssetSpawnerRegistry.cs      dispatch IAssetSpawner by AssetType
     │   │   ├── AssetType.cs                 enum: Object | Rig | Reference
     │   │   ├── BuiltinAssetLibrary.cs
     │   │   ├── BuiltinLabAsset.cs
     │   │   ├── DemoAssetCatalog.cs
-    │   │   ├── GltfImportHandler.cs         IAssetImportHandler for .glb/.gltf
-    │   │   ├── GltfModelLoader.cs           runtime glTF/GLB load via glTFast
-    │   │   ├── IAssetImportHandler.cs       raw file → ImportedLabAsset record
+    │   │   ├── GltfAssetImporter.cs         IAssetImporter for .glb/.gltf
+    │   │   ├── GltfModelImporter.cs           runtime glTF/GLB load via glTFast
+    │   │   ├── IAssetImporter.cs       raw file → ImportedLabAsset record
     │   │   ├── IAssetLibrary.cs
     │   │   ├── IAssetRegistry.cs
     │   │   ├── IAssetSpawner.cs             record → GameObject (one per AssetType)
     │   │   ├── ILabAsset.cs                 pure data {Id,DisplayName,Type,Source,SourceRef,Icon}
-    │   │   ├── ImageImportHandler.cs        IAssetImportHandler for .png/.jpg/.jpeg
+    │   │   ├── ImageAssetImporter.cs        IAssetImporter for .png/.jpg/.jpeg
     │   │   ├── ImportPipeline.cs            FilePicked → wizard → handler → library
     │   │   ├── ImportedAssetLibrary.cs
     │   │   ├── ImportedLabAsset.cs
@@ -316,12 +315,11 @@ Assets/
     │   │   ├── AppBootstrap.cs
     │   │   ├── FallGuard.cs
     │   │   ├── MainMenuSceneScope.cs
-    │   │   ├── PlayerSpawnApplier.cs
+    │   │   ├── XrRigRecenterer.cs
     │   │   ├── RootLifetimeScope.cs
     │   │   ├── SandboxSceneScope.cs
-    │   │   ├── UndoKeyHandler.cs
     │   │   ├── VrEditingSceneScope.cs
-    │   │   └── VrInputFieldProxy.cs
+    │   │   └── VrInputFieldFocusBridge.cs
     │   │
     │   ├── ErrorHandling/
     │   │   ├── ErrorHandling.cs
@@ -358,14 +356,12 @@ Assets/
     │   │       └── BonesVisibilityChangedEvent.cs
     │   │
     │   ├── SceneComposition/
-    │   │   ├── CommandStack.cs
     │   │   ├── ISceneGraph.cs
     │   │   ├── ISelectionManager.cs
     │   │   ├── SceneAutoSaver.cs
     │   │   ├── SceneGraph.cs
     │   │   ├── SceneNode.cs
     │   │   ├── SelectionManager.cs
-    │   │   ├── TransformCommand.cs
     │   │   ├── Constraints/
     │   │   │   └── ConstraintFreezePosition.cs
     │   │   └── Events/
@@ -390,14 +386,13 @@ Assets/
     │   │   ├── IRegionConfig.cs            interface: region lookup + per-region default
     │   │   ├── RegionMember.cs             per-module registrar + default SetActive surface
     │   │   ├── VrKeyboard.cs               keyboard widget (root-scoped; reclassify pending — spec B)
-    │   │   ├── Panels/                 (root *Panel scripts + AnimatorSub* parts)
+    │   │   ├── Panels/                 (root *Panel scripts + Animator*View parts)
     │   │   │   ├── AnimatorPanel.cs
-    │   │   │   ├── AnimatorSubToolbar.cs
-    │   │   │   ├── AnimatorSubTransport.cs
-    │   │   │   ├── AnimatorSubEmptyState.cs
-    │   │   │   ├── AnimatorSubRuler.cs
-    │   │   │   ├── AnimatorSubPlayhead.cs
-    │   │   │   ├── AnimatorSubLanes.cs
+    │   │   │   ├── AnimatorToolbarView.cs
+    │   │   │   ├── AnimatorTransportView.cs
+    │   │   │   ├── AnimatorEmptyStateView.cs
+    │   │   │   ├── AnimatorRulerView.cs
+    │   │   │   ├── AnimatorPlayheadView.cs
     │   │   │   ├── AssetBrowserPanel.cs
     │   │   │   ├── BoneInspectorPanel.cs
     │   │   │   ├── IkWizardPanel.cs
@@ -409,17 +404,17 @@ Assets/
     │   │   │   ├── SettingsPanel.cs
     │   │   │   └── UserPanel.cs
     │   │   ├── Elements/               (list-row widgets, instantiated per item)
-    │   │   │   ├── LabAssetCard.cs
-    │   │   │   ├── OutlinerItem.cs
-    │   │   │   ├── RigOutlinerItem.cs
-    │   │   │   ├── SceneItem.cs
+    │   │   │   ├── LabAsset_Item.cs
+    │   │   │   ├── OutlinerNode_Item.cs
+    │   │   │   ├── OutlinerNode_Rig_Item.cs
+    │   │   │   ├── SceneListNode_Item.cs
     │   │   │   ├── TimelineLane.cs
     │   │   │   └── TrackRow.cs
     │   │   ├── Behaviors/              (one interaction/behavior per GameObject)
     │   │   │   ├── DetachablePanelDragHandle.cs
-    │   │   │   ├── FileBrowserSurface.cs       IRegionSurface adapter over SimpleFileBrowser modal
+    │   │   │   ├── FileBrowserPanel.cs       IRegionSurface adapter over SimpleFileBrowser modal
     │   │   │   ├── FileBrowserVrAnchor.cs
-    │   │   │   ├── ImportWizardSurface.cs       IRegionSurface — import wizard (type + name choice)
+    │   │   │   ├── ImportWizardPanel.cs       IRegionSurface — import wizard (type + name choice)
     │   │   │   ├── PanelDragHandle.cs
     │   │   │   ├── RegionNavButton.cs          button → router.Toggle; per-mode visibility; brightness
     │   │   │   ├── TimelineScrollSync.cs
@@ -440,16 +435,15 @@ Assets/
     │   │   ├── PathProvider.cs
     │   │   ├── SceneData.cs
     │   │   ├── SceneSerializer.cs
-    │   │   └── UnsavedChangesGuard.cs
+    │   │   └── SceneDirtyTracker.cs
     │   │
     │   └── VrInteraction/
-    │       ├── GizmoController.cs
     │       ├── GizmoMode.cs
-    │       ├── IDragStrategy.cs
+    │       ├── IObjectDragStrategy.cs
     │       ├── Selectable.cs
     │       ├── SelectionVisual.cs
     │       ├── SelectionVisualSync.cs
-    │       ├── WorldClickCatcher.cs
+    │       ├── EmptySpaceClickDeselector.cs
     │       ├── XRPromeonInteractable.cs
     │       ├── Events/
     │       │   ├── GizmoDragEndedEvent.cs
@@ -459,8 +453,8 @@ Assets/
     │       │   └── GizmoToolsPanelOpenedEvent.cs
     │       └── Gizmo/
     │           ├── AxisKind.cs
-    │           ├── BoundsFitter.cs
-    │           ├── GizmoActivator.cs
+    │           ├── GizmoBoundsComputer.cs
+    │           ├── GizmoDriver.cs
     │           ├── GizmoConfig.cs
     │           ├── GizmoHandle.cs
     │           ├── GizmoHierarchy.cs
@@ -493,7 +487,6 @@ Assets/
         │   └── PromeonProxyRigBuilderTests.cs
         ├── SceneComposition/               (5 × .cs)
         │   ├── AssetRegistryTests.cs
-        │   ├── CommandStackTests.cs
         │   ├── SceneGraphTests.cs
         │   ├── SceneNodeTests.cs
         │   └── SelectionManagerTests.cs
@@ -503,8 +496,8 @@ Assets/
         └── VrInteraction/                  (6 × .cs)
             ├── AxisMoveStrategyTests.cs
             ├── AxisScaleStrategyTests.cs
-            ├── BoundsFitterTests.cs
-            ├── GizmoActivatorStateTests.cs
+            ├── GizmoBoundsComputerTests.cs
+            ├── GizmoDriverStateTests.cs
             ├── RingRotateStrategyTests.cs
             └── UniformScaleStrategyTests.cs
 ```

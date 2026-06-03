@@ -41,7 +41,7 @@ This is a Unity project — there is no CLI build script. All compilation, build
 | Scope | Lifetime | Key Registrations |
 |---|---|---|
 | `RootLifetimeScope` | App lifetime (`DontDestroyOnLoad` under `PersistentRoot`) | `AppStorage`, `PathProvider`, `EventBus`, `SceneContext`, `ModeOrchestrator`, `ISceneTransition`/`SceneTransitionRunner`, `PanelRegionRouter`, `AnimationClipboard`, asset libraries (`Builtin`/`Imported`/`Saved`), `AssetRegistry`, `ImportPipeline`, `VrKeyboard`, `UserPanel` |
-| Scene scope | The loaded mode scene's own `LifetimeScope` (`MainMenu`/`VrEditing`/`Sandbox`) | `SceneGraph`, `SelectionManager`, `CommandStack`, `GizmoController`, `AssetSpawner`; **VrEditing only** also registers `AnimationClock`, `AnimationAuthoring`, `SceneAutoSaver`, `UnsavedChangesGuard`; binds `SceneContext` via `SceneContextBinder` |
+| Scene scope | The loaded mode scene's own `LifetimeScope` (`MainMenu`/`VrEditing`/`Sandbox`) | `SceneGraph`, `SelectionManager`, `AssetSpawner`; **VrEditing only** also registers `AnimationClock`, `AnimationAuthoring` (+ `AnimationStorage`, `AnimationPlaybackSampler`), `BoneEditMode`, `SceneAutoSaver`, `SceneDirtyTracker`; binds `SceneContext` via `SceneContextBinder` |
 
 Child scopes may depend on parent registrations; **never the reverse**. Exactly one mode scene is loaded at a time (`LoadSceneMode.Single`); its scope parents to the persistent `RootLifetimeScope`. Scene-scoped services are exposed app-wide through the root `SceneContext` façade, populated on scene-scope start and cleared on dispose by `SceneContextBinder` (which publishes `SceneContextChangedEvent`). **`HasScene` (Graph bound) does not imply other services are non-null** — Sandbox does not register `AnimationAuthoring`/`AnimationClock`, so guard on the specific service a consumer uses.
 
@@ -51,19 +51,19 @@ Child scopes may depend on parent registrations; **never the reverse**. Exactly 
 
 ### Subsystems
 
-Located in `Assets/_App/Scripts/<Subsystem>/`. Interfaces and contracts for each subsystem live in that subsystem's own folder; only the two truly-generic primitives (`EventBus.cs`, `ICommand.cs`) live in `Scripts/Core/`.
+Located in `Assets/_App/Scripts/<Subsystem>/`. Interfaces and contracts for each subsystem live in that subsystem's own folder; only the truly-generic primitive (`EventBus.cs`) lives in `Scripts/Core/`.
 
 | Subsystem | Core Responsibility |
 |---|---|
 | `StorageCore` | File I/O, JSON serialization, `PathProvider`, inline schema migration in `SceneSerializer.Deserialize` (versioned `scene.json`; current v3 adds per-rig bone poses) |
-| `AssetBrowser` | VR gallery UI over three asset libraries keyed by `AssetSource` (`Builtin`/`Imported`/`Saved`); runtime import pipeline (`ImportPipeline` + `ImportWizardSurface`) for glTF/GLB (via glTFast) and images; **build-once/restore-many** entity pipeline (`IAssetEntityBuilder` + `AssetEntityBuilderRegistry`, Object/Rig/Reference builders) with capability applied via `InteractionCapability.Apply`; spawning via `AssetSpawner`; **thumbnails generated at import** (`ThumbnailRenderer` off-screen-renders models → `thumbnails/{id}.png`; images reuse their source; shown by `AssetBrowserPanel.ResolveIcon` per `ILabAsset.ThumbnailRef`); no direct file access (delegates to `StorageCore`/`AssetSourceStore`) |
-| `SceneComposition` | Scene node hierarchy, `CommandStack` (undo only, max 30 — **no redo**), `SelectionManager` (single-select: `Select(id?)` / `SelectedNodeId`) |
-| `RigBuilder` | Runtime proxy-bone rig built on spawn (`RigEntityFactory.BuildProxyRig` → per-bone proxy GO + `BoneFollower`; coordinated by `ProxyRigRuntime`). Bone poses persist via schema-v3 `NodeData.BonePoses`. **IK chains are serialized but no solver consumes them yet** (no Animation Rigging) |
-| `Animation` | Per-`ActionContainer` keyframe authoring (`AnimationAuthoring`): selected-track keying, per-container **Linear/Stepped interpolation** (runtime tangents, not `AnimationUtility`), scrub preview, debounced persistence, `AnimationClip`-based sampling. Transport (`AnimationClock`) is always **single-shot** (scrub + play/pause + scene-wide fps; rewinds to the first keyframe at end). **Per-object Loop** is background playback — `AnimationAuthoring` is also `ITickable` and samples every looping container on its own cursor, so multiple looped objects play concurrently regardless of selection; the transport drives only the selected object. During transport **playback** `AnimationAuthoring.Tick` samples the active container at the clock's **fractional** position (`AnimationClock.CurrentFrameContinuous`) each render frame — motion is smooth, not quantized to the animation fps; the integer `FrameChangedEvent` only steps the playhead, and `ApplyFrame` (integer) handles **scrub** while paused. **No NLA / master timeline yet** (see `docs/BACKLOG.md`). UI: `AnimatorPanel` + `AnimatorSub*` modules |
+| `AssetBrowser` | VR gallery UI over three asset libraries keyed by `AssetSource` (`Builtin`/`Imported`/`Saved`); runtime import pipeline (`ImportPipeline` + `ImportWizardPanel`) for glTF/GLB (via glTFast) and images; **build-once/restore-many** entity pipeline (`IAssetEntityBuilder` + `AssetEntityBuilderRegistry`, Object/Rig/Reference builders) with capability applied via `InteractionCapability.Apply`; spawning via `AssetSpawner`; **thumbnails generated at import** (`ThumbnailRenderer` off-screen-renders models → `thumbnails/{id}.png`; images reuse their source; shown by `AssetBrowserPanel.ResolveIcon` per `ILabAsset.ThumbnailRef`); no direct file access (delegates to `StorageCore`/`ImportedSourceProvider`) |
+| `SceneComposition` | Scene node hierarchy, `SelectionManager` (single-select: `Select(id?)` / `SelectedNodeId`). **No undo/redo** — the `CommandStack`/`ICommand` subsystem was removed; mutations apply directly |
+| `RigBuilder` | Runtime proxy-bone rig built on spawn (`RigEntityFabricator.BuildProxyRig` → per-bone proxy GO + `BoneFollower`; coordinated by `ProxyRigRuntime`). Bone poses persist via schema-v3 `NodeData.BonePoses`. **IK chains are serialized but no solver consumes them yet** (no Animation Rigging) |
+| `Animation` | Per-`ActionContainer` keyframe authoring. `AnimationAuthoring` is a CRUD/orchestration façade split (A1) into static `AnimationClipBaker` (track→clip + interpolation tangents), `AnimationPlaybackSampler` (`ITickable` sampling/loop playback), and `AnimationStorage` (`animation.json` load/save, non-destructive on unsupported versions). Features: selected-track keying, per-container **Linear/Stepped interpolation** (runtime tangents, not `AnimationUtility`), scrub preview, debounced persistence, `AnimationClip`-based sampling. Transport (`AnimationClock`) is always **single-shot** (scrub + play/pause + scene-wide fps; rewinds to the first keyframe at end). **Per-object Loop** is background playback — `AnimationPlaybackSampler` is the `ITickable` and samples every looping container on its own cursor, so multiple looped objects play concurrently regardless of selection; the transport drives only the selected object. During transport **playback** `AnimationPlaybackSampler.Tick` samples the active container at the clock's **fractional** position (`AnimationClock.CurrentFrameContinuous`) each render frame — motion is smooth, not quantized to the animation fps; the integer `FrameChangedEvent` only steps the playhead, and `ApplyFrame` (integer) handles **scrub** while paused. **No NLA / master timeline yet** (see `docs/BACKLOG.md`). UI: `AnimatorPanel` + `Animator*View` modules |
 | `ExportPipeline` | **Working ZIP-bundle export.** `SceneExporter` (app-lifetime, request/result events) captures live state via `SceneContext` (Graph snapshot + `AnimationAuthoring.CaptureForExport`), runs a pure `static BuildBundle`, and writes `Documents/{Application.productName}/{name}.zip` = `scene.json` (flat external schema, `SceneBundle`, **one-way / not re-importable**) + `models/{assetId}.glb` + `textures/{assetId}.png` (copied import sources, deduped). Builtin assets carry no source file → flagged `geometryMissing`. Zip via `System.IO.Compression.ZipArchive` (Quest-safe), written on a thread-pool thread. UI: `ExportPanel` on the `exporter` nav-bar tab (`ExportModule.prefab`). Real **FBX** / richer JSON still planned (see `docs/BACKLOG.md`) |
 | `InputBindings` | Controls vocabulary for the Settings panel: `ControlsProfile` (SO) + `ControlBinding` data, rendered by `SettingsPanel`. (The interaction *input model* itself lives in `VrInteraction`.) |
 | `ModeOrchestrator` | Mode policy: validates `ModeTransitionGraph`, delegates to `ISceneTransition`/`SceneTransitionRunner` (single-scene load behind `HeadFade`); publishes `ModeExitingEvent` before the load (outgoing scope still alive) and `ModeChangedEvent` after the load |
-| `VrInteraction` | `XRPromeonInteractable` direct-input on `NearFarInteractor` (tap-trigger = select, hold-trigger = rotate, hold-grip = move; XRI select-flow disabled); `GizmoController`/`GizmoActivator` gizmo; `InteractionMaskBinder` contextual cast-masks; QuickOutline-based outline. **Single-select** |
+| `VrInteraction` | `XRPromeonInteractable` direct-input on `NearFarInteractor` (tap-trigger = select, hold-trigger = rotate, hold-grip = move; XRI select-flow disabled); `GizmoDriver` gizmo (highlight via `GizmoHighlightPainter`, drag via `GizmoDragSession`); `InteractionMaskBinder` contextual cast-masks; QuickOutline-based outline. **Single-select** |
 | `SpatialUi` | VR panels (`SpatialPanel`: `BodyLocked` / `WorldFixed` / `Free` + billboard); root-lifetime region/navbar model (`PanelRegionRouter` + `NavBarConfig` + `RegionMember`); `UserPanel` (grip-grab + triple-lock); `SettingsPanel`; `AnimatorPanel` |
 | `ErrorHandling` | `ErrorLevel` enum + `ErrorOccurredEvent`. **`ErrorDispatcher` is not implemented** — error reporting currently goes straight to `Debug.Log*` (see `docs/BACKLOG.md`) |
 
@@ -72,14 +72,14 @@ Located in `Assets/_App/Scripts/<Subsystem>/`. Interfaces and contracts for each
 All cross-subsystem messages are `struct` types suffixed `Event` (e.g., `SceneOpenedEvent`, `ModeChangedEvent`), published via the per-scope `EventBus` (`Publish<T>`/`Subscribe<T>`). `*Event` structs live in each subsystem's `Events/` subfolder. **Direct method calls across subsystem boundaries are forbidden.** Key events:
 
 `SceneOpened` → SceneComposition, AssetBrowser  
-`SceneModified` → UnsavedChangesGuard  
-`SelectionChanged` → PropertyPanel, GizmoController, `ProxyRigRuntime`, `SelectionVisualSync`  
+`SceneModified` → SceneDirtyTracker  
+`SelectionChanged` → PropertyPanel, GizmoDriver, `ProxyRigRuntime`, `SelectionVisualSync`  
 `FrameChanged` → `AnimationAuthoring` (samples the clip), `AnimatorPanel` (moves playhead)  
 `ModeExiting` → SceneAutoSaver (fired *before* the Single load, while the outgoing scene/scope are still alive)  
 `ModeChanged` → SpatialUi region router / nav-bar visibility (fired *after* the new scene has loaded)  
 `SceneContextChanged` → OutlinerPanel, InspectorPanel, PropertyPanel, AnimatorPanel (scene services bound/unbound)  
-`FilePicked` → ImportPipeline (picks an `IAssetImportHandler` by extension, opens the import wizard)  
-`ImportRequested` → ImportWizardSurface (show wizard: file name, suggested type/name)  
+`FilePicked` → ImportPipeline (picks an `IAssetImporter` by extension, opens the import wizard)  
+`ImportRequested` → ImportWizardPanel (show wizard: file name, suggested type/name)  
 `ImportConfirmed` → ImportPipeline (handler copies source + writes the library record)  
 `AssetImported` → AssetBrowser grid refresh  
 `AssetSpawnRequested` → `AssetSpawner` (restores through `AssetEntityBuilderRegistry.RestoreAsync`)  
@@ -113,7 +113,7 @@ Imported assets are global: a node in `scene.json` stores `AssetRef{Source, Asse
 Assets/
 ├── _App/                             ← ALL project code, owned content, AND vendored third-party
 │   ├── Scripts/                      ← ALL runtime C# code (_App.Runtime.asmdef)
-│   │   ├── Core/                     ← Generic primitives: EventBus.cs, ICommand.cs
+│   │   ├── Core/                     ← Generic primitive: EventBus.cs
 │   │   ├── Bootstrap/                ← LifetimeScopes, AppBootstrap, scene loader
 │   │   └── {SubsystemName}/          ← one folder per subsystem
 │   │       ├── {Name}.cs             ← primary façade (if needed)
@@ -159,7 +159,7 @@ Assets/
 - No `async void` except Unity lifecycle entry points (`Start`, `Awake`), wrapped with error handling; pass `CancellationToken` as the last parameter on all async methods
 - ScriptableObjects for config/graphs/profiles only — **not** for runtime mutable state
 - One public type per file; file name matches type name exactly
-- All user-reversible actions go through `CommandStack` — no direct mutation bypassing it
+- **No undo/redo subsystem** — the `CommandStack`/`ICommand`/`TransformCommand` undo stack was removed; mutations apply directly (transform undo may be reconsidered later, see `docs/BACKLOG.md`)
 - Platform-dependent code behind interfaces declared in the owning subsystem's folder (no concrete platform classes at call sites)
 - All serialized data carries a `schemaVersion` field; migrations are inline at the deserialization boundary (e.g. `SceneSerializer.Deserialize` does v1/v2→v3) — there is no separate `StorageMigrator` class
 - Cross-subsystem boundaries are enforced by convention (folder structure + code review) — there are no per-subsystem assemblies; all runtime code compiles into `_App.Runtime`
@@ -170,7 +170,7 @@ Assets/
 - `FindObjectOfType` / `FindAnyObjectByType` / `GameObject.Find` in **gameplay/runtime** code — use DI. **Exception:** the DI-bootstrap shim inside `LifetimeScope.Configure` (and its `RegisterBuildCallback`s) may use `FindAnyObjectByType` / `FindObjectsByType(..., FindObjectsInactive.Include)` *solely* to locate scene-placed `MonoBehaviour`s and hand them to `builder.Inject` / `RegisterInstance`. That is the only legal home for `Find*`; it must never appear in a panel, behavior, or service.
 - `Singleton.Instance` pattern — use VContainer scopes
 - `static` fields holding mutable runtime state (pure-function statics and `static readonly` cached constants are fine)
-- **Junk-drawer type names** — don't reach for `*Manager`/`*Handler`/`*Helper`/`*Utils`/`*Processor`/`*Service`/`*Controller` as a *default* when a domain noun exists (`SceneGraph` not `SceneManager`; `CommandStack` not `UndoManager`). A pattern suffix is acceptable when it **is** the domain role with a specific prefix (`SelectionManager`, `GizmoController`, `UndoKeyHandler`, `*Orchestrator`). Banned outright: bare/over-generic names with no domain prefix (`Manager`, `Utils`, `Helper`, `DataController`) and catch-all `*Service`/`*Utils`/`*Helper` grab-bag classes.
+- **Junk-drawer type names** — don't reach for `*Manager`/`*Handler`/`*Helper`/`*Utils`/`*Processor`/`*Service`/`*Controller` as a *default* when a domain noun exists (`SceneGraph` not `SceneManager`; `SelectionManager` not `SelectionController`). A pattern suffix is acceptable when it **is** the domain role with a specific prefix (`SelectionManager`, `ModeOrchestrator`, `*Orchestrator`). Banned outright: bare/over-generic names with no domain prefix (`Manager`, `Utils`, `Helper`, `DataController`) and catch-all `*Service`/`*Utils`/`*Helper` grab-bag classes.
 - `Resources.Load` — `_App` code must not use this; use prefab references via DI or `Content/` folder
 - `MonoBehaviour` as a data container
 - `Update()`-based polling where an event suffices

@@ -13,7 +13,7 @@ Status legend: **ABSENT** (no code) · **STUB** (placeholder type/field, no beha
 
 | Feature | Status | Notes | Ref |
 |---|---|---|---|
-| ~~Asset thumbnails / preview generation~~ | ✅ DONE 2026-06-02 | Imported assets get a thumbnail at import: **models** (Object/Rig) are rendered off-screen by `ThumbnailRenderer` (`Camera.Render` → `asset-libraries/thumbnails/{id}.png`); **images** (Reference) reuse their source file. Stored as `ImportedLabAsset._thumbnailRef` (relative, additive — `imported-lib.json` stays schemaVersion 2). `AssetBrowserPanel.ResolveIcon` loads/caches the sprite onto each card (`LabAssetCard.Bind(asset, icon)`). Builtin still uses its inspector sprite. Verified in-headset. Spec/plan: `docs/superpowers/{specs,plans}/2026-06-02-import-thumbnail-generator*`. | — |
+| ~~Asset thumbnails / preview generation~~ | ✅ DONE 2026-06-02 | Imported assets get a thumbnail at import: **models** (Object/Rig) are rendered off-screen by `ThumbnailRenderer` (`Camera.Render` → `asset-libraries/thumbnails/{id}.png`); **images** (Reference) reuse their source file. Stored as `ImportedLabAsset._thumbnailRef` (relative, additive — `imported-lib.json` stays schemaVersion 2). `AssetBrowserPanel.ResolveIcon` loads/caches the sprite onto each card (`LabAsset_Item.Bind(asset, icon)`). Builtin still uses its inspector sprite. Verified in-headset. Spec/plan: `docs/superpowers/{specs,plans}/2026-06-02-import-thumbnail-generator*`. | — |
 | **Saved-library thumbnails** | ABSENT | `SavedLabAsset.ThumbnailRef => null` (Slice 3 spawn flow isn't implemented, so there's nothing to render yet). | — |
 | **Saved library spawn (Slice 3)** | PARTIAL | `SavedAssetLibrary` load/save/add/remove is built & wired, but `SavedLabAsset.Recipe => null` and `RestoreAsync` has no Saved branch → cannot spawn. No "save object from scene" producer either. | audit 02 §4 |
 | **Drag-and-drop spawn** (`LabAssetCardDragHandler`) | ABSENT | Replaced by the explicit Spawn button. | audit 02 §4 |
@@ -28,8 +28,8 @@ Status legend: **ABSENT** (no code) · **STUB** (placeholder type/field, no beha
 | **Master timeline / NLA** | PARTIAL | Multiple **looped** containers now play concurrently in the background, but there is no master timeline that scrubs/composes several actions together; the transport still drives one selected container. | audit 04 §4 |
 | **Interpolation (Linear/Stepped)** | ✅ DONE 2026-06-02 | Per-container `InterpolationMode`; runtime curve tangents in `BuildClip`. | — |
 | ~~Scrub preview / per-frame intermediate pose~~ | ✅ DONE 2026-06-02 | `OnFrameChanged` samples the active container on scrub (not only during playback). | — |
-| **Undo/Redo for animation actions** | ABSENT | Key set/delete/remove mutate directly, bypassing `CommandStack` (out of scope in specs). | audit 04 §4 |
-| **`SceneModifiedEvent` on key mutation** | ABSENT | Spec wanted every `SetKey` to also mark the scene dirty for `UnsavedChangesGuard`; not published. | audit 04 §4 |
+| **Undo/Redo for animation actions** | ABSENT | The `CommandStack`/`ICommand` undo subsystem was removed entirely (B2, 2026-06-03); key set/delete/remove apply directly. Re-adding undo is unscoped. | audit 04 §4 |
+| **`SceneModifiedEvent` on key mutation** | ABSENT | Spec wanted every `SetKey` to also mark the scene dirty for `SceneDirtyTracker`; not published. | audit 04 §4 |
 | ~~First-Add-animation UI refresh~~ | ✅ FIXED 2026-06-01 | `OnContainerChanged` now handles `Added` before the `_activeOwner` guard (refreshes when the new owner matches the current selection). | audit 04 §6 |
 
 ## RigBuilder
@@ -72,7 +72,7 @@ Status legend: **ABSENT** (no code) · **STUB** (placeholder type/field, no beha
 |---|---|---|---|
 | ~~Remove dead `PanelRegistry` / `UiPanelOrchestrator`~~ | ✅ DONE 2026-06-01 | Deleted `PanelRegistry.cs`, `UiPanelOrchestrator.cs`, `DefaultPanelRegistry.asset` + the `_panelRegistry`/`Register<UiPanelOrchestrator>` lines in both scene scopes (GUID sweep was clean). `PanelId.cs` is now fully dead (harmless) — optional later removal. Region model is the sole panel system. | audit 01 §4 |
 | **Extract `BaseSceneScope`** | OPEN | `VrEditingSceneScope` and `SandboxSceneScope` are ~90% duplicated. | audit 01 §4, project-cleanup Task 3 |
-| **Gizmo moves through `CommandStack`** | OPEN | `TransformCommand` has no constructors / no callers; gizmo drags commit but undo coverage of gizmo moves is unverified. | audit 01 §6 |
+| **Transform undo (move/rotate/scale)** | ABSENT | The whole undo subsystem (`TransformCommand`/`CommandStack`/`GizmoController`) was removed (B2, 2026-06-03); `GizmoDriver`/`XRPromeonInteractable` apply transforms directly with no undo. Reconsider transform-undo later. | audit 01 §6 |
 | **`AppMode.Debug` overlay** | UNUSED | Enum value declared, never wired. | audit 01 §6 |
 
 ---
