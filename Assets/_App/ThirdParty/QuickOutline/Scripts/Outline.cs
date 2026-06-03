@@ -16,21 +16,6 @@ using UnityEngine;
 public class Outline : MonoBehaviour {
   private static HashSet<Mesh> registeredMeshes = new HashSet<Mesh>();
 
-  // Original (pre-combine) submesh count per shared mesh. CombineSubmeshes mutates the SHARED mesh
-  // once per mesh (guarded by registeredMeshes), so a SECOND Outline instance on the same mesh would
-  // otherwise read the inflated subMeshCount and EnsureMaterialPerSubmesh would pad a real material
-  // onto the appended combined submesh — overdrawing the whole object with the last material.
-  // Recording the real count the first time we touch a mesh keeps padding bounded to actual submeshes.
-  private static readonly Dictionary<Mesh, int> realSubmeshCounts = new Dictionary<Mesh, int>();
-
-  private static int RealSubmeshCount(Mesh mesh) {
-    if (!realSubmeshCounts.TryGetValue(mesh, out int count)) {
-      count = mesh.subMeshCount; // first sighting precedes this component's CombineSubmeshes
-      realSubmeshCounts[mesh] = count;
-    }
-    return count;
-  }
-
   public enum Mode {
     OutlineAll,
     OutlineVisible,
@@ -129,12 +114,21 @@ public class Outline : MonoBehaviour {
   private Material outlineMaskMaterial;
   private Material outlineFillMaterial;
 
+  // Per-instance mesh clones for multi-submesh renderers. CombineSubmeshes grows subMeshCount, so it
+  // must run on a clone, never on the shared imported asset (else repeated selects inflate the shared
+  // mesh for the whole editor session). Freed in OnDestroy.
+  private readonly List<Mesh> ownedMeshes = new List<Mesh>();
+
   private bool needsUpdate;
 
   void Awake() {
 
     // Cache renderers
     renderers = GetComponentsInChildren<Renderer>();
+
+    // Multi-submesh meshes get a per-instance clone FIRST, so the submesh combine below never mutates
+    // the shared imported asset (repeated selects would otherwise inflate it for the whole session).
+    CloneMultiSubmeshMeshes();
 
     // Ensure each renderer has at least one material per submesh, so QuickOutline's CombineSubmeshes
     // runs and the appended mask/fill cover the WHOLE mesh (not just the last submesh) on assets
@@ -146,6 +140,30 @@ public class Outline : MonoBehaviour {
 
     // Apply material properties immediately
     needsUpdate = true;
+  }
+
+  // Swap each multi-submesh renderer's mesh for a private clone. Single-submesh meshes are left shared
+  // (they are never combined — the appended mask/fill overflow already covers their one submesh).
+  void CloneMultiSubmeshMeshes() {
+    foreach (var renderer in renderers) {
+      if (renderer == null) continue;
+
+      if (renderer is SkinnedMeshRenderer smr) {
+        var shared = smr.sharedMesh;
+        if (shared == null || shared.subMeshCount <= 1) continue;
+        var clone = Instantiate(shared);
+        clone.name = shared.name + " (OutlineClone)";
+        smr.sharedMesh = clone;
+        ownedMeshes.Add(clone);
+      } else {
+        var mf = renderer.GetComponent<MeshFilter>();
+        if (mf == null || mf.sharedMesh == null || mf.sharedMesh.subMeshCount <= 1) continue;
+        var clone = Instantiate(mf.sharedMesh);
+        clone.name = mf.sharedMesh.name + " (OutlineClone)";
+        mf.sharedMesh = clone;
+        ownedMeshes.Add(clone);
+      }
+    }
   }
 
   void EnsureMaterialPerSubmesh() {
@@ -161,13 +179,10 @@ public class Outline : MonoBehaviour {
       }
       if (mesh == null) continue;
 
-      int real = RealSubmeshCount(mesh);
       var materials = renderer.sharedMaterials;
-      if (materials.Length >= real) continue; // already a material per REAL submesh — no-op
+      if (materials.Length >= mesh.subMeshCount) continue; // already enough — no-op
 
-      // Pad to the REAL submesh count only — never to an inflated (already-combined) subMeshCount,
-      // or the duplicated last material would paint the combined whole-mesh submesh over everything.
-      var padded = new Material[real];
+      var padded = new Material[mesh.subMeshCount];
       for (int i = 0; i < padded.Length; i++) {
         padded[i] = materials[Mathf.Min(i, materials.Length - 1)];
       }
@@ -224,6 +239,12 @@ public class Outline : MonoBehaviour {
     // Destroy material instances
     if (outlineMaskMaterial != null) Destroy(outlineMaskMaterial);
     if (outlineFillMaterial != null) Destroy(outlineFillMaterial);
+
+    // Free per-instance mesh clones.
+    for (int i = 0; i < ownedMeshes.Count; i++) {
+      if (ownedMeshes[i] != null) Destroy(ownedMeshes[i]);
+    }
+    ownedMeshes.Clear();
   }
 
   private bool TryBuildMaterials() {
@@ -389,24 +410,19 @@ public class Outline : MonoBehaviour {
 
   void CombineSubmeshes(Mesh mesh, Material[] materials) {
 
-    int real = RealSubmeshCount(mesh);
-
-    // Single real submesh: the overflow fill already covers it, no combined submesh needed.
-    if (real == 1) {
+    // Skip meshes with a single submesh
+    if (mesh.subMeshCount == 1) {
       return;
     }
 
-    // Skip if there are fewer materials than real submeshes (nothing to combine against).
-    if (real > materials.Length) {
+    // Skip if submesh count exceeds material count
+    if (mesh.subMeshCount > materials.Length) {
       return;
     }
 
-    // Append the combined whole-mesh submesh once; bail if a prior instance already combined this mesh.
-    if (mesh.subMeshCount > real) {
-      return;
-    }
-    mesh.subMeshCount = real + 1;
-    mesh.SetTriangles(mesh.triangles, real);
+    // Append combined submesh
+    mesh.subMeshCount++;
+    mesh.SetTriangles(mesh.triangles, mesh.subMeshCount - 1);
   }
 
   void UpdateMaterialProperties() {
