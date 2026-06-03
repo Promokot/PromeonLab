@@ -22,7 +22,7 @@ public class RigEntityFactoryBuildProxyTests
     private static RigEntityFactory MakeFactory()
     {
         var cfg = ScriptableObject.CreateInstance<ProxyRigConfig>();
-        return new RigEntityFactory(new GltfModelLoader(), cfg);
+        return new RigEntityFactory(new GltfModelImporter(), cfg);
     }
 
     [Test]
