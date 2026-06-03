@@ -38,19 +38,19 @@ public class InspectorPanel : MonoBehaviour
     private EventBus          _bus;
     private SceneContext      _ctx;
     private IAssetRegistry    _registry;
+    private BoneEditMode      _boneEditMode;
 
     private SceneNode _bound;          // currently selected rig/object
     private Transform _boneTransform;  // currently selected bone proxy transform
     private string    _boneRigId;      // parent rig node id (when bone selected)
-    private string    _activeBoneRigId; // rig whose bone mode is ON; persists across selection so the
-                                        // Show Bones toggle stays reachable even with no/bone selection
 
     [Inject]
-    public void Construct(EventBus bus, SceneContext ctx, IAssetRegistry registry)
+    public void Construct(EventBus bus, SceneContext ctx, IAssetRegistry registry, BoneEditMode boneEditMode)
     {
-        _bus      = bus;
-        _ctx      = ctx;
-        _registry = registry;
+        _bus          = bus;
+        _ctx          = ctx;
+        _registry     = registry;
+        _boneEditMode = boneEditMode;
     }
 
     private void OnEnable()
@@ -92,7 +92,7 @@ public class InspectorPanel : MonoBehaviour
             // Scene torn down: this panel is persistent, so drop the remembered bone-mode rig.
             // Otherwise the toggle stays ON into the next scene (which rebuilds the rig with the same
             // NodeId in whole-rig mode), leaving ShowBones stuck on and out of sync with the rig.
-            _activeBoneRigId = null;
+            _boneEditMode?.ClearActive();
             if (_emptyState != null)
             {
                 _emptyState.SetActive(true);
@@ -148,18 +148,19 @@ public class InspectorPanel : MonoBehaviour
         // ShowBones toggle: stays reachable while a rig's bone mode is active, regardless of the current
         // selection (we deselect the rig on entering bone mode, and a bone/empty selection must still be
         // able to turn it off). Prefer the active bone-mode rig; otherwise the rig from selection.
-        var toggleRig = rig;
-        if (_activeBoneRigId != null)
+        var toggleRig   = rig;
+        var activeRigId = _boneEditMode?.ActiveRigId;
+        if (!string.IsNullOrEmpty(activeRigId))
         {
-            var activeNode = _ctx.Graph.GetNode(_activeBoneRigId);
+            var activeNode = _ctx.Graph.GetNode(activeRigId);
             var activeRig  = activeNode != null ? activeNode.GetComponentInChildren<ProxyRigRuntime>(true) : null;
             if (activeRig != null) toggleRig = activeRig;
-            else _activeBoneRigId = null; // active rig vanished (scene change) — drop bone mode
+            else _boneEditMode.ClearActive(); // active rig vanished (scene change) — drop bone mode
         }
         if (_showBonesToggle != null)
         {
             _showBonesToggle.gameObject.SetActive(toggleRig != null);
-            if (toggleRig != null) _showBonesToggle.SetIsOnWithoutNotify(_activeBoneRigId != null);
+            if (toggleRig != null) _showBonesToggle.SetIsOnWithoutNotify(_boneEditMode != null && _boneEditMode.IsActive);
         }
     }
 
@@ -265,44 +266,18 @@ public class InspectorPanel : MonoBehaviour
 
     private void OnShowBonesToggleChanged(bool value)
     {
-        // Resolve the target rig. When turning OFF we may have no selection (entering bone mode
-        // deselected the rig), so fall back to the remembered active bone-mode rig.
-        ProxyRigRuntime rig = null;
-        string                 rigNodeId = null;
-
+        // Resolve which rig the toggle targets. When turning OFF we may have no selection (entering bone
+        // mode deselected the rig), so fall back to BoneEditMode's active rig. BoneEditMode performs the
+        // transition (interactivity, selection hand-off, BonesVisibilityChangedEvent) and no-ops if the
+        // resolved node is not a rig.
+        string rigNodeId = null;
         if (_bound != null)
-        {
-            rig       = _bound.GetComponentInChildren<ProxyRigRuntime>(true);
             rigNodeId = _bound.NodeId;
-        }
         else if (!string.IsNullOrEmpty(_boneRigId))
-        {
-            var rigNode = _ctx.Graph.GetNode(_boneRigId);
-            if (rigNode != null) { rig = rigNode.GetComponentInChildren<ProxyRigRuntime>(true); rigNodeId = rigNode.NodeId; }
-        }
-        else if (!string.IsNullOrEmpty(_activeBoneRigId))
-        {
-            var rigNode = _ctx.Graph.GetNode(_activeBoneRigId);
-            if (rigNode != null) { rig = rigNode.GetComponentInChildren<ProxyRigRuntime>(true); rigNodeId = rigNode.NodeId; }
-        }
+            rigNodeId = _boneRigId;
+        else if (!string.IsNullOrEmpty(_boneEditMode?.ActiveRigId))
+            rigNodeId = _boneEditMode.ActiveRigId;
 
-        if (rig == null) return;
-
-        rig.SetBonesInteractive(value);
-        _bus?.Publish(new BonesVisibilityChangedEvent { RigNodeId = rigNodeId, Visible = value });
-
-        if (value)
-        {
-            // Enter bone mode: remember the rig and drop the rig-object selection immediately, so we
-            // start clean inside the rig. InteractionMaskBinder flips the cast mask to BoneProxies.
-            _activeBoneRigId = rigNodeId;
-            _ctx.Selection?.Select(null);
-        }
-        else
-        {
-            // Exit bone mode: forget it and re-select the rig object (mask returns to SceneObjects).
-            _activeBoneRigId = null;
-            _ctx.Selection?.Select(rigNodeId);
-        }
+        _boneEditMode?.SetActive(rigNodeId, value);
     }
 }
