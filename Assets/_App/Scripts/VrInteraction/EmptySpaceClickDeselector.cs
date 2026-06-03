@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using VContainer;
 
-public class WorldClickCatcher : MonoBehaviour
+public class EmptySpaceClickDeselector : MonoBehaviour
 {
     [SerializeField] private NearFarInteractor _leftInteractor;
     [SerializeField] private NearFarInteractor _rightInteractor;

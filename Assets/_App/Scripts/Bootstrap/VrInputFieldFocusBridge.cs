@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using VContainer;
 using VContainer.Unity;
 
-public class VrInputFieldProxy : MonoBehaviour, IPointerDownHandler
+public class VrInputFieldFocusBridge : MonoBehaviour, IPointerDownHandler
 {
     private TMP_InputField _field;
     private EventBus       _bus;

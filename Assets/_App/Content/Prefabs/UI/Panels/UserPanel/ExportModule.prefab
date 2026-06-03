@@ -540,7 +540,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 390a98ae4b96d104d9c0643d6b775315, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: _App::VrInputFieldProxy
+  m_EditorClassIdentifier: _App::VrInputFieldFocusBridge
 --- !u!1 &941283049929405802
 GameObject:
   m_ObjectHideFlags: 0

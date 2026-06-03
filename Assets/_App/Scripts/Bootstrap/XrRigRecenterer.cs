@@ -7,7 +7,7 @@ using Scene = UnityEngine.SceneManagement.Scene;
 // Places the player at world origin (0,0,0) facing +Z on every scene load and on Respawn.
 // Uses XROrigin.MatchOriginUpCameraForward + MoveCameraToWorldLocation (camera-relative recenter)
 // deferred one frame so the tracked HMD pose from the new scene is applied first.
-public class PlayerSpawnApplier : MonoBehaviour
+public class XrRigRecenterer : MonoBehaviour
 {
     private XROrigin _xrOrigin;
     private Coroutine _recenterCo;
@@ -16,7 +16,7 @@ public class PlayerSpawnApplier : MonoBehaviour
     {
         _xrOrigin = GetComponentInChildren<XROrigin>(true);
         if (_xrOrigin == null)
-            Debug.LogWarning("PlayerSpawnApplier: no XROrigin found on rig — recenter will be a no-op.");
+            Debug.LogWarning("XrRigRecenterer: no XROrigin found on rig — recenter will be a no-op.");
     }
 
     private void OnEnable()  => SceneManager.sceneLoaded += OnSceneLoaded;
@@ -42,7 +42,7 @@ public class PlayerSpawnApplier : MonoBehaviour
 
         if (_xrOrigin == null || _xrOrigin.Camera == null)
         {
-            Debug.LogWarning("PlayerSpawnApplier: XROrigin or Camera is null — recenter skipped.");
+            Debug.LogWarning("XrRigRecenterer: XROrigin or Camera is null — recenter skipped.");
             yield break;
         }
 

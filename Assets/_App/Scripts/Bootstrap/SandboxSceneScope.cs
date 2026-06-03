@@ -17,7 +17,7 @@ public class SandboxSceneScope : LifetimeScope
         builder.Register<BoneEditMode>(Lifetime.Scoped).AsSelf();
         builder.Register<SelectionVisualSync>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
 
-        var catcher = Object.FindAnyObjectByType<WorldClickCatcher>(FindObjectsInactive.Include);
+        var catcher = Object.FindAnyObjectByType<EmptySpaceClickDeselector>(FindObjectsInactive.Include);
         if (catcher != null)
             builder.RegisterBuildCallback(c => c.Inject(catcher));
 

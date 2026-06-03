@@ -1,17 +1,17 @@
 using Unity.XR.CoreUtils;
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerSpawnApplier))]
+[RequireComponent(typeof(XrRigRecenterer))]
 public class FallGuard : MonoBehaviour
 {
     private const float FALL_THRESHOLD_Y = -20f;
 
-    private PlayerSpawnApplier _spawnApplier;
+    private XrRigRecenterer _spawnApplier;
     private XROrigin           _xrOrigin;
 
     private void Awake()
     {
-        _spawnApplier = GetComponent<PlayerSpawnApplier>();
+        _spawnApplier = GetComponent<XrRigRecenterer>();
         _xrOrigin     = GetComponentInChildren<XROrigin>(true);
     }
 

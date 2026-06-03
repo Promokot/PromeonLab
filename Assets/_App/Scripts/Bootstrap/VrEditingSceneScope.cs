@@ -12,14 +12,14 @@ public class VrEditingSceneScope : LifetimeScope
         builder.RegisterEntryPoint<SceneContextBinder>();
         if (_gizmoConfig != null) builder.RegisterInstance(_gizmoConfig);
         builder.RegisterInstance(Camera.main);
-        builder.Register<UnsavedChangesGuard>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+        builder.Register<SceneDirtyTracker>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SceneGraph>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SceneAutoSaver>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<SelectionManager>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
         builder.Register<BoneEditMode>(Lifetime.Scoped).AsSelf();
         builder.Register<SelectionVisualSync>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
 
-        var catcher = Object.FindAnyObjectByType<WorldClickCatcher>(FindObjectsInactive.Include);
+        var catcher = Object.FindAnyObjectByType<EmptySpaceClickDeselector>(FindObjectsInactive.Include);
         if (catcher != null)
             builder.RegisterBuildCallback(c => c.Inject(catcher));
 

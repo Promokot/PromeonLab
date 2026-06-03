@@ -1,14 +1,14 @@
 using System;
 using VContainer.Unity;
 
-public class UnsavedChangesGuard : IStartable, IDisposable
+public class SceneDirtyTracker : IStartable, IDisposable
 {
     private readonly EventBus _bus;
     private bool _isDirty;
 
     public bool IsDirty => _isDirty;
 
-    public UnsavedChangesGuard(EventBus bus) => _bus = bus;
+    public SceneDirtyTracker(EventBus bus) => _bus = bus;
 
     public void Start()
     {

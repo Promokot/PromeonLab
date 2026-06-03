@@ -3,7 +3,7 @@ using UnityEngine;
 /// Prefab-authored interaction-layer assignment. Applies its layer to this
 /// GameObject at runtime (Awake) and in the editor (OnValidate) for visibility.
 [AddComponentMenu("PromeonLab/Interaction Layer Tag")]
-public class InteractionLayerTag : MonoBehaviour
+public class InteractionLayerSetter : MonoBehaviour
 {
     [SerializeField] private InteractionLayer _layer = InteractionLayer.SceneObjects;
 

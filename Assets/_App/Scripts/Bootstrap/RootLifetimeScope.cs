@@ -87,7 +87,7 @@ public class RootLifetimeScope : LifetimeScope
             builder.RegisterBuildCallback(c => c.Inject(userPanel));
         }
 
-        var spawnApplier = Object.FindAnyObjectByType<PlayerSpawnApplier>(FindObjectsInactive.Include);
+        var spawnApplier = Object.FindAnyObjectByType<XrRigRecenterer>(FindObjectsInactive.Include);
         if (spawnApplier != null)
             builder.RegisterInstance(spawnApplier);
 

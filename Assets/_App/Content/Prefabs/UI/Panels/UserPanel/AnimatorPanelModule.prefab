@@ -5515,7 +5515,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 390a98ae4b96d104d9c0643d6b775315, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: _App.Runtime::VrInputFieldProxy
+  m_EditorClassIdentifier: _App.Runtime::VrInputFieldFocusBridge
 --- !u!1 &3787651630401633469
 GameObject:
   m_ObjectHideFlags: 0
@@ -8082,7 +8082,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 390a98ae4b96d104d9c0643d6b775315, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: _App.Runtime::VrInputFieldProxy
+  m_EditorClassIdentifier: _App.Runtime::VrInputFieldFocusBridge
 --- !u!1 &5214198081519901388
 GameObject:
   m_ObjectHideFlags: 0
@@ -10227,7 +10227,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 390a98ae4b96d104d9c0643d6b775315, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: _App.Runtime::VrInputFieldProxy
+  m_EditorClassIdentifier: _App.Runtime::VrInputFieldFocusBridge
 --- !u!1 &6809716585140747264
 GameObject:
   m_ObjectHideFlags: 0

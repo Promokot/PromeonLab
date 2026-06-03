@@ -265,7 +265,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d6478f46acf2ef749b5b906d903daf7f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: _App::PlayerSpawnApplier
+  m_EditorClassIdentifier: _App::XrRigRecenterer
 --- !u!114 &-7393090162708720807
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -277,7 +277,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 97a3566fdb728da4bae1cdeed58741a5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Subsystems.VrInteraction::WorldClickCatcher
+  m_EditorClassIdentifier: Subsystems.VrInteraction::EmptySpaceClickDeselector
   _leftInteractor: {fileID: 7003148439728295754}
   _rightInteractor: {fileID: 9200572079346133}
 --- !u!114 &4773046885057128345
