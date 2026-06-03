@@ -9,9 +9,9 @@ using UnityEngine;
 // equivalents from the SAME geometry/material logic.
 public class ReferenceEntityFabricator
 {
-    private readonly ImportRenderProfile _renderProfile;
+    private readonly ImportedAssetShaderProfile _renderProfile;
 
-    public ReferenceEntityFabricator(ImportRenderProfile renderProfile)
+    public ReferenceEntityFabricator(ImportedAssetShaderProfile renderProfile)
     {
         _renderProfile = renderProfile;
     }
@@ -54,7 +54,7 @@ public class ReferenceEntityFabricator
         return mesh;
     }
 
-    public static Material BuildMaterial(Texture2D tex, bool twoSided, ImportRenderProfile profile)
+    public static Material BuildMaterial(Texture2D tex, bool twoSided, ImportedAssetShaderProfile profile)
     {
         Shader shader = null;
         if (profile != null && profile.TryGet(AssetType.Reference, out var entry))

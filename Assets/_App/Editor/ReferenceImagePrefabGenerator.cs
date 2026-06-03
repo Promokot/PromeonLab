@@ -63,11 +63,11 @@ public static class ReferenceImagePrefabGenerator
         return prefab;
     }
 
-    private static ImportRenderProfile LoadRenderProfile()
+    private static ImportedAssetShaderProfile LoadRenderProfile()
     {
-        var guids = AssetDatabase.FindAssets("t:ImportRenderProfile");
+        var guids = AssetDatabase.FindAssets("t:ImportedAssetShaderProfile");
         if (guids.Length == 0) return null;
-        return AssetDatabase.LoadAssetAtPath<ImportRenderProfile>(AssetDatabase.GUIDToAssetPath(guids[0]));
+        return AssetDatabase.LoadAssetAtPath<ImportedAssetShaderProfile>(AssetDatabase.GUIDToAssetPath(guids[0]));
     }
 
     // AssetDatabase.CreateAsset needs every parent folder registered in the database (a plain

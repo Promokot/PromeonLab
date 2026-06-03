@@ -4,8 +4,8 @@ using UnityEngine;
 // Render presets for runtime-imported assets, keyed by AssetType. glTF models bring their own
 // PBR materials, so today only the Reference (image) path consults this — but Object/Rig spawners
 // can opt into overrides here later without changing call sites.
-[CreateAssetMenu(menuName = "PromeonLab/ImportRenderProfile")]
-public class ImportRenderProfile : ScriptableObject
+[CreateAssetMenu(menuName = "PromeonLab/ImportedAssetShaderProfile")]
+public class ImportedAssetShaderProfile : ScriptableObject
 {
     [Serializable]
     public struct Entry

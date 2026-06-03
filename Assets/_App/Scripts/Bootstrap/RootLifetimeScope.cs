@@ -8,7 +8,7 @@ public class RootLifetimeScope : LifetimeScope
     [SerializeField] private BuiltinAssetLibrary _builtinLibrary;
     [SerializeField] private NavBarConfig        _navBarConfig;
     [SerializeField] private OutlineConfig       _outlineConfig;
-    [SerializeField] private ImportRenderProfile _importRenderProfile;
+    [SerializeField] private ImportedAssetShaderProfile _importRenderProfile;
     [SerializeField] private ProxyRigConfig      _proxyRigConfig;
 
     protected override void Configure(IContainerBuilder builder)
@@ -40,7 +40,7 @@ public class RootLifetimeScope : LifetimeScope
         // runtime profile just means every type falls back to built-in defaults.
         var renderProfile = _importRenderProfile != null
             ? _importRenderProfile
-            : ScriptableObject.CreateInstance<ImportRenderProfile>();
+            : ScriptableObject.CreateInstance<ImportedAssetShaderProfile>();
         if (_importRenderProfile == null)
             Debug.LogWarning("RootLifetimeScope: _importRenderProfile not assigned — imported images fall back to built-in URP/Unlit (two-sided).");
         builder.RegisterInstance(renderProfile);
