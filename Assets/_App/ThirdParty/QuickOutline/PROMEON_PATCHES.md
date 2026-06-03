@@ -52,7 +52,11 @@ already-clamped material is visually identical. Known limit: a NON-readable mult
 can't get a combined submesh (CombineSubmeshes needs `mesh.triangles`), so it would remain partial —
 such a mesh needs Read/Write enabled in its import settings.
 
-## 6. Real-submesh tracking — fixes material overdraw on shared meshes (2026-06-03)
+## 6. Real-submesh tracking — fixes material overdraw on shared meshes (2026-06-03) — SUPERSEDED by #7
+**Do NOT re-apply this on a reimport — it is replaced by #7.** The `realSubmeshCounts` dictionary /
+`RealSubmeshCount` helper described below were REMOVED; #7's per-instance mesh clone makes them
+unnecessary. Kept here only for history.
+
 Bug: a SECOND Outline instance on the same SHARED mesh painted the last material over the whole object
 ("materials shift") and triggered "This renderer has more materials than the Mesh has submeshes".
 Cause: `CombineSubmeshes` permanently mutates the shared mesh (`subMeshCount++` + a combined all-triangles
@@ -64,3 +68,17 @@ Fix: a static `Dictionary<Mesh,int> realSubmeshCounts` + `RealSubmeshCount(mesh)
 REAL count (never the combined one); `CombineSubmeshes` uses the real count and bails if `subMeshCount > real`
 (already combined). Residual: the appended fill still overflows by one slot → the perf-hint warning can
 appear by +1; it is inherent to QuickOutline's overflow-fill and harmless.
+
+## 7. Per-instance clone + idempotent append — fixes flat-fill on multi-submesh (2026-06-03)
+Supersedes the accumulation-prone parts of #5/#6. Two changes:
+- `AppendMaterials` is now idempotent via the pure static `Outline.WithOutlineMaterials(current, mask, fill)`
+  (strips any existing mask/fill before re-appending). A double-append or missed `OnDisable` can no
+  longer grow the material array. Unit-tested in `Assets/_App/Tests/VrInteraction/OutlineMaterialsTests.cs`.
+- `CloneMultiSubmeshMeshes()` (called first in `Awake`) swaps each multi-submesh renderer's mesh for a
+  per-instance `Instantiate` clone, so `CombineSubmeshes` never mutates the shared imported asset. Clones
+  are tracked in `ownedMeshes` and destroyed in `OnDestroy`. Single-submesh meshes are left shared.
+  The static `realSubmeshCounts` guard from #6 is removed (clones make each instance self-contained), and
+  `EnsureMaterialPerSubmesh` / `CombineSubmeshes` were reverted to their plain `mesh.subMeshCount` forms
+  (safe now, because the multi-submesh mesh they see is a fresh, combined-once clone).
+Net: multi-submesh meshes (Chair, Toilet) no longer flat-fill on select, and material/submesh counts
+stay constant across repeated selects.
