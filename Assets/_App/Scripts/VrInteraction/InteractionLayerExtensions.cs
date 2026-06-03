@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// The single funnel for assigning an interaction layer to the GameObject that
 /// carries the collider. Maps the enum to its Unity layer via InteractionLayers.
-public static class GameObjectInteractionLayerExtensions
+public static class InteractionLayerExtensions
 {
     public static void SetInteractionLayer(this GameObject go, InteractionLayer layer)
     {

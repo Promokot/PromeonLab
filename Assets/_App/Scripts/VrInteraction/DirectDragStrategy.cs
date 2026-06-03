@@ -1,13 +1,6 @@
 using UnityEngine;
 
-public enum DragMode { PositionOnly, RotationOnly }
-
-public interface IDragStrategy
-{
-    void Apply(Transform self, Vector3 targetPos, Quaternion targetRot, DragMode mode);
-}
-
-public class SingleDragStrategy : IDragStrategy
+public class DirectDragStrategy : IObjectDragStrategy
 {
     public void Apply(Transform self, Vector3 targetPos, Quaternion targetRot, DragMode mode)
     {

@@ -20,7 +20,7 @@ public class XRPromeonInteractable : XRBaseInteractable
     [SerializeField] private InteractionLayer _interactionLayer = InteractionLayer.SceneObjects;
 
     private ISelectionManager _selectionManager;
-    private IDragStrategy     _dragStrategy = new SingleDragStrategy();
+    private IObjectDragStrategy _dragStrategy = new DirectDragStrategy();
     private SceneNode         _node;
 
     private enum State { Idle, TriggerPressed, TriggerRotate, GripMove }

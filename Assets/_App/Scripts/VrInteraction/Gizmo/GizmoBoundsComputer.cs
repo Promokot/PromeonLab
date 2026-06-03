@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public static class BoundsFitter
+public static class GizmoBoundsComputer
 {
     public static float ComputeSize(Transform target, float boundsCoefficient, float minSize, float maxSize)
     {

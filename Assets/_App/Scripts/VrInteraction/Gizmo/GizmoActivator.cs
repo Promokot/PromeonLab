@@ -117,7 +117,7 @@ public class GizmoActivator : MonoBehaviour
         _instance.transform.rotation = _target.rotation;
 
         // Bounds-fit frozen: spawn at one stable size from config (see _fixedSize), halved on bones.
-        // var size = BoundsFitter.ComputeSize(_target, _config.BoundsCoefficient, _config.MinSize, _config.MaxSize);
+        // var size = GizmoBoundsComputer.ComputeSize(_target, _config.BoundsCoefficient, _config.MinSize, _config.MaxSize);
         _instance.transform.localScale = Vector3.one * CurrentSize();
 
         _hierarchy = _instance.GetComponent<GizmoHierarchy>();
