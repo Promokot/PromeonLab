@@ -9,10 +9,10 @@ using UnityEngine;
 // import is a static mesh → ConvexMesh fallback so it is still selectable.
 public class RigEntityBuilder : IAssetEntityBuilder
 {
-    private readonly AssetSourceStore _store;
+    private readonly ImportedSourceProvider _store;
     private readonly RigEntityFactory _factory;
 
-    public RigEntityBuilder(AssetSourceStore store, RigEntityFactory factory)
+    public RigEntityBuilder(ImportedSourceProvider store, RigEntityFactory factory)
     {
         _store   = store;
         _factory = factory;

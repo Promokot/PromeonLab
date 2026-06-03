@@ -2,11 +2,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class ImageImportHandler : IAssetImportHandler
+public class ImageAssetImporter : IAssetImporter
 {
-    private readonly AssetSourceStore _store;
+    private readonly ImportedSourceProvider _store;
 
-    public ImageImportHandler(AssetSourceStore store) => _store = store;
+    public ImageAssetImporter(ImportedSourceProvider store) => _store = store;
 
     public bool CanHandle(string ext) => ext == ".png" || ext == ".jpg" || ext == ".jpeg";
 

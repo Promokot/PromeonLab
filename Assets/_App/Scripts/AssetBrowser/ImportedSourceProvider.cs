@@ -2,11 +2,11 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class AssetSourceStore
+public class ImportedSourceProvider
 {
     private readonly PathProvider _paths;
 
-    public AssetSourceStore(PathProvider paths) => _paths = paths;
+    public ImportedSourceProvider(PathProvider paths) => _paths = paths;
 
     /// Copies the picked file into asset-libraries/sources/{assetId}{ext} and returns the path
     /// relative to persistentDataPath (stored as the asset's SourceRef).

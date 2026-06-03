@@ -4,11 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class GltfImportHandler : IAssetImportHandler
+public class GltfAssetImporter : IAssetImporter
 {
-    private readonly AssetSourceStore _store;
+    private readonly ImportedSourceProvider _store;
 
-    public GltfImportHandler(AssetSourceStore store) => _store = store;
+    public GltfAssetImporter(ImportedSourceProvider store) => _store = store;
 
     public bool CanHandle(string ext) => ext == ".glb" || ext == ".gltf";
 
@@ -19,7 +19,7 @@ public class GltfImportHandler : IAssetImportHandler
     public async Task<ImportedLabAsset> ImportAsync(string sourceFilePath, AssetType chosenType, string displayName, CancellationToken ct)
     {
         if (Path.GetExtension(sourceFilePath).ToLowerInvariant() == ".gltf")
-            Debug.LogWarning("GltfImportHandler: .gltf with external buffers/textures may not load at runtime; prefer self-contained .glb.");
+            Debug.LogWarning("GltfAssetImporter: .gltf with external buffers/textures may not load at runtime; prefer self-contained .glb.");
 
         var id  = Guid.NewGuid().ToString("N")[..8];
         var rel = await _store.CopyAsync(id, sourceFilePath, ct);

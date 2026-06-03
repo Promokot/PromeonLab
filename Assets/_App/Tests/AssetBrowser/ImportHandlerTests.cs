@@ -8,7 +8,7 @@ public class ImportHandlerTests
     [Test]
     public void Gltf_HandlesGlbAndGltf_NotPng()
     {
-        var h = new GltfImportHandler(null);
+        var h = new GltfAssetImporter(null);
         Assert.IsTrue(h.CanHandle(".glb"));
         Assert.IsTrue(h.CanHandle(".gltf"));
         Assert.IsFalse(h.CanHandle(".png"));
@@ -18,7 +18,7 @@ public class ImportHandlerTests
     [Test]
     public void Image_HandlesPngJpg_NotGlb()
     {
-        var h = new ImageImportHandler(null);
+        var h = new ImageAssetImporter(null);
         Assert.IsTrue(h.CanHandle(".png"));
         Assert.IsTrue(h.CanHandle(".jpg"));
         Assert.IsTrue(h.CanHandle(".jpeg"));
@@ -33,8 +33,8 @@ public class ImportHandlerTests
         var src  = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".glb");
         File.WriteAllBytes(src, new byte[] { 9, 9 });
 
-        var store = new AssetSourceStore(new PathProvider(root));
-        var h      = new GltfImportHandler(store);
+        var store = new ImportedSourceProvider(new PathProvider(root));
+        var h      = new GltfAssetImporter(store);
 
         var record = await h.ImportAsync(src, AssetType.Rig, "Hero", CancellationToken.None);
 

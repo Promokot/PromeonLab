@@ -11,16 +11,16 @@ public class ImportPipeline : IStartable, IDisposable
 {
     private readonly EventBus                  _bus;
     private readonly ImportedAssetLibrary      _library;
-    private readonly IReadOnlyList<IAssetImportHandler> _handlers;
+    private readonly IReadOnlyList<IAssetImporter> _handlers;
     private readonly AssetEntityBuilderRegistry _builders;
-    private readonly AssetSourceStore           _store;
-    private readonly GltfModelLoader            _loader;
+    private readonly ImportedSourceProvider           _store;
+    private readonly GltfModelImporter            _loader;
     private readonly ThumbnailRenderer          _renderer;
     private readonly PathProvider               _paths;
 
-    public ImportPipeline(EventBus bus, ImportedAssetLibrary library, IReadOnlyList<IAssetImportHandler> handlers,
-                          AssetEntityBuilderRegistry builders, AssetSourceStore store,
-                          GltfModelLoader loader, ThumbnailRenderer renderer, PathProvider paths)
+    public ImportPipeline(EventBus bus, ImportedAssetLibrary library, IReadOnlyList<IAssetImporter> handlers,
+                          AssetEntityBuilderRegistry builders, ImportedSourceProvider store,
+                          GltfModelImporter loader, ThumbnailRenderer renderer, PathProvider paths)
     {
         _bus      = bus;
         _library  = library;
@@ -138,7 +138,7 @@ public class ImportPipeline : IStartable, IDisposable
         }
     }
 
-    private IAssetImportHandler HandlerFor(string path)
+    private IAssetImporter HandlerFor(string path)
     {
         var ext = Path.GetExtension(path).ToLowerInvariant();
         return _handlers.FirstOrDefault(h => h.CanHandle(ext));

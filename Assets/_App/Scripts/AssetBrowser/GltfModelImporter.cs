@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using GLTFast;
 using UnityEngine;
 
-public class GltfModelLoader
+public class GltfModelImporter
 {
     /// Loads a .glb from an absolute file path and instantiates it under a fresh root GameObject
     /// placed at pose. Returns the root (or null on failure).
@@ -17,7 +17,7 @@ public class GltfModelLoader
         var ok   = await gltf.LoadGltfBinary(bytes, new Uri(absolutePath));
         if (!ok)
         {
-            Debug.LogError($"GltfModelLoader: failed to parse '{absolutePath}'");
+            Debug.LogError($"GltfModelImporter: failed to parse '{absolutePath}'");
             return null;
         }
 
@@ -26,7 +26,7 @@ public class GltfModelLoader
         var instantiated = await gltf.InstantiateMainSceneAsync(root.transform);
         if (!instantiated)
         {
-            Debug.LogError($"GltfModelLoader: failed to instantiate '{absolutePath}'");
+            Debug.LogError($"GltfModelImporter: failed to instantiate '{absolutePath}'");
             UnityEngine.Object.Destroy(root);
             return null;
         }

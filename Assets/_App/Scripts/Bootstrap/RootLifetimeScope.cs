@@ -46,8 +46,8 @@ public class RootLifetimeScope : LifetimeScope
         builder.RegisterInstance(renderProfile);
 
         // Runtime loaders + per-type spawners.
-        builder.Register<AssetSourceStore>(Lifetime.Singleton);
-        builder.Register<GltfModelLoader>(Lifetime.Singleton);
+        builder.Register<ImportedSourceProvider>(Lifetime.Singleton);
+        builder.Register<GltfModelImporter>(Lifetime.Singleton);
         builder.Register<ThumbnailRenderer>(Lifetime.Singleton);
         builder.Register<ObjectEntityFactory>(Lifetime.Singleton);
         builder.Register<RigEntityFactory>(Lifetime.Singleton);
@@ -64,8 +64,8 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<AssetEntityBuilderRegistry>(Lifetime.Singleton);
 
         // Import handlers + pipeline.
-        builder.Register<GltfImportHandler>(Lifetime.Singleton).As<IAssetImportHandler>();
-        builder.Register<ImageImportHandler>(Lifetime.Singleton).As<IAssetImportHandler>();
+        builder.Register<GltfAssetImporter>(Lifetime.Singleton).As<IAssetImporter>();
+        builder.Register<ImageAssetImporter>(Lifetime.Singleton).As<IAssetImporter>();
         builder.RegisterEntryPoint<ImportPipeline>(Lifetime.Singleton).AsSelf();
 
         // Export pipeline — app-lifetime so it works from any mode.

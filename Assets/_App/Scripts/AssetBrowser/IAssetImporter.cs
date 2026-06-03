@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-public interface IAssetImportHandler
+public interface IAssetImporter
 {
     bool CanHandle(string fileExtension);           // ext is lower-case incl. dot, e.g. ".glb"
     AssetType SuggestedType { get; }                // wizard's default selection for this file kind

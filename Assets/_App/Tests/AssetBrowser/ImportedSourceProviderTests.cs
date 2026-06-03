@@ -12,7 +12,7 @@ public class AssetSourceStoreTests
         var srcFile = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".glb");
         File.WriteAllBytes(srcFile, new byte[] { 1, 2, 3 });
 
-        var store = new AssetSourceStore(new PathProvider(root));
+        var store = new ImportedSourceProvider(new PathProvider(root));
         var rel = await store.CopyAsync("asset9", srcFile, CancellationToken.None);
 
         var abs = Path.Combine(root, rel);

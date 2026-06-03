@@ -10,10 +10,10 @@ using UnityEngine;
 // singleton, so proxies are built into LOCALS and handed to a per-rig ProxyRigRuntime.
 public class RigEntityFactory
 {
-    private readonly GltfModelLoader _loader;
+    private readonly GltfModelImporter _loader;
     private readonly ProxyRigConfig  _config;
 
-    public RigEntityFactory(GltfModelLoader loader, ProxyRigConfig config)
+    public RigEntityFactory(GltfModelImporter loader, ProxyRigConfig config)
     {
         _loader = loader;
         _config = config;

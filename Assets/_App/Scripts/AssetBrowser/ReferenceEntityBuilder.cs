@@ -8,10 +8,10 @@ using UnityEngine;
 // aspect + collider box; Restore rebuilds the quad from the recipe and attaches capability.
 public class ReferenceEntityBuilder : IAssetEntityBuilder
 {
-    private readonly AssetSourceStore       _store;
+    private readonly ImportedSourceProvider       _store;
     private readonly ReferenceEntityFactory _quads;
 
-    public ReferenceEntityBuilder(AssetSourceStore store, ReferenceEntityFactory quads)
+    public ReferenceEntityBuilder(ImportedSourceProvider store, ReferenceEntityFactory quads)
     {
         _store = store;
         _quads = quads;

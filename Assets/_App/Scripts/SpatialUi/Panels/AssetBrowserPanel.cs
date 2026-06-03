@@ -28,7 +28,7 @@ public class AssetBrowserPanel : MonoBehaviour
     private SavedAssetLibrary    _savedLibrary;
     private EventBus             _bus;
     private PanelRegionRouter   _router;
-    private AssetSourceStore    _sources;
+    private ImportedSourceProvider    _sources;
 
     private IAssetLibrary _activeLibrary;
     private ILabAsset     _selectedAsset;
@@ -38,7 +38,7 @@ public class AssetBrowserPanel : MonoBehaviour
     private readonly System.Collections.Generic.Dictionary<string, Sprite> _thumbCache = new();
 
     [Inject]
-    public void Construct(ModeOrchestrator orchestrator, BuiltinAssetLibrary builtin, ImportedAssetLibrary imported, SavedAssetLibrary saved, EventBus bus, PanelRegionRouter router, AssetSourceStore sources)
+    public void Construct(ModeOrchestrator orchestrator, BuiltinAssetLibrary builtin, ImportedAssetLibrary imported, SavedAssetLibrary saved, EventBus bus, PanelRegionRouter router, ImportedSourceProvider sources)
     {
         _orchestrator    = orchestrator;
         _builtinLibrary  = builtin;

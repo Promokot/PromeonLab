@@ -8,10 +8,10 @@ using UnityEngine;
 // kind. RecipeFromInstance is shared with the editor builtin bake.
 public class ObjectEntityBuilder : IAssetEntityBuilder
 {
-    protected readonly AssetSourceStore    _store;
+    protected readonly ImportedSourceProvider    _store;
     protected readonly ObjectEntityFactory _factory;
 
-    public ObjectEntityBuilder(AssetSourceStore store, ObjectEntityFactory factory)
+    public ObjectEntityBuilder(ImportedSourceProvider store, ObjectEntityFactory factory)
     {
         _store   = store;
         _factory = factory;
