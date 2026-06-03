@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class AnimatorSubRuler : MonoBehaviour
+public class AnimatorRulerView : MonoBehaviour
 {
     [SerializeField] private RectTransform       _content;
     [SerializeField] private RectTransform       _tickPrefab;

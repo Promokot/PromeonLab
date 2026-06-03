@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-public class AnimatorSubPlayhead : MonoBehaviour
+public class AnimatorPlayheadView : MonoBehaviour
 {
     [SerializeField] private RectTransform        _root;
     [SerializeField] private TMP_Text             _frameLabel;

@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class AnimatorSubEmptyState : MonoBehaviour
+public class AnimatorEmptyStateView : MonoBehaviour
 {
     [SerializeField] private GameObject _noSelectionPanel;
     [SerializeField] private GameObject _noContainerPanel;

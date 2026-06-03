@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class AnimatorSubTransport : MonoBehaviour
+public class AnimatorTransportView : MonoBehaviour
 {
     [SerializeField] private Button _prevKeyButton;
     [SerializeField] private Button _prevFrameButton;

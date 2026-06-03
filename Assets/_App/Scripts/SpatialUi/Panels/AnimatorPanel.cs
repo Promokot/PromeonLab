@@ -6,12 +6,12 @@ public class AnimatorPanel : MonoBehaviour
 {
     [SerializeField] private AnimatorPanelConfig   _config;
     [SerializeField] private RectTransform         _timelineContent;
-    [SerializeField] private AnimatorSubToolbar    _toolbar;
-    [SerializeField] private AnimatorSubTransport  _transport;
-    [SerializeField] private AnimatorSubEmptyState _emptyState;
+    [SerializeField] private AnimatorToolbarView    _toolbar;
+    [SerializeField] private AnimatorTransportView  _transport;
+    [SerializeField] private AnimatorEmptyStateView _emptyState;
     [SerializeField] private GameObject            _activeStateRoot;
-    [SerializeField] private AnimatorSubRuler      _ruler;
-    [SerializeField] private AnimatorSubPlayhead   _playhead;
+    [SerializeField] private AnimatorRulerView      _ruler;
+    [SerializeField] private AnimatorPlayheadView   _playhead;
     [SerializeField] private TimelineScrubInput    _timelineInput;
     [SerializeField] private TimelineScrubInput    _rulerInput;
     [SerializeField] private TimelineRow_Item           _rowPrefab;
@@ -297,7 +297,7 @@ public class AnimatorPanel : MonoBehaviour
         // The animation services are absent in scenes without an animation system (e.g. Sandbox),
         // where SceneContext binds Graph but leaves Authoring/Clock null. Guard on what Refresh
         // actually dereferences, not just HasScene (which only tracks Graph).
-        if (_ctx.Authoring == null || _ctx.Clock == null) { ShowEmpty(AnimatorSubEmptyState.State.NoSelection); return; }
+        if (_ctx.Authoring == null || _ctx.Clock == null) { ShowEmpty(AnimatorEmptyStateView.State.NoSelection); return; }
 
         var selected = _ctx.Selection?.SelectedNodeId;
         var owner    = AnimationAuthoring.OwnerOf(selected);
@@ -310,7 +310,7 @@ public class AnimatorPanel : MonoBehaviour
         if (string.IsNullOrEmpty(owner))
         {
             _activeOwner = null;
-            ShowEmpty(AnimatorSubEmptyState.State.NoSelection);
+            ShowEmpty(AnimatorEmptyStateView.State.NoSelection);
             _ctx.Authoring.SetActiveContainerOwner(null);
             _ctx.Clock.Configure(_config.DefaultTotalFrames, _ctx.Authoring.GetSceneFps());
             return;
@@ -319,7 +319,7 @@ public class AnimatorPanel : MonoBehaviour
         if (!has)
         {
             _activeOwner = null;
-            ShowEmpty(AnimatorSubEmptyState.State.NoContainer);
+            ShowEmpty(AnimatorEmptyStateView.State.NoContainer);
             _ctx.Authoring.SetActiveContainerOwner(null);
             _ctx.Clock.Configure(_config.DefaultTotalFrames, _ctx.Authoring.GetSceneFps());
             return;
@@ -333,7 +333,7 @@ public class AnimatorPanel : MonoBehaviour
         RefreshKeyButtonStates();
     }
 
-    private void ShowEmpty(AnimatorSubEmptyState.State state)
+    private void ShowEmpty(AnimatorEmptyStateView.State state)
     {
         if (_activeStateRoot != null) _activeStateRoot.SetActive(false);
         if (_emptyState != null) _emptyState.Show(state);
