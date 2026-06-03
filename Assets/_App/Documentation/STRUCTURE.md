@@ -254,14 +254,16 @@ Assets/
     │   ├── Core/                           shared primitives used across all subsystems
     │   │   ├── EventBus.cs
     │   │
-    │   ├── Animation/                      (merged AnimationAuthoring + AnimationPlayback)
+    │   ├── Animation/                      (AnimationAuthoring façade + ClipBaker/PlaybackSampler/Storage split)
     │   │   ├── ActionContainer.cs
     │   │   ├── AnimKeyData.cs
     │   │   ├── AnimTrackData.cs
     │   │   ├── AnimationAuthoring.cs
     │   │   ├── AnimationClipboard.cs
     │   │   ├── AnimationClock.cs
-    │   │   ├── AnimationPlayback.cs
+    │   │   ├── AnimationClipBaker.cs
+    │   │   ├── AnimationPlaybackSampler.cs
+    │   │   ├── AnimationStorage.cs
     │   │   ├── ContainerChange.cs
     │   │   ├── FrameClipboard.cs
     │   │   ├── FrameClipboardEntry.cs
@@ -394,8 +396,6 @@ Assets/
     │   │   │   ├── AnimatorRulerView.cs
     │   │   │   ├── AnimatorPlayheadView.cs
     │   │   │   ├── AssetBrowserPanel.cs
-    │   │   │   ├── BoneInspectorPanel.cs
-    │   │   │   ├── IkWizardPanel.cs
     │   │   │   ├── InspectorPanel.cs
     │   │   │   ├── MainMenuPanel.cs
     │   │   │   ├── OutlinerPanel.cs
@@ -440,6 +440,8 @@ Assets/
     │   └── VrInteraction/
     │       ├── GizmoMode.cs
     │       ├── IObjectDragStrategy.cs
+    │       ├── DirectDragStrategy.cs
+    │       ├── DragMode.cs
     │       ├── Selectable.cs
     │       ├── SelectionVisual.cs
     │       ├── SelectionVisualSync.cs
@@ -455,6 +457,8 @@ Assets/
     │           ├── AxisKind.cs
     │           ├── GizmoBoundsComputer.cs
     │           ├── GizmoDriver.cs
+    │           ├── GizmoDragSession.cs
+    │           ├── GizmoHighlightPainter.cs
     │           ├── GizmoConfig.cs
     │           ├── GizmoHandle.cs
     │           ├── GizmoHierarchy.cs
