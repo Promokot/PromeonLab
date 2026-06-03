@@ -6,7 +6,8 @@ public class AnimationAuthoringLoopTests
     private AnimationAuthoring NewAuthoring(out EventBus bus)
     {
         bus = new EventBus();
-        var a = new AnimationAuthoring(null, null, null, null, bus);
+        var sampler = new AnimationPlaybackSampler(null, null, bus);
+        var a = new AnimationAuthoring(null, null, null, sampler, bus);
         a.InitForTest();
         return a;
     }
@@ -58,7 +59,7 @@ public class AnimationAuthoringLoopTests
     [Test]
     public void AdvanceLoopCursor_WrapsPastTotal()
     {
-        Assert.AreEqual(2f, AnimationAuthoring.AdvanceLoopCursor(58f, 4f, 60), 0.001f);
-        Assert.AreEqual(0f, AnimationAuthoring.AdvanceLoopCursor(0f, 0f, 0),  0.001f);
+        Assert.AreEqual(2f, AnimationPlaybackSampler.AdvanceLoopCursor(58f, 4f, 60), 0.001f);
+        Assert.AreEqual(0f, AnimationPlaybackSampler.AdvanceLoopCursor(0f, 0f, 0),  0.001f);
     }
 }

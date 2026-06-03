@@ -1,35 +1,34 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using VContainer.Unity;
 
-public class AnimationAuthoring : IStartable, ITickable, IDisposable
+// Authoring façade: owns the SceneAnimationData document and all keyframe/container CRUD + event
+// publishing, and orchestrates AnimationStorage (persistence) and AnimationPlaybackSampler (runtime
+// sampling). Baking lives in AnimationClipBaker. The public surface is unchanged for consumers.
+public class AnimationAuthoring : IStartable, IDisposable
 {
-    private readonly AnimationClock   _clock;
-    private readonly ISceneGraph      _sceneGraph;
-    private readonly AnimationStorage _animStorage;
-    private readonly AppStorage       _storage;
-    private readonly EventBus         _bus;
+    private readonly ISceneGraph              _sceneGraph;
+    private readonly AnimationStorage         _animStorage;
+    private readonly AppStorage               _storage;
+    private readonly AnimationPlaybackSampler _sampler;
+    private readonly EventBus                 _bus;
 
-    private SceneAnimationData                     _data;
-    private readonly Dictionary<string, AnimationClip> _clips = new();
-    private readonly Dictionary<string, float> _loopCursors = new();
-    private readonly Dictionary<string, Dictionary<string, AnimationClip>> _loopClips = new();
-    private readonly Dictionary<string, int> _loopLastFrame = new();
+    private SceneAnimationData _data;
     private string _sceneId;
-    private string _activeContainerOwner;
+    private string _activeContainerOwner; // mirrored from the sampler for the FpsChanged event only
 
-    public AnimationAuthoring(AnimationClock clock, ISceneGraph sceneGraph,
-                               AnimationStorage animStorage, AppStorage storage, EventBus bus)
+    public AnimationAuthoring(ISceneGraph sceneGraph, AnimationStorage animStorage,
+                               AppStorage storage, AnimationPlaybackSampler sampler, EventBus bus)
     {
-        _clock       = clock;
         _sceneGraph  = sceneGraph;
         _animStorage = animStorage;
         _storage     = storage;
+        _sampler     = sampler;
         _bus         = bus;
+        _sampler?.Bind(() => _data);
     }
 
     public static string OwnerOf(string nodeId)
@@ -73,7 +72,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
             Change      = ContainerChange.Added
         });
         RequestSave();
-        RebuildActiveClips();
+        _sampler?.OnDataChanged(null);
         return c;
     }
 
@@ -89,7 +88,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
             Change      = ContainerChange.TracksChanged
         });
         RequestSave();
-        RebuildActiveClips();
+        _sampler?.OnDataChanged(null);
     }
 
     public void RemoveContainer(string ownerNodeId)
@@ -103,22 +102,13 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
             Change      = ContainerChange.Removed
         });
         RequestSave();
-        RebuildActiveClips();
+        _sampler?.OnDataChanged(null);
     }
 
     public void SetActiveContainerOwner(string ownerNodeId)
     {
         _activeContainerOwner = ownerNodeId;
-        RebuildActiveClips();
-    }
-
-    private void RebuildActiveClips()
-    {
-        _clips.Clear();
-        if (string.IsNullOrEmpty(_activeContainerOwner)) return;
-        var c = _data?.FindByOwner(_activeContainerOwner);
-        if (c == null) return;
-        foreach (var t in c.Tracks) _clips[t.NodeId] = AnimationClipBaker.BuildClip(t, GetSceneFps(), c.Interpolation);
+        _sampler?.SetActiveContainerOwner(ownerNodeId);
     }
 
     public void SetTotalFrames(string ownerNodeId, int frames)
@@ -133,8 +123,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
             Change      = ContainerChange.LengthChanged
         });
         RequestSave();
-        RebuildActiveClips();
-        RebuildLoopClips(ownerNodeId);
+        _sampler?.OnDataChanged(ownerNodeId);
     }
 
     public void SetFps(string ownerNodeId, int fps)
@@ -148,7 +137,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
             Change      = ContainerChange.FpsChanged
         });
         RequestSave();
-        RebuildActiveClips();
+        _sampler?.OnDataChanged(null);
     }
 
     public int GetSceneFps() => _data?.Fps ?? 24;
@@ -158,14 +147,14 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
 
     public bool IsLooping(string ownerNodeId) => _data?.FindByOwner(ownerNodeId)?.Loop ?? false;
 
-    public bool IsLoopPlaying(string ownerNodeId) => _loopCursors.ContainsKey(ownerNodeId);
+    public bool IsLoopPlaying(string ownerNodeId) => _sampler?.IsLoopPlaying(ownerNodeId) ?? false;
 
     public void SetLoop(string ownerNodeId, bool loop)
     {
         var c = _data?.FindByOwner(ownerNodeId);
         if (c == null) return;
         c.Loop = loop;
-        if (!loop) StopLoopPlayback(ownerNodeId);
+        if (!loop) _sampler?.StopLoopPlayback(ownerNodeId);
         _bus.Publish(new AnimationContainerChangedEvent
         {
             OwnerNodeId = ownerNodeId,
@@ -174,41 +163,11 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
         RequestSave();
     }
 
-    public void StartLoopPlayback(string ownerNodeId, int startFrame)
-    {
-        var c = _data?.FindByOwner(ownerNodeId);
-        if (c == null || !c.Loop) return;
-        var clips = new Dictionary<string, AnimationClip>();
-        foreach (var t in c.Tracks) clips[t.NodeId] = AnimationClipBaker.BuildClip(t, GetSceneFps(), c.Interpolation);
-        _loopClips[ownerNodeId]   = clips;
-        _loopCursors[ownerNodeId] = Mathf.Clamp(startFrame, 0, c.TotalFrames);
-    }
+    public void StartLoopPlayback(string ownerNodeId, int startFrame) =>
+        _sampler?.StartLoopPlayback(ownerNodeId, startFrame);
 
-    public void StopLoopPlayback(string ownerNodeId)
-    {
-        _loopCursors.Remove(ownerNodeId);
-        _loopClips.Remove(ownerNodeId);
-        _loopLastFrame.Remove(ownerNodeId);
-    }
-
-    private void RebuildLoopClips(string owner)
-    {
-        if (!_loopClips.ContainsKey(owner)) return;
-        var c = _data?.FindByOwner(owner);
-        if (c == null) return;
-        var clips = new Dictionary<string, AnimationClip>();
-        foreach (var t in c.Tracks) clips[t.NodeId] = AnimationClipBaker.BuildClip(t, GetSceneFps(), c.Interpolation);
-        _loopClips[owner] = clips;
-    }
-
-    internal static float AdvanceLoopCursor(float cursor, float deltaFrames, int total)
-    {
-        if (total <= 0) return 0f;
-        float c = cursor + deltaFrames;
-        while (c >= total) c -= total;
-        if (c < 0f) c = 0f;
-        return c;
-    }
+    public void StopLoopPlayback(string ownerNodeId) =>
+        _sampler?.StopLoopPlayback(ownerNodeId);
 
     public void SetInterpolation(string ownerNodeId, InterpolationMode mode)
     {
@@ -221,8 +180,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
             Change      = ContainerChange.InterpolationChanged
         });
         RequestSave();
-        RebuildActiveClips();
-        RebuildLoopClips(ownerNodeId);
+        _sampler?.OnDataChanged(ownerNodeId);
     }
 
     public void SetSceneFps(int fps)
@@ -236,38 +194,24 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
                 Change      = ContainerChange.FpsChanged
             });
         RequestSave();
-        RebuildActiveClips();
-        foreach (var owner in new System.Collections.Generic.List<string>(_loopClips.Keys))
-            RebuildLoopClips(owner);
+        _sampler?.OnDataChanged(null);
+        _sampler?.RebuildAllLoopClips();
     }
 
-    internal void InitForTest()
-    {
-        _data = new SceneAnimationData();
-        _bus.Subscribe<PlaybackStateChangedEvent>(OnPlaybackState);
-    }
+    internal void InitForTest() => _data = new SceneAnimationData();
 
     private void RequestSave() => _animStorage?.RequestSave(_data, _sceneId);
 
     public void Start()
     {
         _bus.Subscribe<SceneOpenedEvent>(OnSceneOpened);
-        _bus.Subscribe<FrameChangedEvent>(OnFrameChanged);
-        _bus.Subscribe<PlaybackStateChangedEvent>(OnPlaybackState);
 
         var activeId = _storage.ActiveSceneId;
         if (!string.IsNullOrEmpty(activeId))
             _ = LoadAsync(activeId, CancellationToken.None);
     }
 
-    public void Dispose()
-    {
-        _bus.Unsubscribe<SceneOpenedEvent>(OnSceneOpened);
-        _bus.Unsubscribe<FrameChangedEvent>(OnFrameChanged);
-        _bus.Unsubscribe<PlaybackStateChangedEvent>(OnPlaybackState);
-        _loopCursors.Clear();
-        _loopClips.Clear();
-    }
+    public void Dispose() => _bus.Unsubscribe<SceneOpenedEvent>(OnSceneOpened);
 
     public void SetKey(string nodeId, int frame)
     {
@@ -304,8 +248,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
             Change      = existed ? KeyframeChange.Overwritten : KeyframeChange.Added
         });
         RequestSave();
-        RebuildActiveClips();
-        RebuildLoopClips(owner);
+        _sampler?.OnDataChanged(owner);
     }
 
     public void DeleteKey(string nodeId, int frame)
@@ -331,8 +274,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
             _bus.Publish(new AnimationContainerChangedEvent
                 { OwnerNodeId = owner, Change = ContainerChange.TracksChanged });
         RequestSave();
-        RebuildActiveClips();
-        RebuildLoopClips(owner);
+        _sampler?.OnDataChanged(owner);
     }
 
     public bool HasKey(string nodeId, int frame)
@@ -455,8 +397,7 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
             });
         }
         RequestSave();
-        RebuildActiveClips();
-        RebuildLoopClips(ownerNodeId);
+        _sampler?.OnDataChanged(ownerNodeId);
     }
 
     public int? NearestKeyBefore(string ownerNodeId, int frame)
@@ -487,95 +428,6 @@ public class AnimationAuthoring : IStartable, ITickable, IDisposable
 
     private void OnSceneOpened(SceneOpenedEvent e) =>
         _ = LoadAsync(e.SceneId, CancellationToken.None);
-
-    private void OnFrameChanged(FrameChangedEvent e)
-    {
-        if (_data == null) return;
-        ApplyFrame(e.Frame);
-    }
-
-    private void OnPlaybackState(PlaybackStateChangedEvent e)
-    {
-        if (e.Completed) ApplyFrame(0);
-    }
-
-    public void Tick()
-    {
-        if (_data == null) return;
-        float fps = GetSceneFps();
-
-        // Background loops: each looping owner advances on its own cursor and samples per render frame.
-        if (_loopCursors.Count > 0)
-        {
-            foreach (var owner in new List<string>(_loopCursors.Keys)) // snapshot: StopLoopPlayback mutates
-            {
-                var c = _data.FindByOwner(owner);
-                if (c == null || !c.Loop) { StopLoopPlayback(owner); continue; }
-                float cursor = AdvanceLoopCursor(_loopCursors[owner], Time.deltaTime * fps, c.TotalFrames);
-                _loopCursors[owner] = cursor;
-                if (_loopClips.TryGetValue(owner, out var clips))
-                    SampleContainerAt(c, clips, cursor / Mathf.Max(1f, fps));
-                PublishLoopFrameIfChanged(owner, cursor);
-            }
-        }
-
-        // Direct transport playback of the SELECTED non-looping container: sample at the clock's
-        // FRACTIONAL position every render frame, so it is as smooth as loop playback. ApplyFrame's
-        // integer-frame sampling (driven by FrameChangedEvent) only steps the playhead during play —
-        // sampling the pose there would quantize motion to the animation fps. Scrubbing while paused
-        // still goes through ApplyFrame (see its IsPlaying guard).
-        if (_clock != null && _clock.IsPlaying
-            && !string.IsNullOrEmpty(_activeContainerOwner)
-            && !_loopCursors.ContainsKey(_activeContainerOwner)
-            && fps > 0f)
-        {
-            var c = _data.FindByOwner(_activeContainerOwner);
-            if (c != null) SampleContainerAt(c, _clips, _clock.CurrentFrameContinuous / fps);
-        }
-    }
-
-    private void SampleContainerAt(ActionContainer c, Dictionary<string, AnimationClip> clips, float t)
-    {
-        foreach (var track in c.Tracks)
-        {
-            if (!clips.TryGetValue(track.NodeId, out var clip)) continue;
-            var go = _sceneGraph?.GetNode(track.NodeId);
-            if (go == null) continue;
-            clip.SampleAnimation(go, t);
-        }
-    }
-
-    // Publishes a LoopFrameChangedEvent for an owner only when its integer frame changes, so the
-    // playhead steps once per frame rather than every tick. Internal for EditMode testing.
-    internal void PublishLoopFrameIfChanged(string owner, float cursor)
-    {
-        int frame = UnityEngine.Mathf.FloorToInt(cursor);
-        if (_loopLastFrame.TryGetValue(owner, out var last) && last == frame) return;
-        _loopLastFrame[owner] = frame;
-        _bus.Publish(new LoopFrameChangedEvent { OwnerNodeId = owner, Frame = frame });
-    }
-
-    private void ApplyFrame(int frame)
-    {
-        if (string.IsNullOrEmpty(_activeContainerOwner)) return;
-        if (_loopCursors.ContainsKey(_activeContainerOwner)) return; // background loop owns sampling
-        // During transport playback Tick samples continuously (smooth); this integer path would quantize
-        // the pose to the fps. It still runs for scrub/seek/stop (when the clock is not playing).
-        if (_clock != null && _clock.IsPlaying) return;
-        var c = _data?.FindByOwner(_activeContainerOwner);
-        if (c == null) return;
-        int fps = GetSceneFps();
-        if (fps <= 0) return;
-
-        float t = (float)frame / fps;
-        foreach (var track in c.Tracks)
-        {
-            if (!_clips.TryGetValue(track.NodeId, out var clip)) continue;
-            var go = _sceneGraph?.GetNode(track.NodeId);
-            if (go == null) continue;
-            clip.SampleAnimation(go, t);
-        }
-    }
 
     private async Task LoadAsync(string sceneId, CancellationToken ct)
     {

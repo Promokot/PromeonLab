@@ -19,7 +19,9 @@ public class AnimationAuthoringCompletionTests
         go.transform.localPosition = new Vector3(99, 99, 99); // arbitrary "current" pose
 
         var bus = new EventBus();
-        var a   = new AnimationAuthoring(new AnimationClock(bus), new FakeGraph(go), null, null, bus);
+        var graph   = new FakeGraph(go);
+        var sampler = new AnimationPlaybackSampler(new AnimationClock(bus), graph, bus);
+        var a   = new AnimationAuthoring(graph, null, null, sampler, bus);
         a.InitForTest();
         a.CreateContainer("obj1", 60, 24);
         // first (and only) key sits at frame 30 with a known pose

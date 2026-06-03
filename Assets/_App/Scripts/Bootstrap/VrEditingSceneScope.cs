@@ -46,6 +46,7 @@ public class VrEditingSceneScope : LifetimeScope
 
         builder.RegisterEntryPoint<AnimationClock>(Lifetime.Scoped).AsSelf();
         builder.Register<AnimationStorage>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+        builder.RegisterEntryPoint<AnimationPlaybackSampler>(Lifetime.Scoped).AsSelf();
         builder.RegisterEntryPoint<AnimationAuthoring>(Lifetime.Scoped).AsSelf();
 
         // AnimatorPanel is persistent (XR rig / UserPanel) with root-only deps → injected in

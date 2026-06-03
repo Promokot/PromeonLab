@@ -10,12 +10,11 @@ public class AnimationAuthoringLoopFrameTests
         var captured = new List<LoopFrameChangedEvent>();
         bus.Subscribe<LoopFrameChangedEvent>(e => captured.Add(e));
 
-        var authoring = new AnimationAuthoring(null, null, null, null, bus);
-        authoring.InitForTest();
+        var sampler = new AnimationPlaybackSampler(null, null, bus);
 
-        authoring.PublishLoopFrameIfChanged("n1", 5.3f);  // → frame 5, publish
-        authoring.PublishLoopFrameIfChanged("n1", 5.7f);  // still frame 5, no publish
-        authoring.PublishLoopFrameIfChanged("n1", 6.1f);  // → frame 6, publish
+        sampler.PublishLoopFrameIfChanged("n1", 5.3f);  // → frame 5, publish
+        sampler.PublishLoopFrameIfChanged("n1", 5.7f);  // still frame 5, no publish
+        sampler.PublishLoopFrameIfChanged("n1", 6.1f);  // → frame 6, publish
 
         Assert.AreEqual(2, captured.Count);
         Assert.AreEqual("n1", captured[0].OwnerNodeId);
