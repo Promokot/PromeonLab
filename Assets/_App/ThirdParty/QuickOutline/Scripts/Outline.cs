@@ -244,20 +244,20 @@ public class Outline : MonoBehaviour {
     return true;
   }
 
+  // Idempotent: strips any existing copies of the two outline materials, then appends exactly one of
+  // each. Safe to call any number of times — a double-append or a missed OnDisable can never grow the
+  // material array (the flat-fill-on-select accumulation bug). Pure + static so it is unit-testable.
+  public static Material[] WithOutlineMaterials(Material[] current, Material mask, Material fill) {
+    var list = current.ToList();
+    list.RemoveAll(m => m == mask || m == fill);
+    list.Add(mask);
+    list.Add(fill);
+    return list.ToArray();
+  }
+
   private void AppendMaterials() {
     foreach (var renderer in renderers) {
-      var materials = renderer.sharedMaterials.ToList();
-
-      // TEMP DIAG (remove after): diagnose flat-fill-on-select. Logs per-renderer the real material
-      // count vs the mesh submesh count + outline mode/stencil at the moment outline materials append.
-      var diagMesh = renderer is SkinnedMeshRenderer dsmr ? dsmr.sharedMesh
-                   : renderer.GetComponent<MeshFilter>() != null ? renderer.GetComponent<MeshFilter>().sharedMesh : null;
-      Debug.Log($"[OutlineDiag] {gameObject.name}/{renderer.name} matsBefore={materials.Count} " +
-                $"subMeshes={(diagMesh != null ? diagMesh.subMeshCount : -1)} mode={outlineMode} stencilRef={stencilRef}");
-
-      materials.Add(outlineMaskMaterial);
-      materials.Add(outlineFillMaterial);
-      renderer.materials = materials.ToArray();
+      renderer.materials = WithOutlineMaterials(renderer.sharedMaterials, outlineMaskMaterial, outlineFillMaterial);
     }
     needsUpdate = true;
   }
