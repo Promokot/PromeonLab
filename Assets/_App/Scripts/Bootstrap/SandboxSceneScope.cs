@@ -34,7 +34,7 @@ public class SandboxSceneScope : LifetimeScope
         if (inspector != null)
             builder.RegisterBuildCallback(c => c.Inject(inspector));
 
-        // AssetBrowserPanel + FileBrowserSurface are persistent (XR rig / UserPanel) with
+        // AssetBrowserPanel + FileBrowserPanel are persistent (XR rig / UserPanel) with
         // root-only deps → injected in RootLifetimeScope so they work in every mode.
 
         var gizmoActivator = Object.FindAnyObjectByType<GizmoActivator>(FindObjectsInactive.Include);

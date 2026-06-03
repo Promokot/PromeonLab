@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
 
-public class ImportWizardSurface : MonoBehaviour, IRegionSurface
+public class ImportWizardPanel : MonoBehaviour, IRegionSurface
 {
     [Header("Wizard UI")]
     [SerializeField] private TMP_Text       _fileNameLabel;

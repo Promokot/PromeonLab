@@ -3460,7 +3460,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c77fbb3b6da46b842a0cf066f933eb3e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: _App.Runtime::ImportWizardSurface
+  m_EditorClassIdentifier: _App.Runtime::ImportWizardPanel
   _fileNameLabel: {fileID: 809880753517654995}
   _nameInput: {fileID: 7592754009487217468}
   _objectToggle: {fileID: 7583787690627065767}

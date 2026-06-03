@@ -2,7 +2,7 @@ using SimpleFileBrowser;
 using UnityEngine;
 using VContainer;
 
-public class FileBrowserSurface : MonoBehaviour, IRegionSurface
+public class FileBrowserPanel : MonoBehaviour, IRegionSurface
 {
     private EventBus          _bus;
     private PanelRegionRouter _router;

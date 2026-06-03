@@ -124,12 +124,12 @@ public class RootLifetimeScope : LifetimeScope
                 // Persistent panels that live on the XR rig with UserPanel and whose Construct deps
                 // are all root-scoped — inject here so they work in EVERY mode, including MainMenu
                 // where no scene scope runs. (AssetBrowserPanel's "+" → router.Open("fileBrowser");
-                // FileBrowserSurface needs EventBus + router for publish/close.)
+                // FileBrowserPanel needs EventBus + router for publish/close.)
                 foreach (var ab in Object.FindObjectsByType<AssetBrowserPanel>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                     c.Inject(ab);
-                foreach (var fbs in Object.FindObjectsByType<FileBrowserSurface>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                foreach (var fbs in Object.FindObjectsByType<FileBrowserPanel>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                     c.Inject(fbs);
-                foreach (var iw in Object.FindObjectsByType<ImportWizardSurface>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                foreach (var iw in Object.FindObjectsByType<ImportWizardPanel>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                     c.Inject(iw);
 
                 // AnimatorPanel is also persistent (nested in UserPanel on the XR rig) and its
