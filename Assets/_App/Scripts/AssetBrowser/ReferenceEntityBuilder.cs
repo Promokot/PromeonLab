@@ -28,8 +28,16 @@ public class ReferenceEntityBuilder : IAssetEntityBuilder
             aspect = (float)tex.width / tex.height;
         UnityEngine.Object.DestroyImmediate(tex);
 
+        return Task.FromResult(RecipeFromImage(aspect));
+    }
+
+    // Single source of the reference-image recipe constants (collider box, floor gap, two-sided),
+    // shared by this runtime import path and the editor builtin baker (ReferenceImagePrefabGenerator),
+    // so an imported reference and a builtin one always get the same box size / floor clearance.
+    public static AssetEntityRecipe RecipeFromImage(float aspect)
+    {
         const float h = 1f, gap = 0.5f;
-        var recipe = new AssetEntityRecipe
+        return new AssetEntityRecipe
         {
             type               = AssetType.Reference,
             selectable         = true,
@@ -45,7 +53,6 @@ public class ReferenceEntityBuilder : IAssetEntityBuilder
             referenceBottomGap = gap,
             referenceTwoSided  = true,
         };
-        return Task.FromResult(recipe);
     }
 
     public Task<GameObject> RestoreAsync(ILabAsset asset, AssetEntityRecipe recipe, Vector3 position, Quaternion rotation, CancellationToken ct)

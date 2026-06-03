@@ -58,20 +58,7 @@ public static class ReferenceImagePrefabGenerator
         // Persist the mesh/material/prefab assets so they survive without a manual Save Project.
         AssetDatabase.SaveAssets();
 
-        const float h = 1f, gap = 0.5f;
-        recipe = new AssetEntityRecipe
-        {
-            type               = AssetType.Reference,
-            selectable         = true,
-            interactionLayer   = InteractionLayer.SceneObjects,
-            colliderKind       = ColliderKind.Box,
-            colliderCenter     = Vector3.zero,
-            colliderSize       = new Vector3(1f, h, 0.02f),
-            spawnOffset        = new Vector3(0f, gap + h * 0.5f, 0f),
-            referenceAspect    = aspect,
-            referenceBottomGap = gap,
-            referenceTwoSided  = true,
-        };
+        recipe = ReferenceEntityBuilder.RecipeFromImage(aspect);
 
         return prefab;
     }
