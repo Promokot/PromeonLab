@@ -37,7 +37,7 @@ public class GizmoHierarchy : MonoBehaviour
     public void OnHandleGrabbed(GizmoHandle handle)
     {
         if (handle == null) return;
-        // Grab highlight is the Outline yellow set by GizmoActivator; the hierarchy only re-parents
+        // Grab highlight is the Outline yellow set by GizmoDriver; the hierarchy only re-parents
         // the sibling axes under the grabbed handle so they follow it during the drag.
         switch (handle.Kind)
         {

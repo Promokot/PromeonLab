@@ -1,7 +1,7 @@
 using UnityEngine;
 using VContainer;
 
-public class GizmoActivator : MonoBehaviour
+public class GizmoDriver : MonoBehaviour
 {
     [SerializeField] private GizmoConfig _config;
 
@@ -109,7 +109,7 @@ public class GizmoActivator : MonoBehaviour
     {
         if (_config == null || _config.GizmoPrefab == null)
         {
-            Debug.LogError("GizmoActivator: GizmoConfig missing or prefab null — gizmo disabled.");
+            Debug.LogError("GizmoDriver: GizmoConfig missing or prefab null — gizmo disabled.");
             return;
         }
         _instance = Instantiate(_config.GizmoPrefab);
@@ -177,7 +177,7 @@ public class GizmoActivator : MonoBehaviour
 
     public void OnHandleAborted()
     {
-        Debug.LogWarning($"[GizmoActivator] OnHandleAborted called, dragActive={_drag != null && _drag.IsActive}");
+        Debug.LogWarning($"[GizmoDriver] OnHandleAborted called, dragActive={_drag != null && _drag.IsActive}");
         _drag?.Abort();
     }
 }

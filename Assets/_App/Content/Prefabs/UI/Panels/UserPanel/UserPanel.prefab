@@ -130,7 +130,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e83edfad4fa2c9243a50fe5463e0008b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Subsystems.VrInteraction::GizmoActivator
+  m_EditorClassIdentifier: Subsystems.VrInteraction::GizmoDriver
   _config: {fileID: 11400000, guid: ba9f00b526ca5664abcc429525a0ce13, type: 2}
 --- !u!1 &1084023761508594353
 GameObject:

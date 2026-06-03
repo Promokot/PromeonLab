@@ -2,7 +2,7 @@ using UnityEngine;
 
 // One in-flight gizmo drag: snapshots the target pose, resolves the per-handle strategy, drives the
 // gizmo instance as the primary source-of-truth, and syncs the target back per strategy. Extracted
-// from GizmoActivator (A2) so the activator only owns spawn/visibility. Pure helper (no MonoBehaviour).
+// from GizmoDriver (A2) so the activator only owns spawn/visibility. Pure helper (no MonoBehaviour).
 //
 // The gizmo instance is primary: a strategy mutates _instance directly each frame and the target is
 // pulled to follow it (position for move, rotation for rotate, proportional scale factor for scale).
@@ -79,7 +79,7 @@ public class GizmoDragSession
         if (!_dragActive) return;
         if (_target == null || _instance == null)
         {
-            Debug.LogWarning($"[GizmoActivator] OnHandleAborted called, dragActive={_dragActive}");
+            Debug.LogWarning($"[GizmoDriver] OnHandleAborted called, dragActive={_dragActive}");
             Abort();
             return;
         }

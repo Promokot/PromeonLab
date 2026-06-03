@@ -1,16 +1,16 @@
 using NUnit.Framework;
 using UnityEngine;
 
-public class GizmoActivatorStateTests
+public class GizmoDriverStateTests
 {
     private GameObject _activatorGo;
-    private GizmoActivator _sut;
+    private GizmoDriver _sut;
 
     [SetUp]
     public void SetUp()
     {
         _activatorGo = new GameObject("activator");
-        _sut         = _activatorGo.AddComponent<GizmoActivator>();
+        _sut         = _activatorGo.AddComponent<GizmoDriver>();
     }
 
     [TearDown]

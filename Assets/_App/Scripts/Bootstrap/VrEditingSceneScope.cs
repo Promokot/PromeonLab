@@ -47,7 +47,7 @@ public class VrEditingSceneScope : LifetimeScope
         // AnimatorPanel is persistent (XR rig / UserPanel) with root-only deps → injected in
         // RootLifetimeScope so its buttons work in every mode, not just VrEditing.
 
-        var gizmoActivator = Object.FindAnyObjectByType<GizmoActivator>(FindObjectsInactive.Include);
+        var gizmoActivator = Object.FindAnyObjectByType<GizmoDriver>(FindObjectsInactive.Include);
         if (gizmoActivator != null)
             builder.RegisterBuildCallback(c => c.Inject(gizmoActivator));
 

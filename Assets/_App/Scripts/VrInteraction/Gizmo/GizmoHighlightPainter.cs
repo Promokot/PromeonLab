@@ -3,7 +3,7 @@ using UnityEngine;
 
 // Owns the gizmo's per-handle highlight state: the instanced native per-axis materials plus a
 // SilhouetteOnly outline per renderer, and the hover-darken / grab-recolor / restore transitions.
-// Extracted from GizmoActivator (A2) so the activator stays focused on spawn/visibility/drag
+// Extracted from GizmoDriver (A2) so the activator stays focused on spawn/visibility/drag
 // orchestration. Pure helper (no MonoBehaviour) — the activator builds one per spawned instance.
 public class GizmoHighlightPainter
 {

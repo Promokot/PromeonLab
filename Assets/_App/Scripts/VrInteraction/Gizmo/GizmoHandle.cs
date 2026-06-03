@@ -11,14 +11,14 @@ public class GizmoHandle : XRBaseInteractable
     public HandleKind Kind => _kind;
     public AxisKind   Axis => _axis;
 
-    private GizmoActivator    _activator;
+    private GizmoDriver    _activator;
     private NearFarInteractor _locked;
     private NearFarInteractor _lastHovering;
 
     private enum HandleState { Idle, Dragging }
     private HandleState _state;
 
-    public void Bind(GizmoActivator activator) => _activator = activator;
+    public void Bind(GizmoDriver activator) => _activator = activator;
 
     protected override void Awake()
     {
