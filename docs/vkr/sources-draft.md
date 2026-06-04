@@ -31,7 +31,7 @@
 
 ### Раздел 1 – Аналитический
 
-1.1. Hu Z., Liu L. Research on the application of virtual reality technology in 3D animation creation // Optik. – 2023. – Vol. 272. – Article 170274. [СОМНИТ.: статья с таким названием в Optik не подтверждается; проверить DOI или заменить]
+1.1. Hu Z., Liu L. Research on the application of virtual reality technology in 3D animation creation // Optik. – 2023. – Vol. 272. – Article 170274. [OK: подтверждена (ScienceDirect, DOI 10.1016/j.ijleo.2022.170274); косяк v11 – лишний «(17)» после тома – убран]
 1.2. Chamusca I.L., Ferreira C.V., Murari T.B., Apolinario A.L., Winkler I. Towards Sustainable Virtual Reality: Gathering Design Guidelines for Intuitive Authoring Tools // Sustainability. – 2023. – Vol. 15, № 4. – Article 2924. [OK: реальная статья MDPI]
 1.3. Features // Quill by Smoothstep: – URL: https://quill.art/features.html (дата обращения: 20.04.2026). – Текст электронный. [OK]
 1.4. Create animated stories and prototype ideas in Virtual Reality // Tvori: – URL: https://tvori.co/ (дата обращения: 20.04.2026). – Текст электронный. [OK]
@@ -141,7 +141,7 @@
 
 | № | Источник (как в списке) | Комментарий |
 |---|---|---|
-| 1.1 | Hu Z., Liu L. ... // Optik. – 2023 | Статья о VR в 3D-анимации; СОМНИТ. – не подтверждается |
+| 1.1 | Hu Z., Liu L. ... // Optik. – 2023. – Vol. 272 | Статья о VR в 3D-анимации; подтверждена (DOI 10.1016/j.ijleo.2022.170274) |
 | 1.2 | Chamusca I.L. et al. ... // Sustainability. – 2023. – Vol. 15, № 4 | Гайдлайны интуитивных VR-инструментов; реальная статья MDPI |
 | 1.3 | https://quill.art/features.html | Сайт Quill – возможности приложения (сравнение) |
 | 1.4 | https://tvori.co/ | Сайт Tvori (сравнение) |
@@ -233,7 +233,7 @@
 – Ресурсы Meta Platforms исключены: 1.7, 1.21, 1.29 (слоты сохранены, чтобы не сбить соответствие с v11); замены: 2.1–2.3 → Microsoft Learn Mixed Reality, 3.16 → Unity Manual XR.
 – Русскоязычных: 25 из 68 (~37%) – порог 30% выполняется с запасом.
 – Печатных: 10, из них с подтверждёнными выходными данными 2021+ шесть: 1.33 (Боресков, 2023), 3.24 (Хокинг, 2023), 3.25 (Гибсон Бонд, 2022), 3.26 (Стиллмен/Грин, 2022), 3.27 (Прайс, 2023), 3.28 (Подбельский, 2022). Дополнительно после проверки выходных данных: 3.29 (Барон, 2025), 2.10 (Линовес), 2.11 (Мартин). Порог «не менее 5» закрыт подтверждёнными.
-– Год ≥2021 нарушают: 1.10, 1.11, 1.18, 1.19, 1.20, 1.24, 1.25, 3.23 (+1.1, 1.16 непроверяемы) – решить судьбу при отсеве.
+– Год ≥2021 нарушают: 1.10, 1.11, 1.18, 1.19, 1.20, 1.24, 1.25, 3.23 (+1.16 непроверяем; 1.1 подтверждён 04.06.2026) – решить судьбу при отсеве.
 – Маркеры [ИСТ: ...] в текстах раздела 3 закрываются: OpenXR → 1.15/3.11; XRI → 3.10; Publish-Subscribe → 2.9 (и 3.21/3.22); VContainer → 3.14/3.15; пространственные интерфейсы VR → 2.1/2.2/2.5.
 – Запрещённых источников (Википедия/YouTube/соцсети/Meta) нет; utm/srsltid вычищены.
 
