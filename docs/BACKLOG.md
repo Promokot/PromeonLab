@@ -66,6 +66,12 @@ Status legend: **ABSENT** (no code) · **STUB** (placeholder type/field, no beha
 | **Keyboard close-on-submit** | PARTIAL | `VrKeyboard.SubmitWord`/focus-switch now fire the field's `onEndEdit` (so numeric inputs commit), but the keyboard panel itself still hides only via its nav button. | audit 05 §6 |
 | **`NavBarConfig` → `PanelRegionConfig` rename** | DEFERRED | Trivial follow-up; intentionally not done. | audit 05 §4 |
 
+## Rendering
+
+| Feature | Status | Notes | Ref |
+|---|---|---|---|
+| **Render-quality preset switch (Low / Medium / High)** | PLANNED | Runtime dropdown in `SettingsPanel` swaps the active URP RP-asset between three presets per platform (Quest + PC/Link). Diff between presets = MSAA + RenderScale only. Default `Medium`; persisted to `persistentDataPath/quality-preset.json`. **NOT-FOR-THESIS** — auxiliary tool, removal plan in spec. Branch `feat/render-quality-profile` exists (dormant). Spec: `docs/superpowers/specs/2026-06-04-render-quality-profile-design.md`. | — |
+
 ## Architecture / tech-debt (planned cleanups, not features)
 
 | Item | Status | Notes | Ref |
