@@ -166,3 +166,8 @@
 5. Тесты – ПОЛНЫЙ ИГНОР (не упоминаем).
 6. Editor-инструменты – ПЕРЕСМОТРЕНО (2026-06-04): BuiltinRecipeBaker, BuiltinAssetLibraryEditor, ReferenceImagePrefabGenerator включаются в 3.2.4 – они объясняют, как встроенные ассеты получают рецепты на этапе разработки и спавнятся тем же конвейером, что и импортированные. Остальные editor-скрипты (RemoveMissingScriptsTool, ControlsProfileExporter) – игнор.
 7. Sandbox – кратко, одним абзацем в блоке режимов [по умолчанию].
+
+
+## G2. Найденные неточности CLAUDE.md (для сведения, 2026-06-04)
+- CLAUDE.md: «BoneEditMode регистрируется только в VrEditing» – НЕВЕРНО, он есть и в SandboxSceneScope (проверено по коду). В Таблице 3.1 раздела 3 песочница включает BoneEditMode.
+- CLAUDE.md: layout хранилища включает scenes/{id}/asset-catalog.json – в живом коде файла и обращений к нему нет (учтено в 3.1.1).
