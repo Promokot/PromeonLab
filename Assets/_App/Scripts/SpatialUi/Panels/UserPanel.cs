@@ -74,7 +74,7 @@ public class UserPanel : SpatialPanel
         // On a scene/mode change, mirror the panel's CLOSED state: reset lock→Follow and hide it.
         // Re-opening via the toggle button (UserPanelOpener) then re-places it cleanly in front of the
         // player AFTER the rig recenter has settled. Repositioning a still-visible panel here instead
-        // races the camera recenter — the panel flashes in front for a frame, then snaps to its old
+        // races the camera recenter – the panel flashes in front for a frame, then snaps to its old
         // world spot. Hiding sidesteps that; the user re-invokes it the same way as the button.
         ResetPosition();
         if (gameObject.activeSelf) gameObject.SetActive(false);
@@ -93,7 +93,7 @@ public class UserPanel : SpatialPanel
         // Capture the authored size *after* detaching: SetParent(worldPositionStays:true) bakes the
         // former parent's scale into localScale, so this snapshot is the panel's true world size and
         // becomes multiplier 1.0. Re-apply the current multiplier so a size carried over from a
-        // previous open session (the multiplier persists — ResetPosition never touches it) is honored.
+        // previous open session (the multiplier persists – ResetPosition never touches it) is honored.
         _baseScale = transform.localScale;
         ApplyScale();
     }
@@ -103,7 +103,7 @@ public class UserPanel : SpatialPanel
         if (_cameraTransform == null) return;
 
         // Position: smart-follow only in Follow mode, and never while being grabbed
-        // (the grab drives position directly — position-only).
+        // (the grab drives position directly – position-only).
         if (!_isDragging && _lockMode == LockMode.Follow)
             UpdateSmartFollow();
 
@@ -252,7 +252,7 @@ public class UserPanel : SpatialPanel
         // world-space camera, so it keeps working with no parent; both lock modes then hold
         // world position. Start runs on the panel's first activation (it ships inactive), which
         // is after UserPanelOpener.Awake has cached its reference and after RootLifetimeScope
-        // registered the instance — so detaching here breaks no existing reference holder.
+        // registered the instance – so detaching here breaks no existing reference holder.
         transform.SetParent(null, worldPositionStays: true);
         DontDestroyOnLoad(gameObject);
     }

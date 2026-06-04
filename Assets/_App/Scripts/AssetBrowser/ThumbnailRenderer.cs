@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Renders a loaded model GameObject to a square thumbnail Texture2D via an off-screen camera.
-/// Knows nothing about glTF — the caller hands it an already-instantiated, already-parked model.
+/// Knows nothing about glTF – the caller hands it an already-instantiated, already-parked model.
 /// The render is off-screen (Camera.Render to a targetTexture), so the live scene/display are untouched.
 /// </summary>
 public class ThumbnailRenderer

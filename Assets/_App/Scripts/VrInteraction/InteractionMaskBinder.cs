@@ -54,7 +54,7 @@ public class InteractionMaskBinder : MonoBehaviour
             if (far  != null) _farCasters.Add(far);
         }
         if (_nearCasters.Count == 0 && _farCasters.Count == 0)
-            Debug.LogError("InteractionMaskBinder: found no NearFarInteractor casters in children — " +
+            Debug.LogError("InteractionMaskBinder: found no NearFarInteractor casters in children – " +
                            "place this component on the XR rig root.");
 
         _uiMask = LayerMask.GetMask("UI"); // always-on UI channel (uGUI shares the caster mask)
@@ -80,7 +80,7 @@ public class InteractionMaskBinder : MonoBehaviour
     // A scene/mode transition reuses this persistent binder. Scene-scoped publishers (selection,
     // gizmo panel, bones toggle) do NOT re-emit their "off" state for the new scene, so without an
     // explicit reset the caster mask can stay stuck on GizmoHandles/BoneProxies from the previous
-    // session — the ray then can't hit SceneObjects and nothing is clickable. Reset to the default
+    // session – the ray then can't hit SceneObjects and nothing is clickable. Reset to the default
     // object-selection context. ModeChangedEvent fires after the new scene/scope are live.
     private void OnModeChanged(ModeChangedEvent _)
     {

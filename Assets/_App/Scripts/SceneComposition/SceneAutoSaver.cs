@@ -21,7 +21,7 @@ public class SceneAutoSaver : IStartable, IDisposable
     public void Dispose() => _bus.Unsubscribe<ModeExitingEvent>(OnModeExiting);
 
     // Hook the PRE-unload event, not ModeChangedEvent. This saver is scene-scoped, so it is disposed
-    // during the Single scene load — before ModeChangedEvent fires. ModeExitingEvent is published
+    // during the Single scene load – before ModeChangedEvent fires. ModeExitingEvent is published
     // while the outgoing VrEditing scene is still loaded, so CaptureSnapshot (synchronous, before the
     // first await in SaveCurrentAsync) reads live nodes/transforms; the async write then runs on the
     // detached snapshot.
@@ -38,7 +38,7 @@ public class SceneAutoSaver : IStartable, IDisposable
             var activeId = _storage.ActiveSceneId;
             if (string.IsNullOrEmpty(activeId) || activeId == "__sandbox__") return;
 
-            // Capture before any await — scene may unload after the first yield.
+            // Capture before any await – scene may unload after the first yield.
             var cached = _storage.GetCachedScene(activeId);
             if (cached == null) return;
             var snap = _graph.CaptureSnapshot(activeId, cached.DisplayName, cached.CreatedAt);

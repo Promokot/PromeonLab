@@ -87,7 +87,7 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
     {
         if (sn == null || string.IsNullOrEmpty(sn.NodeId)) return;
         _transientNodes[sn.NodeId] = sn;
-        // Intentionally no SceneModifiedEvent — outliner does not rebuild for bones.
+        // Intentionally no SceneModifiedEvent – outliner does not rebuild for bones.
     }
 
     private SceneNode AddNodeInternal(GameObject go, string nodeId, AssetRef assetRef,
@@ -149,7 +149,7 @@ public class SceneGraph : ISceneGraph, IStartable, IDisposable
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogWarning($"SceneGraph: spawn failed for {nd.AssetRef} — skipping node. {ex.Message}");
+                    Debug.LogWarning($"SceneGraph: spawn failed for {nd.AssetRef} - skipping node. {ex.Message}");
                     continue;
                 }
                 go.transform.localScale = nd.Scale;

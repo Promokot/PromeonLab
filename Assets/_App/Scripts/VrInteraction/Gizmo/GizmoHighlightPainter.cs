@@ -4,15 +4,15 @@ using UnityEngine;
 // Owns the gizmo's per-handle highlight state: the instanced native per-axis materials plus a
 // SilhouetteOnly outline per renderer, and the hover-darken / grab-recolor / restore transitions.
 // Extracted from GizmoDriver (A2) so the activator stays focused on spawn/visibility/drag
-// orchestration. Pure helper (no MonoBehaviour) — the activator builds one per spawned instance.
+// orchestration. Pure helper (no MonoBehaviour) – the activator builds one per spawned instance.
 public class GizmoHighlightPainter
 {
     // One per gizmo mesh renderer. The gizmo ships its own per-axis materials (the emissive
-    // Gizmo_Emissive* set) — including the scale center, whose single mesh carries 4 submeshes
+    // Gizmo_Emissive* set) – including the scale center, whose single mesh carries 4 submeshes
     // (body + 3 axis legs). We keep those native materials (instanced so tinting never touches the
     // shared assets) and capture BOTH the base AND emission color of every submesh so hover/grab can
     // recolor and exactly restore them. The visible color of an emissive material is its emission, so
-    // touching only _BaseColor (the old bug) left the highlight broken — we now handle both.
+    // touching only _BaseColor (the old bug) left the highlight broken – we now handle both.
     private class GizmoPart
     {
         public Material[]   Materials;    // instanced native materials (one per submesh)
@@ -79,7 +79,7 @@ public class GizmoHighlightPainter
     }
 
     // One GizmoPart per mesh renderer. We keep the gizmo's native per-axis materials (instanced so
-    // tinting never touches the shared assets) and add a SilhouetteOnly outline — see-through silhouette
+    // tinting never touches the shared assets) and add a SilhouetteOnly outline – see-through silhouette
     // behind occluders, like the rig bones, while the native solid mesh is the always-visible front
     // highlight (depth-tested, so overlapping handles never flicker as the OutlineAll mode did).
     // Multi-submesh renderers (the scale center: body + 3 axis legs) keep every submesh's own color.
@@ -97,7 +97,7 @@ public class GizmoHighlightPainter
             var handle = mr.GetComponentInParent<GizmoHandle>(includeInactive: true);
 
             // Accessing .materials instantiates per-renderer copies of the native gizmo materials and
-            // assigns them back — capture BEFORE installing the Outline (which appends mask/fill passes).
+            // assigns them back – capture BEFORE installing the Outline (which appends mask/fill passes).
             var mats    = mr.materials;
             var hasBase = new bool[mats.Length];
             var baseCol = new Color[mats.Length];

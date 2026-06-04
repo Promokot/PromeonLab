@@ -5,7 +5,7 @@ using VContainer.Unity;
 // Scene-scoped entry point: the SINGLE place that fills SceneContext from the live scene scope
 // and clears it when the scope is torn down (scene unload). Service sets differ per scope
 // (Sandbox registers no AnimationAuthoring/AnimationClock), so each is resolved
-// defensively — an unregistered service resolves to null, which SceneContext exposes as null.
+// defensively – an unregistered service resolves to null, which SceneContext exposes as null.
 public class SceneContextBinder : IStartable, IDisposable
 {
     private readonly IObjectResolver _resolver;

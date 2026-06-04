@@ -58,7 +58,7 @@ public class ImportWizardPanel : MonoBehaviour, IRegionSurface
 
     // Region router calls these when the region opens/closes. RegionMember delegates here
     // for custom surfaces and never touches SetActive itself, so we must toggle our own
-    // GameObject — otherwise the wizard would stay invisible even when "open".
+    // GameObject – otherwise the wizard would stay invisible even when "open".
     public void Show()
     {
         if (!gameObject.activeSelf) gameObject.SetActive(true);

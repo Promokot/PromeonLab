@@ -137,7 +137,7 @@ public class OutlinerPanel : MonoBehaviour
     {
         // Bones mode is per-scene transient. This panel persists across scene swaps (it lives on the
         // persistent UserPanel), so a rig left in bones mode would otherwise carry _bonesActiveByRig =
-        // true into the next scene — leaving the rig row bones-blue and AnyBonesModeActive() blocking
+        // true into the next scene – leaving the rig row bones-blue and AnyBonesModeActive() blocking
         // all outliner selection until a toggle. Reset it at every scene boundary.
         _bonesActiveByRig.Clear();
         if (e.HasScene) Rebuild();

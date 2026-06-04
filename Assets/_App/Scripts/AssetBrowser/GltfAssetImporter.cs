@@ -13,7 +13,7 @@ public class GltfAssetImporter : IAssetImporter
     public bool CanHandle(string ext) => ext == ".glb" || ext == ".gltf";
 
     // Default selection. The wizard lets the user switch to Rig for skinned characters; runtime
-    // skeleton auto-detection is deferred (it requires a full load) — see plan notes.
+    // skeleton auto-detection is deferred (it requires a full load) – see plan notes.
     public AssetType SuggestedType => AssetType.Object;
 
     public async Task<ImportedLabAsset> ImportAsync(string sourceFilePath, AssetType chosenType, string displayName, CancellationToken ct)

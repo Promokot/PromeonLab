@@ -36,8 +36,8 @@ public class EmptySpaceClickDeselector : MonoBehaviour
         _selectionManager.Select(null);
     }
 
-    // NearFarInteractor implements IUIInteractor — TryGetCurrentUIRaycastResult is available directly.
-    // Old approach (GetComponentInChildren<XRRayInteractor>) was wrong — NearFarInteractor has no such child.
+    // NearFarInteractor implements IUIInteractor – TryGetCurrentUIRaycastResult is available directly.
+    // Old approach (GetComponentInChildren<XRRayInteractor>) was wrong – NearFarInteractor has no such child.
     // private static bool IsOverUI_Old(NearFarInteractor interactor)
     // {
     //     var ray = interactor.GetComponentInChildren<XRRayInteractor>(includeInactive: true);

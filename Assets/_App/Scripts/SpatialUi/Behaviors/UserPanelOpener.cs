@@ -11,7 +11,7 @@ public class UserPanelOpener : MonoBehaviour
         _panel = GetComponentInChildren<UserPanel>(true);
 
         // The panel may ship ENABLED in the prefab (easier to author and inspect), but at runtime it
-        // must start hidden — the player opens it on demand with the toggle. Hide it here in Awake,
+        // must start hidden – the player opens it on demand with the toggle. Hide it here in Awake,
         // before any Start runs, so UserPanel.Start (detach-to-world + DontDestroyOnLoad, gated on the
         // first activation) still defers to the first real open exactly as it did when the prefab
         // shipped inactive. GetComponentInChildren(true) above already found it regardless of state.

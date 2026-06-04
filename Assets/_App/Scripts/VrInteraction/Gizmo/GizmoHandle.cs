@@ -37,7 +37,7 @@ public class GizmoHandle : XRBaseInteractable
     private bool _gripWasDownLastFrame;
     // Расстояние controller→handle в момент grip-down. Используется чтобы вычислять виртуальную
     // hand-позицию как точку перед контроллером (controllerPos + forward*dist). Так поворот
-    // контроллера двигает виртуальную точку по сфере — как у XRI regular grab.
+    // контроллера двигает виртуальную точку по сфере – как у XRI regular grab.
     private float _grabRayDistance;
 
     public override bool IsSelectableBy(IXRSelectInteractor _) => false;
@@ -49,7 +49,7 @@ public class GizmoHandle : XRBaseInteractable
 
         if (_state == HandleState.Dragging && (_locked == null || !_locked.isActiveAndEnabled))
         {
-            Debug.LogWarning($"[GizmoHandle:{name}] DEFENSIVE ABORT — _locked={(_locked == null ? "null" : "exists,enabled=" + _locked.isActiveAndEnabled)}");
+            Debug.LogWarning($"[GizmoHandle:{name}] DEFENSIVE ABORT – _locked={(_locked == null ? "null" : "exists,enabled=" + _locked.isActiveAndEnabled)}");
             _activator?.OnHandleAborted();
             _state  = HandleState.Idle;
             _locked = null;
@@ -65,7 +65,7 @@ public class GizmoHandle : XRBaseInteractable
                 SetHover(primaryHover);
                 if (!primaryHover) break;
                 bool gripDownNow = ni.selectInput.ReadValue() > 0.5f;
-                // DIAGNOSTIC (закомментировано — спам подтвердил что hold-input работает корректно):
+                // DIAGNOSTIC (закомментировано – спам подтвердил что hold-input работает корректно):
                 // Debug.Log($"[GizmoHandle:{name}] f={Time.frameCount} HOVER ReadValue={ni.selectInput.ReadValue():F2} IsPerformed={ni.selectInput.ReadIsPerformed()} WasPerformed={ni.selectInput.ReadWasPerformedThisFrame()} WasCompleted={ni.selectInput.ReadWasCompletedThisFrame()}");
                 if (gripDownNow && !_gripWasDownLastFrame)
                 {
@@ -74,9 +74,9 @@ public class GizmoHandle : XRBaseInteractable
                     // Drop hover state so the grab color owns the handle; re-evaluated on release.
                     SetHover(false);
                     var ctrl = ni.transform;
-                    // Виртуальная hand-точка = controllerPos + forward*dist. dist — расстояние
+                    // Виртуальная hand-точка = controllerPos + forward*dist. dist – расстояние
                     // от контроллера до этой ручки в момент grip. Так поворот контроллера
-                    // двигает точку по сфере (как у regular grab — wrist twist = motion).
+                    // двигает точку по сфере (как у regular grab – wrist twist = motion).
                     _grabRayDistance = Vector3.Distance(ctrl.position, transform.position);
                     if (_grabRayDistance < 0.05f) _grabRayDistance = 0.05f;
                     var virtualPos = ctrl.position + ctrl.forward * _grabRayDistance;
@@ -87,7 +87,7 @@ public class GizmoHandle : XRBaseInteractable
 
             case HandleState.Dragging:
                 bool gripStillDown = _locked.selectInput.ReadValue() > 0.5f;
-                // DIAGNOSTIC (закомментировано — спам подтвердил что hold-input сохраняется во время DRAG):
+                // DIAGNOSTIC (закомментировано – спам подтвердил что hold-input сохраняется во время DRAG):
                 // Debug.Log($"[GizmoHandle:{name}] f={Time.frameCount} DRAG ReadValue={_locked.selectInput.ReadValue():F2} IsPerformed={_locked.selectInput.ReadIsPerformed()} WasCompleted={_locked.selectInput.ReadWasCompletedThisFrame()}");
                 if (!gripStillDown)
                 {

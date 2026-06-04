@@ -5,7 +5,7 @@ using System.Collections.Generic;
 // Owns BOTH the module surfaces (panels) and the nav buttons, and is the single
 // subscriber to ModeChangedEvent: it drives panel open/close AND button visibility
 // + active-highlight purely from the current AppMode. Lives at root (Singleton) so it
-// matches the persistent panel's lifetime — see RootLifetimeScope.
+// matches the persistent panel's lifetime – see RootLifetimeScope.
 public class PanelRegionRouter : IDisposable
 {
     private readonly IRegionConfig _config;
@@ -117,7 +117,7 @@ public class PanelRegionRouter : IDisposable
             foreach (var id in toClose) Close(id);
 
         // open each region's default surface when the region is otherwise empty and the
-        // default is visible in this mode — the resting-state half of Close()'s reopen,
+        // default is visible in this mode – the resting-state half of Close()'s reopen,
         // applied on mode entry/startup (otherwise a region with an inactive default member
         // stays blank until something else in it opens and closes).
         EnsureRegionDefaults(mode);

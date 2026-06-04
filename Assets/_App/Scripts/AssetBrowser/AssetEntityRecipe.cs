@@ -33,6 +33,6 @@ public class AssetEntityRecipe
     public RigDefinition    rig;
 
     // Canonical "this recipe describes a skeleton" check. JsonUtility cannot persist a null nested
-    // object, so `rig` may come back as an empty object — guard on the bone count, never on null.
+    // object, so `rig` may come back as an empty object – guard on the bone count, never on null.
     public bool HasRig => rig != null && rig.Bones != null && rig.Bones.Count > 0;
 }

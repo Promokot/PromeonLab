@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // Master-detail Settings панель: левый rail (general / bindings), справа контент.
-// general — пустой. bindings рендерится из ControlsProfile карточками-секциями в рантайме.
+// general – пустой. bindings рендерится из ControlsProfile карточками-секциями в рантайме.
 public class SettingsPanel : MonoBehaviour
 {
     [Header("Rail")]
@@ -71,7 +71,7 @@ public class SettingsPanel : MonoBehaviour
 
         if (_profile == null)
         {
-            Debug.LogWarning("[SettingsPanel] ControlsProfile not assigned — bindings list empty.", this);
+            Debug.LogWarning("[SettingsPanel] ControlsProfile not assigned – bindings list empty.", this);
             return;
         }
 

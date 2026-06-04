@@ -104,7 +104,7 @@ public class ExportPanel : MonoBehaviour
     {
         var sceneId = _storage?.ActiveSceneId;
         var scene   = !string.IsNullOrEmpty(sceneId) ? _storage.GetCachedScene(sceneId) : null;
-        var name    = scene?.DisplayName ?? "—";
+        var name    = scene?.DisplayName ?? "–";
 
         if (_sceneNameLabel != null)
             _sceneNameLabel.text = name;

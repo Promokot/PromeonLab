@@ -26,7 +26,7 @@ public class RootLifetimeScope : LifetimeScope
         if (_outlineConfig != null)
             builder.RegisterInstance(_outlineConfig);
         else
-            Debug.LogError("RootLifetimeScope: _outlineConfig not assigned — selection/bone outlines will not render!");
+            Debug.LogError("RootLifetimeScope: _outlineConfig not assigned – selection/bone outlines will not render!");
         // RegisterEntryPoint exposes IStartable so VContainer calls Start() → LoadAsync on app start;
         // .AsSelf() keeps the concrete type resolvable (AssetRegistry/ImportPipeline/AssetBrowserPanel
         // inject ImportedAssetLibrary directly). Plain Register<T> would NOT collect the entry point,
@@ -42,7 +42,7 @@ public class RootLifetimeScope : LifetimeScope
             ? _importRenderProfile
             : ScriptableObject.CreateInstance<ImportedAssetShaderProfile>();
         if (_importRenderProfile == null)
-            Debug.LogWarning("RootLifetimeScope: _importRenderProfile not assigned — imported images fall back to built-in URP/Unlit (two-sided).");
+            Debug.LogWarning("RootLifetimeScope: _importRenderProfile not assigned – imported images fall back to built-in URP/Unlit (two-sided).");
         builder.RegisterInstance(renderProfile);
 
         // Runtime loaders + per-type spawners.
@@ -55,7 +55,7 @@ public class RootLifetimeScope : LifetimeScope
             ? _proxyRigConfig
             : ScriptableObject.CreateInstance<ProxyRigConfig>();
         if (_proxyRigConfig == null)
-            Debug.LogWarning("RootLifetimeScope: _proxyRigConfig not assigned — proxy bones spawn with no material (outline-only).");
+            Debug.LogWarning("RootLifetimeScope: _proxyRigConfig not assigned – proxy bones spawn with no material (outline-only).");
         builder.RegisterInstance(proxyRigConfig);
         builder.Register<ReferenceEntityFabricator>(Lifetime.Singleton);
         builder.Register<ObjectEntityBuilder>(Lifetime.Singleton).As<IAssetEntityBuilder>();
@@ -68,7 +68,7 @@ public class RootLifetimeScope : LifetimeScope
         builder.Register<ImageAssetImporter>(Lifetime.Singleton).As<IAssetImporter>();
         builder.RegisterEntryPoint<ImportPipeline>(Lifetime.Singleton).AsSelf();
 
-        // Export pipeline — app-lifetime so it works from any mode.
+        // Export pipeline – app-lifetime so it works from any mode.
         // IStartable wires the EventBus subscription; IDisposable tears it down.
         builder.RegisterEntryPoint<SceneExporter>(Lifetime.Singleton).AsSelf();
 
@@ -76,7 +76,7 @@ public class RootLifetimeScope : LifetimeScope
         if (transition != null)
             builder.RegisterInstance(transition).As<ISceneTransition>();
         else
-            Debug.LogError("RootLifetimeScope: SceneTransitionRunner not found — mode transitions will fail.");
+            Debug.LogError("RootLifetimeScope: SceneTransitionRunner not found – mode transitions will fail.");
 
         builder.Register<ModeOrchestrator>(Lifetime.Singleton);
 
@@ -122,7 +122,7 @@ public class RootLifetimeScope : LifetimeScope
                 }
 
                 // Persistent panels that live on the XR rig with UserPanel and whose Construct deps
-                // are all root-scoped — inject here so they work in EVERY mode, including MainMenu
+                // are all root-scoped – inject here so they work in EVERY mode, including MainMenu
                 // where no scene scope runs. (AssetBrowserPanel's "+" → router.Open("fileBrowser");
                 // FileBrowserPanel needs EventBus + router for publish/close.)
                 foreach (var ab in Object.FindObjectsByType<AssetBrowserPanel>(FindObjectsInactive.Include, FindObjectsSortMode.None))
@@ -134,14 +134,14 @@ public class RootLifetimeScope : LifetimeScope
 
                 // AnimatorPanel is also persistent (nested in UserPanel on the XR rig) and its
                 // Construct deps (EventBus, AnimationClipboard, SceneContext) are all root-scoped,
-                // so inject here too — otherwise its button listeners never wire in modes that
+                // so inject here too – otherwise its button listeners never wire in modes that
                 // don't run VrEditingSceneScope (or when it enables before scene-scope injection),
                 // leaving every animator button inert. Scene services it touches (Authoring/Clock)
                 // are reached through the root SceneContext façade, which is null-guarded at use.
                 foreach (var ap in Object.FindObjectsByType<AnimatorPanel>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                     c.Inject(ap);
 
-                // ExportPanel — same pattern: persistent, all deps root-scoped.
+                // ExportPanel – same pattern: persistent, all deps root-scoped.
                 foreach (var ep in Object.FindObjectsByType<ExportPanel>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                     c.Inject(ep);
 
@@ -156,7 +156,7 @@ public class RootLifetimeScope : LifetimeScope
         }
         else
         {
-            Debug.LogError("RootLifetimeScope: _navBarConfig not assigned — nav buttons will be inert!");
+            Debug.LogError("RootLifetimeScope: _navBarConfig not assigned – nav buttons will be inert!");
         }
     }
 }

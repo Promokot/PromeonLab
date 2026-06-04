@@ -45,6 +45,6 @@ public class BoneEditMode
         }
     }
 
-    // Forget the active rig without touching geometry — used when the rig vanished (scene change).
+    // Forget the active rig without touching geometry – used when the rig vanished (scene change).
     public void ClearActive() => ActiveRigId = null;
 }

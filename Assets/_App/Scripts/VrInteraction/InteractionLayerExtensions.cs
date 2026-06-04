@@ -10,7 +10,7 @@ public static class InteractionLayerExtensions
         int unity = InteractionLayers.UnityLayer(layer);
         if (unity < 0)
         {
-            Debug.LogError($"SetInteractionLayer: Unity layer '{layer}' is missing — create it in " +
+            Debug.LogError($"SetInteractionLayer: Unity layer '{layer}' is missing – create it in " +
                            $"ProjectSettings > Tags and Layers. Leaving '{go.name}' on its current layer.");
             return;
         }

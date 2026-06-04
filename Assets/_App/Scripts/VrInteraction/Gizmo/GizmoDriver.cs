@@ -32,7 +32,7 @@ public class GizmoDriver : MonoBehaviour
         _drag            = new GizmoDragSession(_config, _bus, _painter);
 
         // Subscribe immediately. Doing this in OnEnable would race with LifetimeScope.Awake's
-        // BuildCallback — if Activator's OnEnable ran first, _bus would be null and the bail-out
+        // BuildCallback – if Activator's OnEnable ran first, _bus would be null and the bail-out
         // would silently skip all subscriptions, causing panel events to go unheard.
         _bus.Subscribe<GizmoToolsPanelOpenedEvent>(OnPanelOpened);
         _bus.Subscribe<GizmoToolsPanelClosedEvent>(OnPanelClosed);
@@ -61,7 +61,7 @@ public class GizmoDriver : MonoBehaviour
     {
         if (_instance == null) return;
         if (_target == null) { if (!_drag.IsActive) Despawn(); return; }
-        // Во время drag гизмо — primary source-of-truth (strategy мутирует instance напрямую,
+        // Во время drag гизмо – primary source-of-truth (strategy мутирует instance напрямую,
         // target подтягивается за ним в OnHandleDragged). Не переписываем instance из target.
         if (_drag.IsActive) return;
         _instance.transform.position = _target.position;
@@ -109,7 +109,7 @@ public class GizmoDriver : MonoBehaviour
     {
         if (_config == null || _config.GizmoPrefab == null)
         {
-            Debug.LogError("GizmoDriver: GizmoConfig missing or prefab null — gizmo disabled.");
+            Debug.LogError("GizmoDriver: GizmoConfig missing or prefab null – gizmo disabled.");
             return;
         }
         _instance = Instantiate(_config.GizmoPrefab);

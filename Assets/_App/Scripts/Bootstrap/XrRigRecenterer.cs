@@ -16,7 +16,7 @@ public class XrRigRecenterer : MonoBehaviour
     {
         _xrOrigin = GetComponentInChildren<XROrigin>(true);
         if (_xrOrigin == null)
-            Debug.LogWarning("XrRigRecenterer: no XROrigin found on rig — recenter will be a no-op.");
+            Debug.LogWarning("XrRigRecenterer: no XROrigin found on rig – recenter will be a no-op.");
     }
 
     private void OnEnable()  => SceneManager.sceneLoaded += OnSceneLoaded;
@@ -42,7 +42,7 @@ public class XrRigRecenterer : MonoBehaviour
 
         if (_xrOrigin == null || _xrOrigin.Camera == null)
         {
-            Debug.LogWarning("XrRigRecenterer: XROrigin or Camera is null — recenter skipped.");
+            Debug.LogWarning("XrRigRecenterer: XROrigin or Camera is null – recenter skipped.");
             yield break;
         }
 

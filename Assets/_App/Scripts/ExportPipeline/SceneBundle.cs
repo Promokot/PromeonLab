@@ -4,7 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// External-facing scene description written as `scene.json` inside the export bundle.
-/// One-way snapshot for an outside tool — NOT a re-importable PromeonLab format.
+/// One-way snapshot for an outside tool – NOT a re-importable PromeonLab format.
 /// Reuses BonePose and AnimKeyData so the bundle does not duplicate those shapes.
 /// </summary>
 [Serializable]

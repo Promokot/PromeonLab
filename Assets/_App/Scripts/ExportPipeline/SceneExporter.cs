@@ -49,7 +49,7 @@ public class SceneExporter : IStartable, IDisposable
     }
 
     // -------------------------------------------------------------------------
-    // Pure transform — internal so EditMode tests can call it directly.
+    // Pure transform – internal so EditMode tests can call it directly.
     // -------------------------------------------------------------------------
 
     /// What the asset resolver returns for a node's AssetRef.
@@ -155,7 +155,7 @@ public class SceneExporter : IStartable, IDisposable
     }
 
     // -------------------------------------------------------------------------
-    // Zip writing — pure file IO (no Unity API), safe on a thread-pool thread.
+    // Zip writing – pure file IO (no Unity API), safe on a thread-pool thread.
     // -------------------------------------------------------------------------
 
     internal static void WriteZipBundle(string zipPath, string sceneJson, IReadOnlyList<SourceFile> sources)

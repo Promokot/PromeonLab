@@ -68,7 +68,7 @@ public class GizmoDragSession
         // when it sits on a child of the handle GO (the scaler).
         _grabbedHandle = handle;
         _painter.Recolor(handle, _painter.GrabOutlineColor);
-        // Гизмо — primary: strategy мутирует _instance во всех режимах.
+        // Гизмо – primary: strategy мутирует _instance во всех режимах.
         // Target подтягивается за гизмо в Update в зависимости от типа стратегии.
         _activeStrategy.BeginDrag(instance, handle.Axis, handPos, handRot);
         _bus?.Publish(new GizmoDragStartedEvent { TargetNodeId = _targetNodeId });

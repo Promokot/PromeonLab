@@ -31,7 +31,7 @@ public class ModeOrchestrator
 
         // Announce the exit BEFORE the scene unloads. The outgoing scene + its scope (SceneGraph,
         // SceneAutoSaver, …) are still alive here; once _transition.Load runs the Single load, that
-        // scope is disposed before the onLoaded callback fires ModeChangedEvent — so any work that
+        // scope is disposed before the onLoaded callback fires ModeChangedEvent – so any work that
         // needs the still-loaded outgoing scene (e.g. save-on-exit) must hook this pre-event.
         _bus.Publish(new ModeExitingEvent { From = prev, To = target });
 

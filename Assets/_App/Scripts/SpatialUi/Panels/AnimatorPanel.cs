@@ -209,7 +209,7 @@ public class AnimatorPanel : MonoBehaviour
         if (string.IsNullOrEmpty(owner)) return;
 
         _ctx.Authoring.CreateContainer(owner, _config.DefaultTotalFrames, _config.DefaultFps);
-        _ctx.Authoring.EnsureTrack(owner, owner);         // owner track ALWAYS — object/rig's own transform
+        _ctx.Authoring.EnsureTrack(owner, owner);         // owner track ALWAYS – object/rig's own transform
     }
 
     private void OnRemoveAnimationClicked()

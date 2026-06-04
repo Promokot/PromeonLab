@@ -40,7 +40,7 @@ public class GizmoToolsPanel : MonoBehaviour
     private void OnEnable()
     {
         EnsureColors();
-        _current = GizmoMode.Move; // default tool — Move
+        _current = GizmoMode.Move; // default tool – Move
         UpdateIndicators();
         if (_bus != null)
         {

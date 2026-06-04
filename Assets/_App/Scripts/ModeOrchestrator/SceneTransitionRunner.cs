@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 // fade and the async single-scene load, driven by a frame-locked coroutine so the fade stays smooth
 // in both directions. A re-entrancy guard drops Load calls while a transition is already running.
 // onLoaded fires after the new scene is loaded+activated (its LifetimeScope has built), before the
-// fade-in — ModeOrchestrator publishes ModeChangedEvent there.
+// fade-in – ModeOrchestrator publishes ModeChangedEvent there.
 public class SceneTransitionRunner : MonoBehaviour, ISceneTransition
 {
     [SerializeField] private HeadFade _fade;

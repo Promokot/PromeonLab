@@ -119,7 +119,7 @@ public class ProxyRigRuntime : MonoBehaviour
             var mr = go.GetComponent<MeshRenderer>();
             if (mr != null) mr.enabled = enabled;
 
-            // QuickOutline.OnEnable appends outlineMask/outlineFill without dedupe — strip stacked
+            // QuickOutline.OnEnable appends outlineMask/outlineFill without dedupe – strip stacked
             // copies before re-enabling so stencil writes don't conflict (the "bone outline needs a
             // click" bug).
             if (enabled && mr != null)
@@ -160,7 +160,7 @@ public class ProxyRigRuntime : MonoBehaviour
     private void OnSelectionChanged(SelectionChangedEvent evt) => ApplyBoneSelection(evt.SelectedNodeId);
 
     // Reflects the current selection on every bone proxy: outline color (selected vs idle) AND the
-    // primary-submesh material — the selected bone swaps to BoneSelectedMaterial (emissive warm orange),
+    // primary-submesh material – the selected bone swaps to BoneSelectedMaterial (emissive warm orange),
     // mirroring how the gizmo adopts its active material. Outline passes (submeshes 1+) are untouched.
     private void ApplyBoneSelection(string selectedId)
     {

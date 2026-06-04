@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 // A head-attached fade overlay for VR scene transitions. Lives on a small unlit quad/cube parented
-// to the HMD camera (so it covers both eyes uniformly — no 2D screen overlay). The transition runner
+// to the HMD camera (so it covers both eyes uniformly – no 2D screen overlay). The transition runner
 // drives FadeRoutine to black before loading and back to clear after.
 public class HeadFade : MonoBehaviour
 {

@@ -17,7 +17,7 @@ public class AssetBrowserPanel : MonoBehaviour
     [SerializeField] private LabAsset_Item _cardPrefab;
     [SerializeField] private Button       _addButton;
     [SerializeField] private Button       _spawnButton;
-    [SerializeField] private Button       _removeButton; // "RemoveBtn" — deletes the selected asset
+    [SerializeField] private Button       _removeButton; // "RemoveBtn" – deletes the selected asset
 
     [Header("Properties")]
     [SerializeField] private TMP_Text _propertiesText;
@@ -226,16 +226,16 @@ public class AssetBrowserPanel : MonoBehaviour
     private void OnRegionChanged(RegionChangedEvent e)
     {
         // React ONLY to OUR region (the one "assets"/"importWizard" live in). Without this guard an
-        // unrelated region emptying — e.g. the VR keyboard (region "overlays") closing — also fires
+        // unrelated region emptying – e.g. the VR keyboard (region "overlays") closing – also fires
         // with OpenModuleId == null and would wrongly reopen "assets", stomping an open import wizard.
         if (_router == null || !_router.TryGetModuleRegion("assets", out var myRegion) || e.RegionKey != myRegion)
             return;
 
-        // Re-open the asset browser once the shared region empties after the file browser flow — but
+        // Re-open the asset browser once the shared region empties after the file browser flow – but
         // ONLY when nothing else claimed the region. A successful pick hands the region to the import
         // wizard (OpenModuleId == "importWizard"); reopening here would stomp it. We wait until the
         // region actually empties (OpenModuleId == null), which is when the file browser is cancelled
-        // or the wizard finishes — then the browser returns.
+        // or the wizard finishes – then the browser returns.
         if (_reopenAfterFileBrowser
             && string.IsNullOrEmpty(e.OpenModuleId) && !_router.IsOpen("fileBrowser"))
         {
@@ -278,7 +278,7 @@ public class AssetBrowserPanel : MonoBehaviour
             Debug.LogWarning($"AssetBrowserPanel: failed to load thumbnail '{refPath}'. {ex.Message}");
         }
 
-        _thumbCache[refPath] = sprite;   // cache null too — don't retry a broken ref every rebuild
+        _thumbCache[refPath] = sprite;   // cache null too – don't retry a broken ref every rebuild
         return sprite;
     }
 }

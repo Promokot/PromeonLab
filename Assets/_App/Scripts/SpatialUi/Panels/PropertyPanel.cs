@@ -50,8 +50,8 @@ public class PropertyPanel : MonoBehaviour, IStartable, IDisposable
 
     private void ClearDisplay()
     {
-        _positionText.text = "Pos: —";
-        _rotationText.text = "Rot: —";
-        _scaleText.text    = "Scl: —";
+        _positionText.text = "Pos: –";
+        _rotationText.text = "Rot: –";
+        _scaleText.text    = "Scl: –";
     }
 }

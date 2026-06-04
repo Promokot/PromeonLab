@@ -56,7 +56,7 @@ public class RigEntityBuilder : IAssetEntityBuilder
         {
             var recipe = RecipeFromInstance(temp, TerminalBoneAxis.Auto, invert: false);
             if (recipe.rig == null)
-                Debug.LogWarning($"RigEntityBuilder: '{sourceAbsolutePath}' has no skeleton — importing as a static object.");
+                Debug.LogWarning($"RigEntityBuilder: '{sourceAbsolutePath}' has no skeleton – importing as a static object.");
             return recipe;
         }
         finally { UnityEngine.Object.Destroy(temp); }
@@ -88,7 +88,7 @@ public class RigEntityBuilder : IAssetEntityBuilder
             : null;
         _factory.BuildProxyRig(go, boneNames, axis, invert, depth);
         // The selector boxes are built+bound here, but RegisterSelectorColliders() is the registry's
-        // job — it runs after InteractionCapability.Apply creates the root interactable (see
+        // job – it runs after InteractionCapability.Apply creates the root interactable (see
         // AssetEntityBuilderRegistry.RestoreAsync). Don't register here: the interactable doesn't exist yet.
         return go;
     }

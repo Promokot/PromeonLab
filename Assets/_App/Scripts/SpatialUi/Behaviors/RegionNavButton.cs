@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using VContainer;
 
 // Thin nav button. It only forwards clicks to the router (Toggle). Visibility per mode
-// and active-highlight are DRIVEN BY PanelRegionRouter via SetVisible / SetActiveHighlight —
+// and active-highlight are DRIVEN BY PanelRegionRouter via SetVisible / SetActiveHighlight –
 // the button no longer subscribes to mode/region events itself.
 // Setup is lifecycle-safe: the host UserPanel starts inactive, so Construct may run long
 // before Awake/OnEnable. Colors + click listener are wired lazily and idempotently.

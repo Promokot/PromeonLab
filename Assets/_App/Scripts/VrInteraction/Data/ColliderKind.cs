@@ -1,4 +1,4 @@
-// How the entity's selection collider is shaped. Int values are serialized in recipes — append only,
+// How the entity's selection collider is shaped. Int values are serialized in recipes – append only,
 // never reorder. Box = single AABB; ConvexMesh = per-renderer convex hull; BoneBoxes = boxes along
 // the skeleton (see BoneSelectorBoxPlanner).
 public enum ColliderKind

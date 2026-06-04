@@ -104,7 +104,7 @@ public class ImportPipeline : IStartable, IDisposable
         {
             if (record.Type == AssetType.Reference)
             {
-                // The image file itself is the thumbnail — no render.
+                // The image file itself is the thumbnail – no render.
                 record.SetThumbnailRef(record.SourceRef);
                 return;
             }

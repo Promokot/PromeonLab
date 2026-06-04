@@ -173,7 +173,7 @@ public class RigEntityFabricator
         proxyGo.AddComponent<MeshFilter>().sharedMesh = mesh;
         var mr = proxyGo.AddComponent<MeshRenderer>();
         if (_config.BoneMaterial == null)
-            Debug.LogWarning("RigEntityFabricator: ProxyRigConfig.BoneMaterial not assigned — proxy renders outline-only.");
+            Debug.LogWarning("RigEntityFabricator: ProxyRigConfig.BoneMaterial not assigned – proxy renders outline-only.");
         mr.sharedMaterial = _config.BoneMaterial;
 
         var outline          = proxyGo.AddComponent<Outline>();

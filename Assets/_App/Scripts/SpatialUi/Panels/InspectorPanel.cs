@@ -155,7 +155,7 @@ public class InspectorPanel : MonoBehaviour
             var activeNode = _ctx.Graph.GetNode(activeRigId);
             var activeRig  = activeNode != null ? activeNode.GetComponentInChildren<ProxyRigRuntime>(true) : null;
             if (activeRig != null) toggleRig = activeRig;
-            else _boneEditMode.ClearActive(); // active rig vanished (scene change) — drop bone mode
+            else _boneEditMode.ClearActive(); // active rig vanished (scene change) – drop bone mode
         }
         if (_showBonesToggle != null)
         {

@@ -7,7 +7,7 @@ public class BoneFollower : MonoBehaviour
 
     // The bone's rest localScale, captured once. The proxy rests at (1,1,1) and the gizmo writes its
     // scale onto proxy.localScale, so we treat that as a MULTIPLIER on the rest scale rather than a
-    // direct copy — this preserves any non-identity rest scale and won't break the rig. Child bones
+    // direct copy – this preserves any non-identity rest scale and won't break the rig. Child bones
     // stretch with a scaled parent automatically through the localScale hierarchy.
     private Vector3 _baseScale = Vector3.one;
     private bool    _baseCaptured;

@@ -24,7 +24,7 @@ public class PanelGrabHandle : XRBaseInteractable
     private NearFarInteractor  _lastHovering;
     private Vector3            _grabOffset;   // panel world position expressed in attach-local space
 
-    // Pure helpers — unit-testable grab-offset math. The offset is captured in attach-LOCAL
+    // Pure helpers – unit-testable grab-offset math. The offset is captured in attach-LOCAL
     // space; this assumes the interactor's attach transform has unit scale (always true for XRI
     // attach points), so InverseTransformPoint/TransformPoint round-trip exactly.
     public static Vector3 CaptureOffset(Transform attach, Vector3 worldPos)
@@ -43,7 +43,7 @@ public class PanelGrabHandle : XRBaseInteractable
                 colliders.Add(c);
 
         if (colliders.Count == 0)
-            Debug.LogError($"[PanelGrabHandle] No Collider on '{name}'. The handle can never be hovered/grabbed — add a BoxCollider.", this);
+            Debug.LogError($"[PanelGrabHandle] No Collider on '{name}'. The handle can never be hovered/grabbed – add a BoxCollider.", this);
 
         ApplyColor(_normalColor);
     }
@@ -140,7 +140,7 @@ public class PanelGrabHandle : XRBaseInteractable
         {
             if (ray.TryGetCurrent3DRaycastHit(out var hit) && hit.collider != null)
                 return colliders.Contains(hit.collider);
-            return false; // ray exists but hits nothing — not primary
+            return false; // ray exists but hits nothing – not primary
         }
 
         // True near path (physical hand, no ray).

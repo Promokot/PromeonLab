@@ -26,7 +26,7 @@ public class AssetEntityBuilderRegistry
         // The existing catches in AssetSpawner / SceneGraph.OnSceneOpenedAsync log this without crashing.
         if (recipe == null && asset.Source == AssetSource.Builtin)
             throw new NotSupportedException(
-                $"Builtin asset '{asset.Id}' has no baked recipe — bake it in the BuiltinAssetLibrary inspector.");
+                $"Builtin asset '{asset.Id}' has no baked recipe – bake it in the BuiltinAssetLibrary inspector.");
 
         var go = await Resolve(asset.Type).RestoreAsync(asset, recipe, position, rotation, ct);
 

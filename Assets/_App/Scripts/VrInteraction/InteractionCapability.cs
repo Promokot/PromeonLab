@@ -52,7 +52,7 @@ public static class InteractionCapability
         root.AddComponent<Selectable>();
         var interactable = root.AddComponent<XRPromeonInteractable>();
 
-        // 4) Child colliders (ConvexMesh) aren't found by the interactable's root-only Awake scan —
+        // 4) Child colliders (ConvexMesh) aren't found by the interactable's root-only Awake scan –
         //    register them so a hit on any of them counts as a hit on the root entity.
         if (childColliders != null && childColliders.Count > 0)
             interactable.RegisterColliders(childColliders);
@@ -78,7 +78,7 @@ public static class InteractionCapability
         // so one unreadable mesh never aborts the whole entity build on Quest.
         if (!mesh.isReadable)
         {
-            Debug.LogWarning($"InteractionCapability: mesh '{mesh.name}' is not readable — skipping convex collider on '{go.name}'.");
+            Debug.LogWarning($"InteractionCapability: mesh '{mesh.name}' is not readable – skipping convex collider on '{go.name}'.");
             return;
         }
         var mc = go.AddComponent<MeshCollider>();
