@@ -1,0 +1,204 @@
+# Реестр нумерации ВКР v15 (фактический состав docx, 2026-06-05)
+
+Собран автоматически из ВКР_Пищагин_М_А_v15_draft.docx после перенумерации.
+Исключены при вёрстке v14 (решение Макса): Рисунки 3.4 (иерархия областей DI), 3.5 (граф переходов), 3.6 (коллаж режимов), 3.14 (Blender-коллаж) старой нумерации; Таблица 3.2 (роли скриптов UI). Готовые схемы лежат в figures/ на случай возврата.
+
+## Рисунки
+
+- Рисунок 1.1 – Анимационный интерфейс Quill
+- Рисунок 1.2 – Виртуальное построение сцены Tvori
+- Рисунок 1.3 – Взаимодействие с таймлайном в AnimVR
+- Рисунок 1.4 – Пример гуманоидного рига (анимационной скелетной установки)
+- Рисунок 2.1 – Функциональная схема приложения
+- Рисунок 2.2 – Схема подсистемы управления файловыми ресурсами
+- Рисунок 2.3 – Схема подсистемы формирования и редактирования сцен
+- Рисунок 2.4 – Схема подсистемы ограничителей и скелетных структур
+- Рисунок 2.5 – Схема подсистемы анимации
+- Рисунок 2.6 – Стандартный анимационный таймлайн
+- Рисунок 2.7 – Схема подсистемы экспорта данных
+- Рисунок 3.1 – Структура каталогов локального хранилища приложения
+- Рисунок 3.2 – Связи структур данных приложения
+- Рисунок 3.3 – Пример сериализованного файла сцены scene.json
+- Рисунок 3.4 – Регионная модель пользовательского интерфейса
+- Рисунок 3.5 – Пользовательская панель с открытой панелью-модулем
+- Рисунок 3.6 – Главное меню и список сцен
+- Рисунок 3.7 – Обозреватель иерархии сцены
+- Рисунок 3.8 – Браузер ассетов с миниатюрами
+- Рисунок 3.9 – Мастер импорта ассета
+- Рисунок 3.10 – Конвейер импорта ассетов
+- Рисунок 3.11 – Структура прокси-рига скелетной модели
+- Рисунок 3.12 – Модель с построенными прокси-костями
+- Рисунок 3.13 – Выделенный объект с обводкой
+- Рисунок 3.14 – Гизмо на выбранном объекте
+- Рисунок 3.15 – Выделенная кость прокси-рига
+- Рисунок 3.16 – Панель аниматора с открытым таймлайном
+- Рисунок 3.17 – Панель экспорта сцены
+- Рисунок 3.18 – Состав экспортированного ZIP-пакета
+- Рисунок А.1 – Виды сцен трёх режимов приложения
+- Рисунок А.2 – Файловый браузер при выборе файла для импорта
+- Рисунок А.3 – Гизмо перемещения и панель инструментов гизмо
+- Рисунок А.4 – Браузер ассетов и инспектор при работе со скелетной моделью
+
+## Таблицы
+
+- Таблица 1.1 – Сравнительный анализ VR-средств для анимации
+- Таблица 3.1 – Области жизни приложения и их ключевые объекты
+- Таблица 3.2 – Библиотеки ассетов приложения
+- Таблица 3.3 – Роли модулей панели аниматора
+
+## Листинги в тексте
+
+- Листинг 3.1 – Скрипт PathProvider.cs
+- Листинг 3.2 – Скрипт AppStorage.cs (Фрагмент создания и загрузки сцены)
+- Листинг 3.3 – Скрипт AssetEntityRecipe.cs (Поля шаблона восстановления)
+- Листинг 3.4 – Скрипты SceneData.cs, NodeData.cs и BonePose.cs
+- Листинг 3.5 – Скрипты структур анимационных данных (Поля без методов)
+- Листинг 3.6 – Скрипт SceneSerializer.cs
+- Листинг 3.7 – Скрипт AnimationStorage.cs (Фрагмент загрузки данных)
+- Листинг 3.8 – Скрипт SceneAutoSaver.cs (Метод сохранения по снимку)
+- Листинг 3.9 – Скрипт SceneDirtyTracker.cs
+- Листинг 3.10 – Скрипт AnimationStorage.cs (Фрагмент отложенной записи)
+- Листинг 3.11 – Скрипт EventBus.cs
+- Листинг 3.12 – Скрипт RootLifetimeScope.cs (Фрагмент регистрации классов)
+- Листинг 3.13 – Скрипт SceneContext.cs
+- Листинг 3.14 – Скрипт SceneContextBinder.cs
+- Листинг 3.15 – Скрипт MainMenuSceneScope.cs
+- Листинг 3.16 – Скрипт VrEditingSceneScope.cs (Комментарии опущены)
+- Листинг 3.17 – Скрипт ModeOrchestrator.cs
+- Листинг 3.18 – Скрипт SceneTransitionRunner.cs
+- Листинг 3.19 – Скрипт AppBootstrap.cs
+- Листинг 3.20 – Скрипт SpatialPanel.cs (Фрагмент режимов крепления)
+- Листинг 3.21 – Скрипт PanelRegionRouter.cs (Фрагмент открытия и закрытия панелей)
+- Листинг 3.22 – Скрипт RegionNavButton.cs (Фрагмент привязки к модулю)
+- Листинг 3.23 – Скрипт RegionMember.cs
+- Листинг 3.24 – Скрипт VrInputFieldFocusBridge.cs
+- Листинг 3.25 – Скрипт UserPanel.cs (Фрагмент режимов фиксации)
+- Листинг 3.26 – Скрипт ScenePickerPanel.cs (Фрагмент работы со списком сцен)
+- Листинг 3.27 – Скрипт SceneListNode_Item.cs
+- Листинг 3.28 – Скрипт MainMenuPanel.cs (Фрагмент открытия сцены и песочницы)
+- Листинг 3.29 – Скрипт SceneNode.cs
+- Листинг 3.30 – Скрипт SceneGraph.cs (Фрагмент построения графа сцены)
+- Листинг 3.31 – Скрипт OutlinerPanel.cs (Фрагмент перестройки списка)
+- Листинг 3.32 – Скрипт AssetRegistry.cs
+- Листинг 3.33 – Скрипт AssetBrowserPanel.cs (Фрагмент загрузки миниатюр)
+- Листинг 3.34 – Скрипт BuiltinRecipeBaker.cs (Фрагмент подготовки записи библиотеки)
+- Листинг 3.35 – Скрипт ImportPipeline.cs (Фрагмент выбора импортёра)
+- Листинг 3.36 – Скрипт ImportPipeline.cs (Фрагмент выполнения импорта)
+- Листинг 3.37 – Скрипт ThumbnailRenderer.cs (Фрагмент построения миниатюры)
+- Листинг 3.38 – Скрипт AssetSpawner.cs
+- Листинг 3.39 – Скрипт AssetEntityBuilderRegistry.cs (Фрагмент восстановления ассета)
+- Листинг 3.40 – Скрипты RigDefinition.cs и BoneRecord.cs (Фрагмент полей скелета)
+- Листинг 3.41 – Скрипт RigDefinitionExtractor.cs
+- Листинг 3.42 – Скрипт RigEntityFabricator.cs (Фрагмент построения иерархии прокси)
+- Листинг 3.43 – Скрипт RigEntityFabricator.cs (Фрагмент выбора вектора концевой кости)
+- Листинг 3.44 – Скрипт RigEntityFabricator.cs (Фрагмент сборки прокси-объекта)
+- Листинг 3.45 – Скрипт BoneFollower.cs
+- Листинг 3.46 – Скрипт ProxyRigRuntime.cs (Фрагмент снятия и применения поз)
+- Листинг 3.47 – Скрипт ProxyRigRuntime.cs (Фрагмент переключения режима костей)
+- Листинг 3.48 – Скрипт SelectionManager.cs
+- Листинг 3.49 – Скрипт SelectionVisualSync.cs
+- Листинг 3.50 – Скрипт Selectable.cs
+- Листинг 3.51 – Скрипт XRPromeonInteractable.cs (Фрагмент машины состояний)
+- Листинг 3.52 – Скрипт GizmoDriver.cs (Фрагмент видимости гизмо)
+- Листинг 3.53 – Скрипт InteractionMaskBinder.cs (Фрагмент выбора контекстной маски)
+- Листинг 3.54 – Скрипт InspectorPanel.cs (Фрагмент состояний отображения)
+- Листинг 3.55 – Скрипт BoneEditMode.cs
+- Листинг 3.56 – Скрипт ProxyRigRuntime.cs (Фрагмент подсветки выбранной кости)
+- Листинг 3.57 – Скрипт AnimatorPanel.cs (Фрагмент создания контейнера и треков)
+- Листинг 3.58 – Скрипт AnimationAuthoring.cs (Фрагмент постановки ключа)
+- Листинг 3.59 – Скрипт AnimationClipBaker.cs (Фрагмент расчёта тангентов)
+- Листинг 3.60 – Скрипт AnimationClock.cs (Фрагмент продвижения позиции)
+- Листинг 3.61 – Скрипт AnimationPlaybackSampler.cs (Фрагмент покадрового семплирования)
+- Листинг 3.62 – Скрипт AnimationPlaybackSampler.cs (Фрагмент применения целого кадра)
+- Листинг 3.63 – Скрипт ExportPanel.cs (Фрагмент запуска экспорта и обновления пути)
+- Листинг 3.64 – Скрипт SceneBundle.cs
+- Листинг 3.65 – Скрипт SceneExporter.cs (Фрагмент сборки пакета)
+- Листинг 3.66 – Скрипт SceneExporter.cs (Фрагмент записи архива)
+
+## Приложение Б (порядок листингов = порядок первых ссылок в тексте)
+
+- Б.1 – AppStorage.cs (полный текст)
+- Б.2 – AnimationStorage.cs (полный текст)
+- Б.3 – RootLifetimeScope.cs (полный текст)
+- Б.4 – SandboxSceneScope.cs (полный текст)
+- Б.5 – SpatialPanel.cs (полный текст)
+- Б.6 – PanelRegionRouter.cs (полный текст)
+- Б.7 – RegionNavButton.cs (полный текст)
+- Б.8 – PanelGrabHandle.cs (полный текст)
+- Б.9 – UserPanel.cs (полный текст)
+- Б.10 – ScenePickerPanel.cs (полный текст)
+- Б.11 – MainMenuPanel.cs (полный текст)
+- Б.12 – SceneGraph.cs (полный текст)
+- Б.13 – OutlinerPanel.cs (полный текст)
+- Б.14 – AssetBrowserPanel.cs (полный текст)
+- Б.15 – BuiltinRecipeBaker.cs (полный текст)
+- Б.16 – ImportPipeline.cs (полный текст)
+- Б.17 – ImportWizardPanel.cs (полный текст)
+- Б.18 – ThumbnailRenderer.cs (полный текст)
+- Б.19 – AssetEntityBuilderRegistry.cs (полный текст)
+- Б.20 – ProxyRigRuntime.cs (полный текст)
+- Б.21 – RigEntityFabricator.cs (полный текст)
+- Б.22 – EmptySpaceClickDeselector.cs (полный текст)
+- Б.23 – XRPromeonInteractable.cs (полный текст)
+- Б.24 – GizmoDriver.cs (полный текст)
+- Б.25 – GizmoDragSession.cs (полный текст)
+- Б.26 – AxisMoveStrategy.cs (полный текст)
+- Б.27 – InteractionMaskBinder.cs (полный текст)
+- Б.28 – InspectorPanel.cs (полный текст)
+- Б.29 – AnimatorPanel.cs (полный текст)
+- Б.30 – AnimationAuthoring.cs (полный текст)
+- Б.31 – AnimationClipBaker.cs (полный текст)
+- Б.32 – AnimationClock.cs (полный текст)
+- Б.33 – AnimationPlaybackSampler.cs (полный текст)
+- Б.34 – ExportPanel.cs (полный текст)
+- Б.35 – SceneExporter.cs (полный текст)
+
+## Список источников (новый порядок по первому упоминанию)
+
+- 1.1. Hu Z., Liu L. Research on the application of virtual reality technology in 3D animation creation
+- 1.2. Virtual Reality Market Size, Share & Trends Analysis Report
+- 1.3. Think in 3D
+- 1.4. Quill by Smoothstep
+- 1.5. Create animated stories and prototype ideas in Virtual Reality
+- 1.6. Getting Started
+- 1.7. AnimVR on Steam
+- 1.8. LaViola J.J., Kruijff E., McMahan R.P., Bowman D.A., Poupyrev I. 3D User Interfaces: Theory and Practice. – 2nd ed.
+- 1.9. Боресков А.В., Шикин Е.В. Основы компьютерной графики: учебник и практикум для вузов. – М.:Юрайт, 2023. – 219 с.
+- 1.10. Привязка скелета к 3D-модели: пошаговое руководство
+- 1.11. Animation Rigging
+- 1.12. XR Architecture
+- 1.13. Macario Barros A., Michel M., Moline Y., Corre G., Carrel F. A Comprehensive Survey of Visual SLAM Algorithms
+- 2.1. Линовес Дж. Виртуальная реальность в Unity / пер. с англ. Р.Н.Рагимова. – М.:ДМК Пресс, 2023. – 316 с.
+- 2.2. Использование диаграммы классов UML при проектировании и документировании программного обеспечения
+- 2.3. Мартин Р. Чистая архитектура. Искусство разработки программного обеспечения. – СПб.:Питер, 2022. – 352 с.
+- 2.4. Иммерсивный дизайн
+- 2.5. Boletsis C., Chasanidou D. A Typology of Virtual Reality Locomotion Techniques
+- 2.6. Yu D., Dingler T., Velloso E., Goncalves J. Object Selection and Manipulation in VR Headsets: Research Challenges, 
+- 2.7. Bergström J., Dalsgaard T.-S., Alexander J., Hornbæk K. How to Evaluate Object Selection and Manipulation in VR? Gu
+- 2.8. Nielsen J. 10 Usability Heuristics for User Interface Design
+- 2.9. Scene Graph
+- 2.10. JPEG от мира 3D. Что такое glTF?
+- 2.11. The OpenXR Specification
+- 3.1. Application.persistentDataPath
+- 3.2. Asynchronous Programming with async and await
+- 3.3. Асинхронное программирование. Async и await
+- 3.4. JsonUtility
+- 3.5. Dependency Injection in .NET
+- 3.6. Внедрение зависимостей в Unity – Как начать писать более чистый и тестируемый код
+- 3.7. Unity OpenXR Plugin
+- 3.8. XR Interaction Toolkit
+- 3.9. EventBus – Система событий для Unity
+- 3.10. Event Bus и расширяемые игры. Часть 1
+- 3.11. Publisher-Subscriber Pattern
+- 3.12. Level Up Your Code with Game Programming Patterns (e-book)
+- 3.13. VContainer Documentation
+- 3.14. hadashiA/VContainer
+- 3.15. ScriptableObject
+- 3.16. Events
+- 3.17. glTF 2.0 Specification
+- 3.18. Unity glTFast Documentation
+- 3.19. Ферроне Х. Паттерны проектирования Unity. Популярные шаблоны и лучшие практики создания игр на Unity и C#. – СПб.:
+- 3.20. Гизмо
+- 3.21. The Definitive Guide to Animation in Unity (e-book)
+- 3.22. ZipArchive Class
+- 3.23. Хокинг Дж. Unity в действии. Мультиплатформенная разработка на C#. – 3-е изд. – СПб.:Питер, 2023. – 448 с.

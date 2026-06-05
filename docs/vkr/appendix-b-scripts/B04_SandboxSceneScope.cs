@@ -1,0 +1,65 @@
+using VContainer;
+using VContainer.Unity;
+using UnityEngine;
+
+public class SandboxSceneScope : LifetimeScope
+{
+    [SerializeField] private GizmoConfig   _gizmoConfig;
+
+    protected override void Configure(IContainerBuilder builder)
+    {
+        // Scene-scoped: fills/clears the root SceneContext for this scene's lifetime.
+        builder.RegisterEntryPoint<SceneContextBinder>();
+        if (_gizmoConfig != null) builder.RegisterInstance(_gizmoConfig);
+        builder.RegisterInstance(Camera.main);
+        builder.Register<SceneGraph>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+        builder.Register<SelectionManager>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+        builder.Register<BoneEditMode>(Lifetime.Scoped).AsSelf();
+        builder.Register<SelectionVisualSync>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+
+        var catcher = Object.FindAnyObjectByType<EmptySpaceClickDeselector>(FindObjectsInactive.Include);
+        if (catcher != null)
+            builder.RegisterBuildCallback(c => c.Inject(catcher));
+
+        var propPanel = Object.FindAnyObjectByType<PropertyPanel>(FindObjectsInactive.Include);
+        if (propPanel != null) builder.RegisterInstance(propPanel).AsImplementedInterfaces().AsSelf();
+
+        builder.Register<AssetSpawner>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+
+        var outliner = Object.FindAnyObjectByType<OutlinerPanel>(FindObjectsInactive.Include);
+        if (outliner != null)
+            builder.RegisterBuildCallback(c => c.Inject(outliner));
+
+        var inspector = Object.FindAnyObjectByType<InspectorPanel>(FindObjectsInactive.Include);
+        if (inspector != null)
+            builder.RegisterBuildCallback(c => c.Inject(inspector));
+
+        // AssetBrowserPanel + FileBrowserPanel are persistent (XR rig / UserPanel) with
+        // root-only deps → injected in RootLifetimeScope so they work in every mode.
+
+        var gizmoActivator = Object.FindAnyObjectByType<GizmoDriver>(FindObjectsInactive.Include);
+        if (gizmoActivator != null)
+            builder.RegisterBuildCallback(c => c.Inject(gizmoActivator));
+
+        var gizmoToolsPanel = Object.FindAnyObjectByType<GizmoToolsPanel>(FindObjectsInactive.Include);
+        if (gizmoToolsPanel != null)
+            builder.RegisterBuildCallback(c => c.Inject(gizmoToolsPanel));
+
+        // --- Region model: router + nav buttons live at Root (persistent panel). ---
+        // Here we only wire SCENE-bound surfaces (file browser) against the root router.
+        builder.RegisterBuildCallback(c =>
+        {
+            var router = c.Resolve<PanelRegionRouter>();
+
+            // Re-register any scene-resident region members (persistent ones are already
+            // registered by RootLifetimeScope; RegisterModule is idempotent).
+            foreach (var rm in Object.FindObjectsByType<RegionMember>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                c.Inject(rm);
+                router.RegisterModule(rm.ModuleId, rm);
+            }
+
+            router.ApplyMode(c.Resolve<ModeOrchestrator>().CurrentMode);
+        });
+    }
+}
