@@ -16,16 +16,16 @@
 1.9. Animation Rigging // Unity Documentation: – URL: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3/manual/index.html (дата обращения: 04.06.2026). – Текст электронный.
 1.10. Привязка скелета к 3D-модели: пошаговое руководство // Sky.pro: – URL: https://sky.pro/wiki/digital-art/privyazka-skeleta-k-3d-modeli-poshagovoe-rukovodstvo/ (дата обращения: 20.04.2026). – Текст электронный.
 1.11. Macario Barros A., Michel M., Moline Y., Corre G., Carrel F. A Comprehensive Survey of Visual SLAM Algorithms // Robotics. – 2022. – Vol. 11, № 1. – Article 24.
-1.12. XR Plug-in Framework // Unity Documentation: – URL: https://docs.unity3d.com/Manual/XRPluginArchitecture.html (дата обращения: 05.06.2026). – Текст электронный.
+1.12. XR Architecture // Unity Documentation: – URL: https://docs.unity3d.com/Manual/XRPluginArchitecture.html (дата обращения: 05.06.2026). – Текст электронный.
 1.13. Боресков А.В., Шикин Е.В. Основы компьютерной графики: учебник и практикум для вузов. – М.: Юрайт, 2023. – 219 с.
 
 ## 2. СПЕЦИАЛЬНЫЙ РАЗДЕЛ
 
 2.1. Nielsen J. 10 Usability Heuristics for User Interface Design // Nielsen Norman Group: – URL: https://www.nngroup.com/articles/ten-usability-heuristics/ (дата обращения: 04.06.2026). – Текст электронный.
 2.2. Иммерсивный дизайн // Хабр: – URL: https://habr.com/ru/articles/581126/ (дата обращения: 04.06.2026). – Текст электронный.
-2.3. A Typology of Virtual Reality Locomotion Techniques // Multimodal Technologies and Interaction. – 2022. – Vol. 6, № 9. – Article 72.
-2.4. Object Selection and Manipulation in VR Headsets: Research Challenges, Solutions, and Success Measurements // ACM Computing Surveys. – 2025.
-2.5. How to Evaluate Object Selection and Manipulation in VR? Guidelines from 20 Years of Studies // CHI Conference on Human Factors in Computing Systems. – 2021.
+2.3. Boletsis C., Chasanidou D. A Typology of Virtual Reality Locomotion Techniques // Multimodal Technologies and Interaction. – 2022. – Vol. 6, № 9. – Article 72.
+2.4. Yu D., Dingler T., Velloso E., Goncalves J. Object Selection and Manipulation in VR Headsets: Research Challenges, Solutions, and Success Measurements // ACM Computing Surveys. – 2025. – Vol. 57, № 4. – Article 98.
+2.5. Bergström J., Dalsgaard T.-S., Alexander J., Hornbæk K. How to Evaluate Object Selection and Manipulation in VR? Guidelines from 20 Years of Studies // Proceedings of the 2021 CHI Conference on Human Factors in Computing Systems. – 2021.
 2.6. Scene Graph // LearnOpenGL: – URL: https://learnopengl.com/Guest-Articles/2021/Scene/Scene-Graph (дата обращения: 05.06.2026). – Текст электронный.
 2.7. Использование диаграммы классов UML при проектировании и документировании программного обеспечения // Хабр: – URL: https://habr.com/ru/articles/572234/ (дата обращения: 04.06.2026). – Текст электронный.
 2.8. The OpenXR Specification // Khronos Group: – URL: https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html (дата обращения: 04.06.2026). – Текст электронный.
@@ -60,7 +60,7 @@
 3.23. Асинхронное программирование. Async и await // METANIT.COM: – URL: https://metanit.com/sharp/tutorial/13.1.php (дата обращения: 04.06.2026). – Текст электронный.
 3.24. Хокинг Дж. Unity в действии. Мультиплатформенная разработка на C#. – 3-е изд. – СПб.: Питер, 2023. – 448 с.
 3.25. Level Up Your Code with Game Programming Patterns (e-book) // Unity: – URL: https://unity.com/resources/level-up-your-code-with-game-programming-patterns (дата обращения: 05.06.2026). – Текст электронный.
-3.26. Барон Д. Паттерны проектирования Unity. Популярные шаблоны и лучшие практики создания игр на Unity и C#. – СПб.: Питер, 2025.
+3.26. Ферроне Х. Паттерны проектирования Unity. Популярные шаблоны и лучшие практики создания игр на Unity и C#. – СПб.: Питер, 2026. – 576 с.
 
 ---
 
@@ -71,10 +71,10 @@
    КиберЛенинка запрещена (зав. кафедрой); 3.9 – про сторонний фреймворк Zenject, в тексте подавать как
    обзор DI-фреймворков Unity рядом с обоснованием выбора VContainer.
 3. Резерв кандидатов: sources-addendum.md (включая Severstal-статью про VR-тренажёры, FBX/OBJ, киберукачивание).
-4. УТОЧНИТЬ авторов/тома перед чистовиком: 2.3, 2.4, 2.5. Проверить содержательность 1.12 (XR Plug-in Framework).
+4. Верифицировано 05.06.2026: 2.3 (Boletsis/Chasanidou), 2.4 (Yu et al., CSUR 57(4):98), 2.5 (Bergström et al., CHI '21, DOI 10.1145/3411764.3445193), 1.12 – страница содержательная (схема+таблица подсистем), 3.26 – автор Ферроне Х. (НЕ Барон), тираж 2026, ISBN 978-601-12-3978-3.
 5. FBX/OBJ-абзац в 2.6 текста v11.5 – Макс правит текст сам (решение 05.06.2026).
 6. Риски по году (≥2021): 1.8 LaViola (2017), 2.9 хабр-glTF (2019) – оставлены осознанно.
-7. Уточнить выходные данные: 3.26 Барон (страницы/ISBN); 2.10 Линовес (тираж 2023); 2.11 Мартин (издание 2022).
+7. Осталось уточнить (мелочь, при покупке/цитировании): 2.10 Линовес (тираж 2023 по IPR Smart); 2.11 Мартин (издание 2022 по library.cbr.ru).
 8. Электронный доступ к печатным: 1.13 Боресков – https://urait.ru/viewer/osnovy-kompyuternoy-grafiki-600898
 9. Печатных: 6 (1.8, 1.13, 2.10, 2.11, 3.24, 3.26), из них 2021+ – 5. Маркеры [ИСТ: ...]: OpenXR → 2.8/3.16;
    XRI → 3.17; Publish-Subscribe → 3.12 (3.13–3.15); VContainer → 3.10/3.11; пространственные интерфейсы → 2.1/2.2.
