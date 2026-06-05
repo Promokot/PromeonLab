@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="453.6pt" height="241.2pt" viewBox="0 0 453.6 241.2" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-06-05T11:02:30.070482</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.8, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 241.2 
+L 453.6 241.2 
+L 453.6 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 22.32 21.6 
+L 130.32 21.6 
+Q 134.64 21.6 134.64 25.92 
+L 134.64 64.8 
+Q 134.64 69.12 130.32 69.12 
+L 22.32 69.12 
+Q 18 69.12 18 64.8 
+L 18 25.92 
+Q 18 21.6 22.32 21.6 
+z
+" clip-path="url(#p1986f8617f)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 172.8 21.6 
+L 280.8 21.6 
+Q 285.12 21.6 285.12 25.92 
+L 285.12 64.8 
+Q 285.12 69.12 280.8 69.12 
+L 172.8 69.12 
+Q 168.48 69.12 168.48 64.8 
+L 168.48 25.92 
+Q 168.48 21.6 172.8 21.6 
+z
+" clip-path="url(#p1986f8617f)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 323.28 21.6 
+L 431.28 21.6 
+Q 435.6 21.6 435.6 25.92 
+L 435.6 64.8 
+Q 435.6 69.12 431.28 69.12 
+L 323.28 69.12 
+Q 318.96 69.12 318.96 64.8 
+L 318.96 25.92 
+Q 318.96 21.6 323.28 21.6 
+z
+" clip-path="url(#p1986f8617f)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 323.28 104.4 
+L 431.28 104.4 
+Q 435.6 104.4 435.6 108.72 
+L 435.6 147.6 
+Q 435.6 151.92 431.28 151.92 
+L 323.28 151.92 
+Q 318.96 151.92 318.96 147.6 
+L 318.96 108.72 
+Q 318.96 104.4 323.28 104.4 
+z
+" clip-path="url(#p1986f8617f)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 172.8 104.4 
+L 280.8 104.4 
+Q 285.12 104.4 285.12 108.72 
+L 285.12 147.6 
+Q 285.12 151.92 280.8 151.92 
+L 172.8 151.92 
+Q 168.48 151.92 168.48 147.6 
+L 168.48 108.72 
+Q 168.48 104.4 172.8 104.4 
+z
+" clip-path="url(#p1986f8617f)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 22.32 104.4 
+L 130.32 104.4 
+Q 134.64 104.4 134.64 108.72 
+L 134.64 147.6 
+Q 134.64 151.92 130.32 151.92 
+L 22.32 151.92 
+Q 18 151.92 18 147.6 
+L 18 108.72 
+Q 18 104.4 22.32 104.4 
+z
+" clip-path="url(#p1986f8617f)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 22.32 187.2 
+L 130.32 187.2 
+Q 134.64 187.2 134.64 191.52 
+L 134.64 230.4 
+Q 134.64 234.72 130.32 234.72 
+L 22.32 234.72 
+Q 18 234.72 18 230.4 
+L 18 191.52 
+Q 18 187.2 22.32 187.2 
+z
+" clip-path="url(#p1986f8617f)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 172.8 187.2 
+L 280.8 187.2 
+Q 285.12 187.2 285.12 191.52 
+L 285.12 230.4 
+Q 285.12 234.72 280.8 234.72 
+L 172.8 234.72 
+Q 168.48 234.72 168.48 230.4 
+L 168.48 191.52 
+Q 168.48 187.2 172.8 187.2 
+z
+" clip-path="url(#p1986f8617f)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 7.6px; font-family: 'Liberation Sans'; text-anchor: middle" x="76.32" y="39.479531" transform="rotate(-0 76.32 39.479531)">Файловый браузер</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'; text-anchor: middle" x="76.32" y="56.484469" transform="rotate(-0 76.32 56.484469)">выбор файла</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 7.6px; font-family: 'Liberation Sans'; text-anchor: middle" x="226.8" y="39.405313" transform="rotate(-0 226.8 39.405313)">ImportPipeline</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(199.685859 52.542361)">выбор импортёра</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(202.639359 60.368827)">по расширению</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 7.6px; font-family: 'Liberation Sans'; text-anchor: middle" x="377.28" y="39.405313" transform="rotate(-0 377.28 39.405313)">Мастер импорта</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(352.403672 52.472416)">имя, тип ассета,</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(345.522141 60.381021)">ось концевых костей</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 7.4px; font-family: 'Liberation Sans'" transform="translate(354.732547 125.68603)">Копирование</text>
+    <text style="font-size: 7.4px; font-family: 'Liberation Sans'" transform="translate(341.935172 134.461158)">источника в sources/</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 7.4px; font-family: 'Liberation Sans'" transform="translate(189.833531 125.718405)">Построение шаблона</text>
+    <text style="font-size: 7.4px; font-family: 'Liberation Sans'" transform="translate(199.095094 134.493533)">восстановления</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 7.4px; font-family: 'Liberation Sans'" transform="translate(56.502453 125.68603)">Миниатюра</text>
+    <text style="font-size: 7.4px; font-family: 'Liberation Sans'" transform="translate(54.40675 134.461158)">в thumbnails/</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 7.4px; font-family: 'Liberation Sans'" transform="translate(64.179375 208.48603)">Запись</text>
+    <text style="font-size: 7.4px; font-family: 'Liberation Sans'" transform="translate(46.1835 217.261158)">в imported-lib.json</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 7.6px; font-family: 'Liberation Sans'; text-anchor: middle" x="226.8" y="205.005313" transform="rotate(-0 226.8 205.005313)">Браузер ассетов</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'; text-anchor: middle" x="226.8" y="222.055594" transform="rotate(-0 226.8 222.055594)">обновление галереи</text>
+   </g>
+   <g id="patch_10">
+    <path d="M 136.643467 45.36 
+Q 151.561012 45.36 165.472327 45.36 
+" clip-path="url(#p1986f8617f)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 161.872327 43.56 
+L 165.472327 45.36 
+L 161.872327 47.16 
+z
+" clip-path="url(#p1986f8617f)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 287.123467 45.36 
+Q 302.041012 45.36 315.952327 45.36 
+" clip-path="url(#p1986f8617f)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 312.352327 43.56 
+L 315.952327 45.36 
+L 312.352327 47.16 
+z
+" clip-path="url(#p1986f8617f)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 377.28 71.122588 
+Q 377.28 86.759966 377.28 101.391113 
+" clip-path="url(#p1986f8617f)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 379.08 97.791113 
+L 377.28 101.391113 
+L 375.48 97.791113 
+z
+" clip-path="url(#p1986f8617f)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 316.956533 128.16 
+Q 302.038988 128.16 288.127673 128.16 
+" clip-path="url(#p1986f8617f)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 291.727673 129.96 
+L 288.127673 128.16 
+L 291.727673 126.36 
+z
+" clip-path="url(#p1986f8617f)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_14">
+    <path d="M 166.476533 128.16 
+Q 151.558988 128.16 137.647673 128.16 
+" clip-path="url(#p1986f8617f)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 141.247673 129.96 
+L 137.647673 128.16 
+L 141.247673 126.36 
+z
+" clip-path="url(#p1986f8617f)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_15">
+    <path d="M 76.32 153.922588 
+Q 76.32 169.559966 76.32 184.191113 
+" clip-path="url(#p1986f8617f)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 78.12 180.591113 
+L 76.32 184.191113 
+L 74.52 180.591113 
+z
+" clip-path="url(#p1986f8617f)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_16">
+    <path d="M 136.643467 210.96 
+Q 151.561012 210.96 165.472327 210.96 
+" clip-path="url(#p1986f8617f)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 161.872327 209.16 
+L 165.472327 210.96 
+L 161.872327 212.76 
+z
+" clip-path="url(#p1986f8617f)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_13">
+    <g id="patch_17">
+     <path d="M 121.7285 42.064 
+L 181.3915 42.064 
+L 181.3915 34.05 
+L 121.7285 34.05 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-style: italic; font-size: 6.4px; font-family: 'Liberation Mono'; text-anchor: middle" x="151.56" y="39.712" transform="rotate(-0 151.56 39.712)">FilePickedEvent</text>
+   </g>
+   <g id="text_14">
+    <g id="patch_18">
+     <path d="M 262.606 42.064 
+L 341.474 42.064 
+L 341.474 34.05 
+L 262.606 34.05 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-style: italic; font-size: 6.4px; font-family: 'Liberation Mono'; text-anchor: middle" x="302.04" y="39.712" transform="rotate(-0 302.04 39.712)">ImportRequestedEvent</text>
+   </g>
+   <g id="text_15">
+    <g id="patch_19">
+     <path d="M 344.326 93.75 
+L 423.194 93.75 
+L 423.194 85.736 
+L 344.326 85.736 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-style: italic; font-size: 6.4px; font-family: 'Liberation Mono'; text-anchor: middle" x="383.76" y="91.398" transform="rotate(-0 383.76 91.398)">ImportConfirmedEvent</text>
+   </g>
+   <g id="text_16">
+    <g id="patch_20">
+     <path d="M 115.967 207.664 
+L 187.153 207.664 
+L 187.153 199.65 
+L 115.967 199.65 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-style: italic; font-size: 6.4px; font-family: 'Liberation Mono'; text-anchor: middle" x="151.56" y="205.312" transform="rotate(-0 151.56 205.312)">AssetImportedEvent</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p1986f8617f">
+   <rect x="0" y="0" width="453.6" height="241.2"/>
+  </clipPath>
+ </defs>
+</svg>

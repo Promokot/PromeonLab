@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="453.6pt" height="273.6pt" viewBox="0 0 453.6 273.6" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-06-05T11:06:42.997330</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.8, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 273.6 
+L 453.6 273.6 
+L 453.6 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="line2d_1">
+    <path d="M 151.2 8.64 
+L 151.2 262.8 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke-dasharray: 0.6,1.2; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.6"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 302.4 8.64 
+L 302.4 262.8 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke-dasharray: 0.6,1.2; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.6"/>
+   </g>
+   <g id="patch_2">
+    <path d="M 18 32.4 
+L 133.2 32.4 
+L 133.2 129.96 
+L 18 129.96 
+z
+" clip-path="url(#p8891ee97bb)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 18 49.68 
+L 133.2 49.68 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 169.2 32.4 
+L 284.4 32.4 
+L 284.4 106.2 
+L 169.2 106.2 
+z
+" clip-path="url(#p8891ee97bb)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 169.2 49.68 
+L 284.4 49.68 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 169.2 144 
+L 284.4 144 
+L 284.4 229.68 
+L 169.2 229.68 
+z
+" clip-path="url(#p8891ee97bb)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 169.2 161.28 
+L 284.4 161.28 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 320.4 32.4 
+L 435.6 32.4 
+L 435.6 94.32 
+L 320.4 94.32 
+z
+" clip-path="url(#p8891ee97bb)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 320.4 49.68 
+L 435.6 49.68 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 320.4 108 
+L 435.6 108 
+L 435.6 193.68 
+L 320.4 193.68 
+z
+" clip-path="url(#p8891ee97bb)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_7">
+    <path d="M 320.4 125.28 
+L 435.6 125.28 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 320.4 205.2 
+L 435.6 205.2 
+L 435.6 255.24 
+L 320.4 255.24 
+z
+" clip-path="url(#p8891ee97bb)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_8">
+    <path d="M 320.4 222.48 
+L 435.6 222.48 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="line2d_9">
+    <path d="M 169.2 203.04 
+L 159.12 203.04 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke: #000000; stroke-width: 0.8"/>
+   </g>
+   <g id="line2d_10">
+    <path d="M 159.12 203.04 
+L 159.12 152.64 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke: #000000; stroke-width: 0.8"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 8.2px; font-family: 'Liberation Mono'; text-anchor: middle" x="75.6" y="16.520469" transform="rotate(-0 75.6 16.520469)">imported-lib.json</text>
+   </g>
+   <g id="text_2">
+    <text style="font-weight: 700; font-size: 8.2px; font-family: 'Liberation Mono'; text-anchor: middle" x="226.8" y="16.520469" transform="rotate(-0 226.8 16.520469)">scene.json</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 8.2px; font-family: 'Liberation Mono'; text-anchor: middle" x="378" y="16.520469" transform="rotate(-0 378 16.520469)">animation.json</text>
+   </g>
+   <g id="text_4">
+    <text style="font-weight: 700; font-size: 7.6px; font-family: 'Liberation Sans'; text-anchor: middle" x="75.6" y="43.725313" transform="rotate(-0 75.6 43.725313)">ImportedLabAsset</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="23.04" y="57.558438" transform="rotate(-0 23.04 57.558438)">Id</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="23.04" y="69.438438" transform="rotate(-0 23.04 69.438438)">DisplayName</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="23.04" y="81.318438" transform="rotate(-0 23.04 81.318438)">Type</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="23.04" y="93.198438" transform="rotate(-0 23.04 93.198438)">SourceRef</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="23.04" y="105.078438" transform="rotate(-0 23.04 105.078438)">ThumbnailRef</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="23.04" y="116.958438" transform="rotate(-0 23.04 116.958438)">Recipe</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 7.6px; font-family: 'Liberation Sans'; text-anchor: middle" x="226.8" y="43.725313" transform="rotate(-0 226.8 43.725313)">SceneData</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="174.24" y="57.558438" transform="rotate(-0 174.24 57.558438)">SchemaVersion</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="174.24" y="69.438438" transform="rotate(-0 174.24 69.438438)">SceneId</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="174.24" y="81.318438" transform="rotate(-0 174.24 81.318438)">DisplayName</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="174.24" y="93.198438" transform="rotate(-0 174.24 93.198438)">Nodes[]</text>
+   </g>
+   <g id="text_16">
+    <text style="font-weight: 700; font-size: 7.6px; font-family: 'Liberation Sans'; text-anchor: middle" x="226.8" y="155.325312" transform="rotate(-0 226.8 155.325312)">NodeData</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 6.3px; font-family: 'Liberation Mono'; text-anchor: start" x="174.24" y="169.029141" transform="rotate(-0 174.24 169.029141)">NodeId</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 6.3px; font-family: 'Liberation Mono'; text-anchor: start" x="174.24" y="180.909141" transform="rotate(-0 174.24 180.909141)">AssetRef</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 6.3px; font-family: 'Liberation Mono'; text-anchor: start" x="174.24" y="192.789141" transform="rotate(-0 174.24 192.789141)">Position/Rotation/Scale</text>
+   </g>
+   <g id="text_20">
+    <text style="font-size: 6.3px; font-family: 'Liberation Mono'; text-anchor: start" x="174.24" y="204.669141" transform="rotate(-0 174.24 204.669141)">ParentNodeId</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 6.3px; font-family: 'Liberation Mono'; text-anchor: start" x="174.24" y="216.549141" transform="rotate(-0 174.24 216.549141)">BonePoses[]</text>
+   </g>
+   <g id="text_22">
+    <text style="font-weight: 700; font-size: 7.6px; font-family: 'Liberation Sans'; text-anchor: middle" x="378" y="43.725313" transform="rotate(-0 378 43.725313)">SceneAnimationData</text>
+   </g>
+   <g id="text_23">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="325.44" y="57.558438" transform="rotate(-0 325.44 57.558438)">SchemaVersion</text>
+   </g>
+   <g id="text_24">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="325.44" y="69.438438" transform="rotate(-0 325.44 69.438438)">Fps</text>
+   </g>
+   <g id="text_25">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="325.44" y="81.318438" transform="rotate(-0 325.44 81.318438)">Containers[]</text>
+   </g>
+   <g id="text_26">
+    <text style="font-weight: 700; font-size: 7.6px; font-family: 'Liberation Sans'; text-anchor: middle" x="378" y="119.325313" transform="rotate(-0 378 119.325313)">ActionContainer</text>
+   </g>
+   <g id="text_27">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="325.44" y="133.158438" transform="rotate(-0 325.44 133.158438)">OwnerNodeId</text>
+   </g>
+   <g id="text_28">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="325.44" y="145.038438" transform="rotate(-0 325.44 145.038438)">TotalFrames</text>
+   </g>
+   <g id="text_29">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="325.44" y="156.918438" transform="rotate(-0 325.44 156.918438)">Interpolation</text>
+   </g>
+   <g id="text_30">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="325.44" y="168.798438" transform="rotate(-0 325.44 168.798438)">Loop</text>
+   </g>
+   <g id="text_31">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="325.44" y="180.678438" transform="rotate(-0 325.44 180.678438)">Tracks[]</text>
+   </g>
+   <g id="text_32">
+    <text style="font-weight: 700; font-size: 7.6px; font-family: 'Liberation Sans'; text-anchor: middle" x="378" y="216.525313" transform="rotate(-0 378 216.525313)">AnimTrackData</text>
+   </g>
+   <g id="text_33">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="325.44" y="230.358437" transform="rotate(-0 325.44 230.358437)">NodeId</text>
+   </g>
+   <g id="text_34">
+    <text style="font-size: 6.8px; font-family: 'Liberation Mono'; text-anchor: start" x="325.44" y="242.238437" transform="rotate(-0 325.44 242.238437)">Keys[] (AnimKeyData)</text>
+   </g>
+   <g id="text_35">
+    <text style="font-style: italic; font-size: 6.2px; font-family: 'Liberation Sans'; text-anchor: start" x="234.72" y="126.703281" transform="rotate(-0 234.72 126.703281)">Nodes[]</text>
+   </g>
+   <g id="text_36">
+    <text style="font-style: italic; font-size: 6.4px; font-family: 'Liberation Sans'" transform="translate(36.211 178.22035)">SourceRef → sources/</text>
+    <text style="font-style: italic; font-size: 6.4px; font-family: 'Liberation Sans'" transform="translate(27.14 185.80965)">ThumbnailRef → thumbnails/</text>
+   </g>
+   <g id="text_37">
+    <text style="font-style: italic; font-size: 6px; font-family: 'Liberation Sans'" transform="translate(168.329531 239.19218)">ParentNodeId – ссылка</text>
+    <text style="font-style: italic; font-size: 6px; font-family: 'Liberation Sans'" transform="translate(168.058594 246.310945)">на родительскую ноду</text>
+   </g>
+   <g id="patch_8">
+    <path d="M 226.8 107.201294 
+Q 226.8 125.099786 226.8 141.992047 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 228.6 138.392047 
+L 226.8 141.992047 
+L 225 138.392047 
+z
+" clip-path="url(#p8891ee97bb)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 378 95.318613 
+Q 378 101.159296 378 105.993748 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 379.8 102.393748 
+L 378 105.993748 
+L 376.2 102.393748 
+z
+" clip-path="url(#p8891ee97bb)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 378 194.678438 
+Q 378 199.439599 378 203.194529 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 379.8 199.594529 
+L 378 203.194529 
+L 376.2 199.594529 
+z
+" clip-path="url(#p8891ee97bb)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 168.919849 178.319081 
+Q 151.2 117.54 133.761788 57.726932 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 133.041344 61.686852 
+L 133.761788 57.726932 
+L 136.497457 60.679239 
+z
+" clip-path="url(#p8891ee97bb)" style="stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 54 130.960635 
+Q 54 146.16012 54 160.353375 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 55.8 156.753375 
+L 54 160.353375 
+L 52.2 156.753375 
+z
+" clip-path="url(#p8891ee97bb)" style="stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 159.12 152.64 
+Q 164.16 152.64 168.193769 152.64 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 164.593769 150.84 
+L 168.193769 152.64 
+L 164.593769 154.44 
+z
+" clip-path="url(#p8891ee97bb)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_14">
+    <path d="M 319.694678 132.105322 
+Q 302.401707 149.398293 285.82025 165.97975 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 289.638626 164.706958 
+L 285.82025 165.97975 
+L 287.093042 162.161374 
+z
+" clip-path="url(#p8891ee97bb)" style="stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_15">
+    <path d="M 319.857275 227.764204 
+Q 302.400237 200.880365 285.491198 174.840445 
+" clip-path="url(#p8891ee97bb)" style="fill: none; stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 285.942131 178.840027 
+L 285.491198 174.840445 
+L 288.961424 176.879448 
+z
+" clip-path="url(#p8891ee97bb)" style="stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_38">
+    <g id="patch_16">
+     <path d="M 130.840312 101.016563 
+L 171.559687 101.016563 
+L 171.559687 93.383438 
+L 130.840312 93.383438 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-style: italic; font-size: 6px; font-family: 'Liberation Sans'; text-anchor: middle" x="151.2" y="98.751563" transform="rotate(-0 151.2 98.751563)">AssetRef → Id</text>
+   </g>
+   <g id="text_39">
+    <g id="patch_17">
+     <path d="M 283.522359 181.158086 
+L 321.277641 181.158086 
+L 321.277641 167.321914 
+L 283.522359 167.321914 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-style: italic; font-size: 5.8px; font-family: 'Liberation Sans'" transform="translate(284.508359 172.511102)">OwnerNodeId</text>
+    <text style="font-style: italic; font-size: 5.8px; font-family: 'Liberation Sans'" transform="translate(289.343656 178.968586)">→ NodeId</text>
+   </g>
+   <g id="text_40">
+    <g id="patch_18">
+     <path d="M 270.431703 255.319445 
+L 322.848297 255.319445 
+L 322.848297 241.480555 
+L 270.431703 241.480555 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-style: italic; font-size: 5.8px; font-family: 'Liberation Sans'" transform="translate(271.424953 246.672461)">NodeId дорожки →</text>
+    <text style="font-style: italic; font-size: 5.8px; font-family: 'Liberation Sans'" transform="translate(271.417703 253.129945)">объект или кость</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p8891ee97bb">
+   <rect x="0" y="0" width="453.6" height="273.6"/>
+  </clipPath>
+ </defs>
+</svg>
