@@ -5,9 +5,6 @@ using System.Threading.Tasks;
 using UnityEngine;
 using VContainer.Unity;
 
-// Authoring façade: owns the SceneAnimationData document and all keyframe/container CRUD + event
-// publishing, and orchestrates AnimationStorage (persistence) and AnimationPlaybackSampler (runtime
-// sampling). Baking lives in AnimationClipBaker. The public surface is unchanged for consumers.
 public class AnimationAuthoring : IStartable, IDisposable
 {
     private readonly ISceneGraph              _sceneGraph;
@@ -18,7 +15,7 @@ public class AnimationAuthoring : IStartable, IDisposable
 
     private SceneAnimationData _data;
     private string _sceneId;
-    private string _activeContainerOwner; // mirrored from the sampler for the FpsChanged event only
+    private string _activeContainerOwner; 
 
     public AnimationAuthoring(ISceneGraph sceneGraph, AnimationStorage animStorage,
                                AppStorage storage, AnimationPlaybackSampler sampler, EventBus bus)
@@ -45,10 +42,6 @@ public class AnimationAuthoring : IStartable, IDisposable
     public ActionContainer GetContainer(string ownerNodeId) =>
         _data?.FindByOwner(ownerNodeId);
 
-    /// <summary>
-    /// Read-only access to the live scene animation data for export. Returns null when no
-    /// animation data has been created/loaded yet (e.g. Sandbox, or an untouched scene).
-    /// </summary>
     public SceneAnimationData CaptureForExport() => _data;
 
     public ActionContainer CreateContainer(string ownerNodeId)

@@ -44,15 +44,6 @@ public class XRPromeonInteractable : XRBaseInteractable
         if (added) RefreshColliderRegistration();
     }
 
-    // XRInteractionManager builds its collider→interactable lookup once, at registration time
-    // (OnEnable → RegisterInteractable), and never re-scans it – UnregisterInteractable even documents
-    // the assumption that the collider list won't change afterward. There is no incremental
-    // "colliders changed" API. Our spawn pipeline appends colliders (object convex children, rig
-    // selector boxes) right AFTER the interactable was instantiated and has already registered, so
-    // those late colliders are invisible to the ray (selectable via the outliner, never by clicking)
-    // until we re-index. Re-register to rebuild the map over the full set. No-op until we're
-    // registered (inactive GO): OnEnable will map the complete list itself. The app has no live
-    // (post-spawn) collider mutation – manual rigging is not reachable in the shipping build.
     private void RefreshColliderRegistration()
     {
         if (interactionManager == null || !interactionManager.IsRegistered((IXRInteractable)this)) return;
@@ -67,10 +58,6 @@ public class XRPromeonInteractable : XRBaseInteractable
         base.Awake();
         _node = GetComponentInParent<SceneNode>();
 
-        // base.Awake auto-discovers GetComponentsInChildren<Collider>(true), which for nested
-        // rig proxies would grab every descendant proxy collider – leading to "collider already
-        // registered" warnings from XRInteractionManager and root-vs-bone selection ambiguity.
-        // Take ownership: clear and re-populate per our policy.
         colliders.Clear();
         var found = _includeChildColliders
             ? GetComponentsInChildren<Collider>(includeInactive: true)
@@ -79,14 +66,9 @@ public class XRPromeonInteractable : XRBaseInteractable
             if (c != null && !colliders.Contains(c))
                 colliders.Add(c);
 
-        // Self-tag: put every registered collider's GameObject on the interaction layer so the XR
-        // caster mask (set per context by InteractionMaskBinder) can hover this object. Handles
-        // multi-part prefabs whose colliders sit on child meshes.
         ApplyInteractionLayer();
     }
 
-    /// Sets which interaction layer this interactable's colliders live on, and re-applies it.
-    /// Used by runtime builders that create the interactable themselves (bone proxies → BoneProxies).
     public void SetInteractionLayer(InteractionLayer layer)
     {
         _interactionLayer = layer;
@@ -105,8 +87,6 @@ public class XRPromeonInteractable : XRBaseInteractable
         _selectionManager = selectionManager;
     }
 
-    // Disable XRI standard select-flow. We read inputs directly. Hover still works
-    // (IsHoverableBy stays default true).
     public override bool IsSelectableBy(IXRSelectInteractor interactor) => false;
 
     public override void ProcessInteractable(XRInteractionUpdateOrder.UpdatePhase phase)
@@ -114,7 +94,6 @@ public class XRPromeonInteractable : XRBaseInteractable
         base.ProcessInteractable(phase);
         if (phase != XRInteractionUpdateOrder.UpdatePhase.Dynamic) return;
 
-        // Defensive: dangling lock from destroyed/disabled interactor.
         if (_state != State.Idle && (_locked == null || !_locked.isActiveAndEnabled))
         { EndInteraction(); return; }
 
@@ -126,9 +105,8 @@ public class XRPromeonInteractable : XRBaseInteractable
                 UpdateLastHovering();
                 var ni = CurrentHoverer();
                 if (ni == null) break;
-                if (!IsPrimaryFor(ni)) break;   // ray pierces multiple objects: only the closest hit processes input
+                if (!IsPrimaryFor(ni)) break;  
 
-                // Order matters: trigger checked first → wins same-frame ties.
                 if (ni.activateInput.ReadWasPerformedThisFrame())
                 {
                     Lock(ni);
@@ -202,16 +180,15 @@ public class XRPromeonInteractable : XRBaseInteractable
 
     private bool IsPrimaryFor(NearFarInteractor ni)
     {
-        // Ray (Far) path: primary = whoever owns the current ray hit collider.
+        
         var ray = ni.GetComponentInChildren<XRRayInteractor>(includeInactive: true);
         if (ray != null)
         {
             if (ray.TryGetCurrent3DRaycastHit(out var hit) && hit.collider != null)
                 return colliders.Contains(hit.collider);
-            return false; // ray exists but hits nothing – not primary
+            return false; 
         }
 
-        // True Near path (no ray interactor – physical hand interaction only).
         if (ni.interactablesHovered.Count > 0)
             return ReferenceEquals(ni.interactablesHovered[0], this);
 
@@ -230,13 +207,11 @@ public class XRPromeonInteractable : XRBaseInteractable
     {
         _locked = null;
         _state  = State.Idle;
-        // _lastHovering preserved – UpdateLastHovering() refreshes it next Idle frame
     }
 
     private void CapturePositionOffset()
     {
         var attach = _locked.GetAttachTransform(this);
-        // Local-space offset: position swings with attach rotation (ray sweep)
         _grabPosOffset = attach.InverseTransformPoint(transform.position);
     }
 

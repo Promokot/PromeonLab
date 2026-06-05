@@ -17,8 +17,7 @@ public class AssetBrowserPanel : MonoBehaviour
     [SerializeField] private LabAsset_Item _cardPrefab;
     [SerializeField] private Button       _addButton;
     [SerializeField] private Button       _spawnButton;
-    [SerializeField] private Button       _removeButton; // "RemoveBtn" – deletes the selected asset
-
+    [SerializeField] private Button       _removeButton;
     [Header("Properties")]
     [SerializeField] private TMP_Text _propertiesText;
 
@@ -80,7 +79,7 @@ public class AssetBrowserPanel : MonoBehaviour
     private void OnModeChanged(ModeChangedEvent e)
     {
         _isEditableMode = e.CurrentMode is AppMode.VrEditing or AppMode.Sandbox;
-        _reopenAfterFileBrowser = false; // don't carry a pending return across a mode switch
+        _reopenAfterFileBrowser = false; 
         RefreshSpawnButton();
     }
 
@@ -141,8 +140,6 @@ public class AssetBrowserPanel : MonoBehaviour
 
     private void RefreshRemoveButton()
     {
-        // Deletable only for non-Builtin libraries (Imported/Saved) and only with a selection.
-        // Mode-independent: you can prune libraries from the menu too.
         if (_removeButton != null)
             _removeButton.interactable =
                 _selectedAsset != null && _activeLibrary != null && _activeLibrary != (IAssetLibrary)_builtinLibrary;
@@ -183,8 +180,6 @@ public class AssetBrowserPanel : MonoBehaviour
         {
             Asset    = _selectedAsset,
             Position = pos,
-            // Aim the spawned object's +Z back toward the player so we face its front, not its
-            // back. (-fwd points from the spawn point back to the camera; up stays world-up.)
             Rotation = Quaternion.LookRotation(-fwd, Vector3.up),
         });
     }
@@ -198,8 +193,6 @@ public class AssetBrowserPanel : MonoBehaviour
         _ = DeleteAssetAsync(asset, library, CancellationToken.None);
     }
 
-    // Removes the record from its library, persists the change, and deletes the raw source file.
-    // Fire-and-forget from the click handler; exceptions are logged rather than swallowed.
     private async Task DeleteAssetAsync(ILabAsset asset, IAssetLibrary library, CancellationToken ct)
     {
         try
@@ -217,25 +210,14 @@ public class AssetBrowserPanel : MonoBehaviour
 
     private void OnAddClicked()
     {
-        // We launch the file browser, which shares our `center_top` region and so hides us.
-        // Flag a return so we re-open ourselves once it closes (success or cancel).
         _reopenAfterFileBrowser = true;
         _router?.Open("fileBrowser");
     }
 
     private void OnRegionChanged(RegionChangedEvent e)
     {
-        // React ONLY to OUR region (the one "assets"/"importWizard" live in). Without this guard an
-        // unrelated region emptying – e.g. the VR keyboard (region "overlays") closing – also fires
-        // with OpenModuleId == null and would wrongly reopen "assets", stomping an open import wizard.
         if (_router == null || !_router.TryGetModuleRegion("assets", out var myRegion) || e.RegionKey != myRegion)
             return;
-
-        // Re-open the asset browser once the shared region empties after the file browser flow – but
-        // ONLY when nothing else claimed the region. A successful pick hands the region to the import
-        // wizard (OpenModuleId == "importWizard"); reopening here would stomp it. We wait until the
-        // region actually empties (OpenModuleId == null), which is when the file browser is cancelled
-        // or the wizard finishes – then the browser returns.
         if (_reopenAfterFileBrowser
             && string.IsNullOrEmpty(e.OpenModuleId) && !_router.IsOpen("fileBrowser"))
         {
@@ -250,8 +232,6 @@ public class AssetBrowserPanel : MonoBehaviour
             RefreshGrid();
     }
 
-    // Builtin assets carry an inspector sprite; imported assets carry a relative ThumbnailRef
-    // (a rendered model PNG, or the source image for References). Loaded sprites are cached by ref.
     private Sprite ResolveIcon(ILabAsset asset)
     {
         if (asset.Icon != null) return asset.Icon;
@@ -278,7 +258,7 @@ public class AssetBrowserPanel : MonoBehaviour
             Debug.LogWarning($"AssetBrowserPanel: failed to load thumbnail '{refPath}'. {ex.Message}");
         }
 
-        _thumbCache[refPath] = sprite;   // cache null too – don't retry a broken ref every rebuild
+        _thumbCache[refPath] = sprite; 
         return sprite;
     }
 }

@@ -1,13 +1,5 @@
 using UnityEngine;
 
-// One in-flight gizmo drag: snapshots the target pose, resolves the per-handle strategy, drives the
-// gizmo instance as the primary source-of-truth, and syncs the target back per strategy. Extracted
-// from GizmoDriver (A2) so the activator only owns spawn/visibility. Pure helper (no MonoBehaviour).
-//
-// The gizmo instance is primary: a strategy mutates _instance directly each frame and the target is
-// pulled to follow it (position for move, rotation for rotate, proportional scale factor for scale).
-// Mode is frozen for the duration of a drag (the activator's OnModeChanged bails while dragging), so
-// the mode captured at Begin is the mode used on release/abort.
 public class GizmoDragSession
 {
     private readonly GizmoConfig           _config;
@@ -20,12 +12,9 @@ public class GizmoDragSession
     private Vector3             _originalPos;
     private Quaternion          _originalRot;
     private Vector3             _originalScale;
-    // Scale-inversion baselines: при scale-drag гизмо мутирует свою localScale, а target
-    // получает пропорциональный фактор (instance.scale / instanceAtGrab → target = targetAtGrab * factor).
     private Vector3             _instanceScaleAtGrab;
     private Vector3             _targetScaleAtGrab;
 
-    // Per-grab context, captured at Begin (all frozen for the drag's duration).
     private Transform      _instance;
     private Transform      _target;
     private string         _targetNodeId;
@@ -63,13 +52,8 @@ public class GizmoDragSession
         _activeStrategy      = ResolveStrategy(handle);
         _hierarchy?.OnHandleGrabbed(handle);
 
-        // Highlight the grabbed handle (mesh material + outline) in the distinct active color;
-        // restored in EndDragInternal. Uses the handle→parts map, so it lands on the renderer even
-        // when it sits on a child of the handle GO (the scaler).
         _grabbedHandle = handle;
         _painter.Recolor(handle, _painter.GrabOutlineColor);
-        // Гизмо – primary: strategy мутирует _instance во всех режимах.
-        // Target подтягивается за гизмо в Update в зависимости от типа стратегии.
         _activeStrategy.BeginDrag(instance, handle.Axis, handPos, handRot);
         _bus?.Publish(new GizmoDragStartedEvent { TargetNodeId = _targetNodeId });
     }
@@ -84,7 +68,6 @@ public class GizmoDragSession
             return;
         }
         _activeStrategy?.UpdateDrag(handPos, handRot);
-        // Target follows гизмо. Тип синка зависит от стратегии.
         switch (_activeStrategy)
         {
             case AxisMoveStrategy:
@@ -95,8 +78,6 @@ public class GizmoDragSession
                 break;
             case AxisScaleStrategy:
             case UniformScaleStrategy:
-                // Гизмо сама масштабируется визуально → target получает тот же фактор изменения,
-                // применённый к собственной исходной шкале (не к гизмовой bounds-fit шкале).
                 var inst = _instance.localScale;
                 var fX = SafeRatio(inst.x, _instanceScaleAtGrab.x);
                 var fY = SafeRatio(inst.y, _instanceScaleAtGrab.y);
@@ -115,8 +96,6 @@ public class GizmoDragSession
         _activeStrategy?.EndDrag();
         _hierarchy?.OnHandleReleased(_modeAtGrab);
         if (_target == null) { EndDragInternal(); return; }
-        // Transform is already live from the drag; undo recording was removed, so keep the final pose.
-        // Bounds-fit frozen: a scale drag mutated the instance scale, so reset it back to the fixed size.
         if (_instance != null && _config != null)
             _instance.localScale = Vector3.one * _resetSize;
         EndDragInternal();
@@ -138,7 +117,6 @@ public class GizmoDragSession
 
     private void EndDragInternal()
     {
-        // Restore the grabbed handle (mesh material + outline) from the active color to its base.
         if (_grabbedHandle != null)
         {
             _painter.Restore(_grabbedHandle);

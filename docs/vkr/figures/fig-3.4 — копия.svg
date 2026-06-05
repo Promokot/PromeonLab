@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="453.6pt" height="259.2pt" viewBox="0 0 453.6 259.2" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-06-05T10:59:31.319202</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.8, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 259.2 
+L 453.6 259.2 
+L 453.6 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 21.6 18 
+L 316.8 18 
+L 316.8 86.4 
+L 21.6 86.4 
+z
+" clip-path="url(#pfe22ebb604)" style="fill: #ffffff; stroke: #000000; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 338.4 18 
+L 435.6 18 
+L 435.6 86.4 
+L 338.4 86.4 
+z
+" clip-path="url(#pfe22ebb604)" style="fill: #ffffff; stroke-dasharray: 3.6,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 316.8 50.4 
+L 338.4 50.4 
+" clip-path="url(#pfe22ebb604)" style="fill: none; stroke: #000000; stroke-width: 0.8"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 21.6 126 
+L 154.8 126 
+L 154.8 242.64 
+L 21.6 242.64 
+z
+" clip-path="url(#pfe22ebb604)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 169.2 126 
+L 302.4 126 
+L 302.4 242.64 
+L 169.2 242.64 
+z
+" clip-path="url(#pfe22ebb604)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 316.8 126 
+L 450 126 
+L 450 242.64 
+L 316.8 242.64 
+z
+" clip-path="url(#pfe22ebb604)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Liberation Sans'; text-anchor: middle" x="169.2" y="34.727344" transform="rotate(-0 169.2 34.727344)">RootLifetimeScope</text>
+   </g>
+   <g id="text_2">
+    <text style="font-style: italic; font-size: 7.2px; font-family: 'Liberation Sans'; text-anchor: middle" x="169.2" y="50.133375" transform="rotate(-0 169.2 50.133375)">корневая область – всё время работы приложения</text>
+   </g>
+   <g id="text_3">
+    <text style="font-size: 7.2px; font-family: 'Liberation Sans'" transform="translate(78.553125 66.670369)">EventBus, PathProvider, AppStorage, ModeOrchestrator,</text>
+    <text style="font-size: 7.2px; font-family: 'Liberation Sans'" transform="translate(45.68625 75.293381)">библиотеки ассетов, ImportPipeline, SceneExporter, VrKeyboard, UserPanel</text>
+   </g>
+   <g id="text_4">
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Liberation Sans'; text-anchor: middle" x="387" y="34.598047" transform="rotate(-0 387 34.598047)">SceneContext</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(364.809562 56.403309)">фасад: доступ</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(346.820437 64.3857)">постоянных потребителей</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(345.113719 72.290128)">к внутрисценным объектам</text>
+   </g>
+   <g id="text_6">
+    <text style="font-weight: 700; font-size: 7.8px; font-family: 'Liberation Sans'; text-anchor: middle" x="88.2" y="140.977031" transform="rotate(-0 88.2 140.977031)">MainMenuSceneScope</text>
+   </g>
+   <g id="text_7">
+    <text style="font-style: italic; font-size: 6.8px; font-family: 'Liberation Sans'; text-anchor: middle" x="88.2" y="155.118437" transform="rotate(-0 88.2 155.118437)">режим главного меню</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(60.266531 192.28702)">SceneDirtyTracker,</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(49.365188 200.113486)">UI-панели главного меню</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(59.219813 207.939952)">(ScenePickerPanel,</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(63.255094 215.766417)">MainMenuPanel)</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 7.8px; font-family: 'Liberation Sans'; text-anchor: middle" x="235.8" y="140.959969" transform="rotate(-0 235.8 140.959969)">VrEditingSceneScope</text>
+   </g>
+   <g id="text_10">
+    <text style="font-style: italic; font-size: 6.8px; font-family: 'Liberation Sans'; text-anchor: middle" x="235.8" y="155.120031" transform="rotate(-0 235.8 155.120031)">режим редактирования</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(188.105719 184.460555)">SceneGraph, SelectionManager,</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(183.336703 192.28702)">AssetSpawner, AnimationAuthoring,</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(184.075078 200.113486)">AnimationClock, AnimationStorage,</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(194.713969 207.939952)">AnimationPlaybackSampler,</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(181.561406 215.766417)">BoneEditMode, SelectionVisualSync,</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(182.184797 223.592883)">SceneAutoSaver, SceneDirtyTracker</text>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 7.8px; font-family: 'Liberation Sans'; text-anchor: middle" x="383.4" y="140.977031" transform="rotate(-0 383.4 140.977031)">SandboxSceneScope</text>
+   </g>
+   <g id="text_13">
+    <text style="font-style: italic; font-size: 6.8px; font-family: 'Liberation Sans'; text-anchor: middle" x="383.4" y="155.118437" transform="rotate(-0 383.4 155.118437)">режим песочницы</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(363.955781 192.28702)">SceneGraph,</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(356.066719 200.113486)">SelectionManager,</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(361.387969 207.939952)">AssetSpawner,</text>
+    <text style="font-size: 6.6px; font-family: 'Liberation Sans'" transform="translate(361.753031 215.766417)">BoneEditMode</text>
+   </g>
+   <g id="text_15">
+    <text style="font-style: italic; font-size: 6.8px; font-family: 'Liberation Sans'; text-anchor: middle" x="235.44" y="111.247844" transform="rotate(-0 235.44 111.247844)">вложенность контейнеров: внутрисценный объект может зависеть от корневого</text>
+   </g>
+   <g id="text_16">
+    <text style="font-style: italic; font-size: 7.2px; font-family: 'Liberation Sans'; text-anchor: middle" x="226.8" y="251.754188" transform="rotate(-0 226.8 251.754188)">одновременно существует только одна внутрисценная область (по загруженной сцене режима)</text>
+   </g>
+   <g id="patch_7">
+    <path d="M 88.2 124.999365 
+Q 88.2 106.201493 88.2 88.409852 
+" clip-path="url(#pfe22ebb604)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 86.4 92.009852 
+L 88.2 88.409852 
+L 90 92.009852 
+z
+" clip-path="url(#pfe22ebb604)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 235.8 124.999365 
+Q 235.8 106.201493 235.8 88.409852 
+" clip-path="url(#pfe22ebb604)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 234 92.009852 
+L 235.8 88.409852 
+L 237.6 92.009852 
+z
+" clip-path="url(#pfe22ebb604)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 382.502692 125.561316 
+Q 342.899919 106.19996 304.201128 87.280551 
+" clip-path="url(#pfe22ebb604)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 306.644734 90.4788 
+L 304.201128 87.280551 
+L 308.22589 87.244616 
+z
+" clip-path="url(#pfe22ebb604)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pfe22ebb604">
+   <rect x="0" y="0" width="453.6" height="259.2"/>
+  </clipPath>
+ </defs>
+</svg>

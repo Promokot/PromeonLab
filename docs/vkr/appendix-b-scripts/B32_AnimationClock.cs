@@ -8,9 +8,6 @@ public class AnimationClock : ITickable
     public int  Fps          { get; private set; } = 24;
     public bool IsPlaying    { get; private set; }
 
-    // Continuous (fractional) playback position in frames. CurrentFrame is the integer step that drives
-    // the playhead/labels; this is the smooth value the sampler should use during playback so motion is
-    // not quantized to the animation fps. Equals CurrentFrame after a Seek (no fractional part at rest).
     public float CurrentFrameContinuous => _accumulated;
 
     private float            _accumulated;

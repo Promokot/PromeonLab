@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using VContainer.Unity;
 
-// Owns all runtime sampling extracted from AnimationAuthoring (A1): background per-object loops and
-// transport playback of the selected container, plus paused scrub. Reads the live SceneAnimationData
-// through a data source bound by the authoring façade, so it never holds a stale copy.
 public class AnimationPlaybackSampler : ITickable, IDisposable
 {
     private readonly AnimationClock _clock;
@@ -29,7 +26,6 @@ public class AnimationPlaybackSampler : ITickable, IDisposable
         _bus.Subscribe<PlaybackStateChangedEvent>(OnPlaybackState);
     }
 
-    // The façade calls this once with () => _data so the sampler always reads the live document.
     public void Bind(Func<SceneAnimationData> dataSource) => _dataSource = dataSource ?? (() => null);
 
     private SceneAnimationData Data => _dataSource();
@@ -43,7 +39,6 @@ public class AnimationPlaybackSampler : ITickable, IDisposable
         RebuildActiveClips();
     }
 
-    // Rebuild the active clips (and, if it is looping, that owner's loop clips) after a data mutation.
     public void OnDataChanged(string ownerNodeId)
     {
         RebuildActiveClips();
@@ -106,10 +101,9 @@ public class AnimationPlaybackSampler : ITickable, IDisposable
         if (data == null) return;
         float fps = Fps;
 
-        // Background loops: each looping owner advances on its own cursor and samples per render frame.
         if (_loopCursors.Count > 0)
         {
-            foreach (var owner in new List<string>(_loopCursors.Keys)) // snapshot: StopLoopPlayback mutates
+            foreach (var owner in new List<string>(_loopCursors.Keys))
             {
                 var c = data.FindByOwner(owner);
                 if (c == null || !c.Loop) { StopLoopPlayback(owner); continue; }
@@ -121,8 +115,6 @@ public class AnimationPlaybackSampler : ITickable, IDisposable
             }
         }
 
-        // Direct transport playback of the SELECTED non-looping container: sample at the clock's
-        // FRACTIONAL position every render frame, so it is as smooth as loop playback.
         if (_clock != null && _clock.IsPlaying
             && !string.IsNullOrEmpty(_activeContainerOwner)
             && !_loopCursors.ContainsKey(_activeContainerOwner)
@@ -133,8 +125,6 @@ public class AnimationPlaybackSampler : ITickable, IDisposable
         }
     }
 
-    // B3: the single sampling body shared by playback, background loops, and paused scrub. Scrub passes
-    // the integer frame as seconds (frame/fps); playback passes the continuous position. No divergence.
     private void Sample(ActionContainer c, Dictionary<string, AnimationClip> clips, float seconds)
     {
         foreach (var track in c.Tracks)
@@ -146,8 +136,6 @@ public class AnimationPlaybackSampler : ITickable, IDisposable
         }
     }
 
-    // Publishes a LoopFrameChangedEvent for an owner only when its integer frame changes, so the
-    // playhead steps once per frame rather than every tick. Internal for EditMode testing.
     internal void PublishLoopFrameIfChanged(string owner, float cursor)
     {
         int frame = Mathf.FloorToInt(cursor);
@@ -167,12 +155,10 @@ public class AnimationPlaybackSampler : ITickable, IDisposable
         if (e.Completed) ApplyFrame(0);
     }
 
-    // Integer-frame path: scrub/seek/stop while the clock is not playing. During playback Tick samples
-    // continuously (smooth) and this early-returns so the pose is not quantized to the fps.
     private void ApplyFrame(int frame)
     {
         if (string.IsNullOrEmpty(_activeContainerOwner)) return;
-        if (_loopCursors.ContainsKey(_activeContainerOwner)) return; // background loop owns sampling
+        if (_loopCursors.ContainsKey(_activeContainerOwner)) return;
         if (_clock != null && _clock.IsPlaying) return;
         var c = Data?.FindByOwner(_activeContainerOwner);
         if (c == null) return;

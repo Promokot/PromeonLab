@@ -3,18 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
 
-/// <summary>
-/// UserPanel module for exporting the current scene.
-/// Mirrors the AnimatorPanel injection pattern: root-scope deps injected via Construct(),
-/// subscriptions opened/closed in OnEnable/OnDisable.
-///
-/// The prefab must be wired in the editor (see handoff doc):
-///   - _fileNameInput  → TMP_InputField for the desired file name
-///   - _pathLabel      → TMP_Text showing the computed output path (read-only)
-///   - _sceneNameLabel → TMP_Text showing the active scene display name (read-only)
-///   - _exportButton   → Button that triggers the export
-///   - _statusLabel    → TMP_Text for last export status / error (read-only)
-/// </summary>
 public class ExportPanel : MonoBehaviour
 {
     [SerializeField] private TMP_InputField _fileNameInput;
@@ -68,10 +56,6 @@ public class ExportPanel : MonoBehaviour
             _exportButton.onClick.RemoveListener(OnExportClicked);
     }
 
-    // -------------------------------------------------------------------------
-    // Event handlers
-    // -------------------------------------------------------------------------
-
     private void OnSceneContextChanged(SceneContextChangedEvent _) => RefreshSceneInfo();
 
     private void OnFileNameChanged(string _) => RefreshPathLabel();
@@ -96,10 +80,6 @@ public class ExportPanel : MonoBehaviour
             _exportButton.interactable = true;
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
     private void RefreshSceneInfo()
     {
         var sceneId = _storage?.ActiveSceneId;
@@ -109,7 +89,6 @@ public class ExportPanel : MonoBehaviour
         if (_sceneNameLabel != null)
             _sceneNameLabel.text = name;
 
-        // Default file-name suggestion to the scene's display name (once, only when blank).
         if (_fileNameInput != null && string.IsNullOrEmpty(_fileNameInput.text) && scene != null)
             _fileNameInput.text = scene.DisplayName;
 

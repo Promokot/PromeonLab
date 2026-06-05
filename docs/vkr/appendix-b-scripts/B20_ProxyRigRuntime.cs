@@ -3,15 +3,12 @@ using System.Linq;
 using UnityEngine;
 using VContainer;
 
-// Per-rig runtime coordinator for the proxy-bone hierarchy. Built and bound by
-// RigEntityFabricator.BuildProxyRig. Drives selection outline + visuals/bone-mode toggles.
-// Holds no construction logic (that is the factory's job).
 public class ProxyRigRuntime : MonoBehaviour
 {
     private readonly List<GameObject> _proxyGOs = new();
     private Transform               _proxyRoot;
-    private readonly List<Collider> _selectorColliders = new(); // whole-rig select boxes (SceneObjects)
-    private readonly Dictionary<string, Transform> _boneProxies = new(); // boneName → proxy transform (pose I/O)
+    private readonly List<Collider> _selectorColliders = new(); 
+    private readonly Dictionary<string, Transform> _boneProxies = new(); 
 
     private EventBus       _eventBus;
     private OutlineConfig  _outlineConfig;
@@ -34,7 +31,6 @@ public class ProxyRigRuntime : MonoBehaviour
         _eventBus = null;
     }
 
-    // Called once by the factory right after construction.
     public void Bind(Transform proxyRoot, List<GameObject> proxyGOs, List<Collider> selectorColliders,
                      IReadOnlyDictionary<string, Transform> boneProxies)
     {
@@ -46,12 +42,9 @@ public class ProxyRigRuntime : MonoBehaviour
         _boneProxies.Clear();
         if (boneProxies != null)
             foreach (var kv in boneProxies) _boneProxies[kv.Key] = kv.Value;
-        SetBonesInteractive(false); // start in whole-rig select mode
+        SetBonesInteractive(false);
     }
 
-    // Per-bone pose I/O for scene persistence. The proxy's LOCAL transform is the authoritative pose
-    // input (BoneFollower copies it onto the real bone each LateUpdate), so we capture/restore proxy
-    // locals keyed by bone name. No-ops for null/empty input or unknown bone names.
     public List<BonePose> CapturePoses()
     {
         var poses = new List<BonePose>(_boneProxies.Count);
@@ -83,9 +76,6 @@ public class ProxyRigRuntime : MonoBehaviour
         }
     }
 
-    // Registers the whole-rig selector boxes with the root interactable so a hit on any of them selects
-    // the rig. Called after InteractionCapability.Apply has created the interactable (by the registry).
-    // No-op if there is no interactable yet.
     public void RegisterSelectorColliders()
     {
         var it = GetComponent<XRPromeonInteractable>();
@@ -119,9 +109,6 @@ public class ProxyRigRuntime : MonoBehaviour
             var mr = go.GetComponent<MeshRenderer>();
             if (mr != null) mr.enabled = enabled;
 
-            // QuickOutline.OnEnable appends outlineMask/outlineFill without dedupe – strip stacked
-            // copies before re-enabling so stencil writes don't conflict (the "bone outline needs a
-            // click" bug).
             if (enabled && mr != null)
             {
                 var current = mr.sharedMaterials;
@@ -140,7 +127,7 @@ public class ProxyRigRuntime : MonoBehaviour
                 if (enabled)
                 {
                     outline.OutlineMode    = Outline.Mode.SilhouetteOnly;
-                    outline.RenderPriority = 1; // above the selected-mesh outline (priority 0)
+                    outline.RenderPriority = 1; 
                 }
             }
 
@@ -159,9 +146,6 @@ public class ProxyRigRuntime : MonoBehaviour
 
     private void OnSelectionChanged(SelectionChangedEvent evt) => ApplyBoneSelection(evt.SelectedNodeId);
 
-    // Reflects the current selection on every bone proxy: outline color (selected vs idle) AND the
-    // primary-submesh material – the selected bone swaps to BoneSelectedMaterial (emissive warm orange),
-    // mirroring how the gizmo adopts its active material. Outline passes (submeshes 1+) are untouched.
     private void ApplyBoneSelection(string selectedId)
     {
         foreach (var go in _proxyGOs)
@@ -179,9 +163,6 @@ public class ProxyRigRuntime : MonoBehaviour
         }
     }
 
-    // Swaps submesh 0 (the diamond's base material) between the idle and selected materials from the
-    // config, leaving any appended outline passes (submeshes 1+) in place. Shared materials, so no
-    // per-instance leak. No-op if the config or its materials are unassigned.
     private void ApplyBoneMaterial(GameObject go, bool isSelected)
     {
         if (_proxyConfig == null || _proxyConfig.BoneMaterial == null) return;

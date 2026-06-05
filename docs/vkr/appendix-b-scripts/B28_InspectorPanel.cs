@@ -89,9 +89,6 @@ public class InspectorPanel : MonoBehaviour
         if (e.HasScene) Refresh();
         else
         {
-            // Scene torn down: this panel is persistent, so drop the remembered bone-mode rig.
-            // Otherwise the toggle stays ON into the next scene (which rebuilds the rig with the same
-            // NodeId in whole-rig mode), leaving ShowBones stuck on and out of sync with the rig.
             _boneEditMode?.ClearActive();
             if (_emptyState != null)
             {
@@ -142,12 +139,8 @@ public class InspectorPanel : MonoBehaviour
             }
         }
 
-        // Delete: only when a normal (non-bone) node is selected.
         if (_deleteButton != null) _deleteButton.gameObject.SetActive(state == InspectorState.Single && _bound != null);
 
-        // ShowBones toggle: stays reachable while a rig's bone mode is active, regardless of the current
-        // selection (we deselect the rig on entering bone mode, and a bone/empty selection must still be
-        // able to turn it off). Prefer the active bone-mode rig; otherwise the rig from selection.
         var toggleRig   = rig;
         var activeRigId = _boneEditMode?.ActiveRigId;
         if (!string.IsNullOrEmpty(activeRigId))
@@ -155,7 +148,7 @@ public class InspectorPanel : MonoBehaviour
             var activeNode = _ctx.Graph.GetNode(activeRigId);
             var activeRig  = activeNode != null ? activeNode.GetComponentInChildren<ProxyRigRuntime>(true) : null;
             if (activeRig != null) toggleRig = activeRig;
-            else _boneEditMode.ClearActive(); // active rig vanished (scene change) – drop bone mode
+            else _boneEditMode.ClearActive();
         }
         if (_showBonesToggle != null)
         {
@@ -194,7 +187,6 @@ public class InspectorPanel : MonoBehaviour
 
     private void BindBone(string boneNodeId)
     {
-        // NodeId format: "bone:{rigNodeId}:{boneName}"
         var parts     = boneNodeId.Split(':');
         var boneName  = parts.Length >= 3 ? parts[2] : boneNodeId;
         _boneRigId    = parts.Length >= 2 ? parts[1] : "";
@@ -261,15 +253,11 @@ public class InspectorPanel : MonoBehaviour
         var nodeId = _bound.NodeId;
         _bound = null;
         _ctx.Selection?.Select(null);
-        _ctx.Graph.RemoveNode(nodeId); // destroys GO, publishes SceneModifiedEvent → outliner rebuilds
+        _ctx.Graph.RemoveNode(nodeId);
     }
 
     private void OnShowBonesToggleChanged(bool value)
     {
-        // Resolve which rig the toggle targets. When turning OFF we may have no selection (entering bone
-        // mode deselected the rig), so fall back to BoneEditMode's active rig. BoneEditMode performs the
-        // transition (interactivity, selection hand-off, BonesVisibilityChangedEvent) and no-ops if the
-        // resolved node is not a rig.
         string rigNodeId = null;
         if (_bound != null)
             rigNodeId = _bound.NodeId;

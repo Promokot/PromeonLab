@@ -1,7 +1,5 @@
 using UnityEngine;
 
-// Pure baking of a keyframe track into a legacy AnimationClip + interpolation tangents.
-// Extracted from AnimationAuthoring (A1) so sampling/persistence no longer share a file with baking.
 public static class AnimationClipBaker
 {
     public static AnimationClip BuildClip(AnimTrackData track, int fps, InterpolationMode mode)

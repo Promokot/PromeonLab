@@ -110,9 +110,6 @@ public class OutlinerPanel : MonoBehaviour
 
             row.Bind(node, depth * _indentPx, () =>
             {
-                // Isolated bone mode: scene-object selection via the outliner is disabled so the user
-                // can't break out of bone editing by clicking a row. Bones are picked in-scene; exit
-                // is the inspector's Show Bones toggle (which selects programmatically, not via here).
                 if (AnyBonesModeActive()) return;
                 _ctx.Selection?.Select(node.NodeId);
             });
@@ -135,10 +132,6 @@ public class OutlinerPanel : MonoBehaviour
 
     private void OnSceneContextChanged(SceneContextChangedEvent e)
     {
-        // Bones mode is per-scene transient. This panel persists across scene swaps (it lives on the
-        // persistent UserPanel), so a rig left in bones mode would otherwise carry _bonesActiveByRig =
-        // true into the next scene – leaving the rig row bones-blue and AnyBonesModeActive() blocking
-        // all outliner selection until a toggle. Reset it at every scene boundary.
         _bonesActiveByRig.Clear();
         if (e.HasScene) Rebuild();
         else            ClearRows();

@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="453.6pt" height="421.2pt" viewBox="0 0 453.6 421.2" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-06-05T18:50:54.116477</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.8, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 421.2 
+L 453.6 421.2 
+L 453.6 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="line2d_1">
+    <path d="M 174.24 7.2 
+L 174.24 385.2 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke-dasharray: 0.6,1.2; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.6"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 309.6 7.2 
+L 309.6 385.2 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke-dasharray: 0.6,1.2; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.6"/>
+   </g>
+   <g id="patch_2">
+    <path d="M 15.84 30.24 
+L 156.24 30.24 
+L 156.24 101.448 
+L 15.84 101.448 
+z
+" clip-path="url(#pd690c7a4d3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 15.84 59.04 
+L 156.24 59.04 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 15.84 119.52 
+L 156.24 119.52 
+L 156.24 202.104 
+L 15.84 202.104 
+z
+" clip-path="url(#pd690c7a4d3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 15.84 148.32 
+L 156.24 148.32 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 15.84 223.2 
+L 156.24 223.2 
+L 156.24 328.536 
+L 15.84 328.536 
+z
+" clip-path="url(#pd690c7a4d3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 15.84 252 
+L 156.24 252 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 44.64 335.52 
+L 156.24 335.52 
+L 156.24 383.832 
+L 44.64 383.832 
+z
+" clip-path="url(#pd690c7a4d3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 44.64 352.8 
+L 156.24 352.8 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 183.6 30.24 
+L 300.24 30.24 
+L 300.24 101.304 
+L 183.6 101.304 
+z
+" clip-path="url(#pd690c7a4d3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_7">
+    <path d="M 183.6 47.52 
+L 300.24 47.52 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 183.6 128.16 
+L 300.24 128.16 
+L 300.24 221.976 
+L 183.6 221.976 
+z
+" clip-path="url(#pd690c7a4d3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_8">
+    <path d="M 183.6 145.44 
+L 300.24 145.44 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 183.6 255.6 
+L 300.24 255.6 
+L 300.24 326.664 
+L 183.6 326.664 
+z
+" clip-path="url(#pd690c7a4d3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_9">
+    <path d="M 183.6 272.88 
+L 300.24 272.88 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="line2d_10">
+    <path d="M 300.24 196.344 
+L 307.44 196.344 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.8"/>
+   </g>
+   <g id="line2d_11">
+    <path d="M 307.44 196.344 
+L 307.44 135.36 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.8"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 318.96 30.24 
+L 437.76 30.24 
+L 437.76 89.928 
+L 318.96 89.928 
+z
+" clip-path="url(#pd690c7a4d3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_12">
+    <path d="M 318.96 47.52 
+L 437.76 47.52 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 318.96 111.6 
+L 437.76 111.6 
+L 437.76 194.04 
+L 318.96 194.04 
+z
+" clip-path="url(#pd690c7a4d3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_13">
+    <path d="M 318.96 128.88 
+L 437.76 128.88 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 318.96 216 
+L 437.76 216 
+L 437.76 264.312 
+L 318.96 264.312 
+z
+" clip-path="url(#pd690c7a4d3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_14">
+    <path d="M 318.96 233.28 
+L 437.76 233.28 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 318.96 284.4 
+L 437.76 284.4 
+L 437.76 344.088 
+L 318.96 344.088 
+z
+" clip-path="url(#pd690c7a4d3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_15">
+    <path d="M 318.96 301.68 
+L 437.76 301.68 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9"/>
+   </g>
+   <g id="line2d_16">
+    <path d="M 15.84 392.4 
+L 437.76 392.4 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.5"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 8.2px; font-family: 'Liberation Sans'; text-anchor: middle" x="86.4" y="15.080469" transform="rotate(-0 86.4 15.080469)">Библиотеки ассетов</text>
+   </g>
+   <g id="text_2">
+    <text style="font-weight: 700; font-size: 8.2px; font-family: 'Liberation Mono'; text-anchor: middle" x="241.92" y="15.080469" transform="rotate(-0 241.92 15.080469)">scene.json</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 8.2px; font-family: 'Liberation Mono'; text-anchor: middle" x="381.6" y="15.080469" transform="rotate(-0 381.6 15.080469)">animation.json</text>
+   </g>
+   <g id="text_4">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Liberation Sans'; text-anchor: middle" x="86.04" y="41.513594" transform="rotate(-0 86.04 41.513594)">BuiltinLabAsset</text>
+   </g>
+   <g id="text_5">
+    <text style="font-style: italic; font-size: 6px; font-family: 'Liberation Sans'; text-anchor: middle" x="86.04" y="53.435156" transform="rotate(-0 86.04 53.435156)">встроенный, в составе приложения</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="20.16" y="66.146719" transform="rotate(-0 20.16 66.146719)">Id, DisplayName, Type</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="20.16" y="77.522719" transform="rotate(-0 20.16 77.522719)">Icon, Prefab</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="20.16" y="88.898719" transform="rotate(-0 20.16 88.898719)">Recipe</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Liberation Sans'; text-anchor: middle" x="86.04" y="130.793594" transform="rotate(-0 86.04 130.793594)">ImportedLabAsset</text>
+   </g>
+   <g id="text_10">
+    <text style="font-style: italic; font-size: 6px; font-family: 'Liberation Sans'; text-anchor: middle" x="86.04" y="142.715156" transform="rotate(-0 86.04 142.715156)">импортированный, imported-lib.json</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="20.16" y="155.426719" transform="rotate(-0 20.16 155.426719)">Id, DisplayName, Type</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="20.16" y="166.802719" transform="rotate(-0 20.16 166.802719)">SourceRef</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="20.16" y="178.178719" transform="rotate(-0 20.16 178.178719)">ThumbnailRef</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="20.16" y="189.554719" transform="rotate(-0 20.16 189.554719)">Recipe</text>
+   </g>
+   <g id="text_15">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Liberation Sans'; text-anchor: middle" x="86.04" y="234.473594" transform="rotate(-0 86.04 234.473594)">AssetEntityRecipe</text>
+   </g>
+   <g id="text_16">
+    <text style="font-style: italic; font-size: 6px; font-family: 'Liberation Sans'; text-anchor: middle" x="86.04" y="246.351562" transform="rotate(-0 86.04 246.351562)">шаблон восстановления</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 6.2px; font-family: 'Liberation Mono'; text-anchor: start" x="20.16" y="259.003281" transform="rotate(-0 20.16 259.003281)">type, selectable</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 6.2px; font-family: 'Liberation Mono'; text-anchor: start" x="20.16" y="270.379281" transform="rotate(-0 20.16 270.379281)">interactionLayer</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 6.2px; font-family: 'Liberation Mono'; text-anchor: start" x="20.16" y="281.755281" transform="rotate(-0 20.16 281.755281)">colliderKind/Center/Size</text>
+   </g>
+   <g id="text_20">
+    <text style="font-size: 6.2px; font-family: 'Liberation Mono'; text-anchor: start" x="20.16" y="293.131281" transform="rotate(-0 20.16 293.131281)">boneColliderDepth, spawnOffset</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 6.2px; font-family: 'Liberation Mono'; text-anchor: start" x="20.16" y="304.507281" transform="rotate(-0 20.16 304.507281)">reference*</text>
+   </g>
+   <g id="text_22">
+    <text style="font-size: 6.2px; font-family: 'Liberation Mono'; text-anchor: start" x="20.16" y="315.883281" transform="rotate(-0 20.16 315.883281)">rig</text>
+   </g>
+   <g id="text_23">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Liberation Sans'; text-anchor: middle" x="100.44" y="346.777406" transform="rotate(-0 100.44 346.777406)">RigDefinition</text>
+   </g>
+   <g id="text_24">
+    <text style="font-size: 5.9px; font-family: 'Liberation Mono'; text-anchor: start" x="48.96" y="359.725703" transform="rotate(-0 48.96 359.725703)">Bones[] (BoneRecord)</text>
+   </g>
+   <g id="text_25">
+    <text style="font-size: 5.9px; font-family: 'Liberation Mono'; text-anchor: start" x="48.96" y="371.101703" transform="rotate(-0 48.96 371.101703)">IkChains[], TerminalBonesAxis</text>
+   </g>
+   <g id="text_26">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Liberation Sans'; text-anchor: middle" x="241.92" y="41.513594" transform="rotate(-0 241.92 41.513594)">SceneData</text>
+   </g>
+   <g id="text_27">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="187.92" y="54.626719" transform="rotate(-0 187.92 54.626719)">SchemaVersion = 3</text>
+   </g>
+   <g id="text_28">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="187.92" y="66.002719" transform="rotate(-0 187.92 66.002719)">SceneId, CreatedAt</text>
+   </g>
+   <g id="text_29">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="187.92" y="77.378719" transform="rotate(-0 187.92 77.378719)">DisplayName</text>
+   </g>
+   <g id="text_30">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="187.92" y="88.754719" transform="rotate(-0 187.92 88.754719)">Nodes[]</text>
+   </g>
+   <g id="text_31">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Liberation Sans'; text-anchor: middle" x="241.92" y="139.433594" transform="rotate(-0 241.92 139.433594)">NodeData</text>
+   </g>
+   <g id="text_32">
+    <text style="font-size: 5.9px; font-family: 'Liberation Mono'; text-anchor: start" x="187.92" y="152.365703" transform="rotate(-0 187.92 152.365703)">NodeId</text>
+   </g>
+   <g id="text_33">
+    <text style="font-size: 5.9px; font-family: 'Liberation Mono'; text-anchor: start" x="187.92" y="163.741703" transform="rotate(-0 187.92 163.741703)">AssetRef {Source,AssetId}</text>
+   </g>
+   <g id="text_34">
+    <text style="font-size: 5.9px; font-family: 'Liberation Mono'; text-anchor: start" x="187.92" y="175.117703" transform="rotate(-0 187.92 175.117703)">Position/Rotation/Scale</text>
+   </g>
+   <g id="text_35">
+    <text style="font-size: 5.9px; font-family: 'Liberation Mono'; text-anchor: start" x="187.92" y="186.493703" transform="rotate(-0 187.92 186.493703)">DisplayName</text>
+   </g>
+   <g id="text_36">
+    <text style="font-size: 5.9px; font-family: 'Liberation Mono'; text-anchor: start" x="187.92" y="197.869703" transform="rotate(-0 187.92 197.869703)">ParentNodeId</text>
+   </g>
+   <g id="text_37">
+    <text style="font-size: 5.9px; font-family: 'Liberation Mono'; text-anchor: start" x="187.92" y="209.245703" transform="rotate(-0 187.92 209.245703)">BonePoses[]</text>
+   </g>
+   <g id="text_38">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Liberation Sans'; text-anchor: middle" x="241.92" y="266.873594" transform="rotate(-0 241.92 266.873594)">BonePose</text>
+   </g>
+   <g id="text_39">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="187.92" y="279.986719" transform="rotate(-0 187.92 279.986719)">BoneName</text>
+   </g>
+   <g id="text_40">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="187.92" y="291.362719" transform="rotate(-0 187.92 291.362719)">LocalPosition</text>
+   </g>
+   <g id="text_41">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="187.92" y="302.738719" transform="rotate(-0 187.92 302.738719)">LocalRotation</text>
+   </g>
+   <g id="text_42">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="187.92" y="314.114719" transform="rotate(-0 187.92 314.114719)">LocalScale</text>
+   </g>
+   <g id="text_43">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Liberation Sans'; text-anchor: middle" x="378.36" y="41.513594" transform="rotate(-0 378.36 41.513594)">SceneAnimationData</text>
+   </g>
+   <g id="text_44">
+    <text style="font-size: 6.1px; font-family: 'Liberation Mono'; text-anchor: start" x="323.28" y="54.497422" transform="rotate(-0 323.28 54.497422)">schemaVersion = 2</text>
+   </g>
+   <g id="text_45">
+    <text style="font-size: 6.1px; font-family: 'Liberation Mono'; text-anchor: start" x="323.28" y="65.900109" transform="rotate(-0 323.28 65.900109)">Fps (общая для сцены)</text>
+   </g>
+   <g id="text_46">
+    <text style="font-size: 6.1px; font-family: 'Liberation Mono'; text-anchor: start" x="323.28" y="77.249422" transform="rotate(-0 323.28 77.249422)">Containers[]</text>
+   </g>
+   <g id="text_47">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Liberation Sans'; text-anchor: middle" x="378.36" y="122.873594" transform="rotate(-0 378.36 122.873594)">ActionContainer</text>
+   </g>
+   <g id="text_48">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="323.28" y="135.986719" transform="rotate(-0 323.28 135.986719)">OwnerNodeId</text>
+   </g>
+   <g id="text_49">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="323.28" y="147.362719" transform="rotate(-0 323.28 147.362719)">TotalFrames</text>
+   </g>
+   <g id="text_50">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="323.28" y="158.738719" transform="rotate(-0 323.28 158.738719)">Interpolation</text>
+   </g>
+   <g id="text_51">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="323.28" y="170.114719" transform="rotate(-0 323.28 170.114719)">Loop</text>
+   </g>
+   <g id="text_52">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="323.28" y="181.490719" transform="rotate(-0 323.28 181.490719)">Tracks[]</text>
+   </g>
+   <g id="text_53">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Liberation Sans'; text-anchor: middle" x="378.36" y="227.273594" transform="rotate(-0 378.36 227.273594)">AnimTrackData</text>
+   </g>
+   <g id="text_54">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="323.28" y="240.386719" transform="rotate(-0 323.28 240.386719)">NodeId</text>
+   </g>
+   <g id="text_55">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="323.28" y="251.762719" transform="rotate(-0 323.28 251.762719)">Keys[]</text>
+   </g>
+   <g id="text_56">
+    <text style="font-weight: 700; font-size: 7.4px; font-family: 'Liberation Sans'; text-anchor: middle" x="378.36" y="295.673594" transform="rotate(-0 378.36 295.673594)">AnimKeyData</text>
+   </g>
+   <g id="text_57">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="323.28" y="308.786719" transform="rotate(-0 323.28 308.786719)">Frame</text>
+   </g>
+   <g id="text_58">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="323.28" y="320.162719" transform="rotate(-0 323.28 320.162719)">Position, Rotation,</text>
+   </g>
+   <g id="text_59">
+    <text style="font-size: 6.6px; font-family: 'Liberation Mono'; text-anchor: start" x="323.28" y="331.538719" transform="rotate(-0 323.28 331.538719)">Scale</text>
+   </g>
+   <g id="text_60">
+    <text style="font-size: 5.8px; font-family: 'Liberation Sans'; text-anchor: middle" x="226.8" y="403.285219" transform="rotate(-0 226.8 403.285219)">Пунктир – ссылки по идентификаторам: AssetRef → запись библиотеки (по Source); OwnerNodeId и NodeId дорожки → нода,</text>
+   </g>
+   <g id="text_61">
+    <text style="font-size: 5.5px; font-family: 'Liberation Sans'; text-anchor: middle" x="226.8" y="413.982266" transform="rotate(-0 226.8 413.982266)">кость – bone:{нода}:{кость}; BoneName связывает позу с костью рига; петля у NodeData – ParentNodeId; SourceRef/ThumbnailRef – пути в sources/ и thumbnails/.</text>
+   </g>
+   <g id="patch_13">
+    <path d="M 44.64 102.44749 
+Q 44.64 162.324417 44.64 221.195114 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 46.44 217.595114 
+L 44.64 221.195114 
+L 42.84 217.595114 
+z
+" clip-path="url(#pd690c7a4d3)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_14">
+    <path d="M 68.4 203.105751 
+Q 68.4 212.654935 68.4 221.197887 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 70.2 217.597887 
+L 68.4 221.197887 
+L 66.6 217.597887 
+z
+" clip-path="url(#pd690c7a4d3)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_15">
+    <path d="M 100.8 329.535176 
+Q 100.8 332.026417 100.8 333.511428 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 102.6 329.911428 
+L 100.8 333.511428 
+L 99 329.911428 
+z
+" clip-path="url(#pd690c7a4d3)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_16">
+    <path d="M 241.92 102.303888 
+Q 241.92 114.731676 241.92 126.153234 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 243.72 122.553234 
+L 241.92 126.153234 
+L 240.12 122.553234 
+z
+" clip-path="url(#pd690c7a4d3)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_17">
+    <path d="M 241.92 222.973392 
+Q 241.92 238.786862 241.92 253.594102 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 243.72 249.994102 
+L 241.92 253.594102 
+L 240.12 249.994102 
+z
+" clip-path="url(#pd690c7a4d3)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_18">
+    <path d="M 307.44 135.36 
+Q 303.84 135.36 301.246231 135.36 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 304.846231 137.16 
+L 301.246231 135.36 
+L 304.846231 133.56 
+z
+" clip-path="url(#pd690c7a4d3)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_19">
+    <path d="M 183.318618 161.254859 
+Q 169.919379 115.48588 156.802857 70.682599 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 156.086839 74.643321 
+L 156.802857 70.682599 
+L 159.541824 73.631847 
+z
+" clip-path="url(#pd690c7a4d3)" style="stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_20">
+    <path d="M 182.648145 161.920424 
+Q 169.922784 157.968865 158.15839 154.31571 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 161.062641 157.102344 
+L 158.15839 154.31571 
+L 162.130247 153.66429 
+z
+" clip-path="url(#pd690c7a4d3)" style="stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_21">
+    <path d="M 183.27687 279.223879 
+Q 169.920567 318.238343 156.890171 356.300817 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 159.759141 353.477873 
+L 156.890171 356.300817 
+L 156.353198 352.311875 
+z
+" clip-path="url(#pd690c7a4d3)" style="stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_22">
+    <path d="M 378 90.925356 
+Q 378 100.761712 378 109.591837 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 379.8 105.991837 
+L 378 109.591837 
+L 376.2 105.991837 
+z
+" clip-path="url(#pd690c7a4d3)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_23">
+    <path d="M 378 195.039888 
+Q 378 205.019736 378 213.993354 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 379.8 210.393354 
+L 378 213.993354 
+L 376.2 210.393354 
+z
+" clip-path="url(#pd690c7a4d3)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_24">
+    <path d="M 378 265.307572 
+Q 378 274.352703 378 282.391603 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 379.8 278.791603 
+L 378 282.391603 
+L 376.2 278.791603 
+z
+" clip-path="url(#pd690c7a4d3)" style="stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_25">
+    <path d="M 318.212754 134.941025 
+Q 309.600444 142.559608 301.741797 149.511488 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 305.630817 148.474415 
+L 301.741797 149.511488 
+L 303.245551 145.778028 
+z
+" clip-path="url(#pd690c7a4d3)" style="stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_26">
+    <path d="M 318.738911 237.702107 
+Q 309.599824 197.279219 300.682631 157.837791 
+" clip-path="url(#pd690c7a4d3)" style="fill: none; stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+    <path d="M 299.720819 161.746105 
+L 300.682631 157.837791 
+L 303.232195 160.952229 
+z
+" clip-path="url(#pd690c7a4d3)" style="stroke-dasharray: 4.5,1.8; stroke-dashoffset: 0; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_62">
+    <g id="patch_27">
+     <path d="M 47.587297 216.809344 
+L 67.612703 216.809344 
+L 67.612703 209.430656 
+L 47.587297 209.430656 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-style: italic; font-size: 5.8px; font-family: 'Liberation Sans'; text-anchor: middle" x="57.6" y="214.619844" transform="rotate(-0 57.6 214.619844)">Recipe</text>
+   </g>
+   <g id="text_63">
+    <g id="patch_28">
+     <path d="M 118.53 335.581516 
+L 158.154062 335.581516 
+L 158.154062 328.474484 
+L 118.53 328.474484 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-style: italic; font-size: 5.5px; font-family: 'Liberation Sans'; text-anchor: start" x="119.52" y="333.450266" transform="rotate(-0 119.52 333.450266)">rig (Type = Rig)</text>
+   </g>
+   <g id="text_64">
+    <g id="patch_29">
+     <path d="M 255.312 120.258125 
+L 276.626125 120.258125 
+L 276.626125 113.021875 
+L 255.312 113.021875 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-style: italic; font-size: 5.6px; font-family: 'Liberation Sans'; text-anchor: start" x="256.32" y="118.088125" transform="rotate(-0 256.32 118.088125)">Nodes[]</text>
+   </g>
+   <g id="text_65">
+    <g id="patch_30">
+     <path d="M 255.312 249.858125 
+L 289.080875 249.858125 
+L 289.080875 242.621875 
+L 255.312 242.621875 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-style: italic; font-size: 5.6px; font-family: 'Liberation Sans'; text-anchor: start" x="256.32" y="247.688125" transform="rotate(-0 256.32 247.688125)">BonePoses[]</text>
+   </g>
+   <g id="text_66">
+    <g id="patch_31">
+     <path d="M 392.112 105.858125 
+L 424.319 105.858125 
+L 424.319 98.621875 
+L 392.112 98.621875 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-style: italic; font-size: 5.6px; font-family: 'Liberation Sans'; text-anchor: start" x="393.12" y="103.688125" transform="rotate(-0 393.12 103.688125)">Containers[]</text>
+   </g>
+   <g id="text_67">
+    <g id="patch_32">
+     <path d="M 392.112 210.258125 
+L 413.625625 210.258125 
+L 413.625625 203.021875 
+L 392.112 203.021875 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-style: italic; font-size: 5.6px; font-family: 'Liberation Sans'; text-anchor: start" x="393.12" y="208.088125" transform="rotate(-0 393.12 208.088125)">Tracks[]</text>
+   </g>
+   <g id="text_68">
+    <g id="patch_33">
+     <path d="M 392.112 279.378125 
+L 409.689 279.378125 
+L 409.689 272.141875 
+L 392.112 272.141875 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-style: italic; font-size: 5.6px; font-family: 'Liberation Sans'; text-anchor: start" x="393.12" y="277.208125" transform="rotate(-0 393.12 277.208125)">Keys[]</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pd690c7a4d3">
+   <rect x="0" y="0" width="453.6" height="421.2"/>
+  </clipPath>
+ </defs>
+</svg>

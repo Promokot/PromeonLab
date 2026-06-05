@@ -22,7 +22,7 @@ public class AnimatorPanel : MonoBehaviour
     private SceneContext       _ctx;
 
     private string                       _activeOwner;
-    private string                       _boneModeRig; // rig whose bone-edit mode is ON; keeps the timeline up when no bone is selected
+    private string                       _boneModeRig; 
     private readonly List<TimelineRow_Item> _rowPool = new();
 
     [Inject]
@@ -32,11 +32,6 @@ public class AnimatorPanel : MonoBehaviour
         _clipboard = clipboard;
         _ctx       = ctx;
 
-        // Bone-edit mode must be tracked even while this panel is hidden: the Show Bones toggle lives
-        // in the Inspector, so the user can enter bone mode with the Animator tab closed. A subscription
-        // scoped to OnEnable/OnDisable would miss that event and reopen showing "select something" with
-        // no bone selected. The panel is injected once at root (persistent on the UserPanel), so this
-        // durable subscription is safe and single. Redraw is deferred to OnEnable when hidden.
         _bus.Subscribe<BonesVisibilityChangedEvent>(OnBonesVisibilityChanged);
     }
 
@@ -56,7 +51,6 @@ public class AnimatorPanel : MonoBehaviour
         _bus.Subscribe<AnimationContainerChangedEvent>(OnContainerChanged);
         _bus.Subscribe<AnimationKeyframeChangedEvent>(OnKeyframeChanged);
         _bus.Subscribe<NodeRenamedEvent>(OnNodeRenamed);
-        // NOTE: BonesVisibilityChangedEvent is subscribed durably in Construct (see there), not here.
 
         WireToolbar();
         WireTransport();
@@ -122,7 +116,7 @@ public class AnimatorPanel : MonoBehaviour
 
     private void OnSceneContextChanged(SceneContextChangedEvent e)
     {
-        _boneModeRig = null; // bone mode does not survive a scene swap
+        _boneModeRig = null; 
         Refresh();
     }
 
@@ -131,7 +125,6 @@ public class AnimatorPanel : MonoBehaviour
     private void OnBonesVisibilityChanged(BonesVisibilityChangedEvent e)
     {
         _boneModeRig = e.Visible ? e.RigNodeId : null;
-        // Hidden panel: state is stored above; the redraw happens on the next OnEnable's Refresh.
         if (isActiveAndEnabled) Refresh();
     }
 
@@ -150,7 +143,7 @@ public class AnimatorPanel : MonoBehaviour
 
     private void OnLoopFrameChanged(LoopFrameChangedEvent e)
     {
-        if (e.OwnerNodeId != _activeOwner) return;   // playhead follows only the selected owner
+        if (e.OwnerNodeId != _activeOwner) return;  
         if (_playhead != null) _playhead.SetFrame(e.Frame);
         if (_toolbar  != null) _toolbar.SetCurrentFrame(e.Frame);
     }
@@ -162,9 +155,6 @@ public class AnimatorPanel : MonoBehaviour
 
     private void OnContainerChanged(AnimationContainerChangedEvent e)
     {
-        // A newly-Added container for the current selection must refresh even when _activeOwner is
-        // still null (no container existed a moment ago, so Refresh cleared it). Without this, the
-        // first "Add animation" looks like a no-op until the next reselect. (audit H5)
         if (e.Change == ContainerChange.Added)
         {
             var selectedOwner = AnimationAuthoring.OwnerOf(_ctx.Selection?.SelectedNodeId);
@@ -205,11 +195,11 @@ public class AnimatorPanel : MonoBehaviour
         var selected = _ctx.Selection?.SelectedNodeId;
         var owner    = AnimationAuthoring.OwnerOf(selected);
         if (string.IsNullOrEmpty(owner) && !string.IsNullOrEmpty(_boneModeRig))
-            owner = _boneModeRig;                         // bone mode, nothing selected → target the rig
+            owner = _boneModeRig;                        
         if (string.IsNullOrEmpty(owner)) return;
 
         _ctx.Authoring.CreateContainer(owner, _config.DefaultTotalFrames, _config.DefaultFps);
-        _ctx.Authoring.EnsureTrack(owner, owner);         // owner track ALWAYS – object/rig's own transform
+        _ctx.Authoring.EnsureTrack(owner, owner);     
     }
 
     private void OnRemoveAnimationClicked()
@@ -225,15 +215,14 @@ public class AnimatorPanel : MonoBehaviour
         var next = cur == InterpolationMode.Stepped ? InterpolationMode.Linear : InterpolationMode.Stepped;
         _ctx.Authoring.SetInterpolation(_activeOwner, next);
         _toolbar.SetInterpolationLabel(next.ToString());
-        _ctx.Clock.Seek(_ctx.Clock.CurrentFrame); // re-fire FrameChanged → re-sample with new tangents
-    }
+        _ctx.Clock.Seek(_ctx.Clock.CurrentFrame); 
 
     private void OnSetKeyClicked()
     {
         if (string.IsNullOrEmpty(_activeOwner)) return;
         var target = _ctx.Selection?.SelectedNodeId;
-        if (string.IsNullOrEmpty(target)) return; // nothing selected (e.g. bone mode, no bone) → no key
-        _ctx.Authoring.SetKey(target, _ctx.Clock.CurrentFrame); // keys only the selected track
+        if (string.IsNullOrEmpty(target)) return; 
+        _ctx.Authoring.SetKey(target, _ctx.Clock.CurrentFrame); 
         RefreshKeyButtonStates();
     }
 
@@ -242,7 +231,7 @@ public class AnimatorPanel : MonoBehaviour
         if (string.IsNullOrEmpty(_activeOwner)) return;
         var target = _ctx.Selection?.SelectedNodeId;
         if (string.IsNullOrEmpty(target)) return;
-        _ctx.Authoring.DeleteKey(target, _ctx.Clock.CurrentFrame); // removes only the selected track's key
+        _ctx.Authoring.DeleteKey(target, _ctx.Clock.CurrentFrame); 
     }
 
     private void OnCopyClicked()
@@ -294,15 +283,10 @@ public class AnimatorPanel : MonoBehaviour
 
     private void Refresh()
     {
-        // The animation services are absent in scenes without an animation system (e.g. Sandbox),
-        // where SceneContext binds Graph but leaves Authoring/Clock null. Guard on what Refresh
-        // actually dereferences, not just HasScene (which only tracks Graph).
         if (_ctx.Authoring == null || _ctx.Clock == null) { ShowEmpty(AnimatorEmptyStateView.State.NoSelection); return; }
 
         var selected = _ctx.Selection?.SelectedNodeId;
         var owner    = AnimationAuthoring.OwnerOf(selected);
-        // Bone-edit mode: with no bone selected we are still focused on the rig, so keep its timeline
-        // visible (keying is disabled because no specific track is selected).
         if (string.IsNullOrEmpty(owner) && !string.IsNullOrEmpty(_boneModeRig))
             owner = _boneModeRig;
         var has      = !string.IsNullOrEmpty(owner) && _ctx.Authoring.HasContainer(owner);
