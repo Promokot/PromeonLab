@@ -9,7 +9,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 // registration and never re-scanned, so RegisterColliders has to re-register the interactable.
 //
 // The real lifecycle (OnEnable → auto find/register) only runs in play mode. We reproduce it in an
-// EditMode test by wiring the manager and the initial empty-collider registration by hand — exactly
+// EditMode test by wiring the manager and the initial empty-collider registration by hand – exactly
 // the state the spawn pipeline is in when RegisterColliders is finally called.
 public class XRPromeonInteractableColliderMapTests
 {

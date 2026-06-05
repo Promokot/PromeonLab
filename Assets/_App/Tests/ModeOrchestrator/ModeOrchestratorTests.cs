@@ -63,7 +63,7 @@ public class ModeOrchestratorTests
         sut.TransitionTo(AppMode.VrEditing); // from default MainMenu; load not completed (FakeTransition holds onLoaded)
 
         // The exit event fires synchronously during TransitionTo, while the outgoing scene is still
-        // loaded — BEFORE the scene-load callback (ModeChangedEvent) runs.
+        // loaded – BEFORE the scene-load callback (ModeChangedEvent) runs.
         Assert.IsTrue(exiting.HasValue, "ModeExitingEvent must fire synchronously, before the scene load completes");
         Assert.AreEqual(AppMode.MainMenu,  exiting.Value.From);
         Assert.AreEqual(AppMode.VrEditing, exiting.Value.To);

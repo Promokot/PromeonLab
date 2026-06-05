@@ -62,12 +62,12 @@ public static class BuiltinRecipeBaker
                 break;
 
             case AssetType.Reference:
-                if (entry.Image == null) { Debug.LogWarning($"Bake: '{entry.Id}' Reference has no image — skipped."); return; }
+                if (entry.Image == null) { Debug.LogWarning($"Bake: '{entry.Id}' Reference has no image – skipped."); return; }
                 generatedPrefab = ReferenceImagePrefabGenerator.Generate(entry.Id, entry.Image, out recipe);
                 break;
 
             default:
-                Debug.LogWarning($"Bake: '{entry.Id}' unsupported AssetType {entry.Type} — skipped.");
+                Debug.LogWarning($"Bake: '{entry.Id}' unsupported AssetType {entry.Type} – skipped.");
                 return;
         }
 
@@ -79,7 +79,7 @@ public static class BuiltinRecipeBaker
     }
 
     // Loads the prefab into an isolated preview scene (NOT the user's open scene), measures it, and
-    // unloads — so baking never dirties the active scene or fires Awake/OnEnable there.
+    // unloads – so baking never dirties the active scene or fires Awake/OnEnable there.
     private static AssetEntityRecipe MeasurePrefab(string assetPath, Func<GameObject, AssetEntityRecipe> measure)
     {
         var root = PrefabUtility.LoadPrefabContents(assetPath);
@@ -92,7 +92,7 @@ public static class BuiltinRecipeBaker
         path = entry.Prefab != null ? AssetDatabase.GetAssetPath(entry.Prefab) : null;
         if (string.IsNullOrEmpty(path))
         {
-            Debug.LogWarning($"Bake: '{entry.Id}' {kind} has no prefab asset — skipped.");
+            Debug.LogWarning($"Bake: '{entry.Id}' {kind} has no prefab asset – skipped.");
             return false;
         }
         return true;

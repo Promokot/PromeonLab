@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-// DEAD / LEGACY — flatscreen pointer-drag handle for the UserPanel. Superseded by PanelGrabHandle
+// DEAD / LEGACY – flatscreen pointer-drag handle for the UserPanel. Superseded by PanelGrabHandle
 // (XR grip-grab via NearFarInteractor, the one actually on UserPanel.prefab). This component is on no
 // prefab or scene. All operational code is commented out so it is INERT if ever re-attached; the class
 // shell, serialized fields, and interface method shells (no-ops) are kept so it still compiles and
@@ -29,28 +29,28 @@ public class PanelDragHandle : MonoBehaviour,
     //     _image.color = _normalColor;
     // }
 
-    public void OnPointerDown(PointerEventData eventData) { /* dead feature — no-op */ }
+    public void OnPointerDown(PointerEventData eventData) { /* dead feature – no-op */ }
 
-    public void OnPointerEnter(PointerEventData eventData) { /* dead feature — no-op */ }
+    public void OnPointerEnter(PointerEventData eventData) { /* dead feature – no-op */ }
     // {
     //     if (!_isDragging)
     //         _image.color = _hoverColor;
     // }
 
-    public void OnPointerExit(PointerEventData eventData) { /* dead feature — no-op */ }
+    public void OnPointerExit(PointerEventData eventData) { /* dead feature – no-op */ }
     // {
     //     if (!_isDragging)
     //         _image.color = _normalColor;
     // }
 
-    public void OnBeginDrag(PointerEventData eventData) { /* dead feature — no-op */ }
+    public void OnBeginDrag(PointerEventData eventData) { /* dead feature – no-op */ }
     // {
     //     _isDragging  = true;
     //     _image.color = _dragColor;
     //     _panel.SetDragging(true);
     // }
 
-    public void OnDrag(PointerEventData eventData) { /* dead feature — no-op */ }
+    public void OnDrag(PointerEventData eventData) { /* dead feature – no-op */ }
     // {
     //     if (eventData.delta.sqrMagnitude < 0.01f) return;
     //
@@ -74,7 +74,7 @@ public class PanelDragHandle : MonoBehaviour,
     //     _panel.MoveTo(_panel.transform.position + delta);
     // }
 
-    public void OnEndDrag(PointerEventData eventData) { /* dead feature — no-op */ }
+    public void OnEndDrag(PointerEventData eventData) { /* dead feature – no-op */ }
     // {
     //     _isDragging  = false;
     //     _image.color = _normalColor;

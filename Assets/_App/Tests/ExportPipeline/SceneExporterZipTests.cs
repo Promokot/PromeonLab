@@ -30,7 +30,7 @@ public class SceneExporterZipTests
         SceneExporter.WriteZipBundle(zipPath, json, sources);
 
         Assert.IsTrue(File.Exists(zipPath), "zip must exist");
-        // Open via ZipArchive over a FileStream (System.IO.Compression core) — avoids depending on
+        // Open via ZipArchive over a FileStream (System.IO.Compression core) – avoids depending on
         // ZipFile, which lives in the separate System.IO.Compression.FileSystem assembly.
         using (var fs  = File.OpenRead(zipPath))
         using (var zip = new ZipArchive(fs, ZipArchiveMode.Read))

@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
 
-// DEAD FEATURE — detachable / floating panels (never built; see docs/BACKLOG.md).
+// DEAD FEATURE – detachable / floating panels (never built; see docs/BACKLOG.md).
 // All operational code is commented out so the component is INERT wherever it lingers on a panel
 // prefab (currently only AnimatorPanelModule). Its live behaviour fought the region router that owns
-// panel visibility — most visibly, Awake's SetActive(false) ate the first router Open (two-press-to-
+// panel visibility – most visibly, Awake's SetActive(false) ate the first router Open (two-press-to-
 // open bug). Commented (not deleted) so the feature can be revived by uncommenting; the class shell +
 // serialized fields are kept so prefab references stay valid. While dead, this MUST NOT touch
 // activeSelf, wire button listeners, reparent, destroy, or publish events.
@@ -37,23 +37,23 @@ public class SpatialPanelDetachable : MonoBehaviour
     //     SetUnlinkedControlsVisible(false);
     //     if (_dragHandle != null) _dragHandle.enabled = false;
     //
-    //     // Region router owns visibility — self-deactivating here ate the first Open (two-press bug).
+    //     // Region router owns visibility – self-deactivating here ate the first Open (two-press bug).
     //     gameObject.SetActive(false);
     // }
 
-    public void ToggleLinked() { /* dead feature — no-op */ }
+    public void ToggleLinked() { /* dead feature – no-op */ }
     // {
     //     if (IsVisible) Hide();
     //     else Show();
     // }
 
-    public void Show() { /* dead feature — no-op */ }
+    public void Show() { /* dead feature – no-op */ }
     // {
     //     IsVisible = true;
     //     gameObject.SetActive(true);
     // }
 
-    public void Hide() { /* dead feature — no-op */ }
+    public void Hide() { /* dead feature – no-op */ }
     // {
     //     if (!IsVisible) return;
     //     IsVisible = false;
@@ -63,7 +63,7 @@ public class SpatialPanelDetachable : MonoBehaviour
     //         DestroyUnlinked();
     // }
 
-    public void Unlink() { /* dead feature — no-op */ }
+    public void Unlink() { /* dead feature – no-op */ }
     // {
     //     if (!IsLinked) return;
     //     IsLinked = false;
@@ -73,14 +73,14 @@ public class SpatialPanelDetachable : MonoBehaviour
     //     _bus?.Publish(new PanelDetachedEvent { EntryId = EntryId });
     // }
 
-    public void LinkBack() { /* dead feature — no-op */ }
+    public void LinkBack() { /* dead feature – no-op */ }
     // {
     //     _closedPublished = true;
     //     _bus?.Publish(new PanelLinkedEvent { EntryId = EntryId });
     //     Destroy(gameObject);
     // }
 
-    public void MoveDelta(Vector3 delta) { /* dead feature — no-op */ }
+    public void MoveDelta(Vector3 delta) { /* dead feature – no-op */ }
     // {
     //     if (!_locked)
     //         transform.position += delta;

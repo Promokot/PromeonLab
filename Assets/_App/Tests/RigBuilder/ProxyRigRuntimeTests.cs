@@ -22,7 +22,7 @@ public class ProxyRigRuntimeTests
         var p1 = MakeProxy(proxyRoot.transform);
         var p2 = MakeProxy(proxyRoot.transform);
 
-        // A selector collider (whole-rig box) — must be OFF in bone mode, ON outside it.
+        // A selector collider (whole-rig box) – must be OFF in bone mode, ON outside it.
         var selectorGo  = new GameObject("selector");
         var selectorCol = selectorGo.AddComponent<BoxCollider>();
 

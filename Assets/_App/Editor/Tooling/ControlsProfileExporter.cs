@@ -22,10 +22,10 @@ public static class ControlsProfileExporter
         }
 
         var sb = new StringBuilder();
-        sb.AppendLine("# Controls — Bindings Map");
+        sb.AppendLine("# Controls – Bindings Map");
         sb.AppendLine();
         sb.AppendLine($"_Generated from `{ProfilePath}` (schemaVersion {profile.SchemaVersion}). " +
-                      "Do not edit by hand — edit the ControlsProfile asset and re-run " +
+                      "Do not edit by hand – edit the ControlsProfile asset and re-run " +
                       "`Tools/Promeon/Export Controls Doc`._");
         sb.AppendLine();
 

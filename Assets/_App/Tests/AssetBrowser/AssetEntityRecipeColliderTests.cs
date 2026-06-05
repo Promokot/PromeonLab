@@ -6,7 +6,7 @@ public class AssetEntityRecipeColliderTests
     [Test]
     public void ColliderKind_HasConvexMeshAndBoneBoxes()
     {
-        // Serialized as ints in recipes — these values are an append-only contract.
+        // Serialized as ints in recipes – these values are an append-only contract.
         Assert.AreEqual(1, (int)ColliderKind.Box);
         Assert.AreEqual(2, (int)ColliderKind.ConvexMesh);
         Assert.AreEqual(3, (int)ColliderKind.BoneBoxes);
