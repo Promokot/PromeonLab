@@ -1,4 +1,6 @@
 ---
+aliases:
+  - PanelType
 note_type: script
 subsystem: SpatialUi
 listings: [Л3.20, БЛ5]

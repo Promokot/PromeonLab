@@ -1,4 +1,6 @@
 ---
+aliases:
+  - NavBarConfig
 note_type: script
 subsystem: SpatialUi
 listings: [Л3.21, БЛ6]
