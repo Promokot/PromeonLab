@@ -1,0 +1,52 @@
+<svg viewBox="0 0 1280 430" xmlns="http://www.w3.org/2000/svg" role="img" font-family="'Helvetica Neue',Arial,sans-serif">
+  <title>Разделение обработчиков ассетов по трём типам объектов</title>
+  <desc>AssetSpawner через AssetEntityBuilderRegistry направляет восстановление к одному из трёх обработчиков — Object, Rig, Reference — каждый строит свой тип объекта.</desc>
+  <defs>
+    <marker id="a2" markerWidth="11" markerHeight="11" refX="8.5" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 Z" fill="#006A81"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1280" height="430" fill="#ffffff"/>
+
+  <text x="60" y="150" font-size="14" fill="#52617a">событие AssetSpawnRequested</text>
+  <rect x="60" y="160" width="230" height="100" rx="14" fill="#EEF3FB" stroke="#355CA8" stroke-width="1.6"/>
+  <text x="175" y="205" text-anchor="middle" font-size="20" font-weight="700" fill="#355CA8">AssetSpawner</text>
+  <text x="175" y="232" text-anchor="middle" font-size="15" fill="#52617a">точка входа спавна</text>
+
+  <line x1="290" y1="210" x2="340" y2="210" stroke="#006A81" stroke-width="2.5" marker-end="url(#a2)"/>
+  <rect x="340" y="150" width="270" height="120" rx="14" fill="#EAF4F6" stroke="#006A81" stroke-width="2.6"/>
+  <text x="475" y="195" text-anchor="middle" font-size="19" font-weight="700" fill="#355CA8">AssetEntityBuilder</text>
+  <text x="475" y="219" text-anchor="middle" font-size="19" font-weight="700" fill="#355CA8">Registry</text>
+  <text x="475" y="246" text-anchor="middle" font-size="15" fill="#006A81">build-once / restore-many</text>
+
+  <g stroke="#006A81" stroke-width="2.5" fill="none" marker-end="url(#a2)">
+    <path d="M610,180 C660,150 660,80 700,80"/>
+    <line x1="610" y1="210" x2="700" y2="210"/>
+    <path d="M610,240 C660,270 660,340 700,340"/>
+  </g>
+
+  <rect x="700" y="48" width="226" height="64" rx="12" fill="#ffffff" stroke="#006A81" stroke-width="1.6"/>
+  <text x="813" y="78" text-anchor="middle" font-size="18" font-weight="700" fill="#355CA8">ObjectBuilder</text>
+  <text x="813" y="99" text-anchor="middle" font-size="13" fill="#52617a">Box-коллайдер</text>
+  <line x1="926" y1="80" x2="966" y2="80" stroke="#006A81" stroke-width="2.5" marker-end="url(#a2)"/>
+  <rect x="966" y="48" width="270" height="64" rx="12" fill="#F4FAFB" stroke="#94CCD9" stroke-width="1.6"/>
+  <text x="985" y="74" font-size="18" font-weight="700" fill="#006A81">Объект</text>
+  <text x="985" y="96" font-size="13" fill="#52617a">статическая модель</text>
+
+  <rect x="700" y="178" width="226" height="64" rx="12" fill="#ffffff" stroke="#006A81" stroke-width="1.6"/>
+  <text x="813" y="208" text-anchor="middle" font-size="18" font-weight="700" fill="#355CA8">RigBuilder</text>
+  <text x="813" y="229" text-anchor="middle" font-size="13" fill="#52617a">BoneBoxes · BoneFollower</text>
+  <line x1="926" y1="210" x2="966" y2="210" stroke="#006A81" stroke-width="2.5" marker-end="url(#a2)"/>
+  <rect x="966" y="178" width="270" height="64" rx="12" fill="#F4FAFB" stroke="#94CCD9" stroke-width="1.6"/>
+  <text x="985" y="204" font-size="18" font-weight="700" fill="#006A81">Риг</text>
+  <text x="985" y="226" font-size="13" fill="#52617a">скелет + прокси-кости</text>
+
+  <rect x="700" y="308" width="226" height="64" rx="12" fill="#ffffff" stroke="#006A81" stroke-width="1.6"/>
+  <text x="813" y="338" text-anchor="middle" font-size="18" font-weight="700" fill="#355CA8">ReferenceBuilder</text>
+  <text x="813" y="359" text-anchor="middle" font-size="13" fill="#52617a">плоскость-подложка</text>
+  <line x1="926" y1="340" x2="966" y2="340" stroke="#006A81" stroke-width="2.5" marker-end="url(#a2)"/>
+  <rect x="966" y="308" width="270" height="64" rx="12" fill="#F4FAFB" stroke="#94CCD9" stroke-width="1.6"/>
+  <text x="985" y="334" font-size="18" font-weight="700" fill="#006A81">Референс</text>
+  <text x="985" y="356" font-size="13" fill="#52617a">изображение-образец</text>
+
+  <rect x="700" y="392" width="536" height="30" rx="8" fill="#355CA8"/>
+  <text x="968" y="412" text-anchor="middle" font-size="14" font-weight="600" fill="#ffffff">общий слой: InteractionCapability.Apply — выбор и взаимодействие</text>
+</svg>

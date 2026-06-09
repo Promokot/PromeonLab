@@ -1,0 +1,11 @@
+Documents/PromeonLab/
+└── Робот — ходьба.zip
+    ├── scene.json            плоская внешняя схема (SceneBundle v1), односторонняя
+    ├── models/
+    │   ├── glb_2b9f54c1.glb  ящик (Imported · Object)
+    │   └── rig_d18a07f3.glb  робот (Imported · Rig)
+    └── textures/
+        └── img_7c4e10ab.png  референс-концепт (Imported · Reference)
+
+Встроенные ассеты (пол) исходного файла не имеют → флаг geometryMissing, в models/ не попадают.
+Дубликаты источников дедуплицируются по имени файла.

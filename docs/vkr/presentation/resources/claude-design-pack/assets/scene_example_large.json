@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 3,
+  "sceneId": "a3f9c1d2",
+  "displayName": "Робот — ходьба",
+  "createdAt": "2026-06-09T14:21:08Z",
+  "nodes": [
+    {
+      "nodeId": "n_floor",
+      "assetRef": { "source": "Builtin", "assetId": "builtin.plane.grid" },
+      "displayName": "Пол",
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0, 1.0],
+      "scale": [4.0, 1.0, 4.0],
+      "parentNodeId": "",
+      "bonePoses": []
+    },
+    {
+      "nodeId": "n_ref_concept",
+      "assetRef": { "source": "Imported", "assetId": "img_7c4e10ab" },
+      "displayName": "Референс — концепт",
+      "position": [-1.85, 1.30, 0.40],
+      "rotation": [0.0, 0.0, 0.0, 1.0],
+      "scale": [1.0, 1.0, 1.0],
+      "parentNodeId": "",
+      "bonePoses": []
+    },
+    {
+      "nodeId": "n_crate",
+      "assetRef": { "source": "Imported", "assetId": "glb_2b9f54c1" },
+      "displayName": "Ящик",
+      "position": [0.92, 0.25, -0.30],
+      "rotation": [0.0, 0.3826834, 0.0, 0.9238795],
+      "scale": [1.0, 1.0, 1.0],
+      "parentNodeId": "",
+      "bonePoses": []
+    },
+    {
+      "nodeId": "n_robot",
+      "assetRef": { "source": "Imported", "assetId": "rig_d18a07f3" },
+      "displayName": "Робот",
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0, 1.0],
+      "scale": [1.0, 1.0, 1.0],
+      "parentNodeId": "",
+      "bonePoses": [
+        {
+          "boneName": "Root",
+          "localPosition": [0.0, 0.92, 0.0],
+          "localRotation": [0.0, 0.0, 0.0, 1.0],
+          "localScale": [1.0, 1.0, 1.0]
+        },
+        {
+          "boneName": "Spine",
+          "localPosition": [0.0, 0.18, 0.0],
+          "localRotation": [0.0436194, 0.0, 0.0, 0.9990482],
+          "localScale": [1.0, 1.0, 1.0]
+        },
+        {
+          "boneName": "Head",
+          "localPosition": [0.0, 0.46, 0.02],
+          "localRotation": [-0.0871557, 0.0, 0.0, 0.9961947],
+          "localScale": [1.0, 1.0, 1.0]
+        },
+        {
+          "boneName": "Arm.L",
+          "localPosition": [0.21, 0.30, 0.0],
+          "localRotation": [0.0, 0.0, 0.7071068, 0.7071068],
+          "localScale": [1.0, 1.0, 1.0]
+        },
+        {
+          "boneName": "Arm.R",
+          "localPosition": [-0.21, 0.30, 0.0],
+          "localRotation": [0.0, 0.0, -0.7071068, 0.7071068],
+          "localScale": [1.0, 1.0, 1.0]
+        },
+        {
+          "boneName": "Leg.L",
+          "localPosition": [0.11, -0.04, 0.05],
+          "localRotation": [0.2588190, 0.0, 0.0, 0.9659258],
+          "localScale": [1.0, 1.0, 1.0]
+        },
+        {
+          "boneName": "Leg.R",
+          "localPosition": [-0.11, -0.04, -0.05],
+          "localRotation": [-0.2588190, 0.0, 0.0, 0.9659258],
+          "localScale": [1.0, 1.0, 1.0]
+        }
+      ]
+    }
+  ]
+}

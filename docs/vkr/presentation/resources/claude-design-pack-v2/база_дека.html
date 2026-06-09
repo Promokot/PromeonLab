@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PromeonLab — ВКР · защита</title>
+<style>
+  deck-stage:not(:defined){ visibility:hidden; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  :root{
+    /* palette — РТУ МИРЭА / ИКБ */
+    --blue:#355CA8; --teal:#006A81; --blue2:#3772B3; --teal2:#5FC1CF; --teal3:#94CCD9;
+    --gray:#E6E6E6; --paper:#ffffff;
+    --ink:#22324f;            /* dark navy body text, not pure black */
+    --ink-soft:#52617a;
+    --card-line:rgba(0,106,129,.34);
+    --grad:linear-gradient(120deg,#355CA8 0%,#3772B3 52%,#5FC1CF 100%);
+    /* type scale (1920x1080) */
+    --type-title:54px; --type-subtitle:28px; --type-body:27px; --type-card:27px;
+    --type-small:24px; --type-num:118px;
+    /* spacing */
+    --pad-x:92px; --pad-top:70px; --pad-bottom:58px; --gap:30px;
+    --font:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+  html,body{ height:100%; background:#0e1726; }
+  body{ font-family:var(--font); color:var(--ink); -webkit-font-smoothing:antialiased; }
+
+  /* ---- slide frame ---- */
+  .s{ position:absolute; inset:0; background:var(--paper); overflow:hidden;
+      padding:var(--pad-top) var(--pad-x) var(--pad-bottom); }
+  .s.flush{ padding:0; }
+
+  /* ---- brand logo lockup ---- */
+  .logo{ display:flex; align-items:center; gap:14px; }
+  .logo .ring{ flex:none; }
+  .logo .wm{ display:flex; flex-direction:column; line-height:1; }
+  .logo .wm b{ font-size:21px; font-weight:700; letter-spacing:.04em; color:var(--blue); }
+  .logo .wm s{ font-size:11px; font-weight:600; letter-spacing:.34em; color:var(--teal);
+               text-decoration:none; margin-top:4px; }
+  .logo.big .wm b{ font-size:34px; } .logo.big .wm s{ font-size:15px; letter-spacing:.36em; }
+  .logo-tr{ position:absolute; top:var(--pad-top); right:var(--pad-x); }
+
+  /* ---- content header ---- */
+  .head{ margin-bottom:34px; max-width:1500px; }
+  .title{ font-size:var(--type-title); font-weight:700; color:var(--blue);
+          line-height:1.08; letter-spacing:-.005em; text-wrap:balance; }
+  .subtitle{ font-size:var(--type-subtitle); font-weight:500; color:var(--teal);
+             margin-top:14px; }
+  .pageno{ position:absolute; right:var(--pad-x); bottom:34px; font-size:24px;
+           font-weight:600; color:var(--teal3); }
+  .accentbar{ position:absolute; left:0; top:0; width:14px; height:100%; background:var(--grad); }
+
+  /* ---- cards ---- */
+  .card{ border:1.5px solid var(--card-line); border-radius:16px; background:#fff;
+         padding:26px 30px; }
+  .card .k{ font-size:var(--type-small); font-weight:700; color:var(--teal);
+            letter-spacing:.01em; margin-bottom:10px; display:block; }
+  .card p{ font-size:var(--type-card); line-height:1.34; color:var(--ink); }
+  .tealword{ color:var(--teal); font-weight:700; }
+  .blueword{ color:var(--blue); font-weight:700; }
+
+  /* ---- image frame ---- */
+  .frame{ border:1.5px solid var(--card-line); border-radius:16px; background:#fff;
+          display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .frame img{ width:100%; height:100%; object-fit:contain; }
+  .frame.fill img{ object-fit:cover; }
+  .photoframe{ border-radius:16px; overflow:hidden; background:var(--gray);
+               display:flex; align-items:center; justify-content:center; }
+
+  /* ---- placeholder ---- */
+  .ph{ border:2px dashed var(--teal2); border-radius:16px; background:rgba(149,204,217,.10);
+       display:flex; flex-direction:column; align-items:center; justify-content:center;
+       gap:12px; text-align:center; padding:24px; }
+  .ph .mono{ font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace; font-size:21px;
+             color:var(--teal); letter-spacing:.01em; }
+  .ph .tag{ font-size:18px; color:var(--ink-soft); letter-spacing:.18em; text-transform:uppercase; }
+
+  /* ---- spheres ---- */
+  .sphere{ position:absolute; border-radius:50%;
+           background:radial-gradient(circle at 34% 30%,#9fd6df 0%,#5FC1CF 30%,#3772B3 66%,#355CA8 100%); }
+
+  /* ---- title slide ---- */
+  .meta b{ display:block; font-size:26px; font-weight:700; color:var(--ink); line-height:1.2; }
+  .meta span{ display:block; font-size:24px; font-weight:500; color:var(--ink-soft);
+              line-height:1.5; margin-top:5px; }
+  .vkr-tag{ font-size:24px; font-weight:600; color:var(--teal); letter-spacing:.02em; }
+  .vkr-title{ font-size:52px; font-weight:700; color:var(--blue); line-height:1.12;
+              letter-spacing:-.01em; margin-top:14px; max-width:1080px; text-wrap:balance; }
+  .author b{ font-size:24px; font-weight:700; color:var(--ink); }
+  .author span{ font-size:24px; color:var(--ink-soft); }
+  .slogan{ font-size:24px; font-weight:600; letter-spacing:.42em; color:var(--teal3);
+           text-transform:uppercase; }
+
+  /* ---- template-faithful title (slideLayout15) ---- */
+  .tpl-title{ overflow:hidden; background:#fff; }
+  .decor{ position:absolute; z-index:0; pointer-events:none; }
+  .decor.ring{ border-radius:50%; border:2px solid #BABDBF; opacity:.5; }
+  .tpl-title .fg{ position:absolute; z-index:3; }
+  .t-inst{ font-size:30px; font-weight:700; color:#006D81; line-height:1.26; }
+  .t-dept{ font-size:24px; font-weight:700; color:#006D81; line-height:1.32; }
+  .t-vkrtag{ font-size:26px; font-weight:700; color:#006D81; margin-bottom:14px; }
+  .t-theme{ font-size:46px; font-weight:700; color:#355CA8; line-height:1.14; letter-spacing:-.01em; }
+  .t-auth{ font-size:28px; color:#22324f; line-height:1.3; }
+  .t-auth b{ color:#006D81; font-weight:700; }
+  .t-slogan{ font-size:30px; font-weight:600; letter-spacing:.34em; color:#8291A2; text-transform:uppercase; white-space:nowrap; }
+
+  /* ---- thematic background sphere (brand) ---- */
+  .bgsphere{ position:absolute; z-index:0; pointer-events:none; }
+  .s.deco > div:not(.pageno){ position:relative; z-index:1; }
+
+  /* ---- generic helpers ---- */
+  .grid{ display:grid; gap:var(--gap); }
+  .flexcol{ display:flex; flex-direction:column; }
+  ol.tasks{ list-style:none; counter-reset:t; display:flex; flex-direction:column; gap:15px; }
+  ol.tasks li{ counter-increment:t; position:relative; padding-left:54px;
+               font-size:var(--type-body); line-height:1.3; color:var(--ink); }
+  ol.tasks li::before{ content:counter(t); position:absolute; left:0; top:-2px; width:38px; height:38px;
+       border-radius:50%; background:var(--blue); color:#fff; font-size:21px; font-weight:700;
+       display:flex; align-items:center; justify-content:center; }
+
+  /* ---- comparison table ---- */
+  table.cmp{ width:100%; border-collapse:separate; border-spacing:0; font-size:var(--type-small);
+             border-radius:14px; overflow:hidden; border:1.5px solid var(--card-line); }
+  table.cmp th,table.cmp td{ padding:15px 18px; text-align:left; line-height:1.2; }
+  table.cmp thead th{ background:var(--blue); color:#fff; font-weight:700; font-size:25px; }
+  table.cmp thead th:first-child{ background:var(--teal); }
+  table.cmp tbody th{ background:rgba(53,92,168,.08); color:var(--ink); font-weight:700; width:30%; }
+  table.cmp tbody td{ color:var(--ink); font-weight:500; }
+  table.cmp tbody tr:nth-child(even) th{ background:rgba(53,92,168,.13); }
+  table.cmp tbody tr:nth-child(even) td{ background:rgba(149,204,217,.10); }
+  table.cmp tbody tr+tr th,table.cmp tbody tr+tr td{ border-top:1px solid rgba(0,106,129,.14); }
+  .yes{ color:var(--teal); font-weight:700; } .no{ color:#b0563b; font-weight:600; }
+  .part{ color:var(--blue2); font-weight:600; }
+  table.cmp tbody tr.imp th{ background:rgba(0,106,129,.16)!important; color:var(--teal); }
+  table.cmp tbody tr.imp td{ background:rgba(0,106,129,.06)!important; }
+  .slots{ display:flex; flex-direction:column; gap:14px; }
+  .slot16{ position:relative; width:100%; aspect-ratio:16/9; border:2px dashed var(--teal2);
+           border-radius:14px; background:rgba(149,204,217,.10); display:flex;
+           align-items:center; justify-content:center; }
+  .slot16 .lbl{ position:absolute; top:11px; left:15px; font-size:24px; font-weight:700; color:var(--blue); }
+  .slot16 .hint{ font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace; font-size:20px;
+                 color:var(--teal); letter-spacing:.04em; }
+  img.logo-tr{ height:72px; width:auto; }
+
+  .verdict{ background:var(--grad); color:#fff; border-radius:16px; padding:24px 32px;
+            font-size:25px; line-height:1.32; font-weight:500; }
+  .verdict b{ font-weight:700; }
+
+  /* pipeline */
+  .pipe{ display:flex; align-items:stretch; gap:0; }
+  .pipe .step{ flex:1; border:1.5px solid var(--teal); border-radius:14px; background:#fff;
+       padding:22px 16px 20px; text-align:center; display:flex; flex-direction:column; gap:8px; }
+  .pipe .step .n{ width:42px; height:42px; margin:0 auto; border-radius:50%; background:var(--teal);
+       color:#fff; font-size:22px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .pipe .step b{ font-size:24px; color:var(--blue); font-weight:700; }
+  .pipe .arrow{ flex:none; width:42px; display:flex; align-items:center; justify-content:center;
+       color:var(--teal); font-size:30px; font-weight:700; }
+
+  /* roadmap / checklist cards */
+  .road{ display:grid; grid-template-columns:repeat(5,1fr); gap:24px; }
+  .road .item{ border:1.5px solid var(--card-line); border-radius:18px; padding:34px 30px;
+       min-height:340px; display:flex; flex-direction:column; gap:26px; background:#fff; }
+  .road .item .n{ width:60px; height:60px; border-radius:16px; background:rgba(0,106,129,.10);
+       border:1.5px solid var(--teal); color:var(--teal); font-size:30px; font-weight:700;
+       display:flex; align-items:center; justify-content:center; }
+  .road .item b{ font-size:28px; color:var(--blue); font-weight:700; line-height:1.2; }
+
+  ul.dash{ list-style:none; display:flex; flex-direction:column; gap:16px; }
+  ul.dash li{ position:relative; padding-left:34px; font-size:var(--type-body); line-height:1.32;
+       color:var(--ink); }
+  ul.dash li::before{ content:""; position:absolute; left:0; top:13px; width:16px; height:16px;
+       border-radius:4px; background:var(--teal); }
+
+  .check li::before{ content:"✓"; background:none; color:var(--teal); font-size:28px; font-weight:800;
+       top:-2px; width:auto; height:auto; border-radius:0; }
+  .check li{ padding-left:42px; }
+
+  /* entrance */
+  @media (prefers-reduced-motion:no-preference){
+    [data-deck-active] .anim{ animation:rise .5s cubic-bezier(.2,.7,.3,1) both; }
+    [data-deck-active] .anim:nth-child(2){ animation-delay:.05s; }
+    [data-deck-active] .anim:nth-child(3){ animation-delay:.1s; }
+    [data-deck-active] .anim:nth-child(4){ animation-delay:.15s; }
+    [data-deck-active] .anim:nth-child(5){ animation-delay:.2s; }
+  }
+  @keyframes rise{ from{ transform:translateY(16px); } to{ transform:none; } }
+</style>
+</head>
+<body>
+
+<!-- global brand gradient def for logo rings -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5FC1CF"/><stop offset="1" stop-color="#355CA8"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<deck-stage width="1920" height="1080">
+
+  <!-- ============ SLIDE 1 — TITLE ============ -->
+  <section data-label="Титул">
+    <div class="s flush tpl-title" data-screen-label="01 Титул">
+      <!-- brand decor (template slideLayout15) -->
+      <img class="decor" src="images/tpl_sphere.png" alt="" style="left:1339px;top:529px;width:765px;height:765px;transform:rotate(180deg);">
+      <img class="decor" src="images/tpl_sphere.png" alt="" style="left:165px;top:128px;width:647px;height:647px;transform:rotate(130.3deg);opacity:.85;">
+      <img class="decor" src="images/tpl_strip.png" alt="" style="left:-484px;top:482px;width:1080px;height:117px;transform:rotate(270deg);opacity:.65;">
+      <div class="decor ring" style="left:1023px;top:454px;width:1056px;height:1056px;"></div>
+
+      <!-- logo top-right -->
+      <img class="fg" src="images/mirea_logo_blue.png" alt="РТУ МИРЭА" style="left:1515px;top:84px;width:318px;">
+
+      <!-- top-left institute -->
+      <div class="fg" style="left:378px;top:58px;width:560px;">
+        <div class="t-inst">Институт кибербезопасности и цифровых технологий</div>
+      </div>
+      <!-- кафедра / направление / профиль -->
+      <div class="fg" style="left:381px;top:168px;width:940px;">
+        <div class="t-dept">Кафедра «Предметно-ориентированные информационные системы»</div>
+        <div class="t-dept" style="margin-top:14px;">Направление подготовки 09.03.02 Информационные системы и технологии</div>
+        <div class="t-dept">Профиль «Технологии визуального программирования»</div>
+      </div>
+
+      <!-- ВКР на тему + тема -->
+      <div class="fg" style="left:381px;top:340px;width:1135px;">
+        <div class="t-vkrtag">ВКР на тему:</div>
+        <h1 class="t-theme">Разработка приложения для создания объектной и скелетной анимации трёхмерных моделей с применением технологий VR</h1>
+      </div>
+
+      <!-- автор / руководитель -->
+      <div class="fg" style="left:381px;top:610px;width:1000px;">
+        <div class="t-auth"><b>Выполнил:</b> Пищагин М. А., группа КБ-9</div>
+        <div class="t-auth" style="margin-top:8px;"><b>Руководитель ВКР:</b> Антонова Ирина Игоревна, к.т.н., доцент</div>
+      </div>
+
+      <!-- слоган -->
+      <div class="fg t-slogan" style="left:378px;top:915px;">ВМЕСТЕ СОЗДАЁМ БУДУЩЕЕ</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 2 — ВВЕДЕНИЕ ============ -->
+  <section data-label="Введение">
+    <div class="s deco" data-screen-label="02 Введение">
+      <img class="bgsphere" src="images/tpl_sphere.png" alt="" style="right:-240px;bottom:-220px;width:540px;height:540px;transform:rotate(160deg);opacity:.5;">
+      <img class="logo-tr" src="images/mirea_logo_blue.png" alt="РТУ МИРЭА">
+      <div class="head">
+        <h2 class="title">1. Введение</h2>
+        <p class="subtitle">Цель, задачи, актуальность, новизна и практическая значимость</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:54px;align-items:stretch;">
+        <!-- left: 4 cards 2x2 -->
+        <div class="grid anim" style="grid-template-columns:1fr 1fr;gap:26px;grid-auto-rows:minmax(225px,1fr);">
+          <div class="card" style="display:flex;flex-direction:column;"><span class="k">Цель</span><p>Разработать приложение для <b class="tealword">объектной</b> и <b class="tealword">скелетной</b> анимации 3D-моделей средствами VR.</p></div>
+          <div class="card" style="display:flex;flex-direction:column;"><span class="k">Актуальность</span><p>Настольные редакторы требуют переключения режимов; VR переносит работу в объёмную сцену с естественным взаимодействием.</p></div>
+          <div class="card" style="display:flex;flex-direction:column;"><span class="k">Новизна</span><p>Объединение объектной и скелетной анимации в единой иммерсивной среде с импортом своих моделей.</p></div>
+          <div class="card" style="display:flex;flex-direction:column;"><span class="k">Практическая значимость</span><p>Один инструмент на весь цикл: импорт, сцена, анимация, экспорт.</p></div>
+        </div>
+        <!-- right: tasks -->
+        <div class="anim flexcol" style="height:100%;">
+          <div class="k" style="font-size:25px;font-weight:700;color:var(--teal);margin-bottom:30px;">Задачи работы</div>
+          <ol class="tasks" style="flex:1;justify-content:space-between;gap:20px;">
+            <li>Анализ существующих решений.</li>
+            <li>Исследование VR-технологий и подходов к анимации.</li>
+            <li>Проектирование архитектуры приложения.</li>
+            <li>Реализация объектной и скелетной анимации.</li>
+            <li>Импорт моделей и экспорт данных сцены.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="pageno">02</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 3 — АНАЛИЗ ============ -->
+  <section data-label="Анализ решений">
+    <div class="s" data-screen-label="03 Анализ решений">
+      <img class="logo-tr" src="images/mirea_logo_blue.png" alt="РТУ МИРЭА">
+      <div class="head">
+        <h2 class="title">2.1 Аналитический раздел</h2>
+        <p class="subtitle">1. Анализ существующих VR-решений для анимации</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 360px;gap:40px;align-items:start;">
+        <div class="anim">
+          <table class="cmp">
+            <thead><tr><th>Критерий</th><th>Quill</th><th>Tvori</th><th>AnimVR</th></tr></thead>
+            <tbody>
+              <tr><th>Автономность (без ПК)</th><td><span class="part">частично</span></td><td><span class="yes">да</span></td><td><span class="no">нет</span></td></tr>
+              <tr><th>Таймлайн + ключевые кадры</th><td><span class="yes">да</span></td><td><span class="yes">да</span></td><td><span class="yes">да</span></td></tr>
+              <tr><th>Объектная анимация</th><td><span class="yes">да</span></td><td><span class="yes">да</span></td><td><span class="part">покадрово</span></td></tr>
+              <tr><th>Скелетная анимация / риг</th><td><span class="no">нет</span></td><td><span class="part">частично (IK)</span></td><td><span class="no">нет</span></td></tr>
+              <tr class="imp"><th>Импорт своих 3D-моделей</th><td><span class="part">ограничен</span></td><td><span class="no">нет</span></td><td><span class="part">ограничен</span></td></tr>
+              <tr class="imp"><th>Импорт рига / скелета</th><td><span class="no">нет</span></td><td><span class="no">нет</span></td><td><span class="no">нет</span></td></tr>
+              <tr class="imp"><th>Поддержка формата glTF</th><td><span class="no">нет</span></td><td><span class="no">нет</span></td><td><span class="no">нет</span></td></tr>
+              <tr><th>Экспорт</th><td>USD, FBX</td><td>видео, media</td><td>FBX, Alembic</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="slots anim">
+          <div class="slot16"><span class="lbl">Quill</span><span class="hint">16:9 · скриншот</span></div>
+          <div class="slot16"><span class="lbl">Tvori</span><span class="hint">16:9 · скриншот</span></div>
+          <div class="slot16"><span class="lbl">AnimVR</span><span class="hint">16:9 · скриншот</span></div>
+        </div>
+      </div>
+      <div class="verdict anim" style="margin-top:30px;">Ни одно решение не импортирует <b>свои модели с готовым ригом</b>: возможности импорта ограничены, поддержки glTF нет. Ниша полноценной <b>объектной и скелетной</b> анимации в единой VR-среде остаётся незакрытой.</div>
+      <div class="pageno">03</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 4 — МЕТОДЫ И СТЕК ============ -->
+  <section data-label="Методы и стек">
+    <div class="s deco" data-screen-label="04 Методы и стек">
+      <img class="bgsphere" src="images/tpl_sphere.png" alt="" style="left:-200px;bottom:-220px;width:500px;height:500px;transform:rotate(40deg);opacity:.42;">
+      <img class="logo-tr" src="images/mirea_logo_blue.png" alt="РТУ МИРЭА">
+      <div class="head">
+        <h2 class="title">2.2 Аналитический раздел</h2>
+        <p class="subtitle">2. Исследование VR-подходов и выбор технологического стека</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:start;">
+        <div class="anim">
+          <ul class="dash">
+            <li>Таймлайн в VR адаптируется под <b class="tealword">пространственные жесты</b>, а не точность курсора.</li>
+            <li><b class="tealword">Объектная анимация</b> — захват объекта и запись ключей относительно сцены.</li>
+            <li>Риг готовится во внешнем редакторе; VR берёт на себя позинг и запись ключей.</li>
+            <li>Интерполяция: <b class="tealword">линейная + ступенчатая</b> (сплайн — на постобработку).</li>
+          </ul>
+        </div>
+        <div class="anim">
+          <div class="k" style="font-size:25px;font-weight:700;color:var(--teal);margin-bottom:20px;">Выбранный стек</div>
+          <div class="grid" style="grid-template-columns:1fr 1fr;gap:20px;">
+            <div class="ph" style="height:150px;"><div class="mono">Unity + C#</div></div>
+            <div class="ph" style="height:150px;"><div class="mono">OpenXR</div></div>
+            <div class="ph" style="height:150px;"><div class="mono">glTF</div></div>
+            <div class="ph" style="height:150px;"><div class="mono">Blender</div></div>
+          </div>
+          <p style="font-size:22px;color:var(--ink-soft);margin-top:18px;letter-spacing:.04em;">Плейсхолдер — логотипы стека вставит автор</p>
+        </div>
+      </div>
+      <div class="pageno">04</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 5 — ПОСТАНОВКА ЗАДАЧИ ============ -->
+  <section data-label="Постановка задачи">
+    <div class="s deco" data-screen-label="05 Постановка задачи">
+      <img class="bgsphere" src="images/tpl_sphere.png" alt="" style="right:-220px;bottom:-240px;width:560px;height:560px;transform:rotate(190deg);opacity:.42;">
+      <img class="logo-tr" src="images/mirea_logo_blue.png" alt="РТУ МИРЭА">
+      <div class="head">
+        <h2 class="title">3. Постановка задачи на разработку</h2>
+        <p class="subtitle">Функциональные и нефункциональные требования, структура приложения</p>
+      </div>
+      <div class="pipe anim" style="margin-bottom:42px;">
+        <div class="step"><div class="n">1</div><b>Импорт</b><span style="font-size:24px;color:var(--ink-soft);">модели, текстуры</span></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="n">2</div><b>Сцена</b><span style="font-size:24px;color:var(--ink-soft);">размещение, иерархия</span></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="n">3</div><b>Скелет</b><span style="font-size:24px;color:var(--ink-soft);">кости, прокси-риг</span></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="n">4</div><b>Анимация</b><span style="font-size:24px;color:var(--ink-soft);">ключи, таймлайн</span></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="n">5</div><b>Экспорт</b><span style="font-size:24px;color:var(--ink-soft);">свой + 3D-форматы</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:40px;align-items:stretch;">
+        <div class="card anim" style="padding:30px 34px;">
+          <span class="k" style="font-size:25px;">Функциональные требования — 5 областей</span>
+          <ul class="dash" style="margin-top:8px;">
+            <li>Загрузка и категоризация 3D-данных.</li>
+            <li>Формирование и редактирование сцены.</li>
+            <li>Работа со скелетом и объектами.</li>
+            <li>Анимация по ключевым кадрам (таймлайн, интерполяция).</li>
+            <li>Экспорт: свой формат + стандартные 3D-форматы.</li>
+          </ul>
+        </div>
+        <div class="card anim" style="padding:30px 34px;background:rgba(53,92,168,.05);">
+          <span class="k" style="font-size:25px;">Нефункциональные требования</span>
+          <ul class="dash" style="margin-top:8px;">
+            <li>Автономная работа на <b class="tealword">Meta Quest</b> без ПК.</li>
+            <li>Кроссплатформенность через <b class="tealword">OpenXR</b>.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="pageno">05</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 6 — ФУНКЦИОНАЛЬНАЯ СХЕМА ============ -->
+  <section data-label="Функциональная схема">
+    <div class="s" data-screen-label="06 Функциональная схема">
+      <img class="logo-tr" src="images/mirea_logo_blue.png" alt="РТУ МИРЭА">
+      <div class="head">
+        <h2 class="title">4. Функциональная схема</h2>
+        <p class="subtitle">Общая архитектура — направленный конвейер из пяти подсистем</p>
+      </div>
+      <div class="frame anim" style="height:400px;margin-bottom:34px;padding:16px 28px;">
+        <img src="images/diagram6_functional.png" alt="Функциональная схема — конвейер подсистем">
+      </div>
+      <div class="grid anim" style="grid-template-columns:repeat(5,1fr);gap:22px;">
+        <div class="card" style="padding:20px 22px;"><span class="k">Файловые ресурсы</span><p style="font-size:24px;">Импорт и хранение моделей, текстур, ригов; библиотека ассетов.</p></div>
+        <div class="card" style="padding:20px 22px;"><span class="k">Формирование сцены</span><p style="font-size:24px;">Размещение и трансформация объектов, иерархия, сохранение.</p></div>
+        <div class="card" style="padding:20px 22px;"><span class="k">Скелет и ограничители</span><p style="font-size:24px;">Прокси-риг над скелетом, управление костями, IK-цепочки.</p></div>
+        <div class="card" style="padding:20px 22px;"><span class="k">Анимация</span><p style="font-size:24px;">Таймлайн, запись ключей, линейная/ступенчатая интерполяция.</p></div>
+        <div class="card" style="padding:20px 22px;"><span class="k">Экспорт</span><p style="font-size:24px;">Выгрузка сцены и анимации в самодостаточный ZIP-пакет.</p></div>
+      </div>
+      <div class="pageno">06</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 7 — АРХИТЕКТУРНЫЙ КАРКАС ============ -->
+  <section data-label="Архитектурный каркас">
+    <div class="s" data-screen-label="07 Архитектурный каркас">
+      <img class="logo-tr" src="images/mirea_logo_blue.png" alt="РТУ МИРЭА">
+      <div class="head">
+        <h2 class="title">5.1 Принципы работы</h2>
+        <p class="subtitle">Архитектурный каркас приложения</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1.7fr;gap:44px;align-items:center;">
+        <div class="flexcol anim" style="gap:24px;">
+          <div class="card"><span class="k">Событийная шина · EventBus</span><p>Подсистемы общаются <b class="tealword">только сообщениями</b> — слабая связанность.</p></div>
+          <div class="card"><span class="k">Области жизни на DI · VContainer</span><p>Иерархия <b class="blueword">Root → Scene</b>: общие сервисы и сервисы сцены.</p></div>
+          <div class="card"><span class="k">Оркестратор режимов</span><p>Безопасное переключение: <b class="blueword">MainMenu ↔ VrEditing ↔ Sandbox</b>.</p></div>
+        </div>
+        <div class="frame anim" style="height:680px;padding:24px;">
+          <img src="images/diagram7_framework.png" alt="Архитектурный каркас приложения">
+        </div>
+      </div>
+      <div class="pageno">07</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 8 — СТРУКТУРЫ ДАННЫХ ============ -->
+  <section data-label="Структуры данных">
+    <div class="s" data-screen-label="08 Структуры данных">
+      <img class="logo-tr" src="images/mirea_logo_blue.png" alt="РТУ МИРЭА">
+      <div class="head">
+        <h2 class="title">5.2 Принципы работы</h2>
+        <p class="subtitle">Структуры данных: сцена, анимация, ассеты</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1.45fr 1fr;gap:44px;align-items:stretch;">
+        <div class="frame anim" style="height:680px;padding:22px;">
+          <img src="images/fig_3.2_data_structures.png" alt="Связи структур данных приложения">
+        </div>
+        <div class="flexcol anim" style="gap:20px;justify-content:center;">
+          <div class="card"><span class="k">Сцена · scene.json (v3)</span><p style="font-size:24px;">SceneData → NodeData (<b class="tealword">AssetRef</b>, трансформации, ParentNodeId) → BonePoses.</p></div>
+          <div class="card"><span class="k">Анимация · animation.json (v2)</span><p style="font-size:24px;">ActionContainer → AnimTrackData → AnimKeyData (кадр + трансформации).</p></div>
+          <div class="card"><span class="k">Ассеты</span><p style="font-size:24px;">Builtin / Imported + рецепт восстановления и описание скелета <b class="tealword">RigDefinition</b>.</p></div>
+          <p style="font-size:23px;line-height:1.35;color:var(--ink-soft);padding-left:4px;">Узел сцены ссылается на ассет (AssetRef), а дорожка анимации — на узел или кость (NodeId).</p>
+        </div>
+      </div>
+      <div class="pageno">08</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 9 — ИНФОРМАЦИОННОЕ ОБЕСПЕЧЕНИЕ ============ -->
+  <section data-label="Информационное обеспечение">
+    <div class="s" data-screen-label="09 Информационное обеспечение">
+      <img class="logo-tr" src="images/mirea_logo_blue.png" alt="РТУ МИРЭА">
+      <div class="head">
+        <h2 class="title">5.3 Информационное обеспечение</h2>
+        <p class="subtitle">5. Организация хранения данных</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:44px;align-items:start;">
+        <div class="flexcol anim" style="gap:24px;">
+          <div class="frame" style="height:330px;padding:20px 26px;">
+            <img src="images/fig_3.1_storage_tree.png" alt="Дерево каталогов хранилища">
+          </div>
+          <ul class="dash">
+            <li>Локальное хранилище; пути — только через <b class="tealword">PathProvider</b>.</li>
+            <li>Каталоги: <b class="blueword">asset-libraries/</b> (общие ассеты) и <b class="blueword">scenes/{id}/</b>.</li>
+            <li>Инлайн-миграция старых версий схем при десериализации.</li>
+            <li>Автосохранение: <b class="tealword">DirtyTracker → AutoSaver</b>, запись с дебаунсом.</li>
+          </ul>
+        </div>
+        <div class="frame anim" style="height:560px;padding:18px;">
+          <img src="images/fig_3.3_scene_json.png" alt="Пример scene.json">
+        </div>
+      </div>
+      <div class="pageno">09</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 10 — ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ============ -->
+  <section data-label="Программное обеспечение">
+    <div class="s" data-screen-label="10 Программное обеспечение">
+      <img class="logo-tr" src="images/mirea_logo_blue.png" alt="РТУ МИРЭА">
+      <div class="head">
+        <h2 class="title">5.4 Программное обеспечение</h2>
+        <p class="subtitle">4. Объектная и скелетная анимация — интерфейс пользователя</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:40px;align-items:start;">
+        <div class="anim" style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:20px;">
+          <div class="frame fill" style="grid-column:1 / span 2;height:360px;">
+            <img src="images/fig_3.11_model_proxy_bones.png" alt="Модель с прокси-костями">
+          </div>
+          <div class="frame fill" style="height:240px;"><img src="images/fig_3.14_animator_panel.png" alt="Панель аниматора"></div>
+          <div class="frame fill" style="height:240px;"><img src="images/fig_3.8_asset_browser.png" alt="Браузер ассетов"></div>
+        </div>
+        <div class="flexcol anim" style="gap:18px;justify-content:center;">
+          <ul class="dash">
+            <li>Пространственный интерфейс — <b class="tealword">регионная модель</b> панелей.</li>
+            <li>Импорт glTF / изображений; библиотека ассетов с миниатюрами.</li>
+            <li><b class="tealword">Прокси-риги</b> для выбора и позинга костей (BoneFollower).</li>
+            <li>Покадровая анимация: таймлайн, ключи, интерполяция, цикл.</li>
+            <li>Прямой ввод: <b class="blueword">tap</b> — выбор, <b class="blueword">hold</b> — поворот, <b class="blueword">grip</b> — перенос.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="pageno">10</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 11 — ТЕХНОЛОГИЧЕСКОЕ ОБЕСПЕЧЕНИЕ ============ -->
+  <section data-label="Технологическое обеспечение">
+    <div class="s deco" data-screen-label="11 Технологическое обеспечение">
+      <img class="bgsphere" src="images/tpl_sphere.png" alt="" style="left:-220px;bottom:-200px;width:520px;height:520px;transform:rotate(70deg);opacity:.4;">
+      <img class="logo-tr" src="images/mirea_logo_blue.png" alt="РТУ МИРЭА">
+      <div class="head">
+        <h2 class="title">5.5 Технологическое обеспечение</h2>
+        <p class="subtitle">Рабочая конфигурация и развёртывание</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;">
+        <div class="flexcol anim" style="gap:24px;">
+          <div class="card"><span class="k">Конфигурация</span><p>ПК для сборки + автономная гарнитура <b class="tealword">Meta Quest</b>.</p></div>
+          <div class="card"><span class="k">Стек</span><p><b class="blueword">Unity (URP)</b> + OpenXR + XR Interaction Toolkit; C#; Git / GitHub.</p></div>
+          <div class="card"><span class="k">Постобработка</span><p><b class="tealword">Blender</b> через Python API.</p></div>
+          <div class="verdict" style="font-size:24px;padding:20px 28px;">Работоспособность подтверждена на <b>Meta Quest 2, 3 и 3s</b>.</div>
+        </div>
+        <div class="anim">
+          <div class="grid" style="grid-template-columns:1fr 1fr;gap:22px;">
+            <div class="ph" style="height:170px;"><div class="mono">Unity URP</div></div>
+            <div class="ph" style="height:170px;"><div class="mono">OpenXR</div></div>
+            <div class="ph" style="height:170px;"><div class="mono">XR Toolkit</div></div>
+            <div class="ph" style="height:170px;"><div class="mono">Meta Quest</div></div>
+          </div>
+          <div class="ph" style="height:200px;margin-top:22px;"><div class="tag">Плейсхолдер</div><div class="mono">фото работы в гарнитуре</div></div>
+        </div>
+      </div>
+      <div class="pageno">11</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 12 — ДЕМОНСТРАЦИЯ ============ -->
+  <section data-label="Демонстрация">
+    <div class="s" data-screen-label="12 Демонстрация">
+      <img class="logo-tr" src="images/mirea_logo_blue.png" alt="РТУ МИРЭА">
+      <div class="head">
+        <h2 class="title">6. Демонстрация работы приложения</h2>
+        <p class="subtitle">Обзор основных функций · видео ≈ 2 мин</p>
+      </div>
+      <div class="ph anim" style="height:700px;gap:30px;">
+        <svg width="108" height="108" viewBox="0 0 108 108" aria-hidden="true"><circle cx="54" cy="54" r="52" fill="none" stroke="#5FC1CF" stroke-width="3"/><path d="M44 35 L77 54 L44 73 Z" fill="#006A81"/></svg>
+        <div class="mono" style="font-size:30px;letter-spacing:0;">Кадр видео на весь слайд</div>
+        <div class="tag" style="max-width:920px;line-height:1.8;">полный цикл: импорт → сцена → позинг → ключи → экспорт · видео вставит автор</div>
+      </div>
+      <div class="pageno">12</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 13 — ПЛАН РАЗВИТИЯ ============ -->
+  <section data-label="План развития">
+    <div class="s deco" data-screen-label="13 План развития">
+      <img class="bgsphere" src="images/tpl_sphere.png" alt="" style="right:-160px;bottom:-280px;width:640px;height:640px;transform:rotate(180deg);opacity:.55;">
+      <img class="logo-tr" src="images/mirea_logo_blue.png" alt="РТУ МИРЭА">
+      <div class="head">
+        <h2 class="title">План дальнейшего развития</h2>
+        <p class="subtitle">Направления развития проекта</p>
+      </div>
+      <div class="road anim" style="margin-top:130px;">
+        <div class="item"><div class="n">1</div><b>Экспорт в индустриальный формат FBX</b></div>
+        <div class="item"><div class="n">2</div><b>Нелинейная композиция действий (NLA)</b></div>
+        <div class="item"><div class="n">3</div><b>Ограничители инверсной кинематики (IK)</b></div>
+        <div class="item"><div class="n">4</div><b>Система отмены операций (undo)</b></div>
+        <div class="item"><div class="n">5</div><b>Автономная сборка прямо на гарнитуре</b></div>
+      </div>
+      <div class="pageno">13</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 14 — ЗАКЛЮЧЕНИЕ ============ -->
+  <section data-label="Заключение">
+    <div class="s flush" data-screen-label="14 Заключение">
+      <div class="accentbar"></div>
+      <img class="decor" src="images/tpl_sphere.png" alt="" style="left:1320px;top:560px;width:760px;height:760px;transform:rotate(200deg);">
+      <img class="decor" src="images/tpl_sphere.png" alt="" style="left:1170px;top:650px;width:300px;height:300px;transform:rotate(60deg);opacity:.82;">
+      <img class="logo-tr" src="images/mirea_logo_blue.png" alt="РТУ МИРЭА" style="top:64px;right:90px;height:96px;">
+
+      <div style="position:absolute;left:96px;top:74px;width:1000px;">
+        <h2 class="title" style="font-size:56px;">Заключение</h2>
+        <p class="subtitle">Цель достигнута, задачи выполнены</p>
+      </div>
+
+      <div style="position:absolute;left:96px;top:268px;max-width:1180px;">
+        <ul class="dash check anim">
+          <li>Разработано приложение <b class="blueword">PromeonLab</b> для объектной и скелетной анимации 3D-моделей в VR.</li>
+          <li>Решены все 5 задач: анализ → исследование → архитектура → анимация → импорт/экспорт.</li>
+          <li>Покрыт полный цикл: импорт → сцена → позинг → ключи → экспорт.</li>
+          <li>Работоспособность подтверждена на <b class="tealword">Meta Quest 2 / 3 / 3s</b>.</li>
+        </ul>
+      </div>
+
+      <div style="position:absolute;left:96px;bottom:104px;">
+        <div style="font-size:46px;font-weight:700;color:var(--blue);">Спасибо за внимание!</div>
+        <div style="font-size:25px;color:var(--ink-soft);margin-top:10px;">Готов ответить на вопросы комиссии.</div>
+      </div>
+      <div style="position:absolute;left:96px;bottom:46px;" class="slogan">Вместе создаём будущее · Москва, 2026</div>
+      <div class="pageno">14</div>
+    </div>
+  </section>
+
+</deck-stage>
+
+<script type="application/json" id="speaker-notes">
+[
+  "Здравствуйте, уважаемые члены комиссии. Тема моей выпускной работы — разработка приложения для объектной и скелетной анимации трёхмерных моделей с применением технологий виртуальной реальности. Работу выполнил Пищагин Максим, руководитель — Антонова Ирина Игоревна.",
+  "Цель работы — создать VR-приложение для объектной и скелетной анимации. Актуальность в том, что классические редакторы громоздки, а VR позволяет работать с объектами напрямую. Новизна — объединение объектной и скелетной анимации в одной среде с импортом своих моделей; для достижения цели поставлено пять задач.",
+  "Я рассмотрел три ближайших аналога — Quill, Tvori и AnimVR. Все они тяготеют к покадровому рисованию, и полноценной скелетной анимации с ригом нет ни у одного. Сравнительная таблица подтверждает: ниша остаётся незакрытой — это и стало отправной точкой работы.",
+  "Исследование методов показало: в VR интерфейсные панели уступают место прямому пространственному манипулированию, а подготовку рига логично оставить внешнему редактору. По итогам выбран Unity с C#, кроссплатформенный OpenXR и формат glTF.",
+  "На основе анализа сформированы функциональные требования по пяти областям: импорт данных, сцена, скелет, запись анимации по ключам и экспорт. Ключевое нефункциональное требование — автономная работа прямо на гарнитуре Meta Quest.",
+  "Архитектурно приложение — это направленный конвейер из пяти подсистем: от загрузки ресурсов и сборки сцены через работу со скелетом к записи анимации и экспорту. Каждая подсистема проработана отдельно.",
+  "Каркас держится на трёх вещах: событийная шина, через которую подсистемы общаются только сообщениями; иерархия областей жизни на внедрении зависимостей; и оркестратор режимов, безопасно переключающий сцены. Это даёт слабую связанность и расширяемость.",
+  "Данные приложения разбиты на три связанных контура: структура сцены, анимационные дорожки и библиотеки ассетов. Узел сцены ссылается на ассет, а дорожка анимации — на конкретный объект или кость; всё это хранится в версионируемых JSON-схемах.",
+  "Информационное обеспечение — это локальное хранилище с понятной структурой каталогов и версионируемыми JSON-схемами. Версионирование позволяет безопасно открывать проекты прежних версий, а изменения сохраняются автоматически.",
+  "Программное обеспечение — это то, что видит пользователь: пространственные панели, импорт моделей glTF, прокси-риги для управления костями и покадровая анимация. Ключи ставятся прямым манипулированием: захватил кость, повернул, зафиксировал кадр.",
+  "Технологически — это движок Unity с конвейером URP, открытый стандарт OpenXR и XR Interaction Toolkit. Работоспособность подтверждена на гарнитурах Meta Quest 2, 3 и 3s.",
+  "Теперь покажу полный цикл работы приложения вживую — от импорта модели до записи анимации и экспорта.",
+  "Развитие проекта — это экспорт в индустриальный формат FBX, нелинейная композиция действий, ограничители инверсной кинематики, система отмены и автономная сборка прямо на гарнитуре.",
+  "Поставленная цель достигнута, все пять задач выполнены — разработано приложение PromeonLab, покрывающее полный цикл создания анимации в VR. Спасибо за внимание, готов ответить на вопросы."
+]
+</script>
+<script src="deck-stage.js"></script>
+<script>
+(function(){
+  function stampNumbers(){
+    var secs = document.querySelectorAll('deck-stage > section');
+    secs.forEach(function(sec, i){
+      var s = sec.querySelector('.s'); if(!s) return;
+      var pn = s.querySelector('.pageno');
+      if(i === 0){ if(pn) pn.remove(); return; }
+      if(!pn){ pn = document.createElement('div'); pn.className = 'pageno'; s.appendChild(pn); }
+      pn.textContent = String(i + 1).padStart(2, '0');
+    });
+  }
+  if(document.readyState !== 'loading') stampNumbers();
+  else document.addEventListener('DOMContentLoaded', stampNumbers);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<svg viewBox="0 0 1280 600" xmlns="http://www.w3.org/2000/svg" role="img" font-family="'Helvetica Neue',Arial,sans-serif">
+  <title>План дальнейшего развития — лесенка из четырёх этапов</title>
+  <desc>Четыре восходящих этапа: отмена операций, масштабирование библиотек, ручной риггинг, индустриальный экспорт.</desc>
+  <rect x="0" y="0" width="1280" height="600" fill="#ffffff"/>
+
+  <rect x="45"  y="40" width="285" height="520" rx="14" fill="#F4FAFB"/>
+  <rect x="342" y="40" width="285" height="520" rx="14" fill="#EEF3FB"/>
+  <rect x="639" y="40" width="285" height="520" rx="14" fill="#F4FAFB"/>
+  <rect x="936" y="40" width="285" height="520" rx="14" fill="#EEF3FB"/>
+
+  <g stroke="#94CCD9" stroke-width="2" stroke-dasharray="4 7">
+    <line x1="336" y1="56" x2="336" y2="544"/>
+    <line x1="633" y1="56" x2="633" y2="544"/>
+    <line x1="930" y1="56" x2="930" y2="544"/>
+  </g>
+
+  <line x1="45" y1="560" x2="1221" y2="560" stroke="#94CCD9" stroke-width="2"/>
+
+  <rect x="72" y="348" width="230" height="210" rx="14" fill="#ffffff" stroke="#006A81" stroke-width="1.6"/>
+  <circle cx="187" cy="384" r="26" fill="#355CA8"/>
+  <text x="187" y="392" text-anchor="middle" font-size="24" font-weight="700" fill="#ffffff">1</text>
+  <text x="187" y="446" text-anchor="middle" font-size="22" font-weight="700" fill="#355CA8">Отмена операций</text>
+  <text x="187" y="480" text-anchor="middle" font-size="15" fill="#52617a">система undo</text>
+  <text x="187" y="500" text-anchor="middle" font-size="15" fill="#52617a">для действий</text>
+
+  <rect x="369" y="268" width="230" height="290" rx="14" fill="#ffffff" stroke="#006A81" stroke-width="1.6"/>
+  <circle cx="484" cy="304" r="26" fill="#355CA8"/>
+  <text x="484" y="312" text-anchor="middle" font-size="24" font-weight="700" fill="#ffffff">2</text>
+  <text x="484" y="366" text-anchor="middle" font-size="22" font-weight="700" fill="#355CA8">Масштабирование</text>
+  <text x="484" y="392" text-anchor="middle" font-size="22" font-weight="700" fill="#355CA8">библиотек</text>
+  <text x="484" y="430" text-anchor="middle" font-size="15" fill="#52617a">сохранение изменённых</text>
+  <text x="484" y="451" text-anchor="middle" font-size="15" fill="#52617a">объектов, поз и анимаций</text>
+  <text x="484" y="472" text-anchor="middle" font-size="15" fill="#52617a">внутри приложения</text>
+
+  <rect x="666" y="188" width="230" height="370" rx="14" fill="#ffffff" stroke="#006A81" stroke-width="1.6"/>
+  <circle cx="781" cy="224" r="26" fill="#355CA8"/>
+  <text x="781" y="232" text-anchor="middle" font-size="24" font-weight="700" fill="#ffffff">3</text>
+  <text x="781" y="286" text-anchor="middle" font-size="22" font-weight="700" fill="#355CA8">Ручной риггинг</text>
+  <text x="781" y="324" text-anchor="middle" font-size="15" fill="#52617a">ограничители</text>
+  <text x="781" y="345" text-anchor="middle" font-size="15" fill="#52617a">для объектов,</text>
+  <text x="781" y="366" text-anchor="middle" font-size="15" fill="#52617a">цепочки IK</text>
+
+  <rect x="963" y="88" width="230" height="470" rx="14" fill="#ffffff" stroke="#006A81" stroke-width="2"/>
+  <circle cx="1078" cy="124" r="26" fill="#006A81"/>
+  <text x="1078" y="132" text-anchor="middle" font-size="24" font-weight="700" fill="#ffffff">4</text>
+  <text x="1078" y="186" text-anchor="middle" font-size="22" font-weight="700" fill="#355CA8">Индустриальный</text>
+  <text x="1078" y="212" text-anchor="middle" font-size="22" font-weight="700" fill="#355CA8">экспорт</text>
+  <text x="1078" y="250" text-anchor="middle" font-size="15" fill="#52617a">FBX или разработка</text>
+  <text x="1078" y="271" text-anchor="middle" font-size="15" fill="#52617a">бриджа (Blender)</text>
+</svg>

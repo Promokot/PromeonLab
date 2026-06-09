@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "exportedAtUtc": "2026-06-09T14:25:31Z",
+  "fps": 24,
+  "scene": { "id": "a3f9c1d2", "name": "Робот — ходьба" },
+  "nodes": [
+    {
+      "nodeId": "n_floor",
+      "displayName": "Пол",
+      "parentNodeId": "",
+      "assetSource": "Builtin",
+      "assetId": "builtin.plane.grid",
+      "assetType": "Object",
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0, 1.0],
+      "scale": [4.0, 1.0, 4.0],
+      "geometryFile": "",
+      "geometryMissing": true
+    },
+    {
+      "nodeId": "n_ref_concept",
+      "displayName": "Референс — концепт",
+      "parentNodeId": "",
+      "assetSource": "Imported",
+      "assetId": "img_7c4e10ab",
+      "assetType": "Reference",
+      "position": [-1.85, 1.30, 0.40],
+      "rotation": [0.0, 0.0, 0.0, 1.0],
+      "scale": [1.0, 1.0, 1.0],
+      "geometryFile": "textures/img_7c4e10ab.png",
+      "geometryMissing": false
+    },
+    {
+      "nodeId": "n_crate",
+      "displayName": "Ящик",
+      "parentNodeId": "",
+      "assetSource": "Imported",
+      "assetId": "glb_2b9f54c1",
+      "assetType": "Object",
+      "position": [0.92, 0.25, -0.30],
+      "rotation": [0.0, 0.3826834, 0.0, 0.9238795],
+      "scale": [1.0, 1.0, 1.0],
+      "geometryFile": "models/glb_2b9f54c1.glb",
+      "geometryMissing": false,
+      "animation": {
+        "totalFrames": 48,
+        "interpolation": "Linear",
+        "loop": false,
+        "tracks": [
+          {
+            "targetNodeId": "n_crate",
+            "keys": [
+              { "frame": 0,  "position": [0.92, 0.25, -0.30], "rotation": [0.0, 0.3826834, 0.0, 0.9238795], "scale": [1.0, 1.0, 1.0] },
+              { "frame": 24, "position": [0.92, 0.95, -0.30], "rotation": [0.0, 0.7071068, 0.0, 0.7071068], "scale": [1.0, 1.0, 1.0] },
+              { "frame": 48, "position": [0.40, 0.25, -0.30], "rotation": [0.0, 1.0, 0.0, 0.0],             "scale": [1.0, 1.0, 1.0] }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "nodeId": "n_robot",
+      "displayName": "Робот",
+      "parentNodeId": "",
+      "assetSource": "Imported",
+      "assetId": "rig_d18a07f3",
+      "assetType": "Rig",
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0, 1.0],
+      "scale": [1.0, 1.0, 1.0],
+      "geometryFile": "models/rig_d18a07f3.glb",
+      "geometryMissing": false,
+      "bonePoses": [
+        { "boneName": "Root", "localPosition": [0.0, 0.92, 0.0], "localRotation": [0.0, 0.0, 0.0, 1.0], "localScale": [1.0, 1.0, 1.0] },
+        { "boneName": "Leg.L", "localPosition": [0.11, -0.04, 0.05], "localRotation": [0.2588190, 0.0, 0.0, 0.9659258], "localScale": [1.0, 1.0, 1.0] },
+        { "boneName": "Leg.R", "localPosition": [-0.11, -0.04, -0.05], "localRotation": [-0.2588190, 0.0, 0.0, 0.9659258], "localScale": [1.0, 1.0, 1.0] }
+      ],
+      "animation": {
+        "totalFrames": 32,
+        "interpolation": "Linear",
+        "loop": true,
+        "tracks": [
+          {
+            "targetNodeId": "bone:n_robot:Leg.L",
+            "keys": [
+              { "frame": 0,  "position": [0.11, -0.04, 0.05], "rotation": [0.2588190, 0.0, 0.0, 0.9659258],  "scale": [1.0, 1.0, 1.0] },
+              { "frame": 16, "position": [0.11, -0.04, 0.05], "rotation": [-0.2588190, 0.0, 0.0, 0.9659258], "scale": [1.0, 1.0, 1.0] },
+              { "frame": 32, "position": [0.11, -0.04, 0.05], "rotation": [0.2588190, 0.0, 0.0, 0.9659258],  "scale": [1.0, 1.0, 1.0] }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
