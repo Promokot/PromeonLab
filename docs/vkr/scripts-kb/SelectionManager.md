@@ -51,4 +51,4 @@ public void Select(string nodeId)
 > **О:** Подписчики вправе читать `SelectedNodeId` прямо в обработчике. Если бы публикация шла до обновления, `SelectionVisualSync` или `GizmoDriver` прочитали бы старое значение — рассинхрон. Порядок «сначала запись, потом публикация» — инвариант.
 
 ### Связи
-[[ISelectionManager]] · [[SelectionChangedEvent]] · [[SelectionVisualSync]] · [[GizmoDriver]] · [[XRPromeonInteractable]] · [[InspectorPanel]] · [[InteractionMaskBinder]] · [[EmptySpaceClickDeselector]] · [[Паттерн Publish-Subscribe]] · [[Внедрение зависимостей (VContainer)]]
+`ISelectionManager` · [[SelectionChangedEvent]] · [[SelectionVisualSync]] · [[GizmoDriver]] · [[XRPromeonInteractable]] · [[InspectorPanel]] · [[InteractionMaskBinder]] · [[EmptySpaceClickDeselector]] · [[Паттерн Publish-Subscribe]] · [[Внедрение зависимостей (VContainer)]]

@@ -74,4 +74,4 @@ public void OnPointerDown(PointerEventData _)
 
 ### Связи
 
-[[KeyboardFocusEvent]] · [[VrKeyboard]] · [[EventBus]] · [[RootLifetimeScope]] · [[Паттерн Publish-Subscribe]] · [[Внедрение зависимостей (VContainer)]] · [[UserPanel]] · [[SpatialPanel]]
+[[KeyboardFocusEvent]] · `VrKeyboard` · [[EventBus]] · [[RootLifetimeScope]] · [[Паттерн Publish-Subscribe]] · [[Внедрение зависимостей (VContainer)]] · [[UserPanel]] · [[SpatialPanel]]

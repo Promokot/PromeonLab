@@ -88,4 +88,4 @@ public void Hide()
 
 ### Связи
 
-[[PanelRegionRouter]] · [[IRegionSurface]] · [[NavBarConfig]] · [[RegionNavButton]] · [[Регионная модель UI]] · [[Внедрение зависимостей (VContainer)]]
+[[PanelRegionRouter]] · `IRegionSurface` · [[NavBarConfig]] · [[RegionNavButton]] · [[Регионная модель UI]] · [[Внедрение зависимостей (VContainer)]]

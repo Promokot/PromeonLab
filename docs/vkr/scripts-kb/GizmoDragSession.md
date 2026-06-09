@@ -121,4 +121,4 @@ private void EndDragInternal()
 > **О:** Guard `if (_target != null)` перед восстановлением позы — если GO удалён, Unity обнулит reference. Сессия всё равно корректно завершится: `_dragActive = false`, `GizmoDragEndedEvent` публикуется с сохранённым `id`.
 
 ### Связи
-[[GizmoDriver]] · [[AxisMoveStrategy]] · [[IGizmoDragStrategy]] · [[GizmoDragStartedEvent]] · [[GizmoDragEndedEvent]] · [[SelectionManager]] · [[Паттерн Publish-Subscribe]]
+[[GizmoDriver]] · [[AxisMoveStrategy]] · `IGizmoDragStrategy` · [[GizmoDragStartedEvent]] · [[GizmoDragEndedEvent]] · [[SelectionManager]] · [[Паттерн Publish-Subscribe]]

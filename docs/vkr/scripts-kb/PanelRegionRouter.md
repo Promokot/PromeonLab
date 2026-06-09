@@ -163,4 +163,4 @@ private static bool Alive(IRegionSurface s) =>
 
 ### Связи
 
-[[NavBarConfig]] · [[RegionMember]] · [[RegionNavButton]] · [[IRegionSurface]] · [[RegionChangedEvent]] · [[ModeChangedEvent]] · [[UserPanel]] · [[SpatialPanel]] · [[Регионная модель UI]] · [[Паттерн Publish-Subscribe]] · [[Внедрение зависимостей (VContainer)]]
+[[NavBarConfig]] · [[RegionMember]] · [[RegionNavButton]] · `IRegionSurface` · [[RegionChangedEvent]] · [[ModeChangedEvent]] · [[UserPanel]] · [[SpatialPanel]] · [[Регионная модель UI]] · [[Паттерн Publish-Subscribe]] · [[Внедрение зависимостей (VContainer)]]

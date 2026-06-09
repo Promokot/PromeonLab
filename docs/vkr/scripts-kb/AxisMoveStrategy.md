@@ -76,4 +76,4 @@ private static Vector3 LocalAxis(Transform target, AxisKind axis)
 > **О:** `Vector3.Dot` с нулевым вектором вернёт 0, `delta` всегда 0 — гизмо не двигается. Нулевой ось возникает только при нулевом `localScale` трансформа (что является вырожденным состоянием). В нормальной работе приложения это невозможно.
 
 ### Связи
-[[GizmoDragSession]] · [[GizmoDriver]] · [[IGizmoDragStrategy]] · [[XRPromeonInteractable]] · [[Прямой ввод вместо XRI]]
+[[GizmoDragSession]] · [[GizmoDriver]] · `IGizmoDragStrategy` · [[XRPromeonInteractable]] · [[Прямой ввод вместо XRI]]
