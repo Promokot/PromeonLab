@@ -15,6 +15,11 @@ public class ThesisScreenshotCapturer : MonoBehaviour
     private const string OVERLAY_NAME    = "[ThesisContinuousOverlay]";
     private const int    OVERLAY_SORT    = 32000;
 
+    // Fixed 16:9 output — independent of monitor aspect (ultrawides get letterboxed).
+    private const int    TARGET_WIDTH    = 1920;
+    private const int    TARGET_HEIGHT   = 1080;
+    private const float  TARGET_ASPECT   = 1920f / 1080f;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
     {
@@ -30,7 +35,6 @@ public class ThesisScreenshotCapturer : MonoBehaviour
     // Continuous-mode state — only allocated while ON.
     private bool _continuousMode;
     private RenderTexture _persistentRt;
-    private Vector2Int    _rtSize;
     private Canvas        _overlayCanvas;
     private RawImage      _overlayImage;
 
@@ -58,13 +62,6 @@ public class ThesisScreenshotCapturer : MonoBehaviour
     private void Update()
     {
         if (string.IsNullOrEmpty(_saveDir)) return;
-
-        // Resize persistent RT if game-view size changed.
-        if (_continuousMode && _persistentRt != null &&
-            (Screen.width != _rtSize.x || Screen.height != _rtSize.y))
-        {
-            ReallocPersistentRt();
-        }
 
         if (Keyboard.current != null && Keyboard.current.yKey.wasPressedThisFrame)
         {
@@ -122,6 +119,7 @@ public class ThesisScreenshotCapturer : MonoBehaviour
         _fakeCam.gameObject.SetActive(true);
         _fakeCam.stereoTargetEye = StereoTargetEyeMask.None;
         _fakeCam.targetTexture   = _persistentRt;
+        _fakeCam.aspect          = TARGET_ASPECT;
         _fakeCam.enabled         = true;
 
         var go = new GameObject(OVERLAY_NAME);
@@ -130,16 +128,33 @@ public class ThesisScreenshotCapturer : MonoBehaviour
         _overlayCanvas.renderMode  = RenderMode.ScreenSpaceOverlay;
         _overlayCanvas.sortingOrder = OVERLAY_SORT;
 
+        // Black backdrop — фиксирует ультравайд-полосы, без него за letterbox-краем сквозит HMD mirror.
+        var backdropGo = new GameObject("Backdrop");
+        backdropGo.transform.SetParent(go.transform, false);
+        var backdrop = backdropGo.AddComponent<RawImage>();
+        backdrop.color = Color.black;
+        backdrop.raycastTarget = false;
+        var brt = backdrop.rectTransform;
+        brt.anchorMin = Vector2.zero;
+        brt.anchorMax = Vector2.one;
+        brt.offsetMin = Vector2.zero;
+        brt.offsetMax = Vector2.zero;
+
+        // Letterboxed 16:9 image on top.
         var imgGo = new GameObject("Image");
         imgGo.transform.SetParent(go.transform, false);
         _overlayImage = imgGo.AddComponent<RawImage>();
+        _overlayImage.texture = _persistentRt;
+        _overlayImage.raycastTarget = false;
         var rt = _overlayImage.rectTransform;
         rt.anchorMin = Vector2.zero;
         rt.anchorMax = Vector2.one;
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
-        _overlayImage.texture = _persistentRt;
-        _overlayImage.raycastTarget = false;
+
+        var fitter = imgGo.AddComponent<AspectRatioFitter>();
+        fitter.aspectMode  = AspectRatioFitter.AspectMode.FitInParent;
+        fitter.aspectRatio = TARGET_ASPECT;
     }
 
     private void DisableContinuous()
@@ -148,6 +163,7 @@ public class ThesisScreenshotCapturer : MonoBehaviour
         {
             _fakeCam.enabled       = false;
             _fakeCam.targetTexture = null;
+            _fakeCam.ResetAspect();
             _fakeCam.gameObject.SetActive(false);
         }
         if (_overlayCanvas != null)
@@ -161,30 +177,25 @@ public class ThesisScreenshotCapturer : MonoBehaviour
             _persistentRt.Release();
             Destroy(_persistentRt);
             _persistentRt = null;
-            _rtSize       = default;
         }
     }
 
     private void ReallocPersistentRt()
     {
-        int w = Mathf.Max(1, Screen.width);
-        int h = Mathf.Max(1, Screen.height);
-
         if (_persistentRt != null)
         {
             _persistentRt.Release();
             Destroy(_persistentRt);
         }
-        _persistentRt = new RenderTexture(w, h, 24, RenderTextureFormat.ARGB32) { name = "[ThesisContinuousRT]" };
+        _persistentRt = new RenderTexture(TARGET_WIDTH, TARGET_HEIGHT, 24, RenderTextureFormat.ARGB32) { name = "[ThesisContinuousRT]" };
         _persistentRt.Create();
-        _rtSize = new Vector2Int(w, h);
 
         if (_fakeCam != null && _fakeCam.targetTexture != null)
             _fakeCam.targetTexture = _persistentRt;
         if (_overlayImage != null)
             _overlayImage.texture = _persistentRt;
 
-        Debug.Log($"[ThesisScreenshot] RT (re)allocated {w}x{h}.");
+        Debug.Log($"[ThesisScreenshot] RT allocated {TARGET_WIDTH}x{TARGET_HEIGHT} (locked 16:9).");
     }
 
     // -------------------- Still capture (Y) --------------------
@@ -241,18 +252,17 @@ public class ThesisScreenshotCapturer : MonoBehaviour
 
     private void RenderFakeCamToFile(string fullPath)
     {
-        int w = Mathf.Max(1, Screen.width);
-        int h = Mathf.Max(1, Screen.height);
-
-        var rt = RenderTexture.GetTemporary(w, h, 24, RenderTextureFormat.ARGB32);
+        var rt = RenderTexture.GetTemporary(TARGET_WIDTH, TARGET_HEIGHT, 24, RenderTextureFormat.ARGB32);
         var prevTarget = _fakeCam.targetTexture;
         var wasActive  = _fakeCam.gameObject.activeSelf;
 
         if (!wasActive) _fakeCam.gameObject.SetActive(true);
         _fakeCam.stereoTargetEye = StereoTargetEyeMask.None;
         _fakeCam.targetTexture   = rt;
+        _fakeCam.aspect          = TARGET_ASPECT;
         _fakeCam.Render();
         _fakeCam.targetTexture   = prevTarget;
+        _fakeCam.ResetAspect();
         if (!wasActive) _fakeCam.gameObject.SetActive(false);
 
         ReadRtToFile(rt, fullPath);
